@@ -2,7 +2,7 @@
 
 module RubyEventStore
   class Broker
-    def initialize(subscriptions:, dispatcher:)
+    def initialize(subscriptions: Subscriptions.new, dispatcher:)
       @subscriptions = subscriptions
       @dispatcher = dispatcher
     end
