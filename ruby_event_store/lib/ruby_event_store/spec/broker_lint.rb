@@ -90,6 +90,17 @@ RSpec.shared_examples 'broker' do |broker_klass|
     broker.add_thread_global_subscription(handler)
   end
 
+  specify "all_subscriptions_for" do
+    handler = Subscribers::ValidHandler.new
+    broker.add_subscription(handler, ["ProductAdded"])
+    block = Proc.new { "Event published!" }
+    broker.add_subscription(block, ["OrderCreated"])
+
+    expect(broker.all_subscriptions_for("ProductAdded")).to eq [handler]
+    expect(broker.all_subscriptions_for("OrderCreated")).to eq [block]
+    expect(broker.all_subscriptions_for("NotExistingOne")).to eq []
+  end
+
   private
 
   class HandlerClass

@@ -167,7 +167,7 @@ module RubyEventStore
     # @param to [Class, String] type of events to get list of sybscribed handlers
     # @return [Array<Object, Class>]
     def subscribers_for(event_class)
-      subscriptions.all_for(event_type_resolver.call(event_class))
+      broker.all_subscriptions_for(event_type_resolver.call(event_class))
     end
 
     # Builder object for collecting temporary handlers (subscribers)
@@ -373,6 +373,6 @@ module RubyEventStore
       -> { SecureRandom.uuid }
     end
 
-    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator, :event_type_resolver
+    attr_reader :repository, :mapper, :broker, :clock, :correlation_id_generator, :event_type_resolver
   end
 end
