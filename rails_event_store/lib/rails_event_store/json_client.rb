@@ -63,22 +63,7 @@ module RailsEventStore
       correlation_id_generator: default_correlation_id_generator,
       request_metadata: default_request_metadata
     )
-      super(
-        mapper:
-          RubyEventStore::Mappers::InstrumentedMapper.new(mapper, ActiveSupport::Notifications),
-        repository:
-          RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
-        subscriptions:
-          RubyEventStore::InstrumentedSubscriptions.new(
-            subscriptions,
-            ActiveSupport::Notifications,
-          ),
-        clock: clock,
-        correlation_id_generator: correlation_id_generator,
-        dispatcher:
-          RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications),
-      )
-      @request_metadata = request_metadata
+      super
     end
   end
 end
