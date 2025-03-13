@@ -38,6 +38,26 @@ module RailsEventStore
         )
       )
       @request_metadata = request_metadata
+
+      if (subscriptions || dispatcher)
+        warn <<~EOW
+          Passing subscriptions and dispatcher to #{self.class} has been deprecated.
+
+          Pass it using message_broker argument. For example:
+
+          event_store = #{self.class}.new(
+            message_broker: RubyEventStore::Broker.new(
+              subscriptions: RubyEventStore::Subscriptions.new,
+              dispatcher: RubyEventStore::ComposedDispatcher.new(
+                RailsEventStore::AfterCommitAsyncDispatcher.new(
+                  scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+                ),
+                RubyEventStore::Dispatcher.new
+              )
+            )
+          )
+        EOW
+      end
     end
 
     def with_request_metadata(env, &block)
