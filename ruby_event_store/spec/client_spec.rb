@@ -880,10 +880,12 @@ module RubyEventStore
       client =
         Client.new(
           repository: InMemoryRepository.new(serializer: serializer),
-          dispatcher:
-            ImmediateAsyncDispatcher.new(
-              scheduler: ScheduledWithSerialization.new(serializer: serializer)
-            )
+          message_broker: Broker.new(
+            dispatcher:
+              ImmediateAsyncDispatcher.new(
+                scheduler: ScheduledWithSerialization.new(serializer: serializer)
+              )
+          )
         )
       uuid = SecureRandom.uuid
       client.subscribe(to: [OrderCreated]) do |event|
@@ -902,10 +904,12 @@ module RubyEventStore
       client =
         Client.new(
           repository: InMemoryRepository.new(serializer: serializer_1),
-          dispatcher:
-            ImmediateAsyncDispatcher.new(
-              scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
-            )
+          message_broker: Broker.new(
+            dispatcher:
+              ImmediateAsyncDispatcher.new(
+                scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
+              )
+          )
         )
       uuid = SecureRandom.uuid
       client.subscribe(to: [OrderCreated]) do |event|

@@ -27,11 +27,13 @@ module RubyEventStore
       client =
         Client.new(
           mapper: Protobuf::Mappers::Protobuf.new,
-          dispatcher:
-            ComposedDispatcher.new(
-              ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: NULL)),
-              Dispatcher.new
-            )
+          message_broker: RubyEventStore::Broker.new(
+            dispatcher:
+              ComposedDispatcher.new(
+                ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: NULL)),
+                Dispatcher.new
+              )
+          )
         )
       client.subscribe(->(ev) { @ev = ev }, to: [ResTesting::OrderCreated.descriptor.name])
       client.subscribe(AsyncProtoHandler, to: [ResTesting::OrderCreated.descriptor.name])
