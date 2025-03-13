@@ -24,6 +24,21 @@ module RubyEventStore
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
       @event_type_resolver = event_type_resolver
+
+      if (subscriptions || dispatcher)
+        warn <<~EOW
+          Passing subscriptions and dispatcher to #{self.class} has been deprecated.
+
+          Pass it using message_broker argument. For example:
+
+          event_store = RubyEventStore::Client.new(
+            message_broker: RubyEventStore::Broker.new(
+              subscriptions: RubyEventStore::Subscriptions.new,
+              dispatcher: RubyEventStore::Dispatcher.new
+            )
+          )
+        EOW
+      end
     end
 
     # Persists events and notifies subscribed handlers about them
