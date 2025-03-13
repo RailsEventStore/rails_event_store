@@ -59,6 +59,7 @@ module RailsEventStore
         ),
         RubyEventStore::Dispatcher.new,
       ),
+      message_broker: nil,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
       request_metadata: default_request_metadata
@@ -77,6 +78,7 @@ module RailsEventStore
         correlation_id_generator: correlation_id_generator,
         dispatcher:
           RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications),
+        message_broker: message_broker,
       )
       @request_metadata = request_metadata
     end
