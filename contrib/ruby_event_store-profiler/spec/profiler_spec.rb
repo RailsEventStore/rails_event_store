@@ -9,7 +9,9 @@ module RubyEventStore
       Client.new(
         repository: InstrumentedRepository.new(InMemoryRepository.new, instrumenter),
         mapper: Mappers::InstrumentedMapper.new(Mappers::Default.new, instrumenter),
-        dispatcher: InstrumentedDispatcher.new(Dispatcher.new, instrumenter)
+        message_broker: RubyEventStore::Broker.new(
+          dispatcher: InstrumentedDispatcher.new(Dispatcher.new, instrumenter)
+        )
       )
     end
 
