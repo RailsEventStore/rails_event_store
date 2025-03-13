@@ -32,6 +32,10 @@ module RubyEventStore
       subscriptions.add_thread_global_subscription(subscriber)
     end
 
+    def all_subscriptions_for(event_type)
+      subscriptions.all_for(event_type)
+    end
+
     private
 
     attr_reader :dispatcher, :subscriptions
