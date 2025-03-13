@@ -52,35 +52,14 @@ module RailsEventStore
       repository: RubyEventStore::ActiveRecord::EventRepository.new(
         serializer: RubyEventStore::NULL,
       ),
-      subscriptions: RubyEventStore::Subscriptions.new,
-      dispatcher: RubyEventStore::ComposedDispatcher.new(
-        RailsEventStore::AfterCommitAsyncDispatcher.new(
-          scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-        ),
-        RubyEventStore::Dispatcher.new,
-      ),
+      subscriptions: nil,
+      dispatcher: nil,
       message_broker: nil,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
       request_metadata: default_request_metadata
     )
-      super(
-        mapper:
-          RubyEventStore::Mappers::InstrumentedMapper.new(mapper, ActiveSupport::Notifications),
-        repository:
-          RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
-        subscriptions:
-          RubyEventStore::InstrumentedSubscriptions.new(
-            subscriptions,
-            ActiveSupport::Notifications,
-          ),
-        clock: clock,
-        correlation_id_generator: correlation_id_generator,
-        dispatcher:
-          RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications),
-        message_broker: message_broker,
-      )
-      @request_metadata = request_metadata
+      super
     end
   end
 end
