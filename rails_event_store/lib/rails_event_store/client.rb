@@ -7,13 +7,9 @@ module RailsEventStore
     def initialize(
       mapper: RubyEventStore::Mappers::Default.new,
       repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
-      subscriptions: RubyEventStore::Subscriptions.new,
-      dispatcher: RubyEventStore::ComposedDispatcher.new(
-        RailsEventStore::AfterCommitAsyncDispatcher.new(
-          scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
-        ),
-        RubyEventStore::Dispatcher.new
-      ),
+      subscriptions: nil,
+      dispatcher: nil,
+      message_broker: nil,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
       request_metadata: default_request_metadata
@@ -21,10 +17,25 @@ module RailsEventStore
       super(
         repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
         mapper: RubyEventStore::Mappers::InstrumentedMapper.new(mapper, ActiveSupport::Notifications),
-        subscriptions: RubyEventStore::InstrumentedSubscriptions.new(subscriptions, ActiveSupport::Notifications),
+        subscriptions: nil,
         clock: clock,
         correlation_id_generator: correlation_id_generator,
-        dispatcher: RubyEventStore::InstrumentedDispatcher.new(dispatcher, ActiveSupport::Notifications)
+        dispatcher: nil,
+        message_broker: message_broker || RubyEventStore::Broker.new(
+          subscriptions: RubyEventStore::InstrumentedSubscriptions.new(
+            subscriptions || RubyEventStore::Subscriptions.new,
+            ActiveSupport::Notifications
+          ),
+          dispatcher: RubyEventStore::InstrumentedDispatcher.new(
+            dispatcher || RubyEventStore::ComposedDispatcher.new(
+              RailsEventStore::AfterCommitAsyncDispatcher.new(
+                scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+              ),
+              RubyEventStore::Dispatcher.new
+            ),
+            ActiveSupport::Notifications
+          ),
+        )
       )
       @request_metadata = request_metadata
     end
