@@ -8,6 +8,10 @@ module RubyEventStore
     def initialize(repository, mapper)
       @repository = repository
       @mapper = mapper
+      @batch_mapper = mapper.respond_to?(:map_records_to_events)
+      if !@batch_mapper
+        warn "Your custom mapper does not support batch reading. This behaviour will be deprecated in future releases. You can include RubyEventStore::Mappers::BatchMapping to your mapper to make it compatible."
+      end
     end
 
     # @api private
@@ -20,7 +24,15 @@ module RubyEventStore
     # @api private
     # @private
     def each(specification_result)
-      repository.read(specification_result).each { |batch| yield mapper.each_record_to_event(batch) }
+      if @batch_mapper
+        repository.read(specification_result).each { |batch|
+          yield mapper.map_records_to_events(batch)
+        }
+      else
+        repository.read(specification_result).each { |batch|
+          yield batch.map { |record| mapper.record_to_event(record) }
+        }
+      end
     end
 
     # @api private
