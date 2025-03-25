@@ -1,3 +1,7 @@
+### 0.0.29  2025-03-25
+
+* Fix an issue with uninitialized constant `RubyEventStore::Outbox::RetriableError` when using `bin/res_outbox`
+
 ### 0.0.28  2024-04-12
 
 * Fix issues that prevent res_outbox CLI from processing
