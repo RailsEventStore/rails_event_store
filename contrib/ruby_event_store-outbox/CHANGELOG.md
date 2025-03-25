@@ -1,3 +1,8 @@
+### 0.0.30  2025-03-25
+
+* Fix an issue with `res_outbox` not starting due to inability to require `sidekiq`.
+  Sidekiq is only available in a producer context, while res_outbox is a consumer.
+
 ### 0.0.29  2025-03-25
 
 * Fix an issue with uninitialized constant `RubyEventStore::Outbox::RetriableError` when using `bin/res_outbox`
