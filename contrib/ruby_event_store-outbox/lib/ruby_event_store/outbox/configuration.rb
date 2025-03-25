@@ -11,7 +11,8 @@ module RubyEventStore
         redis_url:,
         cleanup:,
         cleanup_limit:,
-        sleep_on_empty:
+        sleep_on_empty:,
+        repository:
       )
         @split_keys = split_keys
         @message_format = message_format
@@ -21,6 +22,7 @@ module RubyEventStore
         @cleanup = cleanup
         @cleanup_limit = cleanup_limit
         @sleep_on_empty = sleep_on_empty
+        @repository = repository
         freeze
       end
 
@@ -33,7 +35,8 @@ module RubyEventStore
           redis_url: overriden_options.fetch(:redis_url, redis_url),
           cleanup: overriden_options.fetch(:cleanup, cleanup),
           cleanup_limit: overriden_options.fetch(:cleanup_limit, cleanup_limit),
-          sleep_on_empty: overriden_options.fetch(:sleep_on_empty, sleep_on_empty)
+          sleep_on_empty: overriden_options.fetch(:sleep_on_empty, sleep_on_empty),
+          repository: overriden_options.fetch(:repository, repository),
         )
       end
 
@@ -44,7 +47,8 @@ module RubyEventStore
         :redis_url,
         :cleanup,
         :cleanup_limit,
-        :sleep_on_empty
+        :sleep_on_empty,
+        :repository
     end
   end
 end

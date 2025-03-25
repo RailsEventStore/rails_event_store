@@ -28,7 +28,14 @@ module RubyEventStore
         redis_config = RedisClient.config(url: configuration.redis_url)
         @processor = SidekiqProcessor.new(redis_config.new_client)
 
-        @repository = Repository.new(configuration.database_url)
+        @repository = case configuration.repository
+          when :locking
+            Repository.new(configuration.database_url)
+          when :non_locking
+            NonLockingRepository.new(configuration.database_url)
+          else
+            raise ArgumentError, "Unknown repository: #{configuration.repository}"
+          end
         @cleanup_strategy = CleanupStrategies.build(configuration, repository)
       end
 

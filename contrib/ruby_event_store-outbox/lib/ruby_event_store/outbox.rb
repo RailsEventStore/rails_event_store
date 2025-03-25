@@ -2,6 +2,7 @@
 
 require_relative "outbox/fetch_specification"
 require_relative "outbox/repository"
+require_relative "outbox/non_locking_repository"
 require_relative "outbox/sidekiq_scheduler"
 require_relative "outbox/version"
 require_relative "outbox/tempo"
