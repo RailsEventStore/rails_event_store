@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-
+require "ruby_event_store/outbox"
 require "ruby_event_store/outbox/cli"
 
 cli = RubyEventStore::Outbox::CLI.new
