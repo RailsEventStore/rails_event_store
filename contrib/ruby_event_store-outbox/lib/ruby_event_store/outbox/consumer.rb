@@ -109,7 +109,7 @@ module RubyEventStore
       def handle_failure(batch_result)
         retried = false
         yield
-      rescue RetriableError => error
+      rescue RetriableRedisError => error
         if retried
           batch_result.count_failed!
           log_error(error)

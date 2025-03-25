@@ -4,6 +4,9 @@ require_relative "sidekiq5_format"
 
 module RubyEventStore
   module Outbox
+    Error = Class.new(StandardError)
+    RetriableRedisError = Class.new(Error)
+
     class SidekiqProcessor
       InvalidPayload = Class.new(StandardError)
 
@@ -23,7 +26,7 @@ module RubyEventStore
 
         @recently_used_queues << queue
       rescue RedisClient::TimeoutError, RedisClient::ConnectionError
-        raise RetriableError
+        raise RetriableRedisError
       end
 
       def after_batch

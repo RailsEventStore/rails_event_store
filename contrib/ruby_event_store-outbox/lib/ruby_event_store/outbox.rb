@@ -1,12 +1,5 @@
 # frozen_string_literal: true
 
-module RubyEventStore
-  module Outbox
-    Error = Class.new(StandardError)
-    RetriableError = Class.new(Error)
-  end
-end
-
 require_relative "outbox/fetch_specification"
 require_relative "outbox/repository"
 require_relative "outbox/sidekiq_scheduler"
