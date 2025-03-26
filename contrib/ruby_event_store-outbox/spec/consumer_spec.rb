@@ -37,19 +37,21 @@ module RubyEventStore
           expect(redis.call("LLEN", "queue:default")).to eq(1)
           payload_in_redis = JSON.parse(redis.call("LINDEX", "queue:default", 0))
           expect(payload_in_redis).to include(JSON.parse(record.payload))
-          expect(payload_in_redis["enqueued_at"]).to eq(clock.tick(1).to_f)
-          expect(record.enqueued_at).to eq(clock.tick(1))
+          expect(payload_in_redis["enqueued_at"]).to eq(clock.tick(locking ? 1 : 0).to_f)
+          expect(record.enqueued_at).to eq(clock.tick(locking ? 1 : 0))
           expect(result).to eq(true)
           expect(logger_output.string).to include("Sent 1 messages from outbox table")
         end
 
         specify "push multiple jobs to different queues" do
-          create_record("default", "default")
-          create_record("default", "default")
-          create_record("default2", "default2")
           clock = TickingClock.new
           consumer =
             Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
+          pick_up_the_pace(consumer, default_configuration.batch_size)
+
+          create_record("default", "default")
+          create_record("default", "default")
+          create_record("default2", "default2")
 
           consumer.process
 
@@ -77,7 +79,6 @@ module RubyEventStore
           expect(result).to eq(false)
         end
 
-
         specify "already processed should be ignored" do
           record = create_record("default", "default")
           record.update!(enqueued_at: Time.now.utc)
@@ -87,7 +88,7 @@ module RubyEventStore
 
           expect(result).to eq(false)
           expect(redis.call("LLEN", "queue:default")).to eq(0)
-          expect(logger_output.string).to be_empty
+          expect(logger_output.string).to include("Sent 0 messages from outbox table")
         end
 
         specify "other format should be ignored" do
@@ -98,7 +99,7 @@ module RubyEventStore
 
           expect(result).to eq(false)
           expect(redis.call("LLEN", "queue:default")).to eq(0)
-          expect(logger_output.string).to be_empty
+          expect(logger_output.string).to include("Sent 0 messages from outbox table")
         end
 
         specify "records from other split keys should be ignored" do
@@ -109,7 +110,7 @@ module RubyEventStore
 
           expect(result).to eq(false)
           expect(redis.call("LLEN", "queue:other_one")).to eq(0)
-          expect(logger_output.string).to be_empty
+          expect(logger_output.string).to include("Sent 0 messages from outbox table")
         end
 
         xspecify "all split keys should be taken if split_keys is nil" do
@@ -150,12 +151,13 @@ module RubyEventStore
         end
 
         specify "incorrect payload wont cause later messages to schedule" do
-          record1 = create_record("default", "default")
-          record1.update!(payload: "unparsable garbage")
-          record2 = create_record("default", "default")
           clock = TickingClock.new
           consumer =
             Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
+          pick_up_the_pace(consumer, default_configuration.batch_size)
+          record1 = create_record("default", "default")
+          record1.update!(payload: "unparsable garbage")
+          record2 = create_record("default", "default")
 
           result = consumer.process
 
@@ -230,26 +232,6 @@ module RubyEventStore
           expect(record.reload.enqueued_at).to be_nil
         end
 
-        specify "there are multiple batches in one loop" do
-          consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-          records = (default_configuration.batch_size + 1).times.map { |r| create_record("default", "default") }
-
-          result = consumer.process
-
-          records.each(&:reload)
-          expect(records.select { |r| r.enqueued? }.size).to eq(101)
-          expect(result).to eq(true)
-        end
-
-        specify "lock is refreshed after each batch" do
-          skip "https://github.com/rspec/rspec-mocks/issues/1306" if RUBY_VERSION >= "3.0"
-          consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-          2.times.map { |r| create_record("default", "default") }
-          expect_any_instance_of(Repository::Lock).to receive(:refresh).twice.and_call_original
-
-          consumer.process
-        end
-
         specify "clean old jobs" do
           create_record("default", "default")
           clock = TickingClock.new
@@ -272,7 +254,6 @@ module RubyEventStore
         end
 
         specify "clean old jobs with limit" do
-          3.times.map { create_record("default", "default") }
           clock = TickingClock.new
           consumer =
             Consumer.new(
@@ -282,6 +263,8 @@ module RubyEventStore
               logger: logger,
               metrics: null_metrics
             )
+          pick_up_the_pace(consumer, default_configuration.batch_size)
+          3.times.map { create_record("default", "default") }
           consumer.process
           expect(redis.call("LLEN", "queue:default")).to eq(3)
           expect(Repository::Record.count).to eq(3)
@@ -352,11 +335,31 @@ module RubyEventStore
             cleanup: :none,
             cleanup_limit: :all,
             sleep_on_empty: 1,
-            repository: repository
+            locking: locking
           )
         end
-        let(:repository) { :locking }
+        let(:locking) { true }
         it_behaves_like "a consumer"
+
+        specify "there are multiple batches in one loop" do
+          consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
+          pick_up_the_pace(consumer, default_configuration.batch_size)
+          records = (default_configuration.batch_size + 1).times.map { |r| create_record("default", "default") }
+
+          result = consumer.process
+
+          records.each(&:reload)
+          expect(records.select { |r| r.enqueued? }.size).to eq(101)
+          expect(result).to eq(true)
+        end
+
+        specify "lock is refreshed after each batch" do
+          consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
+          2.times.map { |r| create_record("default", "default") }
+          expect_any_instance_of(Repository::Lock).to receive(:refresh).twice.and_call_original
+
+          consumer.process
+        end
 
         specify "deadlock when obtaining lock just skip that attempt" do
           expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::Deadlocked)
@@ -452,7 +455,7 @@ module RubyEventStore
           create_record("default", "default")
           allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
             if caller.any? do |l|
-              l.include?("in `release'") || # Ruby < 3.4
+              l.include?("in release") || # Ruby < 3.4
                 l.include?("in 'RubyEventStore::Outbox::Repository::Lock.release'") # Ruby 3.4+
             end
               raise ::ActiveRecord::LockWaitTimeout
@@ -496,7 +499,7 @@ module RubyEventStore
           clock = TickingClock.new
           consumer =
             Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: test_metrics)
-          allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
+          allow(Repository::Lock).to receive(:release).and_wrap_original do |m, *args|
             Repository::Lock.delete_all
             m.call(*args)
           end
@@ -516,7 +519,7 @@ module RubyEventStore
           clock = TickingClock.new
           consumer =
             Consumer.new(SecureRandom.uuid, default_configuration, clock: clock, logger: logger, metrics: null_metrics)
-          allow(consumer).to receive(:release_lock_for_process).and_wrap_original do |m, *args|
+          allow(Repository::Lock).to receive(:release).and_wrap_original do |m, *args|
             Repository::Lock.update_all(locked_by: SecureRandom.uuid)
             m.call(*args)
           end
@@ -588,62 +591,13 @@ module RubyEventStore
             cleanup: :none,
             cleanup_limit: :all,
             sleep_on_empty: 1,
-            repository: repository
+            locking: locking
           )
         end
-        let(:repository) { :non_locking }
+        let(:locking) { false }
 
-        if ENV["DATABASE_URL"].to_s =~ /sqlite/
-          specify "does not support non-locking repository with SQLite3 adapter" do
-            expect { Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics) }
-              .to raise_error(/sqlite does not support SKIP LOCKED/)
-          end
-        else
-          it_behaves_like "a consumer"
+        it_behaves_like "a consumer"
 
-          specify "consumers are non-locking and don't need to wait for a lock when other processes are locking some records" do
-            consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-            expect(consumer_1).to receive(:retrieve_batch).and_raise("Unexpected error, such as OOM").ordered
-            expect { consumer_1.process }.to raise_error(/Unexpected error/)
-
-            create_record("default", "default")
-            create_record("default2", "default2")
-            consumer_2 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
-
-            result = consumer_2.process
-
-            # We don't expect both records to be processed (because one of the Locks may be obtained by crashed process, but we expect to do SOME work in ANY splits.
-            expect(result).to eq(true)
-            expect(Repository::Record.where("enqueued_at is not null").count).to be_positive
-          end
-
-        end
-
-      end
-
-      def create_record(queue, split_key, format: "sidekiq5")
-        payload = {
-          class: "SomeAsyncHandler",
-          queue: queue,
-          created_at: Time.now.utc,
-          jid: SecureRandom.hex(12),
-          retry: true,
-          args: [
-            {
-              event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-              event_type: "RubyEventStore::Event",
-              data: "--- {}\n",
-              metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n"
-            }
-          ]
-        }
-        Repository::Record.create!(
-          split_key: split_key,
-          created_at: Time.now.utc,
-          format: format,
-          enqueued_at: nil,
-          payload: payload.to_json
-        )
       end
     end
   end
