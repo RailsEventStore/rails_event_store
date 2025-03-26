@@ -15,8 +15,40 @@ require "active_support/testing/time_helpers.rb"
 
 ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 
+module RecordHelper
+  def pick_up_the_pace(consumer, batch_size)
+    (Math.log2(batch_size).round + 1).times { consumer.process }
+  end
+
+  def create_record(queue, split_key, format: "sidekiq5")
+    payload = {
+      class: "SomeAsyncHandler",
+      queue: queue,
+      created_at: Time.now.utc,
+      jid: SecureRandom.hex(12),
+      retry: true,
+      args: [
+        {
+          event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
+          event_type: "RubyEventStore::Event",
+          data: "--- {}\n",
+          metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n"
+        }
+      ]
+    }
+    RubyEventStore::Outbox::Repository::Record.create!(
+      split_key: split_key,
+      created_at: Time.now.utc,
+      format: format,
+      enqueued_at: nil,
+      payload: payload.to_json
+    )
+  end
+end
+
 RSpec.configure do |config|
   config.include ActiveSupport::Testing::TimeHelpers
+  config.include RecordHelper
   config.after(:each) { travel_back }
   config.before(:each, redis: true) { |_| redis.call("FLUSHDB") }
 end

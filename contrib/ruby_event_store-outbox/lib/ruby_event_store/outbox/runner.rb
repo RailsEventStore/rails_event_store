@@ -8,12 +8,14 @@ module RubyEventStore
         @logger = logger
         @sleep_on_empty = configuration.sleep_on_empty
         @split_keys = configuration.split_keys
+        @locking = configuration.locking
         @gracefully_shutting_down = false
         prepare_traps
       end
 
       def run
         logger.info("Initiated RubyEventStore::Outbox v#{VERSION}")
+        logger.info("Using #{@locking ? "locking" : "non-locking"} mode")
         logger.info("Handling split keys: #{split_keys ? split_keys.join(", ") : "(all of them)"}")
 
         while !@gracefully_shutting_down

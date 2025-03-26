@@ -13,12 +13,14 @@ module RubyEventStore
       let(:some_process_uuid) { SecureRandom.uuid }
       let(:other_process_uuid) { SecureRandom.uuid }
       let(:clock) { TickingClock.new }
+      let(:logger) { Logger.new(logger_output) }
+      let(:logger_output) { StringIO.new }
+      let(:null_metrics) { Metrics::Null.new }
 
       specify "successful obtaining returns Lock structure" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
 
-        lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
 
         expect(lock).to be_a(Repository::Lock)
         expect(lock.fetch_specification).to eq(expected_fetch_specification)
@@ -27,50 +29,46 @@ module RubyEventStore
       end
 
       specify "Lock is not considered locked after some time" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
 
-        result = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        result = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         wait_for_lock_duration
 
         expect(result).not_to be_recently_locked(clock: clock)
       end
 
       specify "trying to obtain taken Lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
 
-        result = repository.obtain_lock_for_process(expected_fetch_specification, other_process_uuid, clock: clock)
+        result = Repository::Lock.obtain(expected_fetch_specification, other_process_uuid, clock: clock)
 
         expect(result).to be(:taken)
       end
 
       specify "obtains a lock for given fetch specification" do
-        repository = Repository.new(database_url)
-        repository.obtain_lock_for_process(
+        Repository::Lock.obtain(
           FetchSpecification.new("other_message_format", split_key),
           some_process_uuid,
           clock: clock
         )
-        repository.obtain_lock_for_process(
+        Repository::Lock.obtain(
           FetchSpecification.new(message_format, "other_split_key"),
           some_process_uuid,
           clock: clock
         )
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
 
-        lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
 
         expect(lock.fetch_specification).to eq(expected_fetch_specification)
       end
 
       specify "successful release" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
 
-        result = repository.release_lock_for_process(expected_fetch_specification, some_process_uuid)
+        result = Repository::Lock.release(expected_fetch_specification, some_process_uuid)
 
         expect(result).to be(:ok)
         lock.reload
@@ -79,81 +77,73 @@ module RubyEventStore
       end
 
       specify "released lock can be obtained by other process" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
 
-        repository.release_lock_for_process(expected_fetch_specification, some_process_uuid)
+        Repository::Lock.release(expected_fetch_specification, some_process_uuid)
 
-        result = repository.obtain_lock_for_process(expected_fetch_specification, other_process_uuid, clock: clock)
+        result = Repository::Lock.obtain(expected_fetch_specification, other_process_uuid, clock: clock)
         expect(result).to be_a(Repository::Lock)
       end
 
       specify "cant release not obtained lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
 
-        result = repository.release_lock_for_process(expected_fetch_specification, some_process_uuid)
+        result = Repository::Lock.release(expected_fetch_specification, some_process_uuid)
 
         expect(result).to be(:not_taken_by_this_process)
       end
 
       specify "one process cant release other's lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
 
-        result = repository.release_lock_for_process(expected_fetch_specification, other_process_uuid)
+        result = Repository::Lock.release(expected_fetch_specification, other_process_uuid)
 
         expect(result).to be(:not_taken_by_this_process)
       end
 
       specify "lock timeout when obtaining Lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
         expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::LockWaitTimeout)
 
-        result = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        result = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
 
         expect(result).to be(:lock_timeout)
       end
 
       specify "deadlock when obtaining Lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
         expect(Repository::Lock).to receive(:create!).and_raise(::ActiveRecord::Deadlocked)
 
-        result = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        result = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
 
         expect(result).to be(:deadlocked)
       end
 
       specify "lock timeout when releasing lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::LockWaitTimeout)
 
-        result = repository.release_lock_for_process(expected_fetch_specification, some_process_uuid)
+        result = Repository::Lock.release(expected_fetch_specification, some_process_uuid)
 
         expect(result).to be(:lock_timeout)
       end
 
       specify "deadlock when releasing lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::Deadlocked)
 
-        result = repository.release_lock_for_process(expected_fetch_specification, some_process_uuid)
+        result = Repository::Lock.release(expected_fetch_specification, some_process_uuid)
 
         expect(result).to be(:deadlocked)
       end
 
       specify "refreshing lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         clock.test_travel (Repository::RECENTLY_LOCKED_DURATION / 2)
 
         result = lock.refresh(clock: clock)
@@ -165,13 +155,12 @@ module RubyEventStore
       end
 
       specify "refreshing lock when other process stole it" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
         lock_for_some_process =
-          repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+          Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         wait_for_lock_duration
         lock_for_other_process =
-          repository.obtain_lock_for_process(expected_fetch_specification, other_process_uuid, clock: clock)
+          Repository::Lock.obtain(expected_fetch_specification, other_process_uuid, clock: clock)
 
         result = lock_for_some_process.refresh(clock: clock)
 
@@ -179,9 +168,8 @@ module RubyEventStore
       end
 
       specify "lock timeout when refreshing lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         expect(lock).to receive(:lock!).and_raise(::ActiveRecord::LockWaitTimeout)
 
         result = lock.refresh(clock: clock)
@@ -190,9 +178,8 @@ module RubyEventStore
       end
 
       specify "deadlocked when refreshing lock" do
-        repository = Repository.new(database_url)
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        lock = repository.obtain_lock_for_process(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         expect(lock).to receive(:lock!).and_raise(::ActiveRecord::Deadlocked)
 
         result = lock.refresh(clock: clock)

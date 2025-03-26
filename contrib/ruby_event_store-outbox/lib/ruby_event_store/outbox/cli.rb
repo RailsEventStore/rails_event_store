@@ -21,7 +21,7 @@ module RubyEventStore
         cleanup_strategy: :none,
         cleanup_limit: :all,
         sleep_on_empty: 0.5,
-        repository: :locking,
+        locking: true,
       }
       Options = Struct.new(*DEFAULTS.keys)
 
@@ -85,11 +85,9 @@ module RubyEventStore
                 "How long to sleep before next check when there was nothing to do. Default: 0.5"
               ) { |sleep_on_empty| options.sleep_on_empty = sleep_on_empty }
 
-              option_parser.on(
-                "--repository=REPOSITORY",
-                %i[locking non_locking],
-                "Repository to use. One of: locking or non_locking. non_locking repository requires MySQL or PostgreSQL as it is using `SKIP LOCKED` clause. Default: locking"
-              )
+              option_parser.on("-l", "--[no-]lock", "Lock split key in consumer") do |locking|
+                options.locking = locking
+              end
 
               option_parser.on_tail("--version", "Show version") do
                 puts VERSION
@@ -119,7 +117,7 @@ module RubyEventStore
           cleanup: options.cleanup_strategy,
           cleanup_limit: options.cleanup_limit,
           sleep_on_empty: options.sleep_on_empty,
-          repository: options.repository
+          locking: options.locking
         )
         metrics = Metrics.from_url(options.metrics_url)
         outbox_consumer =

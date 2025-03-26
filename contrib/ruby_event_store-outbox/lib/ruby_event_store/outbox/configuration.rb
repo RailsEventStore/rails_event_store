@@ -12,7 +12,7 @@ module RubyEventStore
         cleanup:,
         cleanup_limit:,
         sleep_on_empty:,
-        repository:
+        locking:
       )
         @split_keys = split_keys
         @message_format = message_format
@@ -22,7 +22,7 @@ module RubyEventStore
         @cleanup = cleanup
         @cleanup_limit = cleanup_limit
         @sleep_on_empty = sleep_on_empty
-        @repository = repository
+        @locking = locking
         freeze
       end
 
@@ -36,7 +36,7 @@ module RubyEventStore
           cleanup: overriden_options.fetch(:cleanup, cleanup),
           cleanup_limit: overriden_options.fetch(:cleanup_limit, cleanup_limit),
           sleep_on_empty: overriden_options.fetch(:sleep_on_empty, sleep_on_empty),
-          repository: overriden_options.fetch(:repository, repository),
+          locking: overriden_options.fetch(:locking, locking),
         )
       end
 
@@ -48,7 +48,7 @@ module RubyEventStore
         :cleanup,
         :cleanup_limit,
         :sleep_on_empty,
-        :repository
+        :locking
     end
   end
 end

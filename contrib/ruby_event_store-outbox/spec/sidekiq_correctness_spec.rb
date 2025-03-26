@@ -22,7 +22,7 @@ module RubyEventStore
             cleanup: :none,
             cleanup_limit: :all,
             sleep_on_empty: 1,
-            repository: repository
+            locking: locking
           )
         end
         let(:metrics) { Metrics::Null.new }
@@ -135,13 +135,13 @@ module RubyEventStore
       end
 
       context "with locking repository" do
-        let(:repository) { :locking }
+        let(:locking) { true }
         it_behaves_like "sidekiq integration"
       end
 
       unless ENV["DATABASE_URL"].to_s =~ /sqlite/
         context "with non-locking repository" do
-          let(:repository) { :non_locking }
+          let(:locking) { false }
           it_behaves_like "sidekiq integration"
         end
       end
