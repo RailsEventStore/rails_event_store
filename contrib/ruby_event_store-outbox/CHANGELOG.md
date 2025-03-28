@@ -1,3 +1,7 @@
+### 0.1.0  2025-03-25
+
+* Add support for non-locking repository that is using `SKIP LOCKED` clause and doesn't use global locks.
+
 ### 0.0.30  2025-03-25
 
 * Fix an issue with `res_outbox` not starting due to inability to require `sidekiq`.
