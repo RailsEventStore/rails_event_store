@@ -1,0 +1,63 @@
+---
+title: Mermaid test
+---
+
+import Mermaid from '@theme/Mermaid';
+
+
+<Mermaid value={`
+sequenceDiagram
+  autonumber
+  participant a as Application
+  participant c as RailsEventStore::Client 
+  participant s as Specification
+  participant sr as SpecificationReader
+  box Mappers (all in RubyEventStore::Mappers namespace)
+    participant m as Default
+    participant pip as Pipeline
+    participant det as Transformation::DomainEvent
+    participant ecr as Transformation::EventClassRemapper
+    participant smk as Transformation::SymbolizeMetadataKeys
+  end
+  box Repository
+    participant r as RubyEventStore::ActiveRecord::EventRepository
+  end
+  participant yaml as RubyEventStore::Serializers::YAML
+  a->>+c: read
+  c->>-a: Specification
+  rect rgb(250, 250, 250) 
+  note right of a: use Specification method to define reading scope
+    a->>+s: [scope definition method](args)
+    s->>-a: Specification
+  end
+  a->>+s: each
+    s->>s: in_batches(self) => Specification
+    s->>+sr: each(specification)
+      loop each batch
+        sr->>+r: read(specification)
+          r->>r: read_scope(specification) => [SerializedRecord]
+          loop each serialized_record in serialized records
+            r->>+yaml: deserialize(serialized_record)
+            yaml->>-r: Record
+          end
+        r->>-sr: [Record]
+        loop each record in batch
+          rect rgb(240, 240, 240) 
+            note right of sr: transform
+            r->>+m: record_to_event(record)
+              m->>+pip: load(record)
+                pip->>+smk: load(record)
+                smk->>-pip: Record
+                pip->>+ecr: load(record)
+                ecr->>-pip: Record
+                pip->>+det: load(record)
+                det->>-pip: Event
+              pip->>-m: Event
+            m->>-sr: Event
+          end
+        end
+      end
+    sr->>-s: [Event]
+  s->>-a: [Event]
+
+`}/>

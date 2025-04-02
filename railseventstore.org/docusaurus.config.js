@@ -13,6 +13,10 @@ const config = {
   tagline:
     "The open-source implementation of an Event Store for Ruby and Rails",
   favicon: "img/favicon.ico",
+  themes: ['@docusaurus/theme-mermaid'],
+  markdown: {
+    mermaid: true,
+  },
 
   // Set the production url of your site here
   url: "https://railseventstore.org",
