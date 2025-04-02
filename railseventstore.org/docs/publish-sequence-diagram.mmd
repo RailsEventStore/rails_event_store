@@ -1,0 +1,94 @@
+sequenceDiagram
+  autonumber
+  participant a as Application
+  participant c as RailsEventStore::Client 
+  participant clk as Clock
+  participant idg as Correlation ID generator
+  box Mappers (all in RubyEventStore::Mappers namespace)
+    participant m as Default
+    participant pip as Pipeline
+    participant det as Transformation::DomainEvent
+    participant ecr as Transformation::EventClassRemapper
+    participant smk as Transformation::SymbolizeMetadataKeys
+  end
+  box Repository
+    participant r as RubyEventStore::ActiveRecord::EventRepository
+  end
+  box Pub/Sub
+    participant b as RubyEventStore::Broker
+    participant s as RubyEventStore::Subscriptions
+    participant d as RubyEventStore::ComposedDispatcher
+    participant acd as RailsEventStore::AfterCommitAsyncDispatcher
+    participant ddp as RubyEventStore::Dispatcher
+    participant ajs as RailsEventStore::ActiveJobScheduler
+  end
+  participant yaml as RubyEventStore::Serializers::YAML
+  a->>+c: publish(events, ...)
+    rect rgb(250, 250, 250) 
+      note right of c: enrich
+      loop each event in events
+        c->>+clk: call()
+        clk->>-c: Time
+        c->>+idg: call()
+        idg->>-c: String
+      end
+    end
+    rect rgb(250, 250, 250) 
+      note right of c: transform
+      loop each event in events
+        c->>+m: event_to_record(event)
+          m->>+pip: dump(event)
+            pip->>+det: dump(event)
+            det->>-pip: Record
+            pip->>+ecr: dump(record)
+            ecr->>-pip: Record
+            pip->>+smk: dump(record)
+            smk->>-pip: Record
+          pip->>-m: Record
+        m->>-c: Record
+      end
+    end
+    rect rgb(250, 250, 250) 
+      note right of c: store
+      c->>+r: append_to_stream(records, ...)
+        loop each record in records
+          r->>+yaml: serialize(record)
+          yaml->>-r: YAML
+        end
+      r->>-c: self
+    end
+    c->>c: events.zip(records)
+    rect rgb(250, 250, 250) 
+      note right of c: pub/sub
+      loop do event,record in zipped events & records
+        c->>+b: call(event, record)
+          b->>+s: all_for(event.event.type)
+          s->>-b: [Callable]
+          loop each subscriber in [Callable]
+            b->>+d: call(subscriber, event, record)
+              d->>+acd: call(subscriber, event, record)
+                acd->>+ajs: verify(subscriber)
+                ajs->>-acd: True/False
+                opt True
+                  acd->>+ajs: call(subscriber, record)
+                    ajs->>+yaml: serialize(record)
+                    yaml->>-ajs: YAML
+                    ajs->>+subscriber: perform_later(record)
+                    subscriber->>-ajs: -
+                  ajs->>-acd: -
+                end
+              acd->>-d: -
+              d->>+ddp: verify(subscriber)
+              ddp->>-d: True/False
+              opt True
+                d->>+ddp: call(subscriber, event, record)
+                  ddp->>+subscriber: call(event)
+                  subscriber->>-ddp: -
+                ddp->>-d: -
+              end
+            d->>-b: -
+          end
+        b->>-c: -
+      end
+    end
+  c->>-a: self

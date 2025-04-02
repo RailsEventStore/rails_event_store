@@ -1,0 +1,31 @@
+sequenceDiagram
+  autonumber
+  participant a as Application
+  participant c as RailsEventStore::Client 
+  participant t as EventTypeResolver
+  box Pub/Sub
+    participant b as RubyEventStore::Broker
+    participant s as RubyEventStore::Subscriptions
+    participant d as RubyEventStore::ComposedDispatcher
+    participant acd as RailsEventStore::AfterCommitAsyncDispatcher
+    participant ddp as RubyEventStore::Dispatcher
+    participant ajs as RailsEventStore::ActiveJobScheduler
+  end
+  a->>+c: subscribe(subscriber, to: [handlers])
+    loop each handler in handlers
+      c->>+t: call(handler)
+      t->>-c: String
+    end
+    c->>+b: add_subscription(subscriber, [String])
+      b->>+d: verify(subscriber)
+        d->>+acd: verify(subscriber)
+          acd->>+ajs: verify(subscriber)
+          ajs->>-acd: True/False
+        acd->>-d: True/False
+        d->>+ddp: verify(subscriber)
+        ddp->>-d: True/False
+      d->>-b: True/False
+      b->>+s: add_subscription(subscriber, [String])
+      s->>-b: -
+    b->>-c: -
+  c->>-a: -
