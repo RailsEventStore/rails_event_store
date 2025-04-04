@@ -7,20 +7,45 @@ module RubyEventStore
     def initialize(
       repository: InMemoryRepository.new,
       mapper: Mappers::Default.new,
-      subscriptions: Subscriptions.new,
-      dispatcher: Dispatcher.new,
+      subscriptions: nil,
+      dispatcher: nil,
+      message_broker: nil,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
       event_type_resolver: EventTypeResolver.new
     )
       @repository = repository
       @mapper = mapper
-      @subscriptions = subscriptions
-      @broker = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
+      @broker = message_broker || Broker.new(
+        subscriptions: subscriptions || Subscriptions.new, 
+        dispatcher: dispatcher || Dispatcher.new
+      )
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
       @event_type_resolver = event_type_resolver
+
+      if (subscriptions || dispatcher)
+        warn <<~EOW
+          Passing subscriptions and dispatcher to #{self.class} has been deprecated.
+
+          Pass it using message_broker argument. For example:
+
+          event_store = RubyEventStore::Client.new(
+            message_broker: RubyEventStore::Broker.new(
+              subscriptions: RubyEventStore::Subscriptions.new,
+              dispatcher: RubyEventStore::Dispatcher.new
+            )
+          )
+        EOW
+        if (message_broker)
+          warn <<~EOW
+
+            Because message_broker has been provided,
+            arguments passed by subscriptions or dispatcher will be ignored.
+          EOW
+        end
+      end
     end
 
     # Persists events and notifies subscribed handlers about them
@@ -167,7 +192,7 @@ module RubyEventStore
     # @param to [Class, String] type of events to get list of sybscribed handlers
     # @return [Array<Object, Class>]
     def subscribers_for(event_class)
-      subscriptions.all_for(event_type_resolver.call(event_class))
+      broker.all_subscriptions_for(event_type_resolver.call(event_class))
     end
 
     # Builder object for collecting temporary handlers (subscribers)
@@ -373,6 +398,6 @@ module RubyEventStore
       -> { SecureRandom.uuid }
     end
 
-    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator, :event_type_resolver
+    attr_reader :repository, :mapper, :broker, :clock, :correlation_id_generator, :event_type_resolver
   end
 end

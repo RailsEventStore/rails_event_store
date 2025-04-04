@@ -52,13 +52,9 @@ module RailsEventStore
       repository: RubyEventStore::ActiveRecord::EventRepository.new(
         serializer: RubyEventStore::NULL,
       ),
-      subscriptions: RubyEventStore::Subscriptions.new,
-      dispatcher: RubyEventStore::ComposedDispatcher.new(
-        RailsEventStore::AfterCommitAsyncDispatcher.new(
-          scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-        ),
-        RubyEventStore::Dispatcher.new,
-      ),
+      subscriptions: nil,
+      dispatcher: nil,
+      message_broker: nil,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
       request_metadata: default_request_metadata
