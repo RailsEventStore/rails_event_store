@@ -93,12 +93,32 @@ RSpec.shared_examples :broker do |broker_klass|
   specify "all_subscriptions_for" do
     handler = Subscribers::ValidHandler.new
     broker.add_subscription(handler, ["ProductAdded"])
+    broker.add_thread_subscription(handler, [TestEvent])
     block = Proc.new { "Event published!" }
     broker.add_subscription(block, ["OrderCreated"])
 
-    expect(broker.all_subscriptions_for("ProductAdded")).to eq [handler]
+    expect(broker.all_subscriptions_for(ProductAdded)).to eq [handler]
+    expect(broker.all_subscriptions_for(TestEvent)).to eq [handler]
     expect(broker.all_subscriptions_for("OrderCreated")).to eq [block]
     expect(broker.all_subscriptions_for("NotExistingOne")).to eq []
+  end
+
+  specify "all_subscriptions_for with event type resolver" do
+    event_klass =
+      Class.new do
+        def self.event_type
+          "non-derived-from-class"
+        end
+      end
+
+    broker = broker_klass.new(
+      subscriptions: subscriptions, 
+      dispatcher: dispatcher, 
+      event_type_resolver: ->(klass) { klass.event_type }
+    )
+    broker.add_subscription(handler = Proc.new {}, [event_klass])
+
+    expect(broker.all_subscriptions_for(event_klass)).to eq [handler]
   end
 
   private

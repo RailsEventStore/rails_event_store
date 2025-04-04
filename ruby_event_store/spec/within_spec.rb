@@ -4,7 +4,7 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe Client do
-    subject(:within) { Client::Within.new(nil, nil, -> (value) {value.to_s}) }
+    subject(:within) { Client::Within.new(nil, nil) }
 
     specify "subscribe with handler as object and block" do
       expect { within.subscribe(:handler, to: []) {} }.to raise_error(ArgumentError)

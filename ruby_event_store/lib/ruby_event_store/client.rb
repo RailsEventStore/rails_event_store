@@ -16,11 +16,10 @@ module RubyEventStore
       @repository = repository
       @mapper = mapper
       @subscriptions = subscriptions
-      @broker = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
+      @broker = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher, event_type_resolver: event_type_resolver)
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
-      @event_type_resolver = event_type_resolver
     end
 
     # Persists events and notifies subscribed handlers about them
@@ -144,7 +143,7 @@ module RubyEventStore
     def subscribe(subscriber = nil, to:, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
       subscriber ||= proc
-      broker.add_subscription(subscriber, to.map { |event_klass| event_type_resolver.call(event_klass) })
+      broker.add_subscription(subscriber, to)
     end
 
     # Subscribes a handler (subscriber) that will be invoked for all published events
@@ -167,19 +166,18 @@ module RubyEventStore
     # @param to [Class, String] type of events to get list of sybscribed handlers
     # @return [Array<Object, Class>]
     def subscribers_for(event_class)
-      broker.all_subscriptions_for(event_type_resolver.call(event_class))
+      broker.all_subscriptions_for(event_class)
     end
 
     # Builder object for collecting temporary handlers (subscribers)
     # which are active only during the invocation of the provided
     # block of code.
     class Within
-      def initialize(block, broker, resolver)
+      def initialize(block, broker)
         @block = block
         @broker = broker
         @global_subscribers = []
         @subscribers = Hash.new { [] }
-        @resolver = resolver
       end
 
       # Subscribes temporary handlers that
@@ -213,7 +211,7 @@ module RubyEventStore
       #   @return [self]
       def subscribe(handler = nil, to:, &handler2)
         raise ArgumentError if handler && handler2
-        @subscribers[handler || handler2] += Array(to).map { |event_klass| resolver.call(event_klass) }
+        @subscribers[handler || handler2] += Array(to)
         self
       end
 
@@ -231,7 +229,6 @@ module RubyEventStore
       end
 
       private
-      attr_reader :resolver
 
       def add_thread_subscribers
         @subscribers.map { |subscriber, types| @broker.add_thread_subscription(subscriber, types) }
@@ -249,7 +246,7 @@ module RubyEventStore
     # @return [Within] builder object which collects temporary subscriptions
     def within(&block)
       raise ArgumentError if block.nil?
-      Within.new(block, broker, event_type_resolver)
+      Within.new(block, broker)
     end
 
     # Set additional metadata for all events published within the provided block
@@ -373,6 +370,6 @@ module RubyEventStore
       -> { SecureRandom.uuid }
     end
 
-    attr_reader :repository, :mapper, :broker, :clock, :correlation_id_generator, :event_type_resolver
+    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator
   end
 end
