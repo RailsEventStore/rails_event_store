@@ -30,7 +30,8 @@
         "core-concepts/correlation-causation",
         "core-concepts/rspec",
         "core-concepts/browser",
-        "core-concepts/client-errors"
+        "core-concepts/client-errors",
+        "core-concepts/internals"
       ]
     },
     {
