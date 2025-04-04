@@ -9,7 +9,7 @@ module RubyEventStore
     end
 
     def call(event, record)
-      subscribers = subscriptions.all_for(event.event_type)
+      subscribers = all_subscriptions_for(event.event_type)
       subscribers.each { |subscriber| dispatcher.call(subscriber, event, record) }
     end
 
