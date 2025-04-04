@@ -11,7 +11,7 @@ serve:
 .PHONY: serve
 
 watch:
-	@npx chokidar-cli "docs/**/*.md" \
+	@npx chokidar-cli "docs/**/*.md*" \
 		-c "make build" \
 		--initial
 .PHONY: watch
