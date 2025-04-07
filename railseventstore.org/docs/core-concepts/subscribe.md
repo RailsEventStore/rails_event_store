@@ -329,7 +329,9 @@ Then you have to initialize `RailsEventStore::Client` using asynchronous dispatc
 ```ruby
 event_store =
   RailsEventStore::Client.new(
-    dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new),
+    message_broker: RubyEventStore::Broker.new(
+      dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new),
+    ),
   )
 ```
 
@@ -338,11 +340,13 @@ Often you will want to be able to specify both asynchronous and synchronous disp
 ```ruby
 event_store =
   RailsEventStore::Client.new(
-    dispatcher:
-      RubyEventStore::ComposedDispatcher.new(
-        RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
-        RubyEventStore::Dispatcher.new, # regular synchronous dispatcher
-      ),
+    message_broker: RubyEventStore::Broker.new(
+      dispatcher:
+        RubyEventStore::ComposedDispatcher.new(
+          RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
+          RubyEventStore::Dispatcher.new, # regular synchronous dispatcher
+        ),
+    ),
   )
 ```
 ### When are async handlers scheduled?
@@ -387,9 +391,11 @@ class SendOrderEmail < ActiveJob::Base
 end
 
 event_store = RailsEventStore::Client.new(
-  dispatcher: RubyEventStore::ComposedDispatcher.new(
-    RailsEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
-    RubyEventStore::Dispatcher.new
+  message_broker: RubyEventStore::Broker.new(
+    dispatcher: RubyEventStore::ComposedDispatcher.new(
+      RailsEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
+      RubyEventStore::Dispatcher.new
+    )
   )
 )
 
