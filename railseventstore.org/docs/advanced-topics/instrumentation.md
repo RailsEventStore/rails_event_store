@@ -24,7 +24,9 @@ instrumenter = ActiveSupport::Notifications
 RubyEventStore::Client.new(
   repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, instrumenter),
   mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, instrumenter),
-  dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, instrumenter),
+  message_broker: RubyEventStore::Broker.new( 
+    dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, instrumenter),
+  ),
 )
 ```
 

@@ -176,7 +176,7 @@ module RubyEventStore
       client_with_custom_dispatcher =
         Client.new(
           mapper: mapper,
-          dispatcher: dispatcher
+          message_broker: Broker.new(dispatcher: dispatcher)
         )
       client_with_custom_dispatcher.subscribe(handler, to: [Test1DomainEvent])
       client_with_custom_dispatcher.publish(event1)
