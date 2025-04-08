@@ -3,7 +3,7 @@ import Layout from "@theme/Layout";
 
 import React, { useState, useEffect } from "react";
 
-export default function Contributing() {
+export default function Support() {
   const { siteConfig } = useDocusaurusContext();
 
   return (
