@@ -14,9 +14,9 @@ export default function Contributing() {
       <main className="pb-24 space-y-12 md:space-y-16">
         <header className="py-16 text-center hero hero--primary">
           <div className="container text-white">
-            <h1 className="text-3xl lg:text-4xl">Support</h1>
+            <h1 className="text-3xl lg:text-4xl">Contributing</h1>
             <p className="text-xl lg:text-2xl">
-              Where to find support for Rails Event Store challenges
+              A short guide on how to contribute to RailsEventStore organization repositories.
             </p>
           </div>
         </header>
