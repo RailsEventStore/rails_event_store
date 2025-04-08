@@ -12,6 +12,7 @@ serve:
 
 watch:
 	@npx chokidar-cli "docs/**/*.md*" \
+		"src/**/*.js" \
 		-c "make build" \
 		--initial
 .PHONY: watch
