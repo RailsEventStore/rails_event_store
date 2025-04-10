@@ -36,19 +36,16 @@ class CI
   RAILS_GEMFILES = [
     GEMFILE_RAILS_7_2 = "Gemfile.rails_7_2",
     GEMFILE_RAILS_7_1 = "Gemfile.rails_7_1",
-    GEMFILE_RAILS_7_0 = "Gemfile.rails_7_0",
   ].flatten
 
   AS_GEMFILES = [
     GEMFILE_AS_7_2 = "Gemfile.activesupport_7_2",
     GEMFILE_AS_7_1 = "Gemfile.activesupport_7_1",
-    GEMFILE_AS_7_0 = "Gemfile.activesupport_7_0",
   ]
 
   AR_GEMFILES = [
     GEMFILE_AR_7_2 = "Gemfile.activerecord_7_2",
     GEMFILE_AR_7_1 = "Gemfile.activerecord_7_1",
-    GEMFILE_AR_7_0 = "Gemfile.activerecord_7_0",
   ]
 
   SIDEKIQ_GEMFILES = [GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5"]
