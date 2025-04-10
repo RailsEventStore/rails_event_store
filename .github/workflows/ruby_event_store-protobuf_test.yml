@@ -46,9 +46,6 @@ jobs:
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile.rails_7_1
           database_url: sqlite3:db.sqlite3
-        - ruby_version: ruby-3.3
-          bundle_gemfile: Gemfile.rails_7_0
-          database_url: sqlite3:db.sqlite3
     steps:
     - uses: actions/checkout@v4
       with:
