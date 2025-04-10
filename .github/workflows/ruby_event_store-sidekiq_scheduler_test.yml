@@ -41,8 +41,6 @@ jobs:
           bundle_gemfile: Gemfile
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile.sidekiq_6_5
-        - ruby_version: ruby-3.1
-          bundle_gemfile: Gemfile.rails_7_2
     steps:
     - uses: actions/checkout@v4
       with:
