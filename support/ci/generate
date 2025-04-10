@@ -12,7 +12,6 @@ end
 
 class CI
   RUBY_VERSIONS = [MRI_RUBY = [RUBY_3_4 = "ruby-3.4", RUBY_3_3 = "ruby-3.3", RUBY_3_2 = "ruby-3.2"]].flatten
-  RUBY_3_1 = "ruby-3.1"
 
   DATA_TYPES = [DATA_TEXT = "text", DATA_BINARY = "binary", DATA_JSON = "json", DATA_JSONB = "jsonb"]
 
@@ -68,10 +67,7 @@ class CI
       release_test(
         "ruby_event_store-browser",
         steps: [checkout, verify_lockfile, setup_ruby, setup_node, cache_elm, make("install-npm test")],
-        matrix: join(
-          generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")),
-          generate(ruby_version(RUBY_3_1), bundle_gemfile(GEMFILE)),
-        ),
+        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")),
       ),
       release_mutate("ruby_event_store-browser"),
       release_coverage("ruby_event_store-browser"),
@@ -81,7 +77,6 @@ class CI
           generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
           generate(ruby_version(RUBY_3_4), bundle_gemfile(RAILS_GEMFILES.take(1))),
           generate(ruby_version(RUBY_3_3), bundle_gemfile(RAILS_GEMFILES.drop(1))),
-          generate(ruby_version(RUBY_3_1), bundle_gemfile(GEMFILE_RAILS_7_2)),
         ),
       ),
       release_mutate("rails_event_store"),
@@ -114,14 +109,6 @@ class CI
               generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
             ),
           ),
-          generate(
-            generate(ruby_version(RUBY_3_1), bundle_gemfile(GEMFILE_AR_7_2)),
-            join(
-              generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
-              generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
-              generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
-            ),
-          ),
         ),
       ),
       release_mutate("ruby_event_store-active_record"),
@@ -132,7 +119,6 @@ class CI
           generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
           generate(ruby_version(RUBY_3_4), bundle_gemfile(AS_GEMFILES.take(1))),
           generate(ruby_version(RUBY_3_3), bundle_gemfile(AS_GEMFILES.drop(1))),
-          generate(ruby_version(RUBY_3_1), bundle_gemfile(GEMFILE_AS_7_2)),
         ),
       ),
       contrib_mutate("ruby_event_store-flipper"),
@@ -158,11 +144,6 @@ class CI
             generate(
               ruby_version(RUBY_3_3),
               bundle_gemfile(RAILS_GEMFILES.drop(1)),
-              database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
-            ),
-            generate(
-              ruby_version(RUBY_3_1),
-              bundle_gemfile(GEMFILE_RAILS_7_2),
               database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
             ),
           ),
@@ -225,24 +206,6 @@ class CI
               database_url(MYSQL),
               data_type(DATA_TYPES_IN_SEQUEL.take(1)),
             ),
-            generate(
-              ruby_version(RUBY_3_1),
-              bundle_gemfile(GEMFILE_RAILS_7_2),
-              database_url(SQLITE),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
-            ),
-            generate(
-              ruby_version(RUBY_3_1),
-              bundle_gemfile(GEMFILE_RAILS_7_2),
-              database_url(POSTGRES),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
-            ),
-            generate(
-              ruby_version(RUBY_3_1),
-              bundle_gemfile(GEMFILE_RAILS_7_2),
-              database_url(MYSQL),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
-            ),
           ),
       ),
       contrib_mutate("ruby_event_store-rom"),
@@ -270,34 +233,13 @@ class CI
               database_url(MYSQL),
               data_type(DATA_TYPES_IN_SEQUEL.take(1)),
             ),
-            generate(
-              ruby_version(RUBY_3_1),
-              bundle_gemfile(GEMFILE_RAILS_7_2),
-              database_url(SQLITE),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
-            ),
-            generate(
-              ruby_version(RUBY_3_1),
-              bundle_gemfile(GEMFILE_RAILS_7_2),
-              database_url(POSTGRES),
-              data_type(DATA_TYPES_IN_SEQUEL),
-            ),
-            generate(
-              ruby_version(RUBY_3_1),
-              bundle_gemfile(GEMFILE_RAILS_7_2),
-              database_url(MYSQL),
-              data_type(DATA_TYPES_IN_SEQUEL.take(1)),
-            ),
           ),
       ),
       contrib_mutate("ruby_event_store-sequel"),
       contrib_coverage("ruby_event_store-sequel"),
       contrib_test(
         "ruby_event_store-sidekiq_scheduler",
-        matrix: join(
-          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES)),
-          generate(ruby_version(RUBY_3_1), bundle_gemfile(GEMFILE_RAILS_7_2)),
-        ),
+        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES)),
         steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("test")],
       ),
       contrib_mutate(
@@ -321,19 +263,12 @@ class CI
       contrib_test("minitest-ruby_event_store"),
       contrib_mutate("minitest-ruby_event_store"),
       contrib_coverage("minitest-ruby_event_store"),
-      contrib_test(
-        "dres_client",
-        matrix: join(
-          generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-          generate(ruby_version(RUBY_3_1), bundle_gemfile(GEMFILE)),
-        ),
-        triggers: dres_triggers("dres_client_test")
-      ),
+      contrib_test("dres_client", triggers: dres_triggers("dres_client_test")),
       contrib_test(
         "dres_rails",
         services: [postgres_13, postgres_17],
         matrix: generate(
-          ruby_version(MRI_RUBY + [RUBY_3_1]),
+          ruby_version(MRI_RUBY),
           bundle_gemfile(GEMFILE),
           database_url(POSTGRES),
           data_type(DATA_TYPES_IN_AR),
@@ -644,10 +579,7 @@ class CI
         job_name: "test",
         name: "#{gem}_#{job_name}",
         working_directory: gem,
-        matrix: join(
-          generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-          generate(ruby_version(RUBY_3_1), bundle_gemfile(GEMFILE_RAILS_7_2)),
-        ),
+        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
         steps: [checkout, verify_lockfile, setup_ruby, make("test")],
         services: [],
         triggers: release_triggers(name),
@@ -704,10 +636,7 @@ class CI
     def contrib_test(
       name,
       working_directory: "contrib/#{name}",
-      matrix: join(
-        generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-        generate(ruby_version(RUBY_3_1), bundle_gemfile(GEMFILE_RAILS_7_2)),
-      ),
+      matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
       **
     )
       Workflow.new(
