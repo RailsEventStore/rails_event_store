@@ -10,24 +10,24 @@ module RubyEventStore
       @thread = ThreadSubscriptions.new
     end
 
-    def add_subscription(subscriber, event_types)
-      local.add(subscriber, event_types)
+    def add_subscription(subscriber, topics)
+      local.add(subscriber, topics)
     end
 
     def add_global_subscription(subscriber)
       global.add(subscriber)
     end
 
-    def add_thread_subscription(subscriber, event_types)
-      thread.local.add(subscriber, event_types)
+    def add_thread_subscription(subscriber, topics)
+      thread.local.add(subscriber, topics)
     end
 
     def add_thread_global_subscription(subscriber)
       thread.global.add(subscriber)
     end
 
-    def all_for(event_type)
-      [local, global, thread].map { |r| r.all_for(event_type) }.reduce(&:+)
+    def all_for(topic)
+      [local, global, thread].map { |r| r.all_for(topic) }.reduce(&:+)
     end
 
     private
@@ -41,8 +41,8 @@ module RubyEventStore
       end
       attr_reader :local, :global
 
-      def all_for(event_type)
-        [global, local].map { |r| r.all_for(event_type) }.reduce(&:+)
+      def all_for(topic)
+        [global, local].map { |r| r.all_for(topic) }.reduce(&:+)
       end
     end
 
@@ -51,13 +51,13 @@ module RubyEventStore
         @subscriptions = Hash.new { |hsh, key| hsh[key] = [] }
       end
 
-      def add(subscription, event_types)
-        event_types.each { |type| @subscriptions[type] << subscription }
-        -> { event_types.each { |type| @subscriptions.fetch(type).delete(subscription) } }
+      def add(subscription, topics)
+        topics.each { |topic| @subscriptions[topic] << subscription }
+        -> { topics.each { |topic| @subscriptions.fetch(topic).delete(subscription) } }
       end
 
-      def all_for(event_type)
-        @subscriptions[event_type]
+      def all_for(topic)
+        @subscriptions[topic]
       end
     end
 
@@ -71,7 +71,7 @@ module RubyEventStore
         -> { @subscriptions.delete(subscription) }
       end
 
-      def all_for(_event_type)
+      def all_for(_topic)
         @subscriptions
       end
     end
@@ -81,13 +81,13 @@ module RubyEventStore
         @subscriptions = Concurrent::ThreadLocalVar.new { Hash.new { |hsh, key| hsh[key] = [] } }
       end
 
-      def add(subscription, event_types)
-        event_types.each { |type| @subscriptions.value[type] << subscription }
-        -> { event_types.each { |type| @subscriptions.value.fetch(type).delete(subscription) } }
+      def add(subscription, topics)
+        topics.each { |topic| @subscriptions.value[topic] << subscription }
+        -> { topics.each { |topic| @subscriptions.value.fetch(topic).delete(subscription) } }
       end
 
-      def all_for(event_type)
-        @subscriptions.value[event_type]
+      def all_for(topic)
+        @subscriptions.value[topic]
       end
     end
 
@@ -101,7 +101,7 @@ module RubyEventStore
         -> { @subscriptions.value -= [subscription] }
       end
 
-      def all_for(_event_type)
+      def all_for(_topic)
         @subscriptions.value
       end
     end
