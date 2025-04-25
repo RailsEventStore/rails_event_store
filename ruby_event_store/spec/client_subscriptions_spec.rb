@@ -50,6 +50,20 @@ module RubyEventStore
       expect(subscriber.handled_events).to eq [event]
     end
 
+    specify 'notifies subscribers listening on topic' do
+      subscriber = Subscribers::ValidHandler.new
+      client.subscribe(subscriber, to: ['topic', TestEvent])
+      event_1 = OrderCreated.new
+      event_2 = ProductAdded.new
+      event_3 = TestEvent.new
+      event_4 = TestEvent.new
+      client.publish(event_1, topic: 'topic')
+      client.publish(event_2, topic: 'another_topic')
+      client.publish(event_3)
+      client.publish(event_4, topic: 'not_that_topic')
+      expect(subscriber.handled_events).to eq [event_1, event_3]
+    end
+
     specify "notifies subscribers listening on list of events" do
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, to: [OrderCreated, ProductAdded])

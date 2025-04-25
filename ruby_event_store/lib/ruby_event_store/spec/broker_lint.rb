@@ -14,6 +14,12 @@ RSpec.shared_examples "broker" do |broker_klass|
     broker.call(event, record)
   end
 
+  specify 'calls subscription using topic' do
+    expect(subscriptions).to receive(:all_for).with('topic').and_return([handler])
+    expect(dispatcher).to receive(:call).with(handler, event, record)
+    broker.call(event, record, 'topic')
+  end
+
   specify "calls subscription" do
     expect(subscriptions).to receive(:all_for).with("EventType").and_return([handler])
     expect(dispatcher).to receive(:call).with(handler, event, record)
