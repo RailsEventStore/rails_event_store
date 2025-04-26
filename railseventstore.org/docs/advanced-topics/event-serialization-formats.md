@@ -63,7 +63,13 @@ To generate migration containing event table schemas run
 $ rails generate rails_event_store_active_record:migration --data-type=jsonb
 ```
 
-Next, in your `RailsEventStore::Client` initialization, set repository serialization to ` RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)`
+Next, configure your event store client to the JSON client:
+
+```ruby
+Rails.configuration.event_store = RailsEventStore::JSONClient.new
+```
+
+If you need additional configuration beyond the included JSON client, continue from here. In your `RailsEventStore::Client` initialization, set repository serialization to ` RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)`
 
 ```ruby
 # config/environments/*.rb
@@ -80,7 +86,7 @@ end
 Using the `RubyEventStore::NULL` serializer will prevent the event store from serializing the event data and metadata. This is necessary because the Active Record will handle serialization before putting the data into the database. And will do otherwise when reading. Database itself expect data to be json already.
 
 <div class="px-4 py-1 text-blue-600 bg-blue-100 border-l-4 border-blue-500" role="alert">
-  <p class="text-base font-bold">Bear in mind that <code>JSON</code> will convert symbols to strings and you have to prepare for that when retrieving events.</p>
+  <p class="text-base font-bold">Note that <code>JSON</code> converts symbols to strings. Ensure your code accounts for this when retrieving events.</p>
   
 ```ruby
 JSON.load(JSON.dump({foo: :bar}))
@@ -113,6 +119,6 @@ event.data['foo']
 \# => "bar"
 ```
 
-Another way to achive that could be define your own <a href="../advanced-topics/mappers#custom-mapper">custom mapper and transformation</a>
+Another way to achieve that could be define your own <a href="../advanced-topics/mappers#custom-mapper">custom mapper and transformation</a>
 
 </div>
