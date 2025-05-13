@@ -21,7 +21,7 @@ module RailsEventStore
         clock: clock,
         correlation_id_generator: correlation_id_generator,
         dispatcher: nil,
-        message_broker: message_broker || RubyEventStore::Broker.new(
+        message_broker: RubyEventStore::InstrumentedBroker.new(message_broker || RubyEventStore::Broker.new(
           subscriptions: RubyEventStore::InstrumentedSubscriptions.new(
             subscriptions || RubyEventStore::Subscriptions.new,
             ActiveSupport::Notifications
@@ -34,8 +34,8 @@ module RailsEventStore
               RubyEventStore::Dispatcher.new
             ),
             ActiveSupport::Notifications
-          ),
-        )
+          )
+        ), ActiveSupport::Notifications)
       )
       @request_metadata = request_metadata
 
