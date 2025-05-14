@@ -27,8 +27,8 @@ PATH
   remote: .
   specs:
     ruby_event_store-protobuf (1.1.0)
-      google-protobuf (>= 3.25.7)
-      protobuf_nested_struct (>= 1.2.1)
+      google-protobuf (>= 4.26.0)
+      protobuf_nested_struct (>= 2.0.0)
       ruby_event_store (>= 2.0.0, < 3.0.0)
 
 GEM
@@ -190,8 +190,8 @@ GEM
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
-    protobuf_nested_struct (1.2.1)
-      google-protobuf (>= 3.25.7)
+    protobuf_nested_struct (2.0.0)
+      google-protobuf (>= 4.26.0)
     psych (5.2.3)
       date
       stringio

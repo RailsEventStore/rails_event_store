@@ -25,6 +25,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.7"
 
   spec.add_dependency "ruby_event_store", ">= 2.0.0", "< 3.0.0"
-  spec.add_dependency "google-protobuf", ">= 3.25.7"
-  spec.add_dependency "protobuf_nested_struct", ">= 1.2.1"
+  spec.add_dependency "google-protobuf", ">= 4.26.0"
+  spec.add_dependency "protobuf_nested_struct", ">= 2.0.0"
 end
