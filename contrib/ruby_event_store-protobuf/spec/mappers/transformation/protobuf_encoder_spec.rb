@@ -8,8 +8,6 @@ module RubyEventStore
       module Transformation
         ::RSpec.describe ProtobufEncoder do
           include ProtobufHelper
-          before(:each) { require_protobuf_dependencies }
-
           let(:time) { Time.new.utc }
           let(:event_id) { "f90b8848-e478-47fe-9b4a-9f2a1d53622b" }
           let(:metadata) do
@@ -34,7 +32,9 @@ module RubyEventStore
               valid_at: time
             }
           end
-          let(:data) { ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9") }
+          let(:data) do
+            ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9")
+          end
           let(:domain_event) do
             RubyEventStore::Protobuf::Proto.new(
               event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
@@ -53,7 +53,9 @@ module RubyEventStore
                 timestamp: time,
                 valid_at: time
               )
-            expect { ProtobufEncoder.new.dump(record) }.to raise_error(ProtobufEncodingFailed)
+            expect { ProtobufEncoder.new.dump(record) }.to raise_error(
+              ProtobufEncodingFailed
+            )
           end
 
           specify "#dump raises error when wrong data" do
@@ -61,13 +63,16 @@ module RubyEventStore
               Record.new(
                 event_id: domain_event.event_id,
                 metadata: domain_event.metadata.to_h,
-                data: {},
+                data: {
+                },
                 event_type: domain_event.event_type,
                 timestamp: time,
                 valid_at: time
               )
 
-            expect { ProtobufEncoder.new.dump(record) }.to raise_error(ProtobufEncodingFailed)
+            expect { ProtobufEncoder.new.dump(record) }.to raise_error(
+              ProtobufEncodingFailed
+            )
           end
 
           specify "#dump" do
@@ -83,15 +88,15 @@ module RubyEventStore
           end
 
           specify "#load returns event instance in data attribute" do
-            require_protobuf_dependencies
-
             record = ProtoEvent.new.dump(domain_event)
             dump = ProtobufEncoder.new.dump(record)
             result = ProtobufEncoder.new.load(dump)
             expect(result).to be_a(Record)
             expect(result.event_id).to eq(domain_event.event_id)
             expect(result.data).to eq(data)
-            expect(result.metadata).to eq(metadata.reject { |k, _| %i[timestamp valid_at].include?(k) })
+            expect(result.metadata).to eq(
+              metadata.reject { |k, _| %i[timestamp valid_at].include?(k) }
+            )
             expect(result.timestamp).to eq(time)
             expect(result.valid_at).to eq(time)
           end

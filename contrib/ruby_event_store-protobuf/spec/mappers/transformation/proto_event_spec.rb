@@ -8,7 +8,6 @@ module RubyEventStore
       module Transformation
         ::RSpec.describe ProtoEvent do
           include ProtobufHelper
-          before(:each) { require_protobuf_dependencies }
 
           let(:time) { Time.now.utc }
           let(:uuid) { SecureRandom.uuid }
@@ -31,7 +30,11 @@ module RubyEventStore
               metadata: {
                 some: "meta"
               },
-              data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9"),
+              data:
+                ResTesting::OrderCreated.new(
+                  customer_id: 123,
+                  order_id: "K3THNX9"
+                ),
               event_type: "res_testing.OrderCreated",
               timestamp: time,
               valid_at: time

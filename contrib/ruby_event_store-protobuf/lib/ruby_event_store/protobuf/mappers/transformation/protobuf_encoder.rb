@@ -38,7 +38,11 @@ module RubyEventStore
           end
 
           def load_data(event_type, protobuf_data)
-            Google::Protobuf::DescriptorPool.generated_pool.lookup(event_type).msgclass.decode(protobuf_data)
+            Google::Protobuf::DescriptorPool
+              .generated_pool
+              .lookup(event_type)
+              .msgclass
+              .decode(protobuf_data)
           end
         end
       end

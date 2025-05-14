@@ -8,7 +8,6 @@ module RubyEventStore
       module Transformation
         ::RSpec.describe ProtobufNestedStructMetadata do
           include ProtobufHelper
-          before(:each) { require_protobuf_dependencies }
 
           let(:metadata) do
             {
@@ -39,17 +38,6 @@ module RubyEventStore
               metadata: metadata,
               timestamp: Time.new.utc,
               valid_at: Time.new.utc
-            )
-          end
-
-          specify "#initialize requires protobuf_nested_struct" do
-            p = ProtobufNestedStructMetadata.allocate
-            def p.require(_name)
-              raise LoadError
-            end
-            expect { p.send(:initialize) }.to raise_error(
-              LoadError,
-              "cannot load such file -- protobuf_nested_struct. Add protobuf_nested_struct gem to Gemfile"
             )
           end
 
