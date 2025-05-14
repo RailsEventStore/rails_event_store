@@ -25,6 +25,10 @@ module RubyEventStore
   ::RSpec.describe Client do
     include ProtobufHelper
 
+    around(:each) do |example|
+      ActiveJob::Base.with(logger: nil) { example.run }
+    end
+
     specify "can handle protobuf event class instead of Event" do
       client =
         Client.new(
