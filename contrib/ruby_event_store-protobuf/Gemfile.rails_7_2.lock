@@ -26,7 +26,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-protobuf (1.0.0)
+    ruby_event_store-protobuf (1.1.0)
       google-protobuf (>= 3.25.7)
       protobuf_nested_struct (>= 1.2.1)
       ruby_event_store (>= 2.0.0, < 3.0.0)
