@@ -1,3 +1,7 @@
+## v2.0.0
+
+* imposing minimal Protocol Buffers version 26.0
+
 ## v1.1.0
 
 * made optional dependencies (`google-protobuf`, `protobuf_nested_struct`) required,
