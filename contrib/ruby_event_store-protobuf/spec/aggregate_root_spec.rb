@@ -7,21 +7,7 @@ require "aggregate_root"
   include ProtobufHelper
   extend ProtobufHelper
 
-  Google::Protobuf::DescriptorPool.generated_pool.build do
-    add_message "res_testing.SpanishInquisition" do
-    end
-  end
-
-  Google::Protobuf::DescriptorPool.generated_pool.build do
-    add_message "res_testing.OrderPaid" do
-    end
-  end
-
   module ResTesting
-    SpanishInquisition =
-      Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.SpanishInquisition").msgclass
-    OrderPaid = Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderPaid").msgclass
-
     class Order
       include AggregateRoot
 
@@ -49,7 +35,8 @@ require "aggregate_root"
     order_created =
       RubyEventStore::Protobuf::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9")
+        data:
+          ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9")
       )
 
     order.apply(order_created)

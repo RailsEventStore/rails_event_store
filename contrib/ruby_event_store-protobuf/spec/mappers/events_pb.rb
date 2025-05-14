@@ -5,7 +5,7 @@
 require 'google/protobuf'
 
 
-descriptor_data = "\n\x0c\x65vents.proto\x12\x0bres_testing\"5\n\x0cOrderCreated\x12\x10\n\x08order_id\x18\x01 \x01(\t\x12\x13\n\x0b\x63ustomer_id\x18\x02 \x01(\x05\x62\x06proto3"
+descriptor_data = "\n\x0c\x65vents.proto\x12\x0bres_testing\"5\n\x0cOrderCreated\x12\x10\n\x08order_id\x18\x01 \x01(\t\x12\x13\n\x0b\x63ustomer_id\x18\x02 \x01(\x05\"\x0b\n\tOrderPaid\"\x14\n\x12SpanishInquisitionb\x06proto3"
 
 pool = Google::Protobuf::DescriptorPool.generated_pool
 
@@ -33,4 +33,6 @@ end
 
 module ResTesting
   OrderCreated = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderCreated").msgclass
+  OrderPaid = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.OrderPaid").msgclass
+  SpanishInquisition = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("res_testing.SpanishInquisition").msgclass
 end
