@@ -1,0 +1,3 @@
+--print-width=120
+--plugins=plugin/trailing_comma,plugin/disable_auto_ternary
+--ignore-files=**/*_pb.rb
