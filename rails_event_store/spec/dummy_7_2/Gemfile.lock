@@ -239,4 +239,4 @@ DEPENDENCIES
   ruby_event_store-browser!
 
 BUNDLED WITH
-   2.5.23
+   2.6.9
