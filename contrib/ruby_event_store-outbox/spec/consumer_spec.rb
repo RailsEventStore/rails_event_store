@@ -349,7 +349,7 @@ module RubyEventStore
           result = consumer.process
 
           records.each(&:reload)
-          expect(records.select { |r| r.enqueued? }.size).to eq(101)
+          expect(records.count { |r| r.enqueued? }).to eq(101)
           expect(result).to eq(true)
         end
 
