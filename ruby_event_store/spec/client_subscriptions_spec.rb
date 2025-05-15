@@ -114,7 +114,7 @@ module RubyEventStore
     end
 
     specify "unsubscribes" do
-      subscriber = Subscribers::ValidHandler.new
+      Subscribers::ValidHandler.new
       event_1 = OrderCreated.new
       event_2 = OrderCreated.new
       subscriber = Subscribers::ValidHandler.new
@@ -246,7 +246,7 @@ module RubyEventStore
     end
 
     specify "subscribe unallowed calls" do
-      expect { client.subscribe(subscriber = -> {  }, to: []) {} }.to raise_error(
+      expect { client.subscribe(-> {  }, to: []) {} }.to raise_error(
         ArgumentError,
         "subscriber must be first argument or block, cannot be both"
       )
@@ -261,7 +261,7 @@ module RubyEventStore
         "subscriber must be first argument or block"
       )
 
-      expect { client.subscribe_to_all_events(subscriber = -> {  }) {} }.to raise_error(
+      expect { client.subscribe_to_all_events(-> {  }) {} }.to raise_error(
         ArgumentError,
         "subscriber must be first argument or block, cannot be both"
       )
@@ -312,8 +312,8 @@ module RubyEventStore
       end
 
       specify "nested dynamic subscription" do
-        e1 = e2 = e3 = e4 = e5 = e6 = e7 = e8 = nil
-        h1 = h2 = nil
+        e1 = e2 = e3 = e4 = e5 = e6 = nil
+        h2 = nil
         result =
           client
             .within do

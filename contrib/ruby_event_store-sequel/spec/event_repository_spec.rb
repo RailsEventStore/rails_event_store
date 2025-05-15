@@ -85,7 +85,7 @@ module RubyEventStore
 
       specify "with pre-valid-at appended record" do
         helper.sequel[:event_store_events].insert(
-          event_id: id = SecureRandom.uuid,
+          event_id: SecureRandom.uuid,
           data: "{}",
           metadata: "{}",
           event_type: "TestDomainEvent",
@@ -135,7 +135,7 @@ module RubyEventStore
 
       specify do
         repository.append_to_stream(
-          [event0 = SRecord.new, event1 = SRecord.new],
+          [event0 = SRecord.new, SRecord.new],
           stream = Stream.new("stream"),
           ExpectedVersion.auto
         )
@@ -161,17 +161,17 @@ module RubyEventStore
         repository.append_to_stream(
           [
             SRecord.new(
-              event_id: e1 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 1),
               valid_at: Time.new(2020, 1, 9)
             ),
             SRecord.new(
-              event_id: e2 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 3),
               valid_at: Time.new(2020, 1, 6)
             ),
             SRecord.new(
-              event_id: e3 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 2),
               valid_at: Time.new(2020, 1, 3)
             )

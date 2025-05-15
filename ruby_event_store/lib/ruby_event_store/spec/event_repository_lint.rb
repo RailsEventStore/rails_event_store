@@ -114,10 +114,10 @@ module RubyEventStore
 
     specify "append_to_stream returns self" do
       repository.append_to_stream(
-        [event = SRecord.new],
+        [SRecord.new],
         stream,
         version_none
-      ).append_to_stream([event = SRecord.new], stream, version_0)
+      ).append_to_stream([SRecord.new], stream, version_0)
     end
 
     specify "link_to_stream returns self" do
@@ -227,7 +227,7 @@ module RubyEventStore
       )
       expect do
         repository.append_to_stream(
-          [event2 = SRecord.new, event3 = SRecord.new],
+          [SRecord.new, SRecord.new],
           stream,
           version_0
         )
@@ -266,7 +266,7 @@ module RubyEventStore
       repository.append_to_stream([eventA = SRecord.new], stream, version_none)
       expect {
         repository.append_to_stream(
-          [eventB = SRecord.new],
+          [SRecord.new],
           stream,
           version_none
         )
@@ -343,17 +343,17 @@ module RubyEventStore
 
     specify ":auto queries for last position in given stream" do
       repository.append_to_stream(
-        [eventA = SRecord.new, eventB = SRecord.new, eventC = SRecord.new],
+        [SRecord.new, SRecord.new, SRecord.new],
         stream_other,
         version_auto
       )
       repository.append_to_stream(
-        [event0 = SRecord.new, event1 = SRecord.new],
+        [SRecord.new, SRecord.new],
         stream,
         version_auto
       )
       repository.append_to_stream(
-        [event2 = SRecord.new, event3 = SRecord.new],
+        [SRecord.new, SRecord.new],
         stream,
         version_1
       )
@@ -366,7 +366,7 @@ module RubyEventStore
         version_auto
       )
       repository.append_to_stream(
-        [event0 = SRecord.new, event1 = SRecord.new],
+        [SRecord.new, SRecord.new],
         stream,
         version_auto
       )
@@ -378,10 +378,10 @@ module RubyEventStore
     end
 
     specify ":auto starts from 0" do
-      repository.append_to_stream([event0 = SRecord.new], stream, version_auto)
+      repository.append_to_stream([SRecord.new], stream, version_auto)
       expect {
         repository.append_to_stream(
-          [event1 = SRecord.new],
+          [SRecord.new],
           stream,
           version_none
         )
@@ -397,7 +397,7 @@ module RubyEventStore
       repository.link_to_stream([event0.event_id], stream, version_auto)
       expect {
         repository.append_to_stream(
-          [event1 = SRecord.new],
+          [SRecord.new],
           stream,
           version_none
         )
@@ -908,7 +908,7 @@ module RubyEventStore
 
     it "knows last event in stream" do
       repository.append_to_stream(
-        [a = SRecord.new(event_id: "00000000-0000-0000-0000-000000000001")],
+        [SRecord.new(event_id: "00000000-0000-0000-0000-000000000001")],
         stream,
         version_none
       )
@@ -1155,7 +1155,7 @@ module RubyEventStore
           version_none
         )
         .append_to_stream(
-          [b = SRecord.new(event_id: "34f88aca-aaba-4ca0-9256-8017b47528c5")],
+          [SRecord.new(event_id: "34f88aca-aaba-4ca0-9256-8017b47528c5")],
           s2,
           version_none
         )
@@ -1165,12 +1165,12 @@ module RubyEventStore
           version_0
         )
         .append_to_stream(
-          [d = SRecord.new(event_id: "30963ed9-6349-450b-ac9b-8ea50115b3bd")],
+          [SRecord.new(event_id: "30963ed9-6349-450b-ac9b-8ea50115b3bd")],
           s2,
           version_0
         )
         .append_to_stream(
-          [e = SRecord.new(event_id: "5bdc58b7-e8a7-4621-afd6-ccb828d72457")],
+          [SRecord.new(event_id: "5bdc58b7-e8a7-4621-afd6-ccb828d72457")],
           s2,
           version_1
         )
@@ -1188,7 +1188,7 @@ module RubyEventStore
           version_none
         )
         .append_to_stream(
-          [b = SRecord.new(event_id: "34f88aca-aaba-4ca0-9256-8017b47528c5")],
+          [SRecord.new(event_id: "34f88aca-aaba-4ca0-9256-8017b47528c5")],
           s1,
           version_0
         )
@@ -1198,12 +1198,12 @@ module RubyEventStore
           version_1
         )
         .append_to_stream(
-          [d = SRecord.new(event_id: "30963ed9-6349-450b-ac9b-8ea50115b3bd")],
+          [SRecord.new(event_id: "30963ed9-6349-450b-ac9b-8ea50115b3bd")],
           s1,
           version_2
         )
         .append_to_stream(
-          [e = SRecord.new(event_id: "5bdc58b7-e8a7-4621-afd6-ccb828d72457")],
+          [SRecord.new(event_id: "5bdc58b7-e8a7-4621-afd6-ccb828d72457")],
           s1,
           version_3
         )
@@ -1515,7 +1515,7 @@ module RubyEventStore
       binary = (+"\xB0").force_encoding("binary")
 
       repository.append_to_stream(
-        [event = SRecord.new(data: binary, metadata: binary)],
+        [SRecord.new(data: binary, metadata: binary)],
         stream,
         version_none
       )

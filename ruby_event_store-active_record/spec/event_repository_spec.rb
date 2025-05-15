@@ -108,7 +108,7 @@ module RubyEventStore
 
       specify "timestamps not overwritten by activerecord-import" do
         repository.append_to_stream(
-          [event = SRecord.new(timestamp: time = Time.at(0))],
+          [SRecord.new(timestamp: time = Time.at(0))],
           Stream.new(GLOBAL_STREAM),
           ExpectedVersion.any
         )
@@ -187,17 +187,17 @@ module RubyEventStore
         repository.append_to_stream(
           [
             SRecord.new(
-              event_id: e1 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 1),
               valid_at: Time.new(2020, 1, 9)
             ),
             SRecord.new(
-              event_id: e2 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 3),
               valid_at: Time.new(2020, 1, 6)
             ),
             SRecord.new(
-              event_id: e3 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 2),
               valid_at: Time.new(2020, 1, 3)
             )
@@ -218,17 +218,17 @@ module RubyEventStore
         repository.append_to_stream(
           [
             SRecord.new(
-              event_id: e1 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 1),
               valid_at: Time.new(2020, 1, 9)
             ),
             SRecord.new(
-              event_id: e2 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 3),
               valid_at: Time.new(2020, 1, 6)
             ),
             SRecord.new(
-              event_id: e3 = SecureRandom.uuid,
+              event_id: SecureRandom.uuid,
               timestamp: Time.new(2020, 1, 2),
               valid_at: Time.new(2020, 1, 3)
             )
@@ -246,7 +246,7 @@ module RubyEventStore
 
       specify "produces expected query for position in stream call" do
         repository.append_to_stream(
-          [event0 = SRecord.new, event1 = SRecord.new],
+          [event0 = SRecord.new, SRecord.new],
           stream = Stream.new("stream"),
           ExpectedVersion.auto
         )

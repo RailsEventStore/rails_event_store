@@ -789,10 +789,10 @@ module RubyEventStore
       expect { specification.reduce }.to raise_error(ArgumentError, "Block must be given")
       expect { specification.reduce([]) }.to raise_error(ArgumentError, "Block must be given")
       expect(specification.reduce([]) { |acc, ev| acc << ev.event_id }).to eq events.map(&:event_id)
-      expect(specification.reduce(0) { |acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon) }).to eq 6
-      expect(specification.backward.reduce(0) { |acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon) }).to eq 6
+      expect(specification.reduce(0) { |acc, ev| acc + ev.data.dig(:here, :will, :be, :dragon) }).to eq 6
+      expect(specification.backward.reduce(0) { |acc, ev| acc + ev.data.dig(:here, :will, :be, :dragon) }).to eq 6
       expect(
-        specification.stream("Dummy").reduce(0) { |acc, ev| acc += ev.data.dig(:here, :will, :be, :dragon) }
+        specification.stream("Dummy").reduce(0) { |acc, ev| acc + ev.data.dig(:here, :will, :be, :dragon) }
       ).to eq 0
     end
 
