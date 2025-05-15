@@ -47,7 +47,7 @@ require "rom/sql"
 
       column :event_type, String, null: false
 
-      if data_type =~ /json/
+      if /json/.match?(data_type)
         column :metadata, data_type
         column :data, data_type, null: false
       else
