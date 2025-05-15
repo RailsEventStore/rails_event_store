@@ -4,7 +4,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    ::RSpec.describe Consumer, db: true, redis: true do
+    ::RSpec.describe Consumer, :db, :redis do
       include SchemaHelper
 
       shared_examples_for "a runner" do
@@ -65,11 +65,13 @@ module RubyEventStore
 
       context "with locking repository" do
         let(:locking) { true }
+
         it_behaves_like "a runner"
       end
 
       context "with non-locking repository" do
         let(:locking) { false }
+
         it_behaves_like "a runner"
       end
     end

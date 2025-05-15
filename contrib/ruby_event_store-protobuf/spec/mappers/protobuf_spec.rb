@@ -173,7 +173,7 @@ module RubyEventStore
         expect { event.metadata["doh"] }.to raise_error(ArgumentError)
       end
 
-      it_behaves_like :correlatable,
+      it_behaves_like 'correlatable',
                       ->(
                         event_id:,
                         data: ResTesting::OrderCreated.new,
@@ -227,7 +227,7 @@ module RubyEventStore
           )
         end
 
-        it_behaves_like :mapper,
+        it_behaves_like 'mapper',
                         Protobuf.new,
                         TimeEnrichment.with(
                           RubyEventStore::Protobuf::Proto.new(

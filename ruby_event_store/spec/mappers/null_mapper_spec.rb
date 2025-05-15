@@ -18,7 +18,7 @@ module RubyEventStore
         )
       end
 
-      it_behaves_like :mapper, NullMapper.new, TimeEnrichment.with(TestEvent.new)
+      it_behaves_like 'mapper', NullMapper.new, TimeEnrichment.with(TestEvent.new)
 
       specify "#event_to_record" do
         record = subject.event_to_record(event)

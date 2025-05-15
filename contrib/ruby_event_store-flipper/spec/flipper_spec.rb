@@ -181,7 +181,7 @@ module RubyEventStore
       instrumenter.unsubscribe("feature_operation.flipper")
     end
 
-    specify "don't publish on query operations " do
+    specify "don't publish on query operations" do
       Flipper.enable(event_store)
       expect(event_store).not_to receive(:publish)
 

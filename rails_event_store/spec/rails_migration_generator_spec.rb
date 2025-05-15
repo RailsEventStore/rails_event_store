@@ -41,18 +41,21 @@ module RailsEventStore
 
       context "with a binary datatype" do
         let(:data_type) { "binary" }
+
         it { is_expected.to match(/t.binary\s+:metadata/) }
         it { is_expected.to match(/t.binary\s+:data/) }
       end
 
       context "with a json datatype" do
         let(:data_type) { "json" }
+
         it { is_expected.to match(/t.json\s+:metadata/) }
         it { is_expected.to match(/t.json\s+:data/) }
       end
 
       context "with a jsonb datatype" do
         let(:data_type) { "jsonb" }
+
         it { is_expected.to match(/t.jsonb\s+:metadata/) }
         it { is_expected.to match(/t.jsonb\s+:data/) }
       end
@@ -71,18 +74,21 @@ module RailsEventStore
 
       context "with a binary datatype" do
         let(:data_type) { "binary" }
+
         it { is_expected.to match(/t.binary\s+:metadata/) }
         it { is_expected.to match(/t.binary\s+:data/) }
       end
 
       context "with json datatype" do
         let(:data_type) { "json" }
+
         it { is_expected.to match(/t.json\s+:metadata/) }
         it { is_expected.to match(/t.json\s+:data/) }
       end
 
       context "jsonb type is not used when adapter is not postgres" do
         let(:data_type) { "jsonb" }
+
         it "raises an error" do
           expect {
             RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type)
@@ -103,6 +109,7 @@ module RailsEventStore
 
       context "with a binary datatype" do
         let(:data_type) { "binary" }
+
         it { is_expected.to match(/t.binary\s+:metadata/) }
         it { is_expected.to match(/t.binary\s+:data/) }
       end

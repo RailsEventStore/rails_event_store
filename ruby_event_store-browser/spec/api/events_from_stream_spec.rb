@@ -27,9 +27,7 @@ module RubyEventStore
       ].each do |endpoint|
         api_client.get endpoint
         expect(api_client.last_response).to be_ok
-        expect(api_client.parsed_body["data"]).to match_array(
-          [
-            {
+        expect(api_client.parsed_body["data"]).to contain_exactly({
               "id" => dummy_event.event_id,
               "type" => "events",
               "attributes" => {
@@ -51,9 +49,7 @@ module RubyEventStore
                 "type_stream_name" => "$by_type_#{dummy_event.event_type}",
                 "parent_event_id" => nil
               }
-            }
-          ]
-        )
+            })
       end
     end
   end

@@ -7,9 +7,9 @@ module RubyEventStore
     specify { expect(Stream.new("some_stream").name).to eq("some_stream") }
     specify { expect { Stream.new("") }.to raise_error(IncorrectStreamData) }
     specify { expect { Stream.new(nil) }.to raise_error(IncorrectStreamData) }
-    specify { expect(Stream.new(GLOBAL_STREAM).global?).to eq(true) }
-    specify { expect(Stream.new("all").global?).to eq(false) }
-    specify { expect(Stream.new("meh").global?).to eq(false) }
+    specify { expect(Stream.new(GLOBAL_STREAM).global?).to be(true) }
+    specify { expect(Stream.new("all").global?).to be(false) }
+    specify { expect(Stream.new("meh").global?).to be(false) }
 
     specify "in-equality" do
       %w[possible stream names].permutation(2).each do |one, two|

@@ -108,6 +108,7 @@ module AggregateRoot
         expect { SnapshotRepository.new(event_store) }
           .not_to raise_error
       end
+
       specify 'initializing with invalid interval' do
         expect { SnapshotRepository.new(event_store, 0) }
           .to raise_error(ArgumentError, 'interval must be greater than 0')

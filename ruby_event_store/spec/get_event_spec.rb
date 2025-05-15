@@ -10,13 +10,13 @@ end
 
 module RubyEventStore
   ::RSpec.describe Event do
-    it_behaves_like :event, Event
+    it_behaves_like 'event', Event
 
     specify "default values" do
       event = Test::TestCreated.new
-      expect(event.event_id).to_not be_nil
-      expect(event.data).to_not be_nil
-      expect(event.metadata).to_not be_nil
+      expect(event.event_id).not_to be_nil
+      expect(event.data).not_to be_nil
+      expect(event.metadata).not_to be_nil
       expect(event.data.to_h).to eq({})
       expect(event.metadata.to_h).to eq({})
       expect(event.metadata[:timestamp]).to be_nil
@@ -25,7 +25,7 @@ module RubyEventStore
 
     specify "constructor attributes are used as event data" do
       event = Test::TestCreated.new(data: { sample: 123 })
-      expect(event.event_id).to_not be_nil
+      expect(event.event_id).not_to be_nil
       expect(event.data[:sample]).to eq(123)
       expect(event.data).to eq({ sample: 123 })
       expect(event.metadata.to_h).to eq({})
@@ -43,7 +43,7 @@ module RubyEventStore
     specify "constructor metadata attribute is used as event metadata (with timestamp changed)" do
       timestamp = Time.utc(2016, 3, 10, 15, 20)
       event = Test::TestCreated.new(metadata: { created_by: "Someone", timestamp: timestamp })
-      expect(event.event_id).to_not be_nil
+      expect(event.event_id).not_to be_nil
       expect(event.data).to eq({})
       expect(event.metadata[:timestamp]).to eq(timestamp)
       expect(event.metadata[:created_by]).to eq("Someone")
@@ -52,7 +52,7 @@ module RubyEventStore
     specify "constructor valid_at attribute is used as event metadata (with validity time changed)" do
       valid_at = Time.utc(2016, 3, 10, 15, 20)
       event = Test::TestCreated.new(metadata: { created_by: "Someone", valid_at: valid_at })
-      expect(event.event_id).to_not be_nil
+      expect(event.event_id).not_to be_nil
       expect(event.data).to eq({})
       expect(event.metadata[:valid_at]).to eq(valid_at)
       expect(event.metadata[:created_by]).to eq("Someone")
@@ -60,7 +60,7 @@ module RubyEventStore
 
     specify "for empty data it initializes instance with default values" do
       event = Test::TestCreated.new
-      expect(event.event_id).to_not be_nil
+      expect(event.event_id).not_to be_nil
       expect(event.data).to eq({})
       expect(event.metadata.to_h).to eq({})
     end
@@ -80,7 +80,7 @@ module RubyEventStore
     specify "UUID should be unique" do
       event_1 = Test::TestCreated.new
       event_2 = Test::TestCreated.new
-      expect(event_1.event_id).to_not eq(event_2.event_id)
+      expect(event_1.event_id).not_to eq(event_2.event_id)
     end
 
     specify "UUID should look like an UUID" do
@@ -194,7 +194,7 @@ module RubyEventStore
       expect(one).not_to eq(two)
     end
 
-    it_behaves_like :correlatable,
+    it_behaves_like 'correlatable',
                     ->(event_id:, data: {}, metadata: nil) {
                       Event.new(event_id: event_id, data: data, metadata: metadata)
                     }

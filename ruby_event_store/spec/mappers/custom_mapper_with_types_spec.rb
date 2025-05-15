@@ -66,7 +66,7 @@ module RubyEventStore
       let(:event_id)     { SecureRandom.uuid }
       let(:event) { TimeEnrichment.with(TestEvent.new(data: data, metadata: metadata, event_id: event_id), timestamp: time, valid_at: time) }
 
-      it_behaves_like :mapper, MapperWithTypes.new, TimeEnrichment.with(TestEvent.new)
+      it_behaves_like 'mapper', MapperWithTypes.new, TimeEnrichment.with(TestEvent.new)
 
       specify '#event_to_record returns transformed record' do
         record = subject.event_to_record(event)

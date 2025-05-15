@@ -142,7 +142,7 @@ module RubyEventStore
       client.subscribe(to: [OrderCreated]) { |event| received_event = event }
       client.publish(OrderCreated.new)
 
-      expect(received_event).to_not be_nil
+      expect(received_event).not_to be_nil
       expect(received_event.metadata[:timestamp]).to eq(Time.at(0))
     end
 

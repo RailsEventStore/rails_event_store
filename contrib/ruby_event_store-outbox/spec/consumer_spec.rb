@@ -4,7 +4,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    ::RSpec.describe Consumer, db: true, redis: true do
+    ::RSpec.describe Consumer, :db, :redis do
       include SchemaHelper
       let(:redis_url) { RedisIsolation.redis_url }
       let(:database_url) { ENV["DATABASE_URL"] }
@@ -39,7 +39,7 @@ module RubyEventStore
           expect(payload_in_redis).to include(JSON.parse(record.payload))
           expect(payload_in_redis["enqueued_at"]).to eq(clock.tick(locking ? 1 : 0).to_f)
           expect(record.enqueued_at).to eq(clock.tick(locking ? 1 : 0))
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(logger_output.string).to include("Sent 1 messages from outbox table")
         end
 
@@ -76,7 +76,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(false)
+          expect(result).to be(false)
         end
 
         specify "already processed should be ignored" do
@@ -86,7 +86,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(false)
+          expect(result).to be(false)
           expect(redis.call("LLEN", "queue:default")).to eq(0)
           expect(logger_output.string).to include("Sent 0 messages from outbox table")
         end
@@ -97,7 +97,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(false)
+          expect(result).to be(false)
           expect(redis.call("LLEN", "queue:default")).to eq(0)
           expect(logger_output.string).to include("Sent 0 messages from outbox table")
         end
@@ -108,7 +108,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(false)
+          expect(result).to be(false)
           expect(redis.call("LLEN", "queue:other_one")).to eq(0)
           expect(logger_output.string).to include("Sent 0 messages from outbox table")
         end
@@ -146,7 +146,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
         end
 
@@ -161,7 +161,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(record1.reload.enqueued_at).to be_nil
           expect(record2.reload.enqueued_at).to be_present
           expect(redis.call("LLEN", "queue:default")).to eq(1)
@@ -179,7 +179,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
           expect(record.reload.enqueued_at).to be_present
         end
@@ -196,7 +196,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
           expect(record.reload.enqueued_at).to be_present
         end
@@ -208,7 +208,7 @@ module RubyEventStore
 
           second_loop_result = consumer.process
 
-          expect(second_loop_result).to eq(true)
+          expect(second_loop_result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
           expect(record.reload.enqueued_at).to be_present
         end
@@ -228,7 +228,7 @@ module RubyEventStore
 
           result = consumer_without_other.process
 
-          expect(result).to eq(false)
+          expect(result).to be(false)
           expect(record.reload.enqueued_at).to be_nil
         end
 
@@ -339,6 +339,7 @@ module RubyEventStore
           )
         end
         let(:locking) { true }
+
         it_behaves_like "a consumer"
 
         specify "there are multiple batches in one loop" do
@@ -350,7 +351,7 @@ module RubyEventStore
 
           records.each(&:reload)
           expect(records.count { |r| r.enqueued? }).to eq(101)
-          expect(result).to eq(true)
+          expect(result).to be(true)
         end
 
         specify "lock is refreshed after each batch" do
@@ -377,7 +378,7 @@ module RubyEventStore
 
           expect(logger_output.string).to include("Obtaining lock for split_key 'default' failed (deadlock)")
           expect(test_metrics.operation_results).to include({ operation: "obtain", result: "deadlocked" })
-          expect(result).to eq(false)
+          expect(result).to be(false)
           expect(redis.call("LLEN", "queue:default")).to eq(0)
         end
 
@@ -397,7 +398,7 @@ module RubyEventStore
 
           expect(logger_output.string).to include("Obtaining lock for split_key 'default' failed (lock timeout)")
           expect(test_metrics.operation_results).to include({ operation: "obtain", result: "lock_timeout" })
-          expect(result).to eq(false)
+          expect(result).to be(false)
           expect(redis.call("LLEN", "queue:default")).to eq(0)
         end
 
@@ -417,7 +418,7 @@ module RubyEventStore
 
           expect(logger_output.string).to include("Obtaining lock for split_key 'default' unsuccessful (taken)")
           expect(test_metrics.operation_results).to include({ operation: "obtain", result: "taken" })
-          expect(result).to eq(false)
+          expect(result).to be(false)
           expect(redis.call("LLEN", "queue:default")).to eq(0)
         end
 
@@ -447,7 +448,7 @@ module RubyEventStore
 
           expect(logger_output.string).to include("Releasing lock for split_key 'default' failed \(deadlock\)")
           expect(test_metrics.operation_results).to include({ operation: "release", result: "deadlocked" })
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
         end
 
@@ -477,7 +478,7 @@ module RubyEventStore
 
           expect(logger_output.string).to include("Releasing lock for split_key 'default' failed (lock timeout)")
           expect(test_metrics.operation_results).to include({ operation: "release", result: "lock_timeout" })
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
         end
 
@@ -510,7 +511,7 @@ module RubyEventStore
             "Releasing lock for split_key 'default' failed (not taken by this process)"
           )
           expect(test_metrics.operation_results).to include({ operation: "release", result: "not_taken_by_this_process" })
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
         end
 
@@ -527,7 +528,7 @@ module RubyEventStore
           result = consumer.process
 
           expect(logger_output.string).to match(/Releasing lock .* failed \(not taken by this process\)/)
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
         end
 
@@ -542,7 +543,7 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(false)
+          expect(result).to be(false)
         end
 
         specify "returns false if didnt aquire lock" do
@@ -557,14 +558,14 @@ module RubyEventStore
 
           result = consumer.process
 
-          expect(result).to eq(false)
+          expect(result).to be(false)
           expect(redis.call("LLEN", "queue:default")).to eq(0)
         end
 
         specify "death of a consumer shouldnt prevent other processes from processing" do
           consumer_1 = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
           expect(Repository::Record).to receive(:where).and_raise("Unexpected error, such as OOM").ordered
-          expect(Repository::Record).to receive(:where).and_call_original.ordered.at_least(2).times
+          expect(Repository::Record).to receive(:where).and_call_original.ordered.at_least(:twice)
           expect { consumer_1.process }.to raise_error(/Unexpected error/)
 
           create_record("default", "default")
@@ -574,7 +575,7 @@ module RubyEventStore
           result = consumer_2.process
 
           # We don't expect both records to be processed (because one of the Locks may be obtained by crashed process, but we expect to do SOME work in ANY splits.
-          expect(result).to eq(true)
+          expect(result).to be(true)
           expect(Repository::Record.where("enqueued_at is not null").count).to be_positive
         end
 

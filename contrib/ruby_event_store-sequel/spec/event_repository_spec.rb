@@ -9,9 +9,9 @@ module RubyEventStore
       helper = SpecHelper.new
       mk_repository = -> { EventRepository.new(sequel: helper.sequel, serializer: helper.serializer) }
 
-      it_behaves_like :event_repository, mk_repository, helper
+      it_behaves_like 'event repository', mk_repository, helper
 
-      around(:each) { |example| helper.run_lifecycle { example.run } }
+      around { |example| helper.run_lifecycle { example.run } }
 
       let(:repository) { mk_repository.call }
       let(:specification) { Specification.new(SpecificationReader.new(repository, Mappers::Default.new)) }

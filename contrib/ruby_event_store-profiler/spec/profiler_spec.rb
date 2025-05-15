@@ -70,7 +70,7 @@ module RubyEventStore
       end
 
       [/rails_event_store/, /aggregate_root/, "total"].each do |pattern|
-        expect(instrumenter.notifier.listening?(pattern)).to eq(false)
+        expect(instrumenter.notifier.listening?(pattern)).to be(false)
       end
     end
 
@@ -85,7 +85,7 @@ module RubyEventStore
         $stdout = STDOUT
       end
 
-      expect(instrumenter.notifier.listening?("total")).to eq(true)
+      expect(instrumenter.notifier.listening?("total")).to be(true)
     ensure
       instrumenter.unsubscribe(external_subscriber)
     end

@@ -169,6 +169,7 @@ Data diff:
       specify do
         expect(FooEvent.new(data: { foo: "bar", baz: "bar" })).not_to matcher(FooEvent).with_data(foo: "bar").strict
       end
+
       specify do
         expect(FooEvent.new(metadata: { foo: "bar", baz: "bar" })).not_to matcher(FooEvent)
           .with_metadata(foo: "bar")

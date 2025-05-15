@@ -14,19 +14,19 @@ module RubyEventStore
 
     specify { expect { ExpectedVersion.new("13") }.to raise_error(InvalidExpectedVersion) }
 
-    specify { expect(ExpectedVersion.new(:any).any?).to eq(true) }
+    specify { expect(ExpectedVersion.new(:any).any?).to be(true) }
 
-    specify { expect(ExpectedVersion.new(1).any?).to eq(false) }
+    specify { expect(ExpectedVersion.new(1).any?).to be(false) }
 
-    specify { expect(ExpectedVersion.new(:auto).auto?).to eq(true) }
+    specify { expect(ExpectedVersion.new(:auto).auto?).to be(true) }
 
-    specify { expect(ExpectedVersion.new(1).auto?).to eq(false) }
+    specify { expect(ExpectedVersion.new(1).auto?).to be(false) }
 
-    specify { expect(ExpectedVersion.new(:none).none?).to eq(true) }
+    specify { expect(ExpectedVersion.new(:none).none?).to be(true) }
 
-    specify { expect(ExpectedVersion.new(1).none?).to eq(false) }
+    specify { expect(ExpectedVersion.new(1).none?).to be(false) }
 
-    specify { expect(ExpectedVersion.any.resolve_for(Stream.new(GLOBAL_STREAM))).to eq(nil) }
+    specify { expect(ExpectedVersion.any.resolve_for(Stream.new(GLOBAL_STREAM))).to be_nil }
 
     specify do
       expect { ExpectedVersion.auto.resolve_for(Stream.new(GLOBAL_STREAM)) }.to raise_error(InvalidExpectedVersion)
@@ -36,7 +36,7 @@ module RubyEventStore
 
     specify { expect(ExpectedVersion.new(2).resolve_for(Stream.new("dummy"))).to eq(2) }
 
-    specify { expect(ExpectedVersion.any.resolve_for(Stream.new("dummy"))).to eq(nil) }
+    specify { expect(ExpectedVersion.any.resolve_for(Stream.new("dummy"))).to be_nil }
 
     specify do
       resolver = ->(stream) do

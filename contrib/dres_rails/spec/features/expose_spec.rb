@@ -16,7 +16,7 @@ require "ruby_event_store"
     end
   end
 
-  before(:each) do
+  before do
     ::ActiveRecord::Base.connection.execute("TRUNCATE event_store_events_in_streams")
     ::ActiveRecord::Base.connection.execute("DELETE FROM event_store_events")
   end
@@ -33,7 +33,7 @@ require "ruby_event_store"
   class MyEvent < RubyEventStore::Event
   end
 
-  around(:each) { |spec| Timecop.freeze(Time.utc(2018, 4, 7, 12, 30)) { spec.call } }
+  around { |spec| Timecop.freeze(Time.utc(2018, 4, 7, 12, 30)) { spec.call } }
 
   before { Rails.configuration.event_store = res }
 

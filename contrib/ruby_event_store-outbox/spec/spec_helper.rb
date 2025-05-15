@@ -49,8 +49,8 @@ end
 RSpec.configure do |config|
   config.include ActiveSupport::Testing::TimeHelpers
   config.include RecordHelper
-  config.after(:each) { travel_back }
-  config.before(:each, redis: true) { |_| redis.call("FLUSHDB") }
+  config.after { travel_back }
+  config.before(:each, :redis) { |_| redis.call("FLUSHDB") }
 end
 
 $verbose = ENV.has_key?("VERBOSE") ? true : false

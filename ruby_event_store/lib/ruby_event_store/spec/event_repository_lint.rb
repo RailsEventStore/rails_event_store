@@ -33,7 +33,7 @@ module RubyEventStore
 end
 
 module RubyEventStore
-  ::RSpec.shared_examples :event_repository do |mk_repository, helper|
+  ::RSpec.shared_examples 'event repository' do |mk_repository, helper|
     let(:repository) { mk_repository.call }
     let(:specification) do
       Specification.new(
@@ -551,7 +551,7 @@ module RubyEventStore
           end
         wait_for_it = false
         threads.each(&:join)
-        expect(fail_occurred).to eq(false)
+        expect(fail_occurred).to be(false)
         expect(read_events_forward(repository, stream).size).to eq(400)
         events_in_stream = read_events_forward(repository, stream)
         expect(events_in_stream.size).to eq(400)
@@ -598,7 +598,7 @@ module RubyEventStore
           end
         wait_for_it = false
         threads.each(&:join)
-        expect(fail_occurred).to eq(false)
+        expect(fail_occurred).to be(false)
         expect(read_events_forward(repository, stream_flow).size).to eq(400)
         events_in_stream = read_events_forward(repository, stream_flow)
         expect(events_in_stream.size).to eq(400)
@@ -782,13 +782,13 @@ module RubyEventStore
         version_none
       )
 
-      expect(repository.has_event?(just_an_id)).to be_truthy
-      expect(repository.has_event?(just_an_id.clone)).to be_truthy
+      expect(repository).to have_event(just_an_id)
+      expect(repository).to have_event(just_an_id.clone)
       expect(repository.has_event?("any other id")).to be false
 
       repository.delete_stream(stream)
-      expect(repository.has_event?(just_an_id)).to be_truthy
-      expect(repository.has_event?(just_an_id.clone)).to be_truthy
+      expect(repository).to have_event(just_an_id)
+      expect(repository).to have_event(just_an_id.clone)
     end
 
     it "#position_in_stream happy path" do
@@ -839,7 +839,7 @@ module RubyEventStore
       skip unless helper.supports_position_queries?
       repository.append_to_stream([event0 = SRecord.new], stream, version_any)
 
-      expect(repository.position_in_stream(event0.event_id, stream)).to eq(nil)
+      expect(repository.position_in_stream(event0.event_id, stream)).to be_nil
     end
 
     it "#global_position happy path" do
@@ -869,14 +869,14 @@ module RubyEventStore
       repository.append_to_stream([SRecord.new], stream, version_any)
       just_an_id = "d5c134c2-db65-4e87-b6ea-d196f8f1a292"
 
-      expect(repository.event_in_stream?(just_an_id, stream)).to eq(false)
+      expect(repository.event_in_stream?(just_an_id, stream)).to be(false)
     end
 
     it "#event_in_stream? when event published into stream" do
       skip unless helper.supports_event_in_stream_query?
       repository.append_to_stream([event0 = SRecord.new], stream, version_any)
 
-      expect(repository.event_in_stream?(event0.event_id, stream)).to eq(true)
+      expect(repository.event_in_stream?(event0.event_id, stream)).to be(true)
     end
 
     it "#event_in_stream? when event not linked into stream" do
@@ -884,7 +884,7 @@ module RubyEventStore
       repository.append_to_stream([SRecord.new], stream_flow, version_any)
       repository.append_to_stream([event1 = SRecord.new], stream, version_any)
 
-      expect(repository.event_in_stream?(event1.event_id, stream_flow)).to eq(
+      expect(repository.event_in_stream?(event1.event_id, stream_flow)).to be(
         false
       )
     end
@@ -894,7 +894,7 @@ module RubyEventStore
       repository.append_to_stream([event0 = SRecord.new], stream, version_any)
       repository.link_to_stream([event0.event_id], stream_flow, version_any)
 
-      expect(repository.event_in_stream?(event0.event_id, stream_flow)).to eq(
+      expect(repository.event_in_stream?(event0.event_id, stream_flow)).to be(
         true
       )
     end
@@ -903,7 +903,7 @@ module RubyEventStore
       skip unless helper.supports_event_in_stream_query?
       just_an_id = "d5c134c2-db65-4e87-b6ea-d196f8f1a292"
 
-      expect(repository.event_in_stream?(just_an_id, stream)).to eq(false)
+      expect(repository.event_in_stream?(just_an_id, stream)).to be(false)
     end
 
     it "knows last event in stream" do
@@ -1507,7 +1507,7 @@ module RubyEventStore
     end
 
     specify "read returns enumerator" do
-      expect(repository.read(specification.result)).to be_kind_of(Enumerator)
+      expect(repository.read(specification.result)).to be_a(Enumerator)
     end
 
     specify "can store arbitrary binary data" do
@@ -1522,30 +1522,30 @@ module RubyEventStore
     end
 
     specify do
-      expect(repository.read(specification.in_batches.result)).to be_kind_of(
+      expect(repository.read(specification.in_batches.result)).to be_a(
         Enumerator
       )
       expect(
         repository.read(specification.in_batches.as_at.result)
-      ).to be_kind_of(Enumerator)
+      ).to be_a(Enumerator)
       expect(
         repository.read(specification.in_batches.as_of.result)
-      ).to be_kind_of(Enumerator)
+      ).to be_a(Enumerator)
       events = Array.new(10) { SRecord.new }
       repository.append_to_stream(
         events,
         Stream.new("Dummy"),
         ExpectedVersion.none
       )
-      expect(repository.read(specification.in_batches.result)).to be_kind_of(
+      expect(repository.read(specification.in_batches.result)).to be_a(
         Enumerator
       )
       expect(
         repository.read(specification.in_batches.as_at.result)
-      ).to be_kind_of(Enumerator)
+      ).to be_a(Enumerator)
       expect(
         repository.read(specification.in_batches.as_of.result)
-      ).to be_kind_of(Enumerator)
+      ).to be_a(Enumerator)
     end
 
     specify do
@@ -1835,7 +1835,7 @@ module RubyEventStore
       )
     end
 
-    context "#update_messages" do
+    describe "#update_messages" do
       specify "changes events" do
         skip unless helper.supports_upsert?
         events = Array.new(5) { SRecord.new }
@@ -1995,7 +1995,7 @@ module RubyEventStore
             .read_first
             .result
         )
-      ).to eq(nil)
+      ).to be_nil
       expect(
         repository.read(
           specification
@@ -2028,7 +2028,7 @@ module RubyEventStore
             .read_first
             .result
         )
-      ).to eq(nil)
+      ).to be_nil
       expect(
         repository.read(
           specification
@@ -2037,7 +2037,7 @@ module RubyEventStore
             .read_first
             .result
         )
-      ).to eq(nil)
+      ).to be_nil
       expect(repository.read(specification.with_id([]).result).to_a).to eq([])
     end
 

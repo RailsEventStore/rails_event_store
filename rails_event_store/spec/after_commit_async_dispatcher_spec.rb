@@ -12,7 +12,7 @@ module RailsEventStore
       after_commit -> { raise DummyError }
     end
 
-    it_behaves_like :dispatcher, AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
+    it_behaves_like 'dispatcher', AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
 
     let(:event) { TimeEnrichment.with(RubyEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8")) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
@@ -20,7 +20,7 @@ module RailsEventStore
 
     let(:dispatcher) { AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)) }
 
-    before(:each) { MyActiveJobAsyncHandler.reset }
+    before { MyActiveJobAsyncHandler.reset }
 
     it "dispatch job immediately when no transaction is open" do
       expect_to_have_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
@@ -168,7 +168,7 @@ module RailsEventStore
     end
 
     describe "#verify" do
-      specify { expect(dispatcher.verify(MyActiveJobAsyncHandler)).to eq(true) }
+      specify { expect(dispatcher.verify(MyActiveJobAsyncHandler)).to be(true) }
     end
 
     def expect_no_enqueued_job(job)

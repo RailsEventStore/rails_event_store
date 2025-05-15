@@ -7,6 +7,7 @@ module RubyEventStore
   module ActiveRecord
     ::RSpec.describe EventIdIndexMigrationGenerator do
       around { |example| SilenceStdout.silence_stdout { example.run } }
+
       around do |example|
         begin
           @dir = Dir.mktmpdir(nil, "./")

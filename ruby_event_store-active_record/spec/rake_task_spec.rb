@@ -35,10 +35,10 @@ module RubyEventStore
 
       def expect_migration_file_in_directory(directory)
         expect(
-          File.exist?(
+          File
+        ).to exist(
             File.join(File.expand_path("../../", __FILE__), directory, "20221130213700_create_event_store_events.rb")
           )
-        ).to be_truthy
       end
 
       def with_custom_directory

@@ -28,8 +28,8 @@ module RubyEventStore
         specify "#parse split keys" do
           expect(Parser.parse(["--split-keys=foo"]).split_keys).to eq(["foo"])
           expect(Parser.parse(["--split-keys=foo,bar"]).split_keys).to eq(%w[foo bar])
-          expect(Parser.parse(["--split-keys="]).split_keys).to eq(nil)
-          expect(Parser.parse([]).split_keys).to eq(nil)
+          expect(Parser.parse(["--split-keys="]).split_keys).to be_nil
+          expect(Parser.parse([]).split_keys).to be_nil
         end
 
         specify "#parse format" do
@@ -46,7 +46,7 @@ module RubyEventStore
           expect(Parser.parse(["--metrics-url=http://username:password@host:1234/db"]).metrics_url).to eq(
             "http://username:password@host:1234/db"
           )
-          expect(Parser.parse([]).metrics_url).to eq(nil)
+          expect(Parser.parse([]).metrics_url).to be_nil
         end
 
         specify "#parse --sleep-on-empty" do
@@ -67,6 +67,7 @@ module RubyEventStore
 
       ::RSpec.describe "#build_runner" do
         let(:database_url) { ENV["DATABASE_URL"] }
+
         specify "smoke test for building runner with default options" do
           expect { CLI.new.build_runner(Parser.parse(["--database-url=#{database_url}"])) }.not_to raise_error
         end

@@ -37,11 +37,11 @@ module RubyEventStore
       end
       subject { EncryptionMapper.new(key_repository) }
 
-      it_behaves_like :mapper,
+      it_behaves_like 'mapper',
                       EncryptionMapper.new(InMemoryEncryptionKeyRepository.new),
                       TimeEnrichment.with(SomeEventWithoutPersonalInfo.new)
 
-      before(:each) do
+      before do
         key = key_repository.create(123)
         allow(key).to receive(:random_iv).and_return("123456789012")
       end
@@ -150,6 +150,7 @@ module RubyEventStore
 
       context "when key is forgotten and has custom forgotten data text" do
         let(:forgotten_data) { ForgottenData.new("Key is forgotten") }
+
         subject { EncryptionMapper.new(key_repository, forgotten_data: forgotten_data) }
 
         specify "#record_to_event returns event instance with forgotten data" do
@@ -180,6 +181,7 @@ module RubyEventStore
 
       context "when ReverseYamlSerializer serializer is provided" do
         let(:coder) { Transformation::Encryption.new(key_repository, serializer: ReverseYamlSerializer) }
+
         subject { EncryptionMapper.new(key_repository, serializer: ReverseYamlSerializer) }
 
         specify "#event_to_record returns serialized record" do

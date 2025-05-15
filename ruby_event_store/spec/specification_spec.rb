@@ -4,42 +4,43 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe Specification do
-    specify { expect(specification.each).to be_kind_of(Enumerator) }
+    specify { expect(specification.each).to be_a(Enumerator) }
 
-    specify { expect(specification.result.forward?).to eq(true) }
-    specify { expect(specification.result.backward?).to eq(false) }
-    specify { expect(specification.forward.result.forward?).to eq(true) }
-    specify { expect(specification.forward.result.backward?).to eq(false) }
-    specify { expect(specification.backward.result.forward?).to eq(false) }
-    specify { expect(specification.backward.result.backward?).to eq(true) }
+    specify { expect(specification.result.forward?).to be(true) }
+    specify { expect(specification.result.backward?).to be(false) }
+    specify { expect(specification.forward.result.forward?).to be(true) }
+    specify { expect(specification.forward.result.backward?).to be(false) }
+    specify { expect(specification.backward.result.forward?).to be(false) }
+    specify { expect(specification.backward.result.backward?).to be(true) }
 
-    specify { expect(specification.result.limit?).to eq(false) }
+    specify { expect(specification.result.limit?).to be(false) }
     specify { expect(specification.result.limit).to eq(Float::INFINITY) }
 
-    specify { expect(specification.result.all?).to eq(true) }
-    specify { expect(specification.result.batched?).to eq(false) }
-    specify { expect(specification.result.first?).to eq(false) }
-    specify { expect(specification.result.last?).to eq(false) }
+    specify { expect(specification.result.all?).to be(true) }
+    specify { expect(specification.result.batched?).to be(false) }
+    specify { expect(specification.result.first?).to be(false) }
+    specify { expect(specification.result.last?).to be(false) }
 
     specify { expect { specification.limit(nil) }.to raise_error(InvalidPageSize) }
     specify { expect { specification.limit(0) }.to raise_error(InvalidPageSize) }
     specify { expect(specification.limit(1).result.limit).to eq(1) }
-    specify { expect(specification.result.limit?).to eq(false) }
-    specify { expect(specification.limit(100).result.limit?).to eq(true) }
+    specify { expect(specification.result.limit?).to be(false) }
+    specify { expect(specification.limit(100).result.limit?).to be(true) }
 
     specify { expect(specification.result.stream.name).to eq(GLOBAL_STREAM) }
-    specify { expect(specification.result.stream.global?).to eq(true) }
+    specify { expect(specification.result.stream.global?).to be(true) }
     specify { expect { specification.stream(nil) }.to raise_error(IncorrectStreamData) }
     specify { expect { specification.stream("") }.to raise_error(IncorrectStreamData) }
     specify { expect(specification.stream("stream").result.stream.name).to eq("stream") }
-    specify { expect(specification.stream("nope").result.stream.global?).to eq(false) }
+    specify { expect(specification.stream("nope").result.stream.global?).to be(false) }
     specify { expect(specification.stream("all").result.stream.name).to eq("all") }
-    specify { expect(specification.stream("all").result.stream.global?).to eq(false) }
+    specify { expect(specification.stream("all").result.stream.global?).to be(false) }
     specify { expect(specification.stream(GLOBAL_STREAM).result.stream.name).to eq(GLOBAL_STREAM) }
-    specify { expect(specification.stream(GLOBAL_STREAM).result.stream.global?).to eq(true) }
+    specify { expect(specification.stream(GLOBAL_STREAM).result.stream.global?).to be(true) }
 
     specify { expect { specification.from(nil) }.to raise_error(InvalidPageStart) }
     specify { expect { specification.from("") }.to raise_error(InvalidPageStart) }
+
     specify do
       repository.append_to_stream([test_record(event_id)], Stream.new("Dummy"), ExpectedVersion.none)
       expect { specification.stream('Another').from(event_id) }.not_to raise_error
@@ -62,14 +63,14 @@ module RubyEventStore
 
     specify { expect(specification.result.with_ids).to be_nil }
     specify { expect(specification.with_id([event_id]).result.with_ids).to eq([event_id]) }
-    specify { expect(specification.result.with_ids?).to eq(false) }
-    specify { expect(specification.with_id([event_id]).result.with_ids?).to eq(true) }
-    specify { expect(specification.with_id([]).result.with_ids?).to eq(true) }
+    specify { expect(specification.result.with_ids?).to be(false) }
+    specify { expect(specification.with_id([event_id]).result.with_ids?).to be(true) }
+    specify { expect(specification.with_id([]).result.with_ids?).to be(true) }
 
     specify { expect(specification.result.with_types).to be_nil }
     specify { expect(specification.of_type([TestEvent]).result.with_types).to eq(["TestEvent"]) }
-    specify { expect(specification.result.with_types?).to eq(false) }
-    specify { expect(specification.of_type([TestEvent]).result.with_types?).to eq(true) }
+    specify { expect(specification.result.with_types?).to be(false) }
+    specify { expect(specification.of_type([TestEvent]).result.with_types?).to be(true) }
 
     specify { with_event_of_id(event_id) { expect(specification.from(event_id).result.start).to eq(event_id) } }
 
@@ -107,10 +108,10 @@ module RubyEventStore
       with_event_of_id(event_id) do
         spec = specification.backward.stream(stream_name).limit(10).from(event_id)
         expect(spec.result.stream.name).to eq(stream_name)
-        expect(spec.result.stream.global?).to eq(false)
+        expect(spec.result.stream.global?).to be(false)
         expect(spec.result.limit).to eq(10)
         expect(spec.result.start).to eq(event_id)
-        expect(spec.result.backward?).to eq(true)
+        expect(spec.result.backward?).to be(true)
       end
     end
 
@@ -118,10 +119,10 @@ module RubyEventStore
       with_event_of_id(event_id) do
         spec = specification.backward.stream(stream_name).limit(10).older_than(target_date)
         expect(spec.result.stream.name).to eq(stream_name)
-        expect(spec.result.stream.global?).to eq(false)
+        expect(spec.result.stream.global?).to be(false)
         expect(spec.result.limit).to eq(10)
         expect(spec.result.older_than).to eq(target_date)
-        expect(spec.result.backward?).to eq(true)
+        expect(spec.result.backward?).to be(true)
       end
     end
 
@@ -129,10 +130,10 @@ module RubyEventStore
       with_event_of_id(event_id) do
         spec = specification.backward.stream(stream_name).limit(10).newer_than(target_date)
         expect(spec.result.stream.name).to eq(stream_name)
-        expect(spec.result.stream.global?).to eq(false)
+        expect(spec.result.stream.global?).to be(false)
         expect(spec.result.limit).to eq(10)
         expect(spec.result.newer_than).to eq(target_date)
-        expect(spec.result.backward?).to eq(true)
+        expect(spec.result.backward?).to be(true)
       end
     end
 
@@ -140,10 +141,10 @@ module RubyEventStore
       with_event_of_id(event_id) do
         spec = specification.backward.stream(stream_name).limit(10).to(event_id)
         expect(spec.result.stream.name).to eq(stream_name)
-        expect(spec.result.stream.global?).to eq(false)
+        expect(spec.result.stream.global?).to be(false)
         expect(spec.result.limit).to eq(10)
         expect(spec.result.stop).to eq(event_id)
-        expect(spec.result.backward?).to eq(true)
+        expect(spec.result.backward?).to be(true)
       end
     end
 
@@ -171,6 +172,7 @@ module RubyEventStore
     specify do
       expect(specification.in_batches(3).in_batches.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
     end
+
     specify { expect(specification.in_batches(3).forward.result.batch_size).to eq(3) }
     specify { expect(specification.in_batches(3).backward.result.batch_size).to eq(3) }
     specify { expect(specification.in_batches(3).read_first.result.batch_size).to eq(3) }
@@ -186,7 +188,7 @@ module RubyEventStore
         expect(specification.from(event_id).read_last.result.start).to eq(event_id)
         expect(specification.from(event_id).forward.result.start).to eq(event_id)
         expect(specification.from(event_id).backward.result.start).to eq(event_id)
-        expect(specification.read_first.from(event_id).result.first?).to eq(true)
+        expect(specification.read_first.from(event_id).result.first?).to be(true)
       end
     end
 
@@ -198,7 +200,7 @@ module RubyEventStore
         expect(specification.to(event_id).read_last.result.stop).to eq(event_id)
         expect(specification.to(event_id).forward.result.stop).to eq(event_id)
         expect(specification.to(event_id).backward.result.stop).to eq(event_id)
-        expect(specification.read_last.to(event_id).result.last?).to eq(true)
+        expect(specification.read_last.to(event_id).result.last?).to be(true)
       end
     end
 
@@ -210,7 +212,7 @@ module RubyEventStore
         expect(specification.older_than(target_date).read_last.result.older_than).to eq(target_date)
         expect(specification.older_than(target_date).forward.result.older_than).to eq(target_date)
         expect(specification.older_than(target_date).backward.result.older_than).to eq(target_date)
-        expect(specification.read_first.older_than(target_date).result.first?).to eq(true)
+        expect(specification.read_first.older_than(target_date).result.first?).to be(true)
       end
     end
 
@@ -224,7 +226,7 @@ module RubyEventStore
         expect(specification.older_than_or_equal(target_date).read_last.result.older_than_or_equal).to eq(target_date)
         expect(specification.older_than_or_equal(target_date).forward.result.older_than_or_equal).to eq(target_date)
         expect(specification.older_than_or_equal(target_date).backward.result.older_than_or_equal).to eq(target_date)
-        expect(specification.read_first.older_than_or_equal(target_date).result.first?).to eq(true)
+        expect(specification.read_first.older_than_or_equal(target_date).result.first?).to be(true)
       end
     end
 
@@ -236,7 +238,7 @@ module RubyEventStore
         expect(specification.newer_than(target_date).read_last.result.newer_than).to eq(target_date)
         expect(specification.newer_than(target_date).forward.result.newer_than).to eq(target_date)
         expect(specification.newer_than(target_date).backward.result.newer_than).to eq(target_date)
-        expect(specification.read_last.newer_than(target_date).result.last?).to eq(true)
+        expect(specification.read_last.newer_than(target_date).result.last?).to be(true)
       end
     end
 
@@ -250,7 +252,7 @@ module RubyEventStore
         expect(specification.newer_than_or_equal(target_date).read_last.result.newer_than_or_equal).to eq(target_date)
         expect(specification.newer_than_or_equal(target_date).forward.result.newer_than_or_equal).to eq(target_date)
         expect(specification.newer_than_or_equal(target_date).backward.result.newer_than_or_equal).to eq(target_date)
-        expect(specification.read_last.newer_than_or_equal(target_date).result.last?).to eq(true)
+        expect(specification.read_last.newer_than_or_equal(target_date).result.last?).to be(true)
       end
     end
 
@@ -261,206 +263,206 @@ module RubyEventStore
     specify { expect(specification.limit(3).backward.result.limit).to eq(3) }
     specify { expect(specification.limit(3).in_batches.result.limit).to eq(3) }
 
-    specify { expect(specification.read_first.stream("dummy").result.first?).to eq(true) }
+    specify { expect(specification.read_first.stream("dummy").result.first?).to be(true) }
     specify { expect(specification.stream("dummy").forward.result.stream.name).to eq("dummy") }
-    specify { expect(specification.stream("dummy").forward.result.stream.global?).to eq(false) }
+    specify { expect(specification.stream("dummy").forward.result.stream.global?).to be(false) }
     specify { expect(specification.stream("dummy").backward.result.stream.name).to eq("dummy") }
-    specify { expect(specification.stream("dummy").backward.result.stream.global?).to eq(false) }
+    specify { expect(specification.stream("dummy").backward.result.stream.global?).to be(false) }
     specify { expect(specification.stream("dummy").in_batches.result.stream.name).to eq("dummy") }
-    specify { expect(specification.stream("dummy").in_batches.result.stream.global?).to eq(false) }
+    specify { expect(specification.stream("dummy").in_batches.result.stream.global?).to be(false) }
 
-    specify { expect(specification.read_first.limit(1).result.first?).to eq(true) }
-    specify { expect(specification.read_first.forward.result.first?).to eq(true) }
-    specify { expect(specification.read_first.backward.result.first?).to eq(true) }
-    specify { expect(specification.backward.in_batches.result.backward?).to eq(true) }
+    specify { expect(specification.read_first.limit(1).result.first?).to be(true) }
+    specify { expect(specification.read_first.forward.result.first?).to be(true) }
+    specify { expect(specification.read_first.backward.result.first?).to be(true) }
+    specify { expect(specification.backward.in_batches.result.backward?).to be(true) }
 
     specify "immutable specification" do
       with_event_of_id(event_id) do
         spec = backward_specifcation = specification.backward
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.backward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.backward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.from(event_id)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
+        expect(spec.result.forward?).to be(true)
         expect(spec.result.start).to eq(event_id)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.to(event_id)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
         expect(spec.result.stop).to eq(event_id)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.older_than(target_date)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.newer_than(target_date)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.limit(10)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
         expect(spec.result.limit).to eq(10)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.stream(stream_name)
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(stream_name)
-        expect(spec.result.stream.global?).to eq(false)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(false)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.in_batches
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.batched?).to eq(true)
-        expect(spec.result.all?).to eq(false)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.batched?).to be(true)
+        expect(spec.result.all?).to be(false)
         expect(spec.result.batch_size).to eq(100)
 
         spec = specification
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = backward_specifcation.forward
         expect(spec.result.object_id).not_to eq(backward_specifcation.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = backward_specifcation
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.backward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.backward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.read_first
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.first?).to eq(true)
-        expect(spec.result.all?).to eq(false)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.first?).to be(true)
+        expect(spec.result.all?).to be(false)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.read_last
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.last?).to eq(true)
-        expect(spec.result.all?).to eq(false)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.last?).to be(true)
+        expect(spec.result.all?).to be(false)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
 
         spec = specification.with_id([event_id])
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
         expect(spec.result.with_ids).to eq([event_id])
 
         spec = specification.of_type([TestEvent])
         expect(spec.result.object_id).not_to eq(specification.result.object_id)
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
         expect(spec.result.with_types).to eq(["TestEvent"])
 
         spec = specification
-        expect(spec.result.forward?).to eq(true)
-        expect(spec.result.start).to eq(nil)
-        expect(spec.result.stop).to eq(nil)
-        expect(spec.result.limit?).to eq(false)
+        expect(spec.result.forward?).to be(true)
+        expect(spec.result.start).to be_nil
+        expect(spec.result.stop).to be_nil
+        expect(spec.result.limit?).to be(false)
         expect(spec.result.stream.name).to eq(GLOBAL_STREAM)
-        expect(spec.result.stream.global?).to eq(true)
-        expect(spec.result.all?).to eq(true)
+        expect(spec.result.stream.global?).to be(true)
+        expect(spec.result.all?).to be(true)
         expect(spec.result.batch_size).to eq(Specification::DEFAULT_BATCH_SIZE)
       end
     end
@@ -609,8 +611,8 @@ module RubyEventStore
       expect(specification.event!(records[0].event_id)).to eq(TestEvent.new(event_id: records[0].event_id))
       expect(specification.event!(records[3].event_id)).to eq(TestEvent.new(event_id: records[3].event_id))
 
-      expect(specification.events([])).to be_kind_of(Enumerator)
-      expect(specification.events([0, 2, 4].map { |i| records[i].event_id })).to be_kind_of(Enumerator)
+      expect(specification.events([])).to be_a(Enumerator)
+      expect(specification.events([0, 2, 4].map { |i| records[i].event_id })).to be_a(Enumerator)
       expect(specification.events([0, 2, 4].map { |i| records[i].event_id }).to_a).to eq(
         [0, 2, 4].map { |i| TestEvent.new(event_id: records[i].event_id) }
       )
@@ -622,25 +624,25 @@ module RubyEventStore
     specify do
       repository.append_to_stream([test_record], Stream.new("Dummy"), ExpectedVersion.none)
 
-      expect(specification.result.batched?).to eq(false)
-      expect(specification.result.first?).to eq(false)
-      expect(specification.result.last?).to eq(false)
+      expect(specification.result.batched?).to be(false)
+      expect(specification.result.first?).to be(false)
+      expect(specification.result.last?).to be(false)
 
-      expect(specification.read_first.result.batched?).to eq(false)
-      expect(specification.read_first.result.first?).to eq(true)
-      expect(specification.read_first.result.last?).to eq(false)
+      expect(specification.read_first.result.batched?).to be(false)
+      expect(specification.read_first.result.first?).to be(true)
+      expect(specification.read_first.result.last?).to be(false)
 
-      expect(specification.read_last.result.batched?).to eq(false)
-      expect(specification.read_last.result.first?).to eq(false)
-      expect(specification.read_last.result.last?).to eq(true)
+      expect(specification.read_last.result.batched?).to be(false)
+      expect(specification.read_last.result.first?).to be(false)
+      expect(specification.read_last.result.last?).to be(true)
 
-      expect(specification.in_batches.result.batched?).to eq(true)
-      expect(specification.in_batches.result.first?).to eq(false)
-      expect(specification.in_batches.result.last?).to eq(false)
+      expect(specification.in_batches.result.batched?).to be(true)
+      expect(specification.in_batches.result.first?).to be(false)
+      expect(specification.in_batches.result.last?).to be(false)
     end
 
-    specify { expect(specification.result.frozen?).to eq(true) }
-    specify { expect(specification.backward.result.frozen?).to eq(true) }
+    specify { expect(specification.result.frozen?).to be(true) }
+    specify { expect(specification.backward.result.frozen?).to be(true) }
 
     specify "#hash" do
       expect(specification.result.hash).to eq(specification.forward.result.hash)
@@ -811,7 +813,7 @@ module RubyEventStore
     end
 
     specify "by default time sort order is not defined" do
-      expect(specification.result.time_sort_by).to eq nil
+      expect(specification.result.time_sort_by).to be_nil
     end
 
     specify "as_at sets time sort order by event's timestamp/creation date" do
@@ -838,13 +840,13 @@ module RubyEventStore
     end
 
     specify "time_sort_by_as_at?" do
-      expect(specification.as_at.result.time_sort_by_as_at?).to eq true
-      expect(specification.result.time_sort_by_as_at?).to eq false
+      expect(specification.as_at.result.time_sort_by_as_at?).to be true
+      expect(specification.result.time_sort_by_as_at?).to be false
     end
 
     specify "time_sort_by_as_of?" do
-      expect(specification.as_of.result.time_sort_by_as_of?).to eq true
-      expect(specification.result.time_sort_by_as_of?).to eq false
+      expect(specification.as_of.result.time_sort_by_as_of?).to be true
+      expect(specification.result.time_sort_by_as_of?).to be false
     end
 
     let(:repository) { InMemoryRepository.new }

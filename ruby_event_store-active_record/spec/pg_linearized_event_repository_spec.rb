@@ -10,11 +10,11 @@ module RubyEventStore
       helper = SpecHelper.new
       mk_repository = -> { PgLinearizedEventRepository.new(serializer: Serializers::YAML) }
 
-      it_behaves_like :event_repository, mk_repository, helper
+      it_behaves_like 'event repository', mk_repository, helper
 
       let(:repository) { mk_repository.call }
 
-      around(:each) { |example| helper.run_lifecycle { example.run } }
+      around { |example| helper.run_lifecycle { example.run } }
 
       specify "linearized by lock" do
         begin

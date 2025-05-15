@@ -12,7 +12,7 @@ module RubyEventStore
       expect(api_client.last_response).to be_ok
       expect(
         api_client.parsed_body["data"]["attributes"]["related_streams"]
-      ).to eq(nil)
+      ).to be_nil
     end
 
     specify "requsting stream resource with related streams" do

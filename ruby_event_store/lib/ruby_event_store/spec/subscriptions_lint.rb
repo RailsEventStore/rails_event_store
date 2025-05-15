@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples :subscriptions do |subscriptions_class|
+RSpec.shared_examples 'subscriptions' do |subscriptions_class|
   Test1DomainEvent = Class.new(RubyEventStore::Event)
   Test2DomainEvent = Class.new(RubyEventStore::Event)
   Test3DomainEvent = Class.new(RubyEventStore::Event)
