@@ -400,32 +400,28 @@ class CI
       { "push" => { "paths" => paths } }
     end
 
-    def pr_trigger(paths)
-      { "pull_request" => { "types" => %w[opened reopened], "paths" => paths } }
-    end
-
     def scheduled_trigger
       { "schedule" => [{ "cron" => "0 17 * * *" }] }
     end
 
     def release_triggers(workflow_name)
       paths = release_paths(workflow_name)
-      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup)]
+      [manual_trigger, api_trigger, push_trigger(paths.dup)]
     end
 
     def contrib_triggers(workflow_name, working_directory)
       paths = contrib_paths(workflow_name, working_directory)
-      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup)]
+      [manual_trigger, api_trigger, push_trigger(paths.dup)]
     end
 
     def coverage_triggers(workflow_name, working_directory)
       paths = coverage_paths(workflow_name, working_directory)
-      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup), scheduled_trigger]
+      [manual_trigger, api_trigger, push_trigger(paths.dup), scheduled_trigger]
     end
 
     def dres_triggers(workflow_name)
       paths = dres_paths(workflow_name)
-      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup)]
+      [manual_trigger, api_trigger, push_trigger(paths.dup)]
     end
 
     def release_paths(workflow_name)

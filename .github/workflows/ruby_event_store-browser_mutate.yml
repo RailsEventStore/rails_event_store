@@ -16,21 +16,6 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
-  pull_request:
-    types:
-    - opened
-    - reopened
-    paths:
-    - aggregate_root/**
-    - rails_event_store/**
-    - ruby_event_store/**
-    - ruby_event_store-active_record/**
-    - ruby_event_store-browser/**
-    - ruby_event_store-rspec/**
-    - ".github/workflows/ruby_event_store-browser_mutate.yml"
-    - support/**
-    - "!support/bundler/**"
-    - "!support/ci/**"
 jobs:
   mutate:
     runs-on: ubuntu-latest

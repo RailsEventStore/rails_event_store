@@ -11,16 +11,6 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
-  pull_request:
-    types:
-    - opened
-    - reopened
-    paths:
-    - ruby_event_store-rspec/Gemfile.lock
-    - ".github/workflows/ruby_event_store-rspec_coverage.yml"
-    - support/**
-    - "!support/bundler/**"
-    - "!support/ci/**"
   schedule:
   - cron: 0 17 * * *
 jobs:
