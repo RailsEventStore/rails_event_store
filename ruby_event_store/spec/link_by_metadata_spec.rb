@@ -34,7 +34,7 @@ module RubyEventStore
     specify "explicitly passes array of ids instead of a single id" do
       event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :city))
       expect(event_store).to receive(:link).with(instance_of(Array), any_args)
-      event_store.publish(ev = OrderCreated.new(metadata: { city: "Paris" }))
+      event_store.publish(OrderCreated.new(metadata: { city: "Paris" }))
     end
   end
 
@@ -101,7 +101,7 @@ module RubyEventStore
     specify "explicitly passes array of ids instead of a single id" do
       event_store.subscribe_to_all_events(LinkByEventType.new(event_store: event_store))
       expect(event_store).to receive(:link).with(instance_of(Array), any_args)
-      event_store.publish(ev = OrderCreated.new)
+      event_store.publish(OrderCreated.new)
     end
   end
 end

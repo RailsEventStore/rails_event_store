@@ -59,7 +59,7 @@ module RubyEventStore
       client.append(first_event = TestEvent.new, stream_name: stream, expected_version: :auto)
 
       expect {
-        client.publish(second_event = TestEvent.new, stream_name: stream, expected_version: :none)
+        client.publish(TestEvent.new, stream_name: stream, expected_version: :none)
       }.to raise_error(WrongExpectedEventVersion)
       expect(client.read.stream(stream).to_a).to eq([first_event])
     end
@@ -75,7 +75,7 @@ module RubyEventStore
       client.append(first_event = TestEvent.new, stream_name: stream, expected_version: :auto)
       client.append(second_event = TestEvent.new, stream_name: stream, expected_version: :auto)
 
-      expect { client.publish(third_event = TestEvent.new, stream_name: stream, expected_version: 0) }.to raise_error(
+      expect { client.publish(TestEvent.new, stream_name: stream, expected_version: 0) }.to raise_error(
         WrongExpectedEventVersion
       )
       expect(client.read.stream(stream).to_a).to eq([first_event, second_event])
@@ -106,7 +106,7 @@ module RubyEventStore
     end
 
     specify "published event metadata will be enriched by metadata provided in with_metadata when executed inside a block" do
-      client.with_metadata(request_ip: "127.0.0.1") { client.publish(event = TestEvent.new) }
+      client.with_metadata(request_ip: "127.0.0.1") { client.publish(TestEvent.new) }
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
@@ -117,7 +117,7 @@ module RubyEventStore
 
     specify "published event metadata will not be enriched by metadata provided in with_metadata when published outside a block" do
       client.with_metadata(request_ip: "127.0.0.1")
-      client.publish(event = TestEvent.new)
+      client.publish(TestEvent.new)
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
@@ -228,7 +228,7 @@ module RubyEventStore
     end
 
     specify "timestamp can be overwritten by using with_metadata" do
-      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) { client.append(event = TestEvent.new) }
+      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) { client.append(TestEvent.new) }
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
@@ -238,7 +238,7 @@ module RubyEventStore
     end
 
     specify "valid_at will equal timestamp unless specified" do
-      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) { client.append(event = TestEvent.new) }
+      client.with_metadata(timestamp: Time.utc(2018, 1, 1)) { client.append(TestEvent.new) }
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
@@ -248,7 +248,7 @@ module RubyEventStore
     end
 
     specify "valid_at can be overwritten by using with_metadata" do
-      client.with_metadata(valid_at: Time.utc(2018, 1, 1)) { client.append(event = TestEvent.new) }
+      client.with_metadata(valid_at: Time.utc(2018, 1, 1)) { client.append(TestEvent.new) }
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
@@ -258,7 +258,7 @@ module RubyEventStore
 
     specify "valid_at will not be set to timestamp if specified" do
       client.with_metadata(timestamp: Time.utc(2018, 1, 1), valid_at: Time.utc(2018, 1, 3)) do
-        client.append(event = TestEvent.new)
+        client.append(TestEvent.new)
       end
       published = client.read.limit(100).to_a
 
@@ -273,7 +273,7 @@ module RubyEventStore
       utc = Time.parse("2015-05-04 13:17:23 UTC")
       allow(Time).to receive(:now).and_return(now)
       allow_any_instance_of(Time).to receive(:utc).and_return(utc)
-      client.publish(event = TestEvent.new)
+      client.publish(TestEvent.new)
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
@@ -285,7 +285,7 @@ module RubyEventStore
       utc = Time.parse("2015-05-04 13:17:23 UTC")
       allow(Time).to receive(:now).and_return(now)
       allow_any_instance_of(Time).to receive(:utc).and_return(utc)
-      client.publish(event = TestEvent.new)
+      client.publish(TestEvent.new)
       published = client.read.limit(100).to_a
 
       expect(published.size).to eq(1)
@@ -634,7 +634,7 @@ module RubyEventStore
     end
 
     specify "append fail if expected version is nil" do
-      expect { client.append(event = OrderCreated.new, stream_name: "stream", expected_version: nil) }.to raise_error(
+      expect { client.append(OrderCreated.new, stream_name: "stream", expected_version: nil) }.to raise_error(
         InvalidExpectedVersion
       )
     end

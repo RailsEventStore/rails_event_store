@@ -310,7 +310,7 @@ module RubyEventStore
       specify do
         old_formatter = RSpec.default_formatter
         RSpec.default_formatter = RSpec::StepByStepFailureMessageFormatter.new
-        matcher_ = matcher(expected = matchers.an_event(BarEvent))
+        matcher_ = matcher(matchers.an_event(BarEvent))
         matcher_.matches?(event_store)
 
         expect(matcher_.failure_message.to_s).to eq(<<~EOS)
