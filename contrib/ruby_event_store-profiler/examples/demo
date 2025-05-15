@@ -13,7 +13,6 @@ event_store = RubyEventStore::Client.new(
   dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, asn)
 )
 DummyEvent  = Class.new(RubyEventStore::Event)
-dummy = DummyEvent.new
 repo  = AggregateRoot::InstrumentedRepository.new(AggregateRoot::Repository.new(event_store), asn)
 
 class Bazinga

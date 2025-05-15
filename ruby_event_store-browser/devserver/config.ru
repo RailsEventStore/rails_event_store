@@ -40,8 +40,6 @@ sample_event_type =
     [namespaces.sample, events.sample].join("::")
   end
 
-stream_names = %w[]
-
 event_store.publish(
   90.times.map do
     RubyEventStore::Event.new(

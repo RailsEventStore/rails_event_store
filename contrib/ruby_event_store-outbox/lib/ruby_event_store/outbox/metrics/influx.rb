@@ -7,7 +7,6 @@ module RubyEventStore
     module Metrics
       class Influx
         def initialize(url)
-          uri = URI.parse(url)
           options = { url: url, async: true, time_precision: "ns" }
           @influxdb_client = InfluxDB::Client.new(**options)
         end

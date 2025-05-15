@@ -159,8 +159,7 @@ module RubyEventStore
         lock_for_some_process =
           Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         wait_for_lock_duration
-        lock_for_other_process =
-          Repository::Lock.obtain(expected_fetch_specification, other_process_uuid, clock: clock)
+        Repository::Lock.obtain(expected_fetch_specification, other_process_uuid, clock: clock)
 
         result = lock_for_some_process.refresh(clock: clock)
 
