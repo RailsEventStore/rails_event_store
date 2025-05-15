@@ -11,7 +11,7 @@ module RailsEventStore
       def create_bounded_context
         create_file "#{bounded_context_name}/lib/#{bounded_context_name}/.keep"
 
-        template "module.rb", "#{bounded_context_name}/lib/#{bounded_context_name}.rb"
+        template "module.erb", "#{bounded_context_name}/lib/#{bounded_context_name}.rb"
 
         application { "config.paths.add '#{bounded_context_name}/lib', eager_load: true" }
       end

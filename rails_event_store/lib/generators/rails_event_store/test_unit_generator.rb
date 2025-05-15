@@ -8,11 +8,11 @@ module RailsEventStore
       source_root File.expand_path(File.join(File.dirname(__FILE__), "../templates"))
 
       def test_helper
-        template "test_helper.rb", "#{bounded_context_name}/test/test_helper.rb"
+        template "test_helper.erb", "#{bounded_context_name}/test/test_helper.rb"
       end
 
       def require_bc_test
-        template "require_bc_test.rb", "test/#{bounded_context_name}_test.rb"
+        template "require_bc_test.erb", "test/#{bounded_context_name}_test.rb"
       end
 
       private
