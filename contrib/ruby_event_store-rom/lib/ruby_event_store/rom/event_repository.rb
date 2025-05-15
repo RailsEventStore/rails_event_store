@@ -65,7 +65,7 @@ module RubyEventStore
       def has_event?(event_id)
         @events.exist?(event_id)
       rescue Sequel::DatabaseError => doh
-        raise doh unless doh.message =~ /PG::InvalidTextRepresentation.*uuid/
+        raise doh unless /PG::InvalidTextRepresentation.*uuid/.match?(doh.message)
         false
       end
 

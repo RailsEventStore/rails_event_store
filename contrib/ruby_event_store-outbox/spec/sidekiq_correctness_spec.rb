@@ -139,7 +139,7 @@ module RubyEventStore
         it_behaves_like "sidekiq integration"
       end
 
-      unless ENV["DATABASE_URL"].to_s =~ /sqlite/
+      unless /sqlite/.match?(ENV["DATABASE_URL"].to_s)
         context "with non-locking repository" do
           let(:locking) { false }
           it_behaves_like "sidekiq integration"

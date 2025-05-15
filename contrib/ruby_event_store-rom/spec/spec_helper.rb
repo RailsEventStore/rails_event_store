@@ -76,7 +76,7 @@ module RubyEventStore
           ::ROM::Configuration.new(
             :sql,
             database_uri,
-            max_connections: database_uri =~ /sqlite/ ? 1 : 5,
+            max_connections: /sqlite/.match?(database_uri) ? 1 : 5,
             preconnect: :concurrently,
             fractional_seconds: true
         ).tap do |config|
