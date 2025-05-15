@@ -89,13 +89,13 @@ module RubyEventStore
           expect do
             read_event = repository.read(Specification.new(reader).result).first
             expect(read_event).to eq(event)
-          end.to match_query /SELECT.*FROM.*event_store_events.*/
+          end.to match_query(/SELECT.*FROM.*event_store_events.*/)
 
           expect do
             read_event =
               repository.read(Specification.new(reader).of_type("Dummy").stream("some").result).first
             expect(read_event).to eq(event)
-          end.to match_query /SELECT.*FROM.*event_store_events_in_streams.*/
+          end.to match_query(/SELECT.*FROM.*event_store_events_in_streams.*/)
         ensure
           drop_database
         end

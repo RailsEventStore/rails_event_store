@@ -58,7 +58,7 @@ module RubyEventStore
               ExpectedVersion.none
             )
           end.to raise_error(EventNotFound)
-        end.to match_query /SELECT .*event_store_events.*event_id.* FROM .*event_store_events.* WHERE .*event_store_events.*.event_id.* IN \('72922e65-1b32-4e97-8023-03ae81dd3a27', 'd9f6d02a-05f0-4c27-86a9-ad7c4ef73042'\).*/
+        end.to match_query(/SELECT .*event_store_events.*event_id.* FROM .*event_store_events.* WHERE .*event_store_events.*.event_id.* IN \('72922e65-1b32-4e97-8023-03ae81dd3a27', 'd9f6d02a-05f0-4c27-86a9-ad7c4ef73042'\).*/)
       end
 
       specify "with post-valid-at appended record" do
@@ -142,7 +142,7 @@ module RubyEventStore
 
         expect {
           repository.position_in_stream(event0.event_id, stream)
-        }.to match_query /SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/
+        }.to match_query(/SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/)
       end
 
       specify do
@@ -153,7 +153,7 @@ module RubyEventStore
         )
         expect {
           repository.global_position(event.event_id)
-        }.to match_query /SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/
+        }.to match_query(/SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/)
       end
 
 

@@ -70,7 +70,7 @@ module RubyEventStore
               ExpectedVersion.none
             )
           end.to raise_error(EventNotFound)
-        end.to match_query /SELECT .*event_store_events.*event_id.* FROM .*event_store_events.* WHERE .*event_store_events.*event_id.* IN \(.*, .*\)/
+        end.to match_query(/SELECT .*event_store_events.*event_id.* FROM .*event_store_events.* WHERE .*event_store_events.*event_id.* IN \(.*, .*\)/)
       end
 
       specify "use default models" do
@@ -208,10 +208,10 @@ module RubyEventStore
 
         expect {
           repository.read(specification.in_batches.as_at.result).to_a
-        }.to match_query /SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*created_at.* ASC,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/
+        }.to match_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*event_store_events.*created_at.* ASC,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/)
         expect {
           repository.read(specification.in_batches.as_of.result).to_a
-        }.to match_query /SELECT.*FROM.*event_store_events.*ORDER BY .*COALESCE(.*event_store_events.*valid_at.*, .*event_store_events.*created_at.*).* ASC,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/
+        }.to match_query(/SELECT.*FROM.*event_store_events.*ORDER BY .*COALESCE(.*event_store_events.*valid_at.*, .*event_store_events.*created_at.*).* ASC,.*event_store_events.*id.* ASC LIMIT.*.OFFSET.*/)
       end
 
       specify "with batches and non-bi-temporal queries use monotonic ids" do
@@ -240,8 +240,8 @@ module RubyEventStore
         expect do
           expect do
             repository.read(specification.in_batches(3).result).to_a
-          end.to match_query /SELECT.*FROM .event_store_events. ORDER BY .event_store_events.\..id. ASC LIMIT/
-        end.to match_query /SELECT.*FROM .event_store_events. WHERE .event_store_events\.id >.* ORDER BY .event_store_events.\..id. ASC LIMIT/
+          end.to match_query(/SELECT.*FROM .event_store_events. ORDER BY .event_store_events.\..id. ASC LIMIT/)
+        end.to match_query(/SELECT.*FROM .event_store_events. WHERE .event_store_events\.id >.* ORDER BY .event_store_events.\..id. ASC LIMIT/)
       end
 
       specify "produces expected query for position in stream call" do
@@ -253,7 +253,7 @@ module RubyEventStore
 
         expect {
           repository.position_in_stream(event0.event_id, stream)
-        }.to match_query /SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/
+        }.to match_query(/SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/)
       end
 
       specify "produces expected query for global position call" do
@@ -264,7 +264,7 @@ module RubyEventStore
         )
         expect {
           repository.global_position(event.event_id)
-        }.to match_query /SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/
+        }.to match_query(/SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/)
       end
 
       specify "don't join events when no event filtering criteria" do
@@ -290,7 +290,7 @@ module RubyEventStore
         ].each do |spec|
           expect {
             repository.read(spec.result).to_a
-          }.to match_query /INNER\s+JOIN\s+.event_store_events./
+          }.to match_query(/INNER\s+JOIN\s+.event_store_events./)
         end
       end
 
