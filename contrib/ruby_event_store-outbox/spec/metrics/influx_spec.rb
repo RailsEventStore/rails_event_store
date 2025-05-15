@@ -19,7 +19,7 @@ module RubyEventStore
         expect(client.config.hosts).to eq(["influxdb.example"])
         expect(client.config.port).to eq(9000)
         expect(client.config.database).to eq("db")
-        expect(client.config.async).to eq(true)
+        expect(client.config.async).to be(true)
         expect(client.config.time_precision).to eq("ns")
       end
 

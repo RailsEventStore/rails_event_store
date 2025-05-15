@@ -10,7 +10,7 @@ module RubyEventStore
       helper = SpecHelper.new
       mk_repository = -> { EventRepository.new(serializer: helper.serializer) }
 
-      it_behaves_like :event_repository, mk_repository, helper
+      it_behaves_like 'event repository', mk_repository, helper
 
       let(:repository) { mk_repository.call }
       let(:specification) do
@@ -19,7 +19,7 @@ module RubyEventStore
         )
       end
 
-      around(:each) { |example| helper.run_lifecycle { example.run } }
+      around { |example| helper.run_lifecycle { example.run } }
 
       specify "nested transaction - events still not persisted if append failed" do
         repository.append_to_stream(

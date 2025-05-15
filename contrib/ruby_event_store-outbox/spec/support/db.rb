@@ -7,7 +7,7 @@ rescue ::ActiveRecord::StatementInvalid
 end
 
 RSpec.configure do |config|
-  config.around(:each, db: true) do |example|
+  config.around(:each, :db) do |example|
     begin
       establish_database_connection
       drop_tables

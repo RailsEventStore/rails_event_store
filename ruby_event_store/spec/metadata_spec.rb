@@ -30,13 +30,13 @@ module RubyEventStore
       expect(m[:key]).to eq(t)
 
       m[:key] = true
-      expect(m[:key]).to eq(true)
+      expect(m[:key]).to be(true)
 
       m[:key] = false
-      expect(m[:key]).to eq(false)
+      expect(m[:key]).to be(false)
 
       m[:key] = nil
-      expect(m[:key]).to eq(nil)
+      expect(m[:key]).to be_nil
 
       m[:key] = { some: "hash", with: { nested: "values" } }
       expect(m[:key]).to eq({ some: "hash", with: { nested: "values" } })
@@ -85,7 +85,7 @@ module RubyEventStore
     specify "safe Hash methods" do
       m = Metadata.new
       m[:a] = 1
-      expect(m.key?(:a)).to eq(true)
+      expect(m.key?(:a)).to be(true)
     end
   end
 end

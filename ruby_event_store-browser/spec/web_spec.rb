@@ -7,11 +7,14 @@ module RubyEventStore
     include Browser::IntegrationHelpers
 
     specify { expect(web_client.get("/")).to be_ok }
+
     specify do
       expect(web_client.get("/").content_type).to eq("text/html;charset=utf-8")
     end
+
     specify { expect(web_client.post("/")).to be_not_found }
     specify { expect(web_client.get("/streams/all")).to be_ok }
+
     specify do
       event_store.append(event = DummyEvent.new)
       expect(web_client.get("/events/#{event.event_id}")).to be_ok

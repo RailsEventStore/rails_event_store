@@ -26,9 +26,9 @@ module RubyEventStore
         repository.read(specification.stream(stream.name).result).to_a
       end
 
-      around(:each) { |example| helper.run_lifecycle { example.run } }
+      around { |example| helper.run_lifecycle { example.run } }
 
-      around(:each) do |example|
+      around do |example|
         previous_logger = ::ActiveRecord::Base.logger
         ::ActiveRecord::Base.logger =
           Logger

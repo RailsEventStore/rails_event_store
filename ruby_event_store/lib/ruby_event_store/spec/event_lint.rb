@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples :event do |event_class, data, metadata|
+RSpec.shared_examples 'event' do |event_class, data, metadata|
   it "allows initialization" do
     expect {
       event_class.new(event_id: Object.new, data: data || Object.new, metadata: metadata || {})
@@ -11,7 +11,7 @@ RSpec.shared_examples :event do |event_class, data, metadata|
     event = event_class.new
     expect(event.event_id).to be_an_instance_of(String)
     expect(event.event_id).not_to eq ""
-    expect(event.event_id).not_to eq nil
+    expect(event.event_id).not_to be_nil
   end
 
   it "provides message_id as string" do
@@ -33,7 +33,7 @@ RSpec.shared_examples :event do |event_class, data, metadata|
     event = event_class.new
     expect(event.event_type).to be_an_instance_of(String)
     expect(event.event_type).not_to eq ""
-    expect(event.event_type).not_to eq nil
+    expect(event.event_type).not_to be_nil
   end
 
   it "provides data" do

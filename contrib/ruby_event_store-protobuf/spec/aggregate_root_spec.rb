@@ -30,7 +30,7 @@ require "aggregate_root"
     end
   end
 
-  it "should receive a method call based on a default apply strategy" do
+  it "receives a method call based on a default apply strategy" do
     order = ResTesting::Order.new(SecureRandom.uuid)
     order_created =
       RubyEventStore::Protobuf::Proto.new(
@@ -43,7 +43,7 @@ require "aggregate_root"
     expect(order.status).to eq :created
   end
 
-  it "should receive a method call based on a default apply strategy via on handler" do
+  it "receives a method call based on a default apply strategy via on handler" do
     order = ResTesting::Order.new(SecureRandom.uuid)
     order_paid =
       RubyEventStore::Protobuf::Proto.new(
@@ -55,7 +55,7 @@ require "aggregate_root"
     expect(order.status).to eq :paid
   end
 
-  it "should raise error for missing apply method based on a default apply strategy" do
+  it "raises error for missing apply method based on a default apply strategy" do
     order = ResTesting::Order.new(SecureRandom.uuid)
     spanish_inquisition =
       RubyEventStore::Protobuf::Proto.new(

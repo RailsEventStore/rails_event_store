@@ -20,11 +20,11 @@ module RailsEventStore
       end
     end
 
-    before(:each) do
+    before do
       MyAsyncHandler.reset
     end
 
-    it_behaves_like :scheduler, ActiveJobIdOnlyScheduler.new
+    it_behaves_like 'scheduler', ActiveJobIdOnlyScheduler.new
 
     let(:event)  { TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30)) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
@@ -33,23 +33,23 @@ module RailsEventStore
       specify do
         scheduler      = ActiveJobIdOnlyScheduler.new
         proper_handler = Class.new(ActiveJob::Base)
-        expect(scheduler.verify(proper_handler)).to eq(true)
+        expect(scheduler.verify(proper_handler)).to be(true)
       end
 
       specify do
         scheduler  = ActiveJobIdOnlyScheduler.new
         some_class = Class.new
-        expect(scheduler.verify(some_class)).to eq(false)
+        expect(scheduler.verify(some_class)).to be(false)
       end
 
       specify do
         scheduler = ActiveJobIdOnlyScheduler.new
-        expect(scheduler.verify(ActiveJob::Base)).to eq(false)
+        expect(scheduler.verify(ActiveJob::Base)).to be(false)
       end
 
       specify do
         scheduler = ActiveJobIdOnlyScheduler.new
-        expect(scheduler.verify(Object.new)).to eq(false)
+        expect(scheduler.verify(Object.new)).to be(false)
       end
     end
 

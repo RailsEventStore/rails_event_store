@@ -51,6 +51,7 @@ module RailsEventStore
     %w[mysql2 sqlite].each do |adapter|
       context "when #{adapter} adapter is used" do
         before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: adapter)) }
+
         specify "should do migration in single step" do
           generate_migration
           expect(second_step_migration_exists?(@dir)).to be_falsey

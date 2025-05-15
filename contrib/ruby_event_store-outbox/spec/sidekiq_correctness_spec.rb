@@ -5,7 +5,7 @@ require_relative "./support/sidekiq"
 
 module RubyEventStore
   module Outbox
-    ::RSpec.describe "Sidekiq correctness spec", db: true do
+    ::RSpec.describe "Sidekiq correctness spec", :db do
       include SchemaHelper
       shared_examples_for "sidekiq integration" do
         let(:redis_url) { RedisIsolation.redis_url }
@@ -27,7 +27,7 @@ module RubyEventStore
         end
         let(:metrics) { Metrics::Null.new }
 
-        before(:each) do |example|
+        before do |example|
           Sidekiq.configure_client { |config| config.redis = { url: redis_url } }
           reset_sidekiq_middlewares
           redis.call("FLUSHDB")
@@ -136,12 +136,14 @@ module RubyEventStore
 
       context "with locking repository" do
         let(:locking) { true }
+
         it_behaves_like "sidekiq integration"
       end
 
       unless /sqlite/.match?(ENV["DATABASE_URL"].to_s)
         context "with non-locking repository" do
           let(:locking) { false }
+
           it_behaves_like "sidekiq integration"
         end
       end

@@ -119,7 +119,7 @@ module RubyEventStore
         end
 
         specify do
-          expect(lister.call([FooEvent, BarEvent, BazEvent, be_kind_of(Time)])).to eq(
+          expect(lister.call([FooEvent, BarEvent, BazEvent, be_a(Time)])).to eq(
             "be a FooEvent, be a BarEvent, be a BazEvent and be a kind of Time"
           )
         end

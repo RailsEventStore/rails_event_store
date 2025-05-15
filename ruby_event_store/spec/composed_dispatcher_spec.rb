@@ -16,7 +16,7 @@ module RubyEventStore
         end
         attr_reader :called
       end
-    it_behaves_like :dispatcher, skippy_dispatcher.new
+    it_behaves_like 'dispatcher', skippy_dispatcher.new
 
     real_dispatcher =
       Class.new do
@@ -29,9 +29,9 @@ module RubyEventStore
         end
         attr_reader :called
       end
-    it_behaves_like :dispatcher, real_dispatcher.new
+    it_behaves_like 'dispatcher', real_dispatcher.new
 
-    it_behaves_like :dispatcher, ComposedDispatcher.new
+    it_behaves_like 'dispatcher', ComposedDispatcher.new
 
     describe "#verify" do
       specify "pass subscriber to dispatcher" do
@@ -48,14 +48,14 @@ module RubyEventStore
         composed_dispatcher = ComposedDispatcher.new(skippy_dispatcher.new, real_dispatcher.new)
 
         subscriber = double
-        expect(composed_dispatcher.verify(subscriber)).to eq(true)
+        expect(composed_dispatcher.verify(subscriber)).to be(true)
       end
 
       specify "raise error if all dispatchers falsey" do
         composed_dispatcher = ComposedDispatcher.new(skippy_dispatcher.new)
 
         subscriber = double
-        expect(composed_dispatcher.verify(subscriber)).to eq(false)
+        expect(composed_dispatcher.verify(subscriber)).to be(false)
       end
     end
 

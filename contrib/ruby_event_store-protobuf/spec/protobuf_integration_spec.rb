@@ -25,7 +25,7 @@ module RubyEventStore
   ::RSpec.describe Client do
     include ProtobufHelper
 
-    around(:each) do |example|
+    around do |example|
       ActiveJob::Base.with(logger: nil) { example.run }
     end
 

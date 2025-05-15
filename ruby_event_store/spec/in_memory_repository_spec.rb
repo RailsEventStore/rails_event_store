@@ -8,7 +8,7 @@ module RubyEventStore
     helper = SpecHelper.new
     mk_repository = -> { InMemoryRepository.new }
 
-    it_behaves_like :event_repository, mk_repository, helper
+    it_behaves_like 'event repository', mk_repository, helper
 
     let(:repository) { mk_repository.call }
     

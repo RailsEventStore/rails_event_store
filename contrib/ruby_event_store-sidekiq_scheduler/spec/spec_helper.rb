@@ -13,7 +13,7 @@ SilenceStdout.silence_stdout { require "sidekiq/testing" }
 require "sidekiq/processor"
 
 RSpec.configure do |config|
-  config.around(:each, redis: true) do |example|
+  config.around(:each, :redis) do |example|
     Sidekiq.redis(&:itself).flushdb
     Sidekiq::Testing.disable! { example.run }
   end

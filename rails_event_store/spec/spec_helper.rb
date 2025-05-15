@@ -15,7 +15,7 @@ ENV["DATABASE_URL"] ||= "sqlite3::memory:"
 ENV["DATA_TYPE"] ||= "binary"
 
 RSpec.configure do |config|
-  config.around(:each) do |example|
+  config.around do |example|
     ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
     m =
       Migrator.new(
@@ -28,7 +28,7 @@ RSpec.configure do |config|
     example.run
   end
 
-  config.around(:each) do |example|
+  config.around do |example|
     ActiveJob::Base.queue_adapter = :inline
     example.run
   end

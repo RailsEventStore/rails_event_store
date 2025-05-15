@@ -4,7 +4,7 @@ require "aggregate_root"
 require "ruby_event_store"
 require_relative "../../support/helpers/rspec_defaults"
 
-RSpec.configure { |spec| spec.before(:each) { AggregateRoot.configure { |config| config.default_event_store = nil } } }
+RSpec.configure { |spec| spec.before { AggregateRoot.configure { |config| config.default_event_store = nil } } }
 
 module Orders
   module Events

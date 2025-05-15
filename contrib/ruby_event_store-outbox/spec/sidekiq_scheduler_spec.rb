@@ -7,7 +7,7 @@ require_relative "./support/sidekiq"
 module RubyEventStore
   module Outbox
     ::RSpec.describe SidekiqScheduler do
-      it_behaves_like :scheduler, SidekiqScheduler.new
+      it_behaves_like 'scheduler', SidekiqScheduler.new
 
       describe "#verify" do
         specify do
@@ -18,7 +18,7 @@ module RubyEventStore
               end
             end
 
-          expect(subject.verify(correct_handler)).to eq(true)
+          expect(subject.verify(correct_handler)).to be(true)
         end
 
         specify do
@@ -29,13 +29,13 @@ module RubyEventStore
               end
             end
 
-          expect(subject.verify(handler_with_falsey_method)).to eq(false)
+          expect(subject.verify(handler_with_falsey_method)).to be(false)
         end
 
         specify do
           handler_without_method = Class.new {}
 
-          expect(subject.verify(handler_without_method)).to eq(false)
+          expect(subject.verify(handler_without_method)).to be(false)
         end
 
         specify do
@@ -46,14 +46,14 @@ module RubyEventStore
               end
             end
 
-          expect(subject.verify(object_responding_but_not_a_class)).to eq(false)
+          expect(subject.verify(object_responding_but_not_a_class)).to be(false)
         end
       end
 
-      describe "#call", db: true do
+      describe "#call", :db do
         include SchemaHelper
 
-        before(:each) { |example| reset_sidekiq_middlewares }
+        before { |example| reset_sidekiq_middlewares }
 
         specify do
           event =

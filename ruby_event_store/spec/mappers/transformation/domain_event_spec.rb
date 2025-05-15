@@ -68,7 +68,7 @@ module RubyEventStore
         specify "loading an event without its class" do
           record_ = Record.new(**record.to_h, event_type: "NoneSuch")
           loaded = DomainEvent.new.load(record_)
-          expect(loaded).to be_kind_of(Event)
+          expect(loaded).to be_a(Event)
           expect(loaded.event_type).to eq("NoneSuch")
           expect(loaded.event_id).to eq(event.event_id)
           expect(loaded.data).to eq(event.data)

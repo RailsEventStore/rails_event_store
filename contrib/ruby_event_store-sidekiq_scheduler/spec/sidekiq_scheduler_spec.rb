@@ -4,25 +4,25 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe SidekiqScheduler do
-    it_behaves_like :scheduler,
+    it_behaves_like 'scheduler',
                     SidekiqScheduler.new(serializer: Serializers::YAML)
-    it_behaves_like :scheduler, SidekiqScheduler.new(serializer: JSON)
+    it_behaves_like 'scheduler', SidekiqScheduler.new(serializer: JSON)
 
     describe "#verify" do
       let(:scheduler) { SidekiqScheduler.new(serializer: JSON) }
       let(:proper_handler) { Class.new { include Sidekiq::Worker } }
 
-      specify { expect(scheduler.verify(proper_handler)).to eq(true) }
+      specify { expect(scheduler.verify(proper_handler)).to be(true) }
 
       specify "Sidekiq::Job::Setter is also acceptable" do
-        expect(scheduler.verify(proper_handler.set({}))).to eq(true)
+        expect(scheduler.verify(proper_handler.set({}))).to be(true)
       end
 
-      specify { expect(scheduler.verify(Class.new)).to eq(false) }
+      specify { expect(scheduler.verify(Class.new)).to be(false) }
 
-      specify { expect(scheduler.verify(Sidekiq::Worker)).to eq(false) }
+      specify { expect(scheduler.verify(Sidekiq::Worker)).to be(false) }
 
-      specify { expect(scheduler.verify(Object.new)).to eq(false) }
+      specify { expect(scheduler.verify(Object.new)).to be(false) }
     end
 
     describe "#call" do
@@ -102,7 +102,7 @@ module RubyEventStore
         scheduler.call(MyAsyncHandler, record)
       end
 
-      specify "with Redis involved", redis: true do
+      specify "with Redis involved", :redis do
         scheduler.call(MyAsyncHandler, record)
         sidekiq_processor.send :process_one
         expect(MyAsyncHandler.received).to match(

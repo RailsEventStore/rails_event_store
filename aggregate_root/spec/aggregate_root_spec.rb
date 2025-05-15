@@ -36,7 +36,7 @@ require "spec_helper"
     end
   end
 
-  it "should have ability to apply event on itself" do
+  it "has ability to apply event on itself" do
     order = order_klass.new(uuid)
     order_created = Orders::Events::OrderCreated.new
 
@@ -51,7 +51,7 @@ require "spec_helper"
     expect(order.unpublished_events.to_a).to be_empty
   end
 
-  it "should receive a method call based on a default apply strategy" do
+  it "receives a method call based on a default apply strategy" do
     order = order_klass.new(uuid)
     order_created = Orders::Events::OrderCreated.new
 
@@ -59,7 +59,7 @@ require "spec_helper"
     expect(order.status).to eq :created
   end
 
-  it "should raise error for missing apply method based on a default apply strategy" do
+  it "raises error for missing apply method based on a default apply strategy" do
     order = order_klass.new(uuid)
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.to raise_error(
@@ -68,15 +68,15 @@ require "spec_helper"
     )
   end
 
-  it "should ignore missing apply method based on a default non-strict apply strategy" do
+  it "ignores missing apply method based on a default non-strict apply strategy" do
     klass =
       Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
     order = klass.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) }.to_not raise_error
+    expect { order.apply(spanish_inquisition) }.not_to raise_error
   end
 
-  it "should receive a method call based on a custom strategy" do
+  it "receives a method call based on a custom strategy" do
     strategy = -> do
       ->(aggregate, event) do
         {
@@ -121,7 +121,7 @@ require "spec_helper"
     expect(klass.included_modules[0]).to eq(AggregateRoot::AggregateMethods)
   end
 
-  it "should return applied events" do
+  it "returns applied events" do
     order = order_klass.new(uuid)
     created = Orders::Events::OrderCreated.new
     expired = Orders::Events::OrderExpired.new
@@ -130,7 +130,7 @@ require "spec_helper"
     expect(applied).to eq([created, expired])
   end
 
-  it "should return only applied events" do
+  it "returns only applied events" do
     order = order_klass.new(uuid)
     created = Orders::Events::OrderCreated.new
     order.apply(created)
@@ -155,12 +155,12 @@ require "spec_helper"
 
   it "#unpublished_events method does not allow modifying internal state directly" do
     order = order_klass.new(uuid)
-    expect(order.unpublished_events.respond_to?(:<<)).to eq(false)
-    expect(order.unpublished_events.respond_to?(:clear)).to eq(false)
-    expect(order.unpublished_events.respond_to?(:push)).to eq(false)
-    expect(order.unpublished_events.respond_to?(:shift)).to eq(false)
-    expect(order.unpublished_events.respond_to?(:pop)).to eq(false)
-    expect(order.unpublished_events.respond_to?(:unshift)).to eq(false)
+    expect(order.unpublished_events.respond_to?(:<<)).to be(false)
+    expect(order.unpublished_events.respond_to?(:clear)).to be(false)
+    expect(order.unpublished_events.respond_to?(:push)).to be(false)
+    expect(order.unpublished_events.respond_to?(:shift)).to be(false)
+    expect(order.unpublished_events.respond_to?(:pop)).to be(false)
+    expect(order.unpublished_events.respond_to?(:unshift)).to be(false)
   end
 
   describe ".on" do

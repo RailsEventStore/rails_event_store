@@ -5,19 +5,19 @@ require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
   ::RSpec.describe Dispatcher do
-    it_behaves_like :dispatcher, Dispatcher.new
+    it_behaves_like 'dispatcher', Dispatcher.new
     let(:event) { instance_double(Event) }
     let(:record) { instance_double(Record) }
     let(:handler) { HandlerClass.new }
 
     specify "does not allow silly subscribers" do
-      expect(Dispatcher.new.verify(:symbol)).to eq(false)
-      expect(Dispatcher.new.verify(Object.new)).to eq(false)
+      expect(Dispatcher.new.verify(:symbol)).to be(false)
+      expect(Dispatcher.new.verify(Object.new)).to be(false)
     end
 
     specify "does not allow class without instance method #call" do
       klass = Class.new
-      expect(Dispatcher.new.verify(klass)).to eq(false)
+      expect(Dispatcher.new.verify(klass)).to be(false)
     end
 
     specify "does not allow class without constructor requiring arguments" do
@@ -29,7 +29,7 @@ module RubyEventStore
 
           def call; end
         end
-      expect(Dispatcher.new.verify(klass)).to eq(false)
+      expect(Dispatcher.new.verify(klass)).to be(false)
     end
 
     specify "calls subscribed instance" do
@@ -44,9 +44,9 @@ module RubyEventStore
     end
 
     specify "allows callable classes and instances" do
-      expect(Dispatcher.new.verify(HandlerClass)).to eq(true)
-      expect(Dispatcher.new.verify(HandlerClass.new)).to eq(true)
-      expect(Dispatcher.new.verify(Proc.new { "yo" })).to eq(true)
+      expect(Dispatcher.new.verify(HandlerClass)).to be(true)
+      expect(Dispatcher.new.verify(HandlerClass.new)).to be(true)
+      expect(Dispatcher.new.verify(Proc.new { "yo" })).to be(true)
     end
 
     private

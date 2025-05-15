@@ -204,7 +204,7 @@ end
 
 module RubyEventStore
   ::RSpec.describe InstrumentedRepository do
-    it_behaves_like :event_repository,
+    it_behaves_like 'event repository',
                     -> { InstrumentedRepository.new(InMemoryRepository.new, ActiveSupport::Notifications) },
                     SpecHelper.new
   end

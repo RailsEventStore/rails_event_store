@@ -5,7 +5,7 @@ require "spec_helper"
 FooBarEvent = Class.new(::RubyEventStore::Event)
 
 module RubyEventStore
-  ::RSpec.describe Browser, type: :feature, js: true do
+  ::RSpec.describe Browser, :js, type: :feature do
     specify "main view", mutant: false do
       session = Capybara::Session.new(:cuprite, app_builder(event_store))
 

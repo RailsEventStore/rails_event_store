@@ -20,10 +20,10 @@ module RailsEventStore
       end
     end
 
-    before(:each) { MyAsyncHandler.reset }
+    before { MyAsyncHandler.reset }
 
-    it_behaves_like :scheduler, ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
-    it_behaves_like :scheduler, ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
+    it_behaves_like 'scheduler', ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+    it_behaves_like 'scheduler', ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
 
     let(:event) do
       TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
@@ -35,24 +35,24 @@ module RailsEventStore
       let(:proper_handler) { Class.new(ActiveJob::Base) }
 
       specify do
-        expect(scheduler.verify(proper_handler)).to eq(true)
+        expect(scheduler.verify(proper_handler)).to be(true)
       end
 
       specify "ActiveJob::ConfiguredJob is also acceptable" do
-        expect(scheduler.verify(proper_handler.set({}))).to eq(true)
+        expect(scheduler.verify(proper_handler.set({}))).to be(true)
       end
 
       specify do
         some_class = Class.new
-        expect(scheduler.verify(some_class)).to eq(false)
+        expect(scheduler.verify(some_class)).to be(false)
       end
 
       specify do
-        expect(scheduler.verify(ActiveJob::Base)).to eq(false)
+        expect(scheduler.verify(ActiveJob::Base)).to be(false)
       end
 
       specify do
-        expect(scheduler.verify(Object.new)).to eq(false)
+        expect(scheduler.verify(Object.new)).to be(false)
       end
     end
 

@@ -47,7 +47,7 @@ module AggregateRoot
     end
 
     describe "#initialize" do
-      it "should use default client if event_store not provided" do
+      it "uses default client if event_store not provided" do
         with_default_event_store(event_store) do
           repository = AggregateRoot::Repository.new
 
@@ -60,7 +60,7 @@ module AggregateRoot
         end
       end
 
-      it "should prefer provided event_store client" do
+      it "prefers provided event_store client" do
         with_default_event_store(double(:event_store)) do
           repository = AggregateRoot::Repository.new(event_store)
 

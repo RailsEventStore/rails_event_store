@@ -21,11 +21,11 @@ module RubyEventStore
         hash = { simple: "data", array: [1, 2, 3, { some: "hash" }], hash: { nested: { any: "value" }, meh: 3 } }
         result = WithIndifferentAccess.new.load(record(hash, time))
 
-        expect(result.data).to be_kind_of(ActiveSupport::HashWithIndifferentAccess)
-        expect(result.metadata).to be_kind_of(ActiveSupport::HashWithIndifferentAccess)
-        expect(result.data[:array].last).to be_kind_of(ActiveSupport::HashWithIndifferentAccess)
-        expect(result.data[:hash]).to be_kind_of(ActiveSupport::HashWithIndifferentAccess)
-        expect(result.data[:hash][:nested]).to be_kind_of(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.data).to be_a(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.metadata).to be_a(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.data[:array].last).to be_a(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.data[:hash]).to be_a(ActiveSupport::HashWithIndifferentAccess)
+        expect(result.data[:hash][:nested]).to be_a(ActiveSupport::HashWithIndifferentAccess)
 
         [result.data, result.metadata].each do |d|
           expect(d[:simple]).to eq("data")
@@ -59,11 +59,11 @@ module RubyEventStore
           )
         result = WithIndifferentAccess.new.dump(record(hash, time))
 
-        expect(result.data).to be_kind_of(Hash)
-        expect(result.metadata).to be_kind_of(Hash)
-        expect(result.data[:array].last).to be_kind_of(Hash)
-        expect(result.data[:hash]).to be_kind_of(Hash)
-        expect(result.data[:hash][:nested]).to be_kind_of(Hash)
+        expect(result.data).to be_a(Hash)
+        expect(result.metadata).to be_a(Hash)
+        expect(result.data[:array].last).to be_a(Hash)
+        expect(result.data[:hash]).to be_a(Hash)
+        expect(result.data[:hash][:nested]).to be_a(Hash)
 
         [result.data, result.metadata].each do |d|
           expect(d[:simple]).to eq("data")
@@ -91,11 +91,11 @@ module RubyEventStore
         }
         result = WithIndifferentAccess.new.dump(record(hash, time))
 
-        expect(result.data).to be_kind_of(Hash)
-        expect(result.metadata).to be_kind_of(Hash)
-        expect(result.data[:array].last).to be_kind_of(Hash)
-        expect(result.data[:hash]).to be_kind_of(Hash)
-        expect(result.data[:hash][:nested]).to be_kind_of(Hash)
+        expect(result.data).to be_a(Hash)
+        expect(result.metadata).to be_a(Hash)
+        expect(result.data[:array].last).to be_a(Hash)
+        expect(result.data[:hash]).to be_a(Hash)
+        expect(result.data[:hash][:nested]).to be_a(Hash)
 
         [result.data, result.metadata].each do |d|
           expect(d[:simple]).to eq("data")

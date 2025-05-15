@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples :broker do |broker_klass|
+RSpec.shared_examples 'broker' do |broker_klass|
   let(:event) { instance_double(::RubyEventStore::Event, event_type: "EventType") }
   let(:record) { instance_double(::RubyEventStore::Record) }
   let(:handler) { HandlerClass.new }

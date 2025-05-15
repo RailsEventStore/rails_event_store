@@ -16,8 +16,8 @@ module RubyEventStore
       end
     end
 
-    it_behaves_like :dispatcher, ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new)
-    it_behaves_like :scheduler, MyCustomScheduler.new
+    it_behaves_like 'dispatcher', ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new)
+    it_behaves_like 'scheduler', MyCustomScheduler.new
 
     let(:event) { instance_double(Event) }
     let(:record) { instance_double(Record) }
@@ -39,14 +39,14 @@ module RubyEventStore
         dispatcher = ImmediateAsyncDispatcher.new(scheduler: scheduler)
 
         handler = double(perform_async: true)
-        expect(dispatcher.verify(handler)).to eq(true)
+        expect(dispatcher.verify(handler)).to be(true)
       end
 
       specify do
         dispatcher = ImmediateAsyncDispatcher.new(scheduler: scheduler)
 
         handler = double
-        expect(dispatcher.verify(handler)).to eq(false)
+        expect(dispatcher.verify(handler)).to be(false)
       end
     end
   end

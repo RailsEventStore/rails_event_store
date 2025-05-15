@@ -21,7 +21,7 @@ module RubyEventStore
         )
       end
 
-      it_behaves_like :mapper, Default.new, TimeEnrichment.with(SomethingHappened.new)
+      it_behaves_like 'mapper', Default.new, TimeEnrichment.with(SomethingHappened.new)
 
       specify "#event_to_record returns transformed record" do
         record = subject.event_to_record(event)

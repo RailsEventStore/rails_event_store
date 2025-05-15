@@ -4,7 +4,7 @@ require "spec_helper"
 
 module RubyEventStore
   module Outbox
-    ::RSpec.describe "Gold master test for create outbox table schema", db: true do
+    ::RSpec.describe "Gold master test for create outbox table schema", :db do
       include SchemaHelper
 
       specify "mysql" do
