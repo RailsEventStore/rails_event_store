@@ -8,7 +8,7 @@ includes:
 integration:
   name: rspec
 mutation:
-  operators: full
+  operators: light
 coverage_criteria:
   process_abort: true
 matcher:

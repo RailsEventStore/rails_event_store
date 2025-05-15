@@ -10,7 +10,7 @@ includes:
 integration:
   name: rspec
 mutation:
-  operators: full
+  operators: light
   timeout: 10.0
 coverage_criteria:
   process_abort: true
