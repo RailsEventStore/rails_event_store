@@ -124,7 +124,7 @@ GEM
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    json (2.10.1)
+    json (2.10.2)
     logger (1.6.6)
     loofah (2.24.0)
       crass (~> 1.0.2)
@@ -149,7 +149,7 @@ GEM
     mutant-rspec (0.12.0)
       mutant (= 0.12.0)
       rspec-core (>= 3.8.0, < 4.0.0)
-    net-imap (0.5.6)
+    net-imap (0.5.7)
       date
       net-protocol
     net-pop (0.1.2)
@@ -159,11 +159,11 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     nio4r (2.7.4)
-    nokogiri (1.18.3-arm64-darwin)
+    nokogiri (1.18.8-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.3-x86_64-darwin)
+    nokogiri (1.18.8-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.3-x86_64-linux-gnu)
+    nokogiri (1.18.8-x86_64-linux-gnu)
       racc (~> 1.4)
     parser (3.3.7.1)
       ast (~> 2.4.1)
@@ -175,8 +175,8 @@ GEM
       date
       stringio
     racc (1.8.1)
-    rack (3.1.11)
-    rack-session (2.1.0)
+    rack (3.1.14)
+    rack-session (2.1.1)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
     rack-test (2.2.0)
