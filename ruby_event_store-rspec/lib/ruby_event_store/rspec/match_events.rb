@@ -15,7 +15,7 @@ module RubyEventStore
 
       def matches_count?(expected, events)
         return true unless expected.specified_count?
-        events.select { |e| expected.event === e }.size.equal?(expected.count)
+        events.count { |e| expected.event === e }.equal?(expected.count)
       end
 
       def matcher(expected)
