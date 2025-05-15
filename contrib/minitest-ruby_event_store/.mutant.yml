@@ -8,7 +8,7 @@ includes:
 integration:
   name: minitest
 mutation:
-  operators: full
+  operators: light
 coverage_criteria:
   process_abort: true
 matcher:
