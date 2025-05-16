@@ -8,6 +8,7 @@ module RailsEventStore
     TestEvent = Class.new(RubyEventStore::Event)
 
     specify "has default request metadata proc if no custom one provided" do
+      raise
       client = Client.new
       expect(
         client.request_metadata.call(
