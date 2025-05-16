@@ -11,8 +11,8 @@ module RailsEventStore
       client = Client.new
       expect(
         client.request_metadata.call(
-          { "action_dispatch.request_id" => "dummy_id", "action_dispatch.remote_ip" => "dummy_ip" }
-        )
+          { "action_dispatch.request_id" => "dummy_id", "action_dispatch.remote_ip" => "dummy_ip" },
+        ),
       ).to eq({ remote_ip: "dummy_ip", request_id: "dummy_id" })
     end
 
@@ -26,7 +26,7 @@ module RailsEventStore
       event = TestEvent.new
       client.with_request_metadata(
         "action_dispatch.request_id" => "dummy_id",
-        "action_dispatch.remote_ip" => "dummy_ip"
+        "action_dispatch.remote_ip" => "dummy_ip",
       ) { client.publish(event) }
       published = client.read.to_a
       expect(published.size).to eq(1)
@@ -49,7 +49,8 @@ module RailsEventStore
     end
 
     specify "wraps mapper into instrumentation" do
-      client = Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::Default.new)
+      client =
+        Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::Default.new)
 
       received_notifications = 0
       ActiveSupport::Notifications.subscribe("serialize.mapper.rails_event_store") { received_notifications += 1 }

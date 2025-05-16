@@ -19,39 +19,37 @@ module RubyEventStore
       with_types: nil
     )
       @attributes =
-        Struct
-          .new(
-            :direction,
-            :start,
-            :stop,
-            :older_than,
-            :older_than_or_equal,
-            :newer_than,
-            :newer_than_or_equal,
-            :time_sort_by,
-            :count,
-            :stream,
-            :read_as,
-            :batch_size,
-            :with_ids,
-            :with_types
-          )
-          .new(
-            direction,
-            start,
-            stop,
-            older_than,
-            older_than_or_equal,
-            newer_than,
-            newer_than_or_equal,
-            time_sort_by,
-            count,
-            stream,
-            read_as,
-            batch_size,
-            with_ids,
-            with_types
-          )
+        Struct.new(
+          :direction,
+          :start,
+          :stop,
+          :older_than,
+          :older_than_or_equal,
+          :newer_than,
+          :newer_than_or_equal,
+          :time_sort_by,
+          :count,
+          :stream,
+          :read_as,
+          :batch_size,
+          :with_ids,
+          :with_types,
+        ).new(
+          direction,
+          start,
+          stop,
+          older_than,
+          older_than_or_equal,
+          newer_than,
+          newer_than_or_equal,
+          time_sort_by,
+          count,
+          stream,
+          read_as,
+          batch_size,
+          with_ids,
+          with_types,
+        )
       freeze
     end
 
@@ -299,7 +297,7 @@ module RubyEventStore
         attributes.read_as,
         batch_size,
         with_ids,
-        with_types
+        with_types,
       ].hash ^ self.class.hash
     end
 

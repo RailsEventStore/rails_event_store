@@ -9,9 +9,7 @@ module RubyEventStore
     end
 
     def call(klass, record)
-      klass.perform_async(
-        record.serialize(serializer).to_h.transform_keys(&:to_s)
-      )
+      klass.perform_async(record.serialize(serializer).to_h.transform_keys(&:to_s))
     end
 
     def verify(subscriber)

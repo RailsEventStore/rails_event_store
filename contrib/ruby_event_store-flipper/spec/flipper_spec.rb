@@ -23,8 +23,9 @@ module RubyEventStore
       Flipper.enable(event_store)
       flipper.add(:foo_bar)
 
-      expect(event_store).to have_published(an_event(Flipper::Events::ToggleAdded).with_data(feature_name: "foo_bar"))
-        .in_stream("FeatureToggle$foo_bar")
+      expect(event_store).to have_published(
+        an_event(Flipper::Events::ToggleAdded).with_data(feature_name: "foo_bar"),
+      ).in_stream("FeatureToggle$foo_bar")
     end
 
     specify "adding toggle when already added" do
@@ -33,8 +34,9 @@ module RubyEventStore
 
       flipper.add(:foo_bar)
 
-      expect(event_store).to have_published(an_event(Flipper::Events::ToggleAdded).with_data(feature_name: "foo_bar"))
-        .in_stream("FeatureToggle$foo_bar")
+      expect(event_store).to have_published(
+        an_event(Flipper::Events::ToggleAdded).with_data(feature_name: "foo_bar"),
+      ).in_stream("FeatureToggle$foo_bar")
     end
 
     specify "removing toggle" do
@@ -42,16 +44,18 @@ module RubyEventStore
       flipper.add(:foo_bar)
       flipper.remove(:foo_bar)
 
-      expect(event_store).to have_published(an_event(Flipper::Events::ToggleRemoved).with_data(feature_name: "foo_bar"))
-        .in_stream("FeatureToggle$foo_bar")
+      expect(event_store).to have_published(
+        an_event(Flipper::Events::ToggleRemoved).with_data(feature_name: "foo_bar"),
+      ).in_stream("FeatureToggle$foo_bar")
     end
 
     specify "removing toggle when it was not added" do
       Flipper.enable(event_store)
       flipper.remove(:foo_bar)
 
-      expect(event_store).to have_published(an_event(Flipper::Events::ToggleRemoved).with_data(feature_name: "foo_bar"))
-        .in_stream("FeatureToggle$foo_bar")
+      expect(event_store).to have_published(
+        an_event(Flipper::Events::ToggleRemoved).with_data(feature_name: "foo_bar"),
+      ).in_stream("FeatureToggle$foo_bar")
     end
 
     specify "enabling toggle globally" do
@@ -60,7 +64,7 @@ module RubyEventStore
       flipper.enable(:foo_bar)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleGloballyEnabled).with_data(feature_name: "foo_bar")
+        an_event(Flipper::Events::ToggleGloballyEnabled).with_data(feature_name: "foo_bar"),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -70,7 +74,7 @@ module RubyEventStore
       flipper.disable(:foo_bar)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleGloballyDisabled).with_data(feature_name: "foo_bar")
+        an_event(Flipper::Events::ToggleGloballyDisabled).with_data(feature_name: "foo_bar"),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -80,7 +84,7 @@ module RubyEventStore
       flipper.enable_actor(:foo_bar, mk_actor.new)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleEnabledForActor).with_data(feature_name: "foo_bar", actor: "User:123")
+        an_event(Flipper::Events::ToggleEnabledForActor).with_data(feature_name: "foo_bar", actor: "User:123"),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -90,7 +94,7 @@ module RubyEventStore
       flipper.disable_actor(:foo_bar, mk_actor.new)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleDisabledForActor).with_data(feature_name: "foo_bar", actor: "User:123")
+        an_event(Flipper::Events::ToggleDisabledForActor).with_data(feature_name: "foo_bar", actor: "User:123"),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -100,7 +104,7 @@ module RubyEventStore
       flipper.enable_group(:foo_bar, :admins)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleEnabledForGroup).with_data(feature_name: "foo_bar", group: "admins")
+        an_event(Flipper::Events::ToggleEnabledForGroup).with_data(feature_name: "foo_bar", group: "admins"),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -110,7 +114,7 @@ module RubyEventStore
       flipper.disable_group(:foo_bar, :admins)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleDisabledForGroup).with_data(feature_name: "foo_bar", group: "admins")
+        an_event(Flipper::Events::ToggleDisabledForGroup).with_data(feature_name: "foo_bar", group: "admins"),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -120,7 +124,7 @@ module RubyEventStore
       flipper.enable_percentage_of_actors(:foo_bar, 2)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleEnabledForPercentageOfActors).with_data(feature_name: "foo_bar", percentage: 2)
+        an_event(Flipper::Events::ToggleEnabledForPercentageOfActors).with_data(feature_name: "foo_bar", percentage: 2),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -130,7 +134,7 @@ module RubyEventStore
       flipper.disable_percentage_of_actors(:foo_bar)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleDisabledForPercentageOfActors).with_data(feature_name: "foo_bar")
+        an_event(Flipper::Events::ToggleDisabledForPercentageOfActors).with_data(feature_name: "foo_bar"),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -140,7 +144,7 @@ module RubyEventStore
       flipper.enable_percentage_of_time(:foo_bar, 13)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleEnabledForPercentageOfTime).with_data(feature_name: "foo_bar", percentage: 13)
+        an_event(Flipper::Events::ToggleEnabledForPercentageOfTime).with_data(feature_name: "foo_bar", percentage: 13),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -150,7 +154,7 @@ module RubyEventStore
       flipper.disable_percentage_of_time(:foo_bar)
 
       expect(event_store).to have_published(
-        an_event(Flipper::Events::ToggleDisabledForPercentageOfTime).with_data(feature_name: "foo_bar")
+        an_event(Flipper::Events::ToggleDisabledForPercentageOfTime).with_data(feature_name: "foo_bar"),
       ).in_stream("FeatureToggle$foo_bar")
     end
 
@@ -165,8 +169,9 @@ module RubyEventStore
       Flipper.enable(event_store, stream_pattern: ->(feature_name) { "toggle-#{feature_name}" })
       flipper.add(:foo_bar)
 
-      expect(event_store).to have_published(an_event(Flipper::Events::ToggleAdded).with_data(feature_name: "foo_bar"))
-        .in_stream("toggle-foo_bar")
+      expect(event_store).to have_published(
+        an_event(Flipper::Events::ToggleAdded).with_data(feature_name: "foo_bar"),
+      ).in_stream("toggle-foo_bar")
     end
 
     specify "custom events are used if defined" do
@@ -175,7 +180,7 @@ module RubyEventStore
       flipper.add(:foo_bar)
 
       expect(event_store).to have_published(an_event(CustomToggleAdded).with_data(feature_name: "foo_bar")).in_stream(
-        "FeatureToggle$foo_bar"
+        "FeatureToggle$foo_bar",
       )
 
       instrumenter.unsubscribe("feature_operation.flipper")

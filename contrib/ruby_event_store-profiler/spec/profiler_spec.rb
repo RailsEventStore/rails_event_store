@@ -9,9 +9,8 @@ module RubyEventStore
       Client.new(
         repository: InstrumentedRepository.new(InMemoryRepository.new, instrumenter),
         mapper: Mappers::InstrumentedMapper.new(Mappers::Default.new, instrumenter),
-        message_broker: RubyEventStore::Broker.new(
-          dispatcher: InstrumentedDispatcher.new(Dispatcher.new, instrumenter)
-        )
+        message_broker:
+          RubyEventStore::Broker.new(dispatcher: InstrumentedDispatcher.new(Dispatcher.new, instrumenter)),
       )
     end
 
@@ -77,8 +76,7 @@ module RubyEventStore
     end
 
     specify "should unsubcribe only its own subscriptions" do
-      external_subscriber =
-        instrumenter.subscribe("total") { }
+      external_subscriber = instrumenter.subscribe("total") {}
 
       begin
         $stdout = File.open("/dev/null", "w")

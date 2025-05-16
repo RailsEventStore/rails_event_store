@@ -7,7 +7,7 @@ require_relative "./support/sidekiq"
 module RubyEventStore
   module Outbox
     ::RSpec.describe SidekiqScheduler do
-      it_behaves_like 'scheduler', SidekiqScheduler.new
+      it_behaves_like "scheduler", SidekiqScheduler.new
 
       describe "#verify" do
         specify do
@@ -59,7 +59,7 @@ module RubyEventStore
           event =
             TimeEnrichment.with(
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-              timestamp: Time.utc(2019, 9, 30)
+              timestamp: Time.utc(2019, 9, 30),
             )
           event_record = Mappers::Default.new.event_to_record(event)
           class ::CorrectAsyncHandler
@@ -91,10 +91,10 @@ module RubyEventStore
                   data: "--- {}\n",
                   metadata: "--- {}\n",
                   timestamp: "2019-09-30T00:00:00.000000Z",
-                  valid_at: "2019-09-30T00:00:00.000000Z"
-                }
-              ]
-            }
+                  valid_at: "2019-09-30T00:00:00.000000Z",
+                },
+              ],
+            },
           )
         end
 
@@ -102,7 +102,7 @@ module RubyEventStore
           event =
             TimeEnrichment.with(
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-              timestamp: Time.utc(2019, 9, 30)
+              timestamp: Time.utc(2019, 9, 30),
             )
           event_record = Mappers::Default.new.event_to_record(event)
           class ::CorrectAsyncHandler
@@ -124,7 +124,7 @@ module RubyEventStore
           event =
             TimeEnrichment.with(
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-              timestamp: Time.utc(2019, 9, 30)
+              timestamp: Time.utc(2019, 9, 30),
             )
           event_record = Mappers::Default.new.event_to_record(event)
           class ::CorrectAsyncHandlerWithRetryQueue
@@ -146,11 +146,12 @@ module RubyEventStore
           event =
             TimeEnrichment.with(
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-              timestamp: Time.utc(2019, 9, 30)
+              timestamp: Time.utc(2019, 9, 30),
             )
           event_record = Mappers::Default.new.event_to_record(event)
           class ::AlwaysCancellingMiddleware
-            def call(_worker_class, _msg, _queue, _redis_pool); end
+            def call(_worker_class, _msg, _queue, _redis_pool)
+            end
           end
           install_sidekiq_middleware(::AlwaysCancellingMiddleware)
           class ::CorrectAsyncHandler

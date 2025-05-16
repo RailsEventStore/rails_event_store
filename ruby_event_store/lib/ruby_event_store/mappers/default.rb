@@ -7,8 +7,8 @@ module RubyEventStore
         super(
           Pipeline.new(
             Transformation::EventClassRemapper.new(events_class_remapping),
-            Transformation::SymbolizeMetadataKeys.new
-          )
+            Transformation::SymbolizeMetadataKeys.new,
+          ),
         )
       end
     end

@@ -19,7 +19,7 @@ module RubyEventStore
         type: :string,
         default: "binary",
         desc:
-          "Configure the data type for `data` and `meta data` fields in migration (options: #{DatabaseAdapter::PostgreSQL.new.supported_data_types.join(", ")})"
+          "Configure the data type for `data` and `meta data` fields in migration (options: #{DatabaseAdapter::PostgreSQL.new.supported_data_types.join(", ")})",
       )
 
       def initialize(*args)

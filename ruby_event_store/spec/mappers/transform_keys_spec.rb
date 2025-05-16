@@ -18,26 +18,15 @@ module RubyEventStore
         ten: {
           some: "hash",
           with: {
-            nested: "values"
-          }
+            nested: "values",
+          },
         },
         eleven: [1, { another: "hash", here: 2 }, 3],
         array: [
           123,
-          { twelve: {meh: "doh" } },
-          [
-            456,
-            {
-              thirteen: {
-                another_array: [
-                  789,
-                  { fourteen: { just: "one more" } },
-                  "enough"
-                ]
-              }
-            }
-          ]
-        ]
+          { twelve: { meh: "doh" } },
+          [456, { thirteen: { another_array: [789, { fourteen: { just: "one more" } }, "enough"] } }],
+        ],
       }
     end
     let(:hash_with_strings) do
@@ -54,26 +43,15 @@ module RubyEventStore
         "ten" => {
           "some" => "hash",
           "with" => {
-            "nested" => "values"
-          }
+            "nested" => "values",
+          },
         },
         "eleven" => [1, { "another" => "hash", "here" => 2 }, 3],
         "array" => [
           123,
           { "twelve" => { "meh" => "doh" } },
-          [
-            456,
-            {
-              "thirteen" => {
-                "another_array" => [
-                  789,
-                  { "fourteen" => { "just" => "one more" } },
-                  "enough"
-                ]
-              }
-            }
-          ]
-        ]
+          [456, { "thirteen" => { "another_array" => [789, { "fourteen" => { "just" => "one more" } }, "enough"] } }],
+        ],
       }
     end
 

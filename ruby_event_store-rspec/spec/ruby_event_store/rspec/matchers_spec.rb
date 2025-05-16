@@ -32,7 +32,7 @@ module RubyEventStore
 
       specify do
         expect(matchers.have_published(matchers.an_event(FooEvent), matchers.an_event(BazEvent))).to be_an(
-          HavePublished
+          HavePublished,
         )
       end
 
@@ -56,7 +56,7 @@ module RubyEventStore
 
       specify do
         expect(matchers.have_applied(matchers.an_event(FooEvent)).description).to eq(
-          "have applied events that have to (be an event FooEvent)"
+          "have applied events that have to (be an event FooEvent)",
         )
       end
 
@@ -120,7 +120,7 @@ module RubyEventStore
 
         specify do
           expect(lister.call([FooEvent, BarEvent, BazEvent, be_a(Time)])).to eq(
-            "be a FooEvent, be a BarEvent, be a BazEvent and be a kind of Time"
+            "be a FooEvent, be a BarEvent, be a BazEvent and be a kind of Time",
           )
         end
       end

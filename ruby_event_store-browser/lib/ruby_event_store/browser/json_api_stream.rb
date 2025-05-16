@@ -14,15 +14,15 @@ module RubyEventStore
           id: stream_name,
           type: "streams",
           attributes: {
-            related_streams: related_streams
+            related_streams: related_streams,
           },
           relationships: {
             events: {
               links: {
-                self: events_from_stream_url
-              }
-            }
-          }
+                self: events_from_stream_url,
+              },
+            },
+          },
         }
       end
 

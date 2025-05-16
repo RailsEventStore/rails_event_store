@@ -34,7 +34,7 @@ module RubyEventStore
         HavePublished.new(
           *expected,
           phraser: phraser,
-          failure_message_formatter: RSpec.default_formatter.have_published(differ)
+          failure_message_formatter: RSpec.default_formatter.have_published(differ),
         )
       end
 
@@ -42,7 +42,7 @@ module RubyEventStore
         HaveApplied.new(
           *expected,
           phraser: phraser,
-          failure_message_formatter: RSpec.default_formatter.have_applied(differ)
+          failure_message_formatter: RSpec.default_formatter.have_applied(differ),
         )
       end
 

@@ -12,7 +12,7 @@ module RubyEventStore
               data: encode_data(record.data),
               metadata: record.metadata,
               timestamp: record.timestamp,
-              valid_at: record.valid_at
+              valid_at: record.valid_at,
             )
           end
 
@@ -23,7 +23,7 @@ module RubyEventStore
               data: load_data(record.event_type, record.data),
               metadata: record.metadata,
               timestamp: record.timestamp,
-              valid_at: record.valid_at
+              valid_at: record.valid_at,
             )
           end
 
@@ -38,11 +38,7 @@ module RubyEventStore
           end
 
           def load_data(event_type, protobuf_data)
-            Google::Protobuf::DescriptorPool
-              .generated_pool
-              .lookup(event_type)
-              .msgclass
-              .decode(protobuf_data)
+            Google::Protobuf::DescriptorPool.generated_pool.lookup(event_type).msgclass.decode(protobuf_data)
           end
         end
       end

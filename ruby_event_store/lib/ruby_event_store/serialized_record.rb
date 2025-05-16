@@ -33,7 +33,7 @@ module RubyEventStore
         metadata: metadata,
         event_type: event_type,
         timestamp: timestamp,
-        valid_at: valid_at
+        valid_at: valid_at,
       }
     end
 
@@ -44,7 +44,7 @@ module RubyEventStore
         data: serializer.load(data),
         metadata: serializer.load(metadata),
         timestamp: Time.iso8601(timestamp),
-        valid_at: Time.iso8601(valid_at)
+        valid_at: Time.iso8601(valid_at),
       )
     end
 

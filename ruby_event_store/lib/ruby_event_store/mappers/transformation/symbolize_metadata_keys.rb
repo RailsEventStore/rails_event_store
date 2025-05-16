@@ -21,7 +21,7 @@ module RubyEventStore
             data: record.data,
             metadata: TransformKeys.symbolize(record.metadata),
             timestamp: record.timestamp,
-            valid_at: record.valid_at
+            valid_at: record.valid_at,
           )
         end
       end

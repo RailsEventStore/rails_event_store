@@ -71,14 +71,14 @@ module RubyEventStore
 
       def sequel
         @sequel ||=
-          ::Sequel.connect(
-            database_uri,
-            fractional_seconds: true,
-            preconnect: :concurrently,
-            max_connections: database_uri.include?("sqlite") ? 1 : 5
-        ).tap do |sequel|
-          sequel.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE")
-        end
+          ::Sequel
+            .connect(
+              database_uri,
+              fractional_seconds: true,
+              preconnect: :concurrently,
+              max_connections: database_uri.include?("sqlite") ? 1 : 5,
+            )
+            .tap { |sequel| sequel.loggers << Logger.new(STDOUT) if ENV.has_key?("VERBOSE") }
       end
 
       protected
@@ -107,13 +107,15 @@ module RubyEventStore
   end
 end
 
-::Sequel::Database.prepend(Module.new {
-  def log_connection_yield(sql, _conn, args = nil)
-    ActiveSupport::Notifications.instrument(
-      "sql.sequel",
-      sql: sql,
-      name: "RubyEventStore::Sequel[#{database_type}]",
-      binds: args
-    ) { super }
-  end
-})
+::Sequel::Database.prepend(
+  Module.new do
+    def log_connection_yield(sql, _conn, args = nil)
+      ActiveSupport::Notifications.instrument(
+        "sql.sequel",
+        sql: sql,
+        name: "RubyEventStore::Sequel[#{database_type}]",
+        binds: args,
+      ) { super }
+    end
+  end,
+)

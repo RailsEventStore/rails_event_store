@@ -4,7 +4,6 @@ require "spec_helper"
 require "active_support"
 require "active_support/notifications"
 
-
 module AggregateRoot
   ::RSpec.describe InstrumentedApplyStrategy do
     describe "#call" do
@@ -28,12 +27,7 @@ module AggregateRoot
           expect(strategy).to receive(:call).with(aggregate, event)
           instrumented_strategy.call(aggregate, event)
 
-          expect(notification_calls).to eq(
-            [{
-              aggregate: aggregate,
-              event:     event,
-            }]
-          )
+          expect(notification_calls).to eq([{ aggregate: aggregate, event: event }])
         end
       end
     end
@@ -55,17 +49,16 @@ module AggregateRoot
       instrumented_strategy = InstrumentedApplyStrategy.new(some_strategy, ActiveSupport::Notifications)
 
       expect(instrumented_strategy).not_to respond_to(:arbitrary_method_name)
-      expect do
-        instrumented_strategy.arbitrary_method_name
-      end.to raise_error(NoMethodError, /undefined method.+arbitrary_method_name/)
+      expect do instrumented_strategy.arbitrary_method_name end.to raise_error(
+        NoMethodError,
+        /undefined method.+arbitrary_method_name/,
+      )
     end
 
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
-      ActiveSupport::Notifications.subscribed(callback, name) do
-        yield received_payloads
-      end
+      ActiveSupport::Notifications.subscribed(callback, name) { yield received_payloads }
     end
   end
 end

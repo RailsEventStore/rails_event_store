@@ -18,8 +18,8 @@ module RubyEventStore
           "last" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
           "next" =>
-            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page[19].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
-        }
+            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page[19].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(20)
 
@@ -29,8 +29,8 @@ module RubyEventStore
           "last" =>
             "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
           "next" =>
-            "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=#{first_page[18].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
-        }
+            "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=#{first_page[18].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(20)
     end
@@ -46,8 +46,8 @@ module RubyEventStore
           "last" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
           "next" =>
-            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
-        }
+            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(20)
     end
@@ -64,8 +64,8 @@ module RubyEventStore
           "last" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
           "next" =>
-            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
-        }
+            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{first_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(20)
     end
@@ -83,8 +83,8 @@ module RubyEventStore
           "first" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
           "prev" =>
-            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
-        }
+            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(20)
 
@@ -98,8 +98,8 @@ module RubyEventStore
           "next" =>
             "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=#{last_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
           "prev" =>
-            "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
-        }
+            "http://www.example.com/api/streams/all/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(20)
     end
@@ -115,8 +115,8 @@ module RubyEventStore
           "first" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
           "prev" =>
-            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
-        }
+            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{last_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(20)
     end
@@ -137,8 +137,8 @@ module RubyEventStore
           "next" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{next_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
           "prev" =>
-            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{next_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20"
-        }
+            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{next_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(20)
     end
@@ -169,8 +169,8 @@ module RubyEventStore
           "next" =>
             "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{next_page.last.event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=5",
           "prev" =>
-            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{next_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=5"
-        }
+            "http://www.example.com/api/streams/dummy/relationships/events?page%5Bposition%5D=#{next_page.first.event_id}&page%5Bdirection%5D=forward&page%5Bcount%5D=5",
+        },
       )
       expect(api_client.parsed_body["data"].size).to eq(5)
     end

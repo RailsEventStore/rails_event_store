@@ -15,8 +15,7 @@ module RubyEventStore
       end
 
       specify "local path source" do
-        path =
-          "/Users/mostlyobvious/Code/rails_event_store/ruby_event_store-browser/lib"
+        path = "/Users/mostlyobvious/Code/rails_event_store/ruby_event_store-browser/lib"
         source = GemSource.new([random_unrelated_path, path])
 
         expect(source.version).to be_nil
@@ -24,8 +23,7 @@ module RubyEventStore
       end
 
       specify "rubygems source" do
-        path =
-          "/Users/mostlyobvious/.rubies/ruby-3.1.2/lib/ruby/gems/3.1.0/gems/ruby_event_store-browser-2.5.1/lib"
+        path = "/Users/mostlyobvious/.rubies/ruby-3.1.2/lib/ruby/gems/3.1.0/gems/ruby_event_store-browser-2.5.1/lib"
         source = GemSource.new([random_unrelated_path, path])
 
         expect(source.version).to eq("2.5.1")
@@ -42,8 +40,7 @@ module RubyEventStore
       end
 
       specify "don't crash on two–digit number in version string" do
-        path =
-          "/Users/mostlyobvious/.rubies/ruby-3.1.2/lib/ruby/gems/3.1.0/gems/ruby_event_store-browser-22.33.44/lib"
+        path = "/Users/mostlyobvious/.rubies/ruby-3.1.2/lib/ruby/gems/3.1.0/gems/ruby_event_store-browser-22.33.44/lib"
         source = GemSource.new([random_unrelated_path, path])
 
         expect(source.version).to eq("22.33.44")

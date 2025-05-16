@@ -23,7 +23,7 @@ module RubyEventStore
             cleanup: :none,
             cleanup_limit: :all,
             sleep_on_empty: 1,
-            locking: locking
+            locking: locking,
           )
         end
         let(:null_metrics) { Metrics::Null.new }

@@ -30,6 +30,7 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :consumer, :logger, :sleep_on_empty, :split_keys
 
       def prepare_traps

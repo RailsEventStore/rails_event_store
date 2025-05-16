@@ -25,10 +25,8 @@ module RubyEventStore
 
     module Transformation
       ProtoEvent = RubyEventStore::Protobuf::Mappers::Transformation::ProtoEvent
-      ProtobufEncoder =
-        RubyEventStore::Protobuf::Mappers::Transformation::ProtobufEncoder
-      ProtobufNestedStructMetadata =
-        RubyEventStore::Protobuf::Mappers::Transformation::ProtobufNestedStructMetadata
+      ProtobufEncoder = RubyEventStore::Protobuf::Mappers::Transformation::ProtobufEncoder
+      ProtobufNestedStructMetadata = RubyEventStore::Protobuf::Mappers::Transformation::ProtobufNestedStructMetadata
     end
   end
 end

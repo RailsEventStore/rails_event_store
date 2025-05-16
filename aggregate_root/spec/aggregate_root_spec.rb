@@ -3,7 +3,6 @@
 require "spec_helper"
 
 ::RSpec.describe AggregateRoot do
-  
   let(:uuid) { SecureRandom.uuid }
   let(:order_klass) do
     Class.new do
@@ -64,7 +63,7 @@ require "spec_helper"
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.to raise_error(
       AggregateRoot::MissingHandler,
-      "Missing handler method apply_spanish_inquisition on aggregate #{order_klass}"
+      "Missing handler method apply_spanish_inquisition on aggregate #{order_klass}",
     )
   end
 
@@ -81,8 +80,8 @@ require "spec_helper"
       ->(aggregate, event) do
         {
           "Orders::Events::OrderCreated" => aggregate.method(:custom_created),
-          "Orders::Events::OrderExpired" => aggregate.method(:custom_expired)
-        }.fetch(event.event_type, ->(ev) {  }).call(event)
+          "Orders::Events::OrderExpired" => aggregate.method(:custom_expired),
+        }.fetch(event.event_type, ->(ev) {}).call(event)
       end
     end
     klass =

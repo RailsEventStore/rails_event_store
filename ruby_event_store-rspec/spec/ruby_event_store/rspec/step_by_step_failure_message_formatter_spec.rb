@@ -9,10 +9,7 @@ module RubyEventStore
       let(:aggregate) { TestAggregate.new }
       let(:event_store) do
         Client.new(
-          mapper:
-            Mappers::PipelineMapper.new(
-              Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
-            )
+          mapper: Mappers::PipelineMapper.new(Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)),
         )
       end
 
@@ -20,7 +17,7 @@ module RubyEventStore
         HavePublished.new(
           *expected,
           phraser: phraser,
-          failure_message_formatter: failure_message_formatter.have_published(colorless_differ)
+          failure_message_formatter: failure_message_formatter.have_published(colorless_differ),
         )
       end
 
@@ -28,7 +25,7 @@ module RubyEventStore
         HaveApplied.new(
           *expected,
           phraser: phraser,
-          failure_message_formatter: failure_message_formatter.have_applied(colorless_differ)
+          failure_message_formatter: failure_message_formatter.have_applied(colorless_differ),
         )
       end
 

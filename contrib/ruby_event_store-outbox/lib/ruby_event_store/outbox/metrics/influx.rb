@@ -14,7 +14,7 @@ module RubyEventStore
         def write_operation_result(operation, result)
           write_point(
             "ruby_event_store.outbox.lock",
-            { values: { value: 1 }, tags: { operation: operation, result: result } }
+            { values: { value: 1 }, tags: { operation: operation, result: result } },
           )
         end
 
@@ -25,13 +25,13 @@ module RubyEventStore
               values: {
                 enqueued: enqueued,
                 failed: failed,
-                remaining: remaining
+                remaining: remaining,
               },
               tags: {
                 format: format,
-                split_key: split_key
-              }
-            }
+                split_key: split_key,
+              },
+            },
           )
         end
 

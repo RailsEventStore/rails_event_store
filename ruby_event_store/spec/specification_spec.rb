@@ -43,7 +43,7 @@ module RubyEventStore
 
     specify do
       repository.append_to_stream([test_record(event_id)], Stream.new("Dummy"), ExpectedVersion.none)
-      expect { specification.stream('Another').from(event_id) }.not_to raise_error
+      expect { specification.stream("Another").from(event_id) }.not_to raise_error
     end
 
     specify { expect { specification.to(nil) }.to raise_error(InvalidPageStop) }
@@ -83,14 +83,14 @@ module RubyEventStore
     specify do
       expect(specification.newer_than(target_date).newer_than_or_equal(target_date).result.newer_than).to be_nil
       expect(
-        specification.newer_than_or_equal(target_date).newer_than(target_date).result.newer_than_or_equal
+        specification.newer_than_or_equal(target_date).newer_than(target_date).result.newer_than_or_equal,
       ).to be_nil
     end
 
     specify do
       expect(specification.older_than(target_date).older_than_or_equal(target_date).result.older_than).to be_nil
       expect(
-        specification.older_than_or_equal(target_date).older_than(target_date).result.older_than_or_equal
+        specification.older_than_or_equal(target_date).older_than(target_date).result.older_than_or_equal,
       ).to be_nil
     end
 
@@ -163,7 +163,7 @@ module RubyEventStore
           specification.newer_than(target_date),
           specification.stream(stream_name),
           specification.with_id([event_id]),
-          specification.of_type([TestEvent])
+          specification.of_type([TestEvent]),
         ]
         expect(specs.map { |s| s.send(:reader) }.uniq).to eq([reader])
       end
@@ -219,7 +219,7 @@ module RubyEventStore
     specify do
       with_event_of_id(event_id) do
         expect(specification.older_than_or_equal(target_date).stream("dummy").result.older_than_or_equal).to eq(
-          target_date
+          target_date,
         )
         expect(specification.older_than_or_equal(target_date).limit(1).result.older_than_or_equal).to eq(target_date)
         expect(specification.older_than_or_equal(target_date).read_first.result.older_than_or_equal).to eq(target_date)
@@ -245,7 +245,7 @@ module RubyEventStore
     specify do
       with_event_of_id(event_id) do
         expect(specification.newer_than_or_equal(target_date).stream("dummy").result.newer_than_or_equal).to eq(
-          target_date
+          target_date,
         )
         expect(specification.newer_than_or_equal(target_date).limit(1).result.newer_than_or_equal).to eq(target_date)
         expect(specification.newer_than_or_equal(target_date).read_first.result.newer_than_or_equal).to eq(target_date)
@@ -503,7 +503,7 @@ module RubyEventStore
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
       expect(specification.older_than_or_equal(Time.utc(2020, 2, 1)).map(&:event_id)).to eq(
-        [records[0].event_id, records[1].event_id]
+        [records[0].event_id, records[1].event_id],
       )
     end
 
@@ -519,7 +519,7 @@ module RubyEventStore
       repository.append_to_stream(records, Stream.new("Dummy"), ExpectedVersion.none)
 
       expect(specification.newer_than_or_equal(Time.utc(2020, 1, 1)).map(&:event_id)).to eq(
-        [records[0].event_id, records[1].event_id]
+        [records[0].event_id, records[1].event_id],
       )
     end
 
@@ -614,10 +614,10 @@ module RubyEventStore
       expect(specification.events([])).to be_a(Enumerator)
       expect(specification.events([0, 2, 4].map { |i| records[i].event_id })).to be_a(Enumerator)
       expect(specification.events([0, 2, 4].map { |i| records[i].event_id }).to_a).to eq(
-        [0, 2, 4].map { |i| TestEvent.new(event_id: records[i].event_id) }
+        [0, 2, 4].map { |i| TestEvent.new(event_id: records[i].event_id) },
       )
       expect(specification.events([records[0].event_id, SecureRandom.uuid]).to_a).to eq(
-        [TestEvent.new(event_id: records[0].event_id)]
+        [TestEvent.new(event_id: records[0].event_id)],
       )
     end
 
@@ -654,7 +654,7 @@ module RubyEventStore
 
       expect(specification.result.hash).not_to eq(specification.limit(10).result.hash)
       expect(specification.in_batches.result.hash).to eq(
-        specification.in_batches(Specification::DEFAULT_BATCH_SIZE).result.hash
+        specification.in_batches(Specification::DEFAULT_BATCH_SIZE).result.hash,
       )
       expect(specification.in_batches.result.hash).not_to eq(specification.in_batches(10).result.hash)
       expect(specification.result.hash).to eq(specification.stream(GLOBAL_STREAM).result.hash)
@@ -662,12 +662,12 @@ module RubyEventStore
 
       expect(specification.with_id(event_id).result.hash).to eq(specification.with_id(event_id).result.hash)
       expect(specification.with_id(event_id).result.hash).not_to eq(
-        specification.with_id(SecureRandom.uuid).result.hash
+        specification.with_id(SecureRandom.uuid).result.hash,
       )
 
       expect(specification.of_type([TestEvent]).result.hash).to eq(specification.of_type([TestEvent]).result.hash)
       expect(specification.of_type([TestEvent]).result.hash).not_to eq(
-        specification.of_type([OrderCreated]).result.hash
+        specification.of_type([OrderCreated]).result.hash,
       )
 
       expect(specification.result.hash).not_to eq(specification.as_at.result.hash)
@@ -700,8 +700,8 @@ module RubyEventStore
           :all,
           Specification::DEFAULT_BATCH_SIZE,
           nil,
-          nil
-        ].hash
+          nil,
+        ].hash,
       )
 
       expect(Class.new(SpecificationResult).new.hash).not_to eq(specification.result.hash)
@@ -792,7 +792,7 @@ module RubyEventStore
       expect(specification.reduce(0) { |acc, ev| acc + ev.data.dig(:here, :will, :be, :dragon) }).to eq 6
       expect(specification.backward.reduce(0) { |acc, ev| acc + ev.data.dig(:here, :will, :be, :dragon) }).to eq 6
       expect(
-        specification.stream("Dummy").reduce(0) { |acc, ev| acc + ev.data.dig(:here, :will, :be, :dragon) }
+        specification.stream("Dummy").reduce(0) { |acc, ev| acc + ev.data.dig(:here, :will, :be, :dragon) },
       ).to eq 0
     end
 
@@ -829,10 +829,10 @@ module RubyEventStore
         [
           test_record(e1 = SecureRandom.uuid, timestamp: Time.new(2020, 1, 1), valid_at: Time.new(2020, 1, 9)),
           test_record(e2 = SecureRandom.uuid, timestamp: Time.new(2020, 1, 3), valid_at: Time.new(2020, 1, 6)),
-          test_record(e3 = SecureRandom.uuid, timestamp: Time.new(2020, 1, 2), valid_at: Time.new(2020, 1, 3))
+          test_record(e3 = SecureRandom.uuid, timestamp: Time.new(2020, 1, 2), valid_at: Time.new(2020, 1, 3)),
         ],
         Stream.new("Dummy"),
-        ExpectedVersion.any
+        ExpectedVersion.any,
       )
       expect(specification.map(&:event_id)).to eq [e1, e2, e3]
       expect(specification.as_at.map(&:event_id)).to eq [e1, e3, e2]
@@ -867,7 +867,7 @@ module RubyEventStore
       valid_at: nil
     )
       mapper.event_to_record(
-        TimeEnrichment.with(event_type.new(event_id: event_id, data: data), timestamp: timestamp, valid_at: valid_at)
+        TimeEnrichment.with(event_type.new(event_id: event_id, data: data), timestamp: timestamp, valid_at: valid_at),
       )
     end
 

@@ -64,18 +64,12 @@ module RubyEventStore
                 related_streams_query: related_streams_query,
                 host: host,
                 root_path: path,
-                api_url: api_url
+                api_url: api_url,
               )
         end
       end
 
-      def initialize(
-        event_store_locator:,
-        related_streams_query:,
-        host:,
-        root_path:,
-        api_url:
-      )
+      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, api_url:)
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
         @routing = Urls.from_configuration(host, root_path, api_url)
@@ -84,27 +78,21 @@ module RubyEventStore
       def call(env)
         router = Router.new(routing)
         router.add_route("GET", "/api/events/:event_id") do |params|
-          json GetEvent.new(
-                 event_store: event_store,
-                 event_id: params.fetch("event_id")
-               )
+          json GetEvent.new(event_store: event_store, event_id: params.fetch("event_id"))
         end
         router.add_route("GET", "/api/streams/:stream_name") do |params, urls|
           json GetStream.new(
                  stream_name: params.fetch("stream_name"),
                  routing: urls,
-                 related_streams_query: related_streams_query
+                 related_streams_query: related_streams_query,
                )
         end
-        router.add_route(
-          "GET",
-          "/api/streams/:stream_name/relationships/events"
-        ) do |params, urls|
+        router.add_route("GET", "/api/streams/:stream_name/relationships/events") do |params, urls|
           json GetEventsFromStream.new(
                  event_store: event_store,
                  routing: urls,
                  stream_name: params.fetch("stream_name"),
-                 page: params["page"]
+                 page: params["page"],
                )
         end
 
@@ -117,7 +105,7 @@ module RubyEventStore
                 initial_data: {
                   rootUrl: urls.app_url,
                   apiUrl: urls.api_url,
-                  resVersion: res_version
+                  resVersion: res_version,
                 }
           end
         end
@@ -162,19 +150,11 @@ module RubyEventStore
       end
 
       def json(body)
-        [
-          200,
-          { "content-type" => "application/vnd.api+json" },
-          [JSON.dump(body.to_h)]
-        ]
+        [200, { "content-type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
       end
 
       def erb(template, **locals)
-        [
-          200,
-          { "content-type" => "text/html;charset=utf-8" },
-          [ERB.new(template).result_with_hash(locals)]
-        ]
+        [200, { "content-type" => "text/html;charset=utf-8" }, [ERB.new(template).result_with_hash(locals)]]
       end
 
       def res_version

@@ -40,7 +40,7 @@ module RubyEventStore
       ->(cmd) do
         {
           AddProductCommand => ->(c) { event_store.publish(ProductAdded.new(data: { product_id: c.product_id })) },
-          TestCommand => ->(_c) { event_store.publish(TestEvent.new) }
+          TestCommand => ->(_c) { event_store.publish(TestEvent.new) },
         }.fetch(cmd.class).call(cmd)
       end
     end

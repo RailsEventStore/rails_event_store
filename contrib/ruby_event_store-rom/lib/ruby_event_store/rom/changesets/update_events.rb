@@ -35,7 +35,7 @@ module RubyEventStore
             .dataset
             .insert_conflict(
               target: :event_id,
-              update: UPSERT_COLUMNS.each_with_object({}) { |column, memo| memo[column] = Sequel[:excluded][column] }
+              update: UPSERT_COLUMNS.each_with_object({}) { |column, memo| memo[column] = Sequel[:excluded][column] },
             )
             .multi_insert(to_a)
         end

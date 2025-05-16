@@ -17,12 +17,7 @@ class ApiClient
 
   class InvalidDocument < StandardError
     def initialize(document)
-      super(
-        JSON::Validator.fully_validate(
-          File.join(__dir__, "schema.json"),
-          document
-        ).join("\n")
-      )
+      super(JSON::Validator.fully_validate(File.join(__dir__, "schema.json"), document).join("\n"))
     end
   end
 
@@ -48,18 +43,14 @@ class ApiClient
 
   def validate_response
     return if last_response.body.empty?
-    unless match_content_type(last_response.content_type)
-      raise InvalidContentType.new(last_response.content_type)
-    end
+    raise InvalidContentType.new(last_response.content_type) unless match_content_type(last_response.content_type)
 
     document = JSON.parse(last_response.body.dup)
     raise InvalidDocument.new(document) unless valid_schema(document)
   end
 
   def validate_request
-    unless match_content_type(last_request.content_type)
-      raise InvalidContentType.new(last_request.content_type)
-    end
+    raise InvalidContentType.new(last_request.content_type) unless match_content_type(last_request.content_type)
 
     document = last_request.body.read
     last_request.body.rewind if last_request.body.respond_to?(:rewind)

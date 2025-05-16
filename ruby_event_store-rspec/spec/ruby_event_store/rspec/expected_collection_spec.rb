@@ -42,7 +42,7 @@ module RubyEventStore
       specify do
         collection =
           ExpectedCollection.new(
-            [matchers.an_event(FooEvent).with_data(a: 1), matchers.an_event(FooEvent).with_data(a: 2)]
+            [matchers.an_event(FooEvent).with_data(a: 1), matchers.an_event(FooEvent).with_data(a: 2)],
           )
 
         expect { collection.event }.to raise_error(NotSupported)
@@ -65,7 +65,7 @@ module RubyEventStore
       specify do
         collection =
           ExpectedCollection.new(
-            [matchers.an_event(FooEvent).with_data(a: 1), matchers.an_event(FooEvent).with_data(a: 2)]
+            [matchers.an_event(FooEvent).with_data(a: 1), matchers.an_event(FooEvent).with_data(a: 2)],
           )
 
         expect { collection.exactly(3) }.to raise_error(NotSupported)

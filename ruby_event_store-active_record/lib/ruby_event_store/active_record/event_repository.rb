@@ -99,7 +99,7 @@ module RubyEventStore
                 stream: stream.name,
                 position: compute_position(resolved_version, index),
                 event_id: event_id,
-                created_at: Time.now.utc
+                created_at: Time.now.utc,
               }
             end
           @stream_klass.insert_all!(in_stream) unless stream.global?
@@ -129,7 +129,7 @@ module RubyEventStore
           metadata: serialized_record.metadata,
           event_type: serialized_record.event_type,
           created_at: record.timestamp,
-          valid_at: optimize_timestamp(record.valid_at, record.timestamp)
+          valid_at: optimize_timestamp(record.valid_at, record.timestamp),
         }
       end
 
@@ -139,7 +139,7 @@ module RubyEventStore
           data: serialized_record.data,
           metadata: serialized_record.metadata,
           event_type: serialized_record.event_type,
-          valid_at: optimize_timestamp(record.valid_at, record.timestamp)
+          valid_at: optimize_timestamp(record.valid_at, record.timestamp),
         }
       end
 
@@ -152,9 +152,7 @@ module RubyEventStore
       end
 
       def link_to_stream_(event_ids, stream, expected_version)
-        (
-          event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)
-        ).each { |id| raise EventNotFound.new(id) }
+        (event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)).each { |id| raise EventNotFound.new(id) }
         add_to_stream(event_ids, stream, expected_version)
       end
 
@@ -165,9 +163,7 @@ module RubyEventStore
           hashes << insert_hash(record, record.serialize(serializer))
           event_ids << record.event_id
         end
-        add_to_stream(event_ids, stream, expected_version) do
-          @event_klass.insert_all!(hashes)
-        end
+        add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all!(hashes) }
       end
     end
   end

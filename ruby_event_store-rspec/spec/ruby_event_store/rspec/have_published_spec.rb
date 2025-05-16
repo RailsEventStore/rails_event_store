@@ -8,10 +8,7 @@ module RubyEventStore
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
       let(:event_store) do
         Client.new(
-          mapper:
-            Mappers::PipelineMapper.new(
-              Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
-            )
+          mapper: Mappers::PipelineMapper.new(Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)),
         )
       end
 
@@ -19,7 +16,7 @@ module RubyEventStore
         HavePublished.new(
           *expected,
           phraser: phraser,
-          failure_message_formatter: RSpec.default_formatter.have_published(colorless_differ)
+          failure_message_formatter: RSpec.default_formatter.have_published(colorless_differ),
         )
       end
 
@@ -157,7 +154,7 @@ module RubyEventStore
 
         expect(event_store).to matcher(
           matchers.an_event(FooEvent).with_data(a: 1),
-          matchers.an_event(FooEvent).with_data(b: 2)
+          matchers.an_event(FooEvent).with_data(b: 2),
         )
       end
 
@@ -231,13 +228,13 @@ module RubyEventStore
 
       specify do
         expect { expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(0).times }.to raise_error(
-          NotSupported
+          NotSupported,
         )
       end
 
       specify do
         expect { expect(event_store).to matcher(matchers.an_event(FooEvent)).exactly(-1).times }.to raise_error(
-          NotSupported
+          NotSupported,
         )
       end
 
@@ -298,7 +295,7 @@ module RubyEventStore
       specify do
         matcher_ = matcher(matchers.an_event(FooEvent), matchers.an_event(BazEvent))
         expect(matcher_.description).to eq(
-          "have published events that have to (be an event FooEvent and be an event BazEvent)"
+          "have published events that have to (be an event FooEvent and be an event BazEvent)",
         )
       end
 

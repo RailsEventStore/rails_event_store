@@ -24,9 +24,7 @@ module RubyEventStore
 
         data_type = data_type_to_pg_type(ENV["DATA_TYPE"])
 
-        expect(
-          pg_schema("event_store_events").gsub(/\s+/, " ")
-        ).to eq <<~SCHEMA.strip.gsub(/\s+/, " ")
+        expect(pg_schema("event_store_events").gsub(/\s+/, " ")).to eq <<~SCHEMA.strip.gsub(/\s+/, " ")
           Table "public.event_store_events"
              Column   |            Type                | Collation | Nullable |                    Default                     
           ------------+--------------------------------+-----------+----------+------------------------------------------------
@@ -47,9 +45,7 @@ module RubyEventStore
               TABLE "event_store_events_in_streams" CONSTRAINT "fk_rails_c8d52b5857" FOREIGN KEY (event_id) REFERENCES event_store_events(event_id)
         SCHEMA
 
-        expect(
-          pg_schema("event_store_events_in_streams").gsub(/\s+/, " ")
-        ).to eq <<~SCHEMA.strip.gsub(/\s+/, " ")
+        expect(pg_schema("event_store_events_in_streams").gsub(/\s+/, " ")).to eq <<~SCHEMA.strip.gsub(/\s+/, " ")
           Table "public.event_store_events_in_streams"
              Column   |            Type                | Collation | Nullable |                          Default                          
           ------------+--------------------------------+-----------+----------+-----------------------------------------------------------
@@ -74,10 +70,8 @@ module RubyEventStore
 
         data_type = data_type_to_mysql_type(ENV["DATA_TYPE"])
 
-        mysql_major_version =
-          ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
-        collation =
-          mysql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
+        mysql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
+        collation = mysql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
         charset = mysql_major_version == 8 ? "utf8mb4" : "latin1"
         int_lenght = mysql_major_version == 8 ? "" : "(11)"
         bigint_lenght = mysql_major_version == 8 ? "" : "(20)"
@@ -99,9 +93,7 @@ module RubyEventStore
           ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
 
-        expect(
-          mysql_schema("event_store_events_in_streams")
-        ).to eq <<~SCHEMA.strip
+        expect(mysql_schema("event_store_events_in_streams")).to eq <<~SCHEMA.strip
           CREATE TABLE `event_store_events_in_streams` (
             `id` bigint#{bigint_lenght} NOT NULL AUTO_INCREMENT,
             `stream` varchar(255) NOT NULL,
@@ -129,9 +121,7 @@ module RubyEventStore
           CREATE INDEX "index_event_store_events_on_valid_at" ON "event_store_events" ("valid_at")
         SCHEMA
 
-        expect(
-          sqlite_schema("event_store_events_in_streams")
-        ).to eq <<~SCHEMA.strip
+        expect(sqlite_schema("event_store_events_in_streams")).to eq <<~SCHEMA.strip
           CREATE TABLE "event_store_events_in_streams" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "stream" varchar NOT NULL, "position" integer DEFAULT NULL, "event_id" varchar(36) NOT NULL, "created_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_c8d52b5857"
           FOREIGN KEY ("event_id")
             REFERENCES "event_store_events" ("event_id")
@@ -146,9 +136,7 @@ module RubyEventStore
       private
 
       def data_type_to_pg_type(data_type)
-        { "binary" => "bytea", "json" => "json", "jsonb" => "jsonb" }.fetch(
-          data_type
-        )
+        { "binary" => "bytea", "json" => "json", "jsonb" => "jsonb" }.fetch(data_type)
       end
 
       def data_type_to_mysql_type(data_type)
@@ -156,34 +144,19 @@ module RubyEventStore
       end
 
       def sqlite_schema(name)
-        ::ActiveRecord::Base
-          .connection
-          .execute(<<~SQL)
+        ::ActiveRecord::Base.connection.execute(<<~SQL).map { |x| x["sql"] }.join("\n")
              SELECT  sql
              FROM    sqlite_schema
              WHERE   tbl_name = '#{name}'
            SQL
-          .map { |x| x["sql"] }
-          .join("\n")
       end
 
       def pg_schema(table_name)
-        IO
-          .popen(
-            "psql #{::ActiveRecord::Base.connection_db_config.url} -c '\\d #{table_name}'"
-          )
-          .readlines
-          .join
-          .strip
+        IO.popen("psql #{::ActiveRecord::Base.connection_db_config.url} -c '\\d #{table_name}'").readlines.join.strip
       end
 
       def mysql_schema(name)
-        ::ActiveRecord::Base
-          .connection
-          .execute("SHOW CREATE TABLE #{name}")
-          .to_a
-          .flatten
-          .last
+        ::ActiveRecord::Base.connection.execute("SHOW CREATE TABLE #{name}").to_a.flatten.last
       end
     end
   end

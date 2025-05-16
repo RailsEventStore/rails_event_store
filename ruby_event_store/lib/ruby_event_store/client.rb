@@ -16,10 +16,9 @@ module RubyEventStore
     )
       @repository = repository
       @mapper = mapper
-      @broker = message_broker || Broker.new(
-        subscriptions: subscriptions || Subscriptions.new, 
-        dispatcher: dispatcher || Dispatcher.new
-      )
+      @broker =
+        message_broker ||
+          Broker.new(subscriptions: subscriptions || Subscriptions.new, dispatcher: dispatcher || Dispatcher.new)
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
@@ -38,13 +37,11 @@ module RubyEventStore
             )
           )
         EOW
-        if (message_broker)
-          warn <<~EOW
+        warn <<~EOW if (message_broker)
 
             Because message_broker has been provided,
             arguments passed by subscriptions or dispatcher will be ignored.
           EOW
-        end
       end
     end
 
@@ -74,7 +71,7 @@ module RubyEventStore
       append_records_to_stream(
         transform(enrich_events_metadata(events)),
         stream_name: stream_name,
-        expected_version: expected_version
+        expected_version: expected_version,
       )
       self
     end
@@ -256,6 +253,7 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :resolver
 
       def add_thread_subscribers
@@ -299,16 +297,14 @@ module RubyEventStore
       extract_timestamp = lambda { |m| (m[:timestamp] || Time.parse(m.fetch("timestamp"))).iso8601 }
 
       mapper.record_to_event(
-        SerializedRecord
-          .new(
-            event_type: event_type,
-            event_id: event_id,
-            data: data,
-            metadata: metadata,
-            timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
-            valid_at: valid_at || timestamp_
-          )
-          .deserialize(serializer)
+        SerializedRecord.new(
+          event_type: event_type,
+          event_id: event_id,
+          data: data,
+          metadata: metadata,
+          timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
+          valid_at: valid_at || timestamp_,
+        ).deserialize(serializer),
       )
     end
 

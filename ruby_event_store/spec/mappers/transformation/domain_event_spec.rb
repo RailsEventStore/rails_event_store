@@ -6,28 +6,27 @@ module RubyEventStore
   module Mappers
     module Transformation
       ::RSpec.describe DomainEvent do
-        
         let(:uuid) { SecureRandom.uuid }
         let(:time) { Time.now.utc }
         let(:event) do
           TimeEnrichment.with(
             TestEvent.new(event_id: uuid, data: { some: "value" }, metadata: { some: "meta" }),
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         end
         let(:record) do
           Record.new(
             event_id: uuid,
             metadata: {
-              some: "meta"
+              some: "meta",
             },
             data: {
-              some: "value"
+              some: "value",
             },
             event_type: "TestEvent",
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         end
 
@@ -58,7 +57,7 @@ module RubyEventStore
             end
 
           DomainEvent.new.dump(
-            event = event_klass.new({ some: "data" }, { some: "meta", valid_at: time, timestamp: time })
+            event = event_klass.new({ some: "data" }, { some: "meta", valid_at: time, timestamp: time }),
           )
 
           expect(event.data).to eq({ some: "data" })

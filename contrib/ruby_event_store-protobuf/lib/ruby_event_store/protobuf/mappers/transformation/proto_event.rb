@@ -9,7 +9,7 @@ module RubyEventStore
             Proto.new(
               event_id: record.event_id,
               data: record.data,
-              metadata: record.metadata.merge(timestamp: record.timestamp, valid_at: record.valid_at)
+              metadata: record.metadata.merge(timestamp: record.timestamp, valid_at: record.valid_at),
             )
           end
         end

@@ -33,25 +33,18 @@ module RailsEventStore
             },
           }.merge(
             if defined?(OpenStruct)
-              {
-                OpenStruct => {
-                  serializer: ->(v) { v.to_h },
-                  deserializer: ->(v) { OpenStruct.new(v) },
-                },
-              }
+              { OpenStruct => { serializer: ->(v) { v.to_h }, deserializer: ->(v) { OpenStruct.new(v) } } }
             else
               {}
             end,
           )
-            .reduce(
-              RubyEventStore::Mappers::Transformation::PreserveTypes.new,
-            ) { |preserve_types, (klass, options)| preserve_types.register(klass, **options) },
+            .reduce(RubyEventStore::Mappers::Transformation::PreserveTypes.new) do |preserve_types, (klass, options)|
+              preserve_types.register(klass, **options)
+            end,
           RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new,
         ),
       ),
-      repository: RubyEventStore::ActiveRecord::EventRepository.new(
-        serializer: RubyEventStore::NULL,
-      ),
+      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL),
       subscriptions: nil,
       dispatcher: nil,
       message_broker: nil,

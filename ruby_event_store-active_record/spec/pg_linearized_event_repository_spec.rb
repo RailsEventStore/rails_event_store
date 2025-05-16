@@ -10,7 +10,7 @@ module RubyEventStore
       helper = SpecHelper.new
       mk_repository = -> { PgLinearizedEventRepository.new(serializer: Serializers::YAML) }
 
-      it_behaves_like 'event repository', mk_repository, helper
+      it_behaves_like "event repository", mk_repository, helper
 
       let(:repository) { mk_repository.call }
 
@@ -55,11 +55,7 @@ module RubyEventStore
       specify "can publish multiple events" do
         helper.with_transaction do
           expect do
-            repository.append_to_stream(
-              [SRecord.new, SRecord.new],
-              Stream.new(GLOBAL_STREAM),
-              ExpectedVersion.any
-            )
+            repository.append_to_stream([SRecord.new, SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
           end.not_to raise_error
         end
       end
@@ -71,11 +67,7 @@ module RubyEventStore
       end
 
       def append_an_event_to_repo
-        repository.append_to_stream(
-          [SRecord.new],
-          Stream.new(GLOBAL_STREAM),
-          ExpectedVersion.any
-        )
+        repository.append_to_stream([SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
       end
     end if ENV["DATABASE_URL"].include?("postgres")
   end

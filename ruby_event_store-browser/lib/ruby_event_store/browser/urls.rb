@@ -12,11 +12,7 @@ module RubyEventStore
       end
 
       def with_request(request)
-        Urls.new(
-          host || request.base_url,
-          root_path || request.script_name,
-          api_url
-        )
+        Urls.new(host || request.base_url, root_path || request.script_name, api_url)
       end
 
       attr_reader :app_url, :api_url, :host, :root_path
@@ -37,20 +33,11 @@ module RubyEventStore
         "#{api_url}/streams"
       end
 
-      def paginated_events_from_stream_url(
-        id:,
-        position: nil,
-        direction: nil,
-        count: nil
-      )
+      def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
         stream_name = Rack::Utils.escape(id)
         query_string =
           URI.encode_www_form(
-            {
-              "page[position]" => position,
-              "page[direction]" => direction,
-              "page[count]" => count
-            }.compact
+            { "page[position]" => position, "page[direction]" => direction, "page[count]" => count }.compact,
           )
 
         if query_string.empty?
@@ -75,8 +62,7 @@ module RubyEventStore
       end
 
       def ==(o)
-        self.class.eql?(o.class) && app_url.eql?(o.app_url) &&
-          api_url.eql?(o.api_url)
+        self.class.eql?(o.class) && app_url.eql?(o.app_url) && api_url.eql?(o.api_url)
       end
 
       private

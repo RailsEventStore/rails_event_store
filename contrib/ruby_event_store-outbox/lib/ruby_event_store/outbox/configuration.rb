@@ -41,14 +41,14 @@ module RubyEventStore
       end
 
       attr_reader :split_keys,
-        :message_format,
-        :batch_size,
-        :database_url,
-        :redis_url,
-        :cleanup,
-        :cleanup_limit,
-        :sleep_on_empty,
-        :locking
+                  :message_format,
+                  :batch_size,
+                  :database_url,
+                  :redis_url,
+                  :cleanup,
+                  :cleanup_limit,
+                  :sleep_on_empty,
+                  :locking
     end
   end
 end

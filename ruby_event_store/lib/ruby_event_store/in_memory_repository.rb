@@ -107,16 +107,14 @@ module RubyEventStore
       records.each do |record|
         read_event(record.event_id)
         serialized_record =
-          Record
-            .new(
-              event_id: record.event_id,
-              event_type: record.event_type,
-              data: record.data,
-              metadata: record.metadata,
-              timestamp: Time.iso8601(storage.fetch(record.event_id).timestamp),
-              valid_at: record.valid_at
-            )
-            .serialize(serializer)
+          Record.new(
+            event_id: record.event_id,
+            event_type: record.event_type,
+            data: record.data,
+            metadata: record.metadata,
+            timestamp: Time.iso8601(storage.fetch(record.event_id).timestamp),
+            valid_at: record.valid_at,
+          ).serialize(serializer)
         storage[record.event_id] = serialized_record
       end
     end
@@ -144,24 +142,30 @@ module RubyEventStore
     def read_scope(spec)
       serialized_records = serialized_records_of_stream(spec.stream)
       serialized_records = ordered(serialized_records, spec)
-      serialized_records = serialized_records.select { |e| spec.with_ids.any? { |x| x.eql?(e.event_id) } } if spec
-        .with_ids?
-      serialized_records = serialized_records.select { |e| spec.with_types.any? { |x| x.eql?(e.event_type) } } if spec
-        .with_types?
+      serialized_records =
+        serialized_records.select { |e| spec.with_ids.any? { |x| x.eql?(e.event_id) } } if spec.with_ids?
+      serialized_records =
+        serialized_records.select { |e| spec.with_types.any? { |x| x.eql?(e.event_type) } } if spec.with_types?
       serialized_records = serialized_records.reverse if spec.backward?
       serialized_records = serialized_records.drop(index_of(serialized_records, spec.start) + 1) if spec.start
       serialized_records = serialized_records.take(index_of(serialized_records, spec.stop)) if spec.stop
       serialized_records = serialized_records.take(spec.limit) if spec.limit?
-      serialized_records = serialized_records.select { |sr| Time.iso8601(time_comparison_field(spec, sr)) < spec.older_than } if spec
-        .older_than
       serialized_records =
-        serialized_records.select { |sr| Time.iso8601(time_comparison_field(spec, sr)) <= spec.older_than_or_equal } if spec
-        .older_than_or_equal
-      serialized_records = serialized_records.select { |sr| Time.iso8601(time_comparison_field(spec, sr)) > spec.newer_than } if spec
-        .newer_than
+        serialized_records.select do |sr|
+          Time.iso8601(time_comparison_field(spec, sr)) < spec.older_than
+        end if spec.older_than
       serialized_records =
-        serialized_records.select { |sr| Time.iso8601(time_comparison_field(spec, sr)) >= spec.newer_than_or_equal } if spec
-        .newer_than_or_equal
+        serialized_records.select do |sr|
+          Time.iso8601(time_comparison_field(spec, sr)) <= spec.older_than_or_equal
+        end if spec.older_than_or_equal
+      serialized_records =
+        serialized_records.select do |sr|
+          Time.iso8601(time_comparison_field(spec, sr)) > spec.newer_than
+        end if spec.newer_than
+      serialized_records =
+        serialized_records.select do |sr|
+          Time.iso8601(time_comparison_field(spec, sr)) >= spec.newer_than_or_equal
+        end if spec.newer_than_or_equal
       serialized_records
     end
 

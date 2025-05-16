@@ -16,8 +16,8 @@ module RubyEventStore
       end
     end
 
-    it_behaves_like 'dispatcher', ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new)
-    it_behaves_like 'scheduler', MyCustomScheduler.new
+    it_behaves_like "dispatcher", ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new)
+    it_behaves_like "scheduler", MyCustomScheduler.new
 
     let(:event) { instance_double(Event) }
     let(:record) { instance_double(Record) }
