@@ -44,7 +44,7 @@ module RubyEventStore
 
         specify "#parse --metrics-url" do
           expect(Parser.parse(["--metrics-url=http://username:password@host:1234/db"]).metrics_url).to eq(
-            "http://username:password@host:1234/db"
+            "http://username:password@host:1234/db",
           )
           expect(Parser.parse([]).metrics_url).to be_nil
         end

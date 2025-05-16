@@ -22,7 +22,7 @@ module RubyEventStore
             cleanup: :none,
             cleanup_limit: :all,
             sleep_on_empty: 1,
-            locking: locking
+            locking: locking,
           )
         end
         let(:metrics) { Metrics::Null.new }
@@ -37,7 +37,7 @@ module RubyEventStore
           event =
             TimeEnrichment.with(
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-              timestamp: Time.utc(2019, 9, 30)
+              timestamp: Time.utc(2019, 9, 30),
             )
           event_record = Mappers::Default.new.event_to_record(event)
 
@@ -60,7 +60,7 @@ module RubyEventStore
           expect(redis.call("LLEN", "queue:default")).to eq(2)
           expect(entry_from_outbox.keys.sort).to eq(entry_from_sidekiq.keys.sort)
           expect(entry_from_outbox.except("created_at", "enqueued_at", "jid")).to eq(
-            entry_from_sidekiq.except("created_at", "enqueued_at", "jid")
+            entry_from_sidekiq.except("created_at", "enqueued_at", "jid"),
           )
           expect(entry_from_outbox.fetch("jid")).not_to eq(entry_from_sidekiq.fetch("jid"))
         end
@@ -70,7 +70,7 @@ module RubyEventStore
           event =
             TimeEnrichment.with(
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-              timestamp: Time.utc(2019, 9, 30)
+              timestamp: Time.utc(2019, 9, 30),
             )
           event_record = Mappers::Default.new.event_to_record(event)
 
@@ -104,7 +104,7 @@ module RubyEventStore
           event =
             TimeEnrichment.with(
               Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-              timestamp: Time.utc(2019, 9, 30)
+              timestamp: Time.utc(2019, 9, 30),
             )
           event_record = Mappers::Default.new.event_to_record(event)
 

@@ -16,7 +16,7 @@ module RubyEventStore
     )
       instrumenter.subscribe(
         "feature_operation.flipper",
-        NotificationHandler.new(event_store, stream_pattern, custom_events)
+        NotificationHandler.new(event_store, stream_pattern, custom_events),
       )
     end
 
@@ -24,21 +24,20 @@ module RubyEventStore
       def initialize(event_store, stream_pattern, custom_events)
         @event_store = event_store
         @stream_pattern = stream_pattern
-        @custom_events =
-          {
-            "ToggleAdded" => Events::ToggleAdded,
-            "ToggleRemoved" => Events::ToggleRemoved,
-            "ToggleGloballyEnabled" => Events::ToggleGloballyEnabled,
-            "ToggleEnabledForActor" => Events::ToggleEnabledForActor,
-            "ToggleEnabledForGroup" => Events::ToggleEnabledForGroup,
-            "ToggleEnabledForPercentageOfActors" => Events::ToggleEnabledForPercentageOfActors,
-            "ToggleEnabledForPercentageOfTime" => Events::ToggleEnabledForPercentageOfTime,
-            "ToggleGloballyDisabled" => Events::ToggleGloballyDisabled,
-            "ToggleDisabledForActor" => Events::ToggleDisabledForActor,
-            "ToggleDisabledForGroup" => Events::ToggleDisabledForGroup,
-            "ToggleDisabledForPercentageOfActors" => Events::ToggleDisabledForPercentageOfActors,
-            "ToggleDisabledForPercentageOfTime" => Events::ToggleDisabledForPercentageOfTime
-          }.merge(custom_events || {})
+        @custom_events = {
+          "ToggleAdded" => Events::ToggleAdded,
+          "ToggleRemoved" => Events::ToggleRemoved,
+          "ToggleGloballyEnabled" => Events::ToggleGloballyEnabled,
+          "ToggleEnabledForActor" => Events::ToggleEnabledForActor,
+          "ToggleEnabledForGroup" => Events::ToggleEnabledForGroup,
+          "ToggleEnabledForPercentageOfActors" => Events::ToggleEnabledForPercentageOfActors,
+          "ToggleEnabledForPercentageOfTime" => Events::ToggleEnabledForPercentageOfTime,
+          "ToggleGloballyDisabled" => Events::ToggleGloballyDisabled,
+          "ToggleDisabledForActor" => Events::ToggleDisabledForActor,
+          "ToggleDisabledForGroup" => Events::ToggleDisabledForGroup,
+          "ToggleDisabledForPercentageOfActors" => Events::ToggleDisabledForPercentageOfActors,
+          "ToggleDisabledForPercentageOfTime" => Events::ToggleDisabledForPercentageOfTime,
+        }.merge(custom_events || {})
       end
 
       def call(_name, _start, _finish, _id, payload)

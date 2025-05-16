@@ -27,5 +27,6 @@ class TestAggregate
 end
 
 class Handler
-  def call(event); end
+  def call(event)
+  end
 end

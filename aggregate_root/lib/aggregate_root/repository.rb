@@ -16,7 +16,7 @@ module AggregateRoot
       event_store.publish(
         aggregate.unpublished_events.to_a,
         stream_name: stream_name,
-        expected_version: aggregate.version
+        expected_version: aggregate.version,
       )
       aggregate.version = aggregate.version + aggregate.unpublished_events.count
     end

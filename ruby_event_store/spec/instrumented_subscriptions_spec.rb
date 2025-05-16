@@ -6,13 +6,12 @@ require "active_support/notifications"
 
 module RubyEventStore
   ::RSpec.describe InstrumentedSubscriptions do
-
     describe "#add_subscription" do
       specify "wraps around original implementation" do
         some_subscriptions = spy
         instrumented_subscriptions = InstrumentedSubscriptions.new(some_subscriptions, ActiveSupport::Notifications)
         event_types = ["some_event_type"]
-        subscriber = -> { }
+        subscriber = -> {}
 
         instrumented_subscriptions.add_subscription(subscriber, event_types)
 
@@ -23,13 +22,11 @@ module RubyEventStore
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
         subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
           event_types = ["some_event_type"]
-          subscriber = -> { }
+          subscriber = -> {}
 
           instrumented_subscriptions.add_subscription(subscriber, event_types)
 
-          expect(notification_calls).to eq([
-            { subscriber: subscriber, event_types: event_types }
-          ])
+          expect(notification_calls).to eq([{ subscriber: subscriber, event_types: event_types }])
         end
       end
     end
@@ -38,7 +35,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_subscriptions = spy
         instrumented_subscriptions = InstrumentedSubscriptions.new(some_subscriptions, ActiveSupport::Notifications)
-        subscriber = -> { }
+        subscriber = -> {}
 
         instrumented_subscriptions.add_global_subscription(subscriber)
 
@@ -48,13 +45,11 @@ module RubyEventStore
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
         subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
-          subscriber = -> { }
+          subscriber = -> {}
 
           instrumented_subscriptions.add_global_subscription(subscriber)
 
-          expect(notification_calls).to eq([
-            { subscriber: subscriber }
-          ])
+          expect(notification_calls).to eq([{ subscriber: subscriber }])
         end
       end
     end
@@ -64,7 +59,7 @@ module RubyEventStore
         some_subscriptions = spy
         instrumented_subscriptions = InstrumentedSubscriptions.new(some_subscriptions, ActiveSupport::Notifications)
         event_types = ["some_event_type"]
-        subscriber = -> { }
+        subscriber = -> {}
 
         instrumented_subscriptions.add_thread_subscription(subscriber, event_types)
 
@@ -75,13 +70,11 @@ module RubyEventStore
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
         subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
           event_types = ["some_event_type"]
-          subscriber = -> { }
+          subscriber = -> {}
 
           instrumented_subscriptions.add_thread_subscription(subscriber, event_types)
 
-          expect(notification_calls).to eq([
-            { subscriber: subscriber, event_types: event_types }
-          ])
+          expect(notification_calls).to eq([{ subscriber: subscriber, event_types: event_types }])
         end
       end
     end
@@ -90,7 +83,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_subscriptions = spy
         instrumented_subscriptions = InstrumentedSubscriptions.new(some_subscriptions, ActiveSupport::Notifications)
-        subscriber = -> { }
+        subscriber = -> {}
 
         instrumented_subscriptions.add_thread_global_subscription(subscriber)
 
@@ -100,13 +93,11 @@ module RubyEventStore
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
         subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
-          subscriber = -> { }
+          subscriber = -> {}
 
           instrumented_subscriptions.add_thread_global_subscription(subscriber)
 
-          expect(notification_calls).to eq([
-            { subscriber: subscriber }
-          ])
+          expect(notification_calls).to eq([{ subscriber: subscriber }])
         end
       end
     end
@@ -118,15 +109,13 @@ module RubyEventStore
       expect(some_subscriptions).to receive(:add_subscription).and_return(some_unsubscribe)
       subscribe_to("remove.subscriptions.rails_event_store") do |notification_calls|
         event_types = ["some_event_type"]
-        subscriber = -> { }
+        subscriber = -> {}
 
         unsubscribe = instrumented_subscriptions.add_subscription(subscriber, event_types)
         unsubscribe.call
 
         expect(some_unsubscribe).to have_received(:call)
-        expect(notification_calls).to eq([
-          { subscriber: subscriber, event_types: event_types }
-        ])
+        expect(notification_calls).to eq([{ subscriber: subscriber, event_types: event_types }])
       end
     end
 
@@ -147,17 +136,16 @@ module RubyEventStore
       instrumented_subscriptions = InstrumentedSubscriptions.new(some_subscriptions, ActiveSupport::Notifications)
 
       expect(instrumented_subscriptions).not_to respond_to(:arbitrary_method_name)
-      expect do
-        instrumented_subscriptions.arbitrary_method_name
-      end.to raise_error(NoMethodError, /undefined method.+arbitrary_method_name.+RubyEventStore::InstrumentedSubscriptions/)
+      expect do instrumented_subscriptions.arbitrary_method_name end.to raise_error(
+        NoMethodError,
+        /undefined method.+arbitrary_method_name.+RubyEventStore::InstrumentedSubscriptions/,
+      )
     end
 
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
-      ActiveSupport::Notifications.subscribed(callback, name) do
-        yield received_payloads
-      end
+      ActiveSupport::Notifications.subscribed(callback, name) { yield received_payloads }
     end
   end
 end

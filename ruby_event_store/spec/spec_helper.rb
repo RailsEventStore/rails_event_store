@@ -35,7 +35,8 @@ module RubyEventStore
       false
     end
 
-    def connection_pool_size; end
+    def connection_pool_size
+    end
   end
 end
 

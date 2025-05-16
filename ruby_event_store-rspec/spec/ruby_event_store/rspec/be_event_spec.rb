@@ -28,7 +28,7 @@ module RubyEventStore
           "
 expected: FooEvent
      got: String
-"
+",
         )
       end
 
@@ -40,7 +40,7 @@ expected: FooEvent
           "
 expected: FooEvent
      got: BarEvent
-"
+",
         )
       end
 
@@ -52,7 +52,7 @@ expected: FooEvent
           "
 expected: not a kind of FooEvent
      got: FooEvent
-"
+",
         )
       end
 
@@ -78,7 +78,7 @@ Data diff:
 @@ -1,2 +1,2 @@
 -#{formatter[foo: "bar"]}
 +{}
-"
+",
         )
       end
 
@@ -86,7 +86,7 @@ Data diff:
 
       specify do
         expect(FooEvent.new(metadata: { baz: "bar", timestamp: Time.now })).to matcher(FooEvent).with_metadata(
-          { baz: "bar" }
+          { baz: "bar" },
         )
       end
 
@@ -106,7 +106,7 @@ Metadata diff:
 @@ -1,2 +1,2 @@
 -#{formatter[foo: "bar"]}
 +{}
-"
+",
         )
       end
 
@@ -127,7 +127,7 @@ Data diff:
 @@ -1,2 +1,2 @@
 -#{formatter[foo: "bar"]}
 +{}
-"
+",
         )
       end
 
@@ -148,7 +148,7 @@ Data diff:
 @@ -1,2 +1,2 @@
 -#{formatter[foo: "bar"]}
 +#{formatter[bar: "baz"]}
-"
+",
         )
       end
 
@@ -162,7 +162,7 @@ Data diff:
 
       specify do
         expect(FooEvent.new(data: { foo: "bar" }, metadata: { timestamp: Time.now })).to(
-          matcher(FooEvent).with_data(foo: "bar").and(matcher(FooEvent).with_metadata(timestamp: kind_of(Time)))
+          matcher(FooEvent).with_data(foo: "bar").and(matcher(FooEvent).with_metadata(timestamp: kind_of(Time))),
         )
       end
 
@@ -171,14 +171,14 @@ Data diff:
       end
 
       specify do
-        expect(FooEvent.new(metadata: { foo: "bar", baz: "bar" })).not_to matcher(FooEvent)
-          .with_metadata(foo: "bar")
-          .strict
+        expect(FooEvent.new(metadata: { foo: "bar", baz: "bar" })).not_to matcher(FooEvent).with_metadata(
+          foo: "bar",
+        ).strict
       end
 
       specify do
         expect(FooEvent.new(data: { foo: "bar" }, metadata: { timestamp: Time.now, foo: "bar" })).to(
-          matcher(FooEvent).with_data(foo: "bar").strict.and(matcher(FooEvent).with_metadata(foo: "bar"))
+          matcher(FooEvent).with_data(foo: "bar").strict.and(matcher(FooEvent).with_metadata(foo: "bar")),
         )
       end
 
@@ -188,49 +188,49 @@ Data diff:
 
       specify do
         expect(matcher(FooEvent).with_data(foo: kind_of(String)).description).to eq(
-          "be an event FooEvent (with data including #{formatter[foo: kind_of(String)]})"
+          "be an event FooEvent (with data including #{formatter[foo: kind_of(String)]})",
         )
       end
 
       specify do
         expect(matcher(FooEvent).with_data(foo: "bar").description).to eq(
-          "be an event FooEvent (with data including #{formatter[foo: "bar"]})"
+          "be an event FooEvent (with data including #{formatter[foo: "bar"]})",
         )
       end
 
       specify do
         expect(matcher(FooEvent).with_data(foo: "bar").strict.description).to eq(
-          "be an event FooEvent (with data matching #{formatter[foo: "bar"]})"
+          "be an event FooEvent (with data matching #{formatter[foo: "bar"]})",
         )
       end
 
       specify do
         expect(matcher(FooEvent).with_metadata(foo: kind_of(String)).description).to eq(
-          "be an event FooEvent (with metadata including #{formatter[foo: kind_of(String)]})"
+          "be an event FooEvent (with metadata including #{formatter[foo: kind_of(String)]})",
         )
       end
 
       specify do
         expect(matcher(FooEvent).with_metadata(foo: "bar").description).to eq(
-          "be an event FooEvent (with metadata including #{formatter[foo: "bar"]})"
+          "be an event FooEvent (with metadata including #{formatter[foo: "bar"]})",
         )
       end
 
       specify do
         expect(matcher(FooEvent).with_metadata(foo: "bar").strict.description).to eq(
-          "be an event FooEvent (with metadata matching #{formatter[foo: "bar"]})"
+          "be an event FooEvent (with metadata matching #{formatter[foo: "bar"]})",
         )
       end
 
       specify do
         expect(matcher(FooEvent).with_metadata(foo: "bar").with_data(bar: "foo").description).to eq(
-          "be an event FooEvent (with data including #{formatter[bar: "foo"]} and with metadata including #{formatter[foo: "bar"]})"
+          "be an event FooEvent (with data including #{formatter[bar: "foo"]} and with metadata including #{formatter[foo: "bar"]})",
         )
       end
 
       specify do
         expect(matcher(FooEvent).with_data(bar: "foo").with_metadata(foo: "baz").strict.description).to eq(
-          "be an event FooEvent (with data matching #{formatter[bar: "foo"]} and with metadata matching #{formatter[foo: "baz"]})"
+          "be an event FooEvent (with data matching #{formatter[bar: "foo"]} and with metadata matching #{formatter[foo: "baz"]})",
         )
       end
     end

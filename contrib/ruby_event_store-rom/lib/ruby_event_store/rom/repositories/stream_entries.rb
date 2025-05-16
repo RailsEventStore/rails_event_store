@@ -14,7 +14,7 @@ module RubyEventStore
               tuples << {
                 stream: stream.name,
                 position: resolved_version && resolved_version + index + POSITION_SHIFT,
-                event_id: event_id
+                event_id: event_id,
               }
             end
           end
@@ -29,7 +29,7 @@ module RubyEventStore
         def resolve_version(stream, expected_version)
           expected_version.resolve_for(
             stream,
-            lambda { |_stream| (stream_entries.max_position(stream) || {})[:position] }
+            lambda { |_stream| (stream_entries.max_position(stream) || {})[:position] },
           )
         end
 

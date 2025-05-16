@@ -15,17 +15,16 @@ module RubyEventStore
           "id" => "all",
           "type" => "streams",
           "attributes" => {
-            "related_streams" => nil
+            "related_streams" => nil,
           },
           "relationships" => {
             "events" => {
               "links" => {
-                "self" =>
-                  "http://www.example.com/api/streams/all/relationships/events"
-              }
-            }
-          }
-        }
+                "self" => "http://www.example.com/api/streams/all/relationships/events",
+              },
+            },
+          },
+        },
       )
     end
 
@@ -38,17 +37,16 @@ module RubyEventStore
           "id" => "foo/bar.xml",
           "type" => "streams",
           "attributes" => {
-            "related_streams" => nil
+            "related_streams" => nil,
           },
           "relationships" => {
             "events" => {
               "links" => {
-                "self" =>
-                  "http://www.example.com/api/streams/foo%2Fbar.xml/relationships/events"
-              }
-            }
-          }
-        }
+                "self" => "http://www.example.com/api/streams/foo%2Fbar.xml/relationships/events",
+              },
+            },
+          },
+        },
       )
     end
   end

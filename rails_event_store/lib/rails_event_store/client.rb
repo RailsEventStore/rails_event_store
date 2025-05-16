@@ -21,21 +21,29 @@ module RailsEventStore
         clock: clock,
         correlation_id_generator: correlation_id_generator,
         dispatcher: nil,
-        message_broker: RubyEventStore::InstrumentedBroker.new(message_broker || RubyEventStore::Broker.new(
-          subscriptions: RubyEventStore::InstrumentedSubscriptions.new(
-            subscriptions || RubyEventStore::Subscriptions.new,
-            ActiveSupport::Notifications
-          ),
-          dispatcher: RubyEventStore::InstrumentedDispatcher.new(
-            dispatcher || RubyEventStore::ComposedDispatcher.new(
-              RailsEventStore::AfterCommitAsyncDispatcher.new(
-                scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+        message_broker:
+          RubyEventStore::InstrumentedBroker.new(
+            message_broker ||
+              RubyEventStore::Broker.new(
+                subscriptions:
+                  RubyEventStore::InstrumentedSubscriptions.new(
+                    subscriptions || RubyEventStore::Subscriptions.new,
+                    ActiveSupport::Notifications,
+                  ),
+                dispatcher:
+                  RubyEventStore::InstrumentedDispatcher.new(
+                    dispatcher ||
+                      RubyEventStore::ComposedDispatcher.new(
+                        RailsEventStore::AfterCommitAsyncDispatcher.new(
+                          scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+                        ),
+                        RubyEventStore::Dispatcher.new,
+                      ),
+                    ActiveSupport::Notifications,
+                  ),
               ),
-              RubyEventStore::Dispatcher.new
-            ),
-            ActiveSupport::Notifications
-          )
-        ), ActiveSupport::Notifications)
+            ActiveSupport::Notifications,
+          ),
       )
       @request_metadata = request_metadata
 
@@ -58,13 +66,11 @@ module RailsEventStore
           )
         EOW
 
-        if (message_broker)
-          warn <<~EOW
+        warn <<~EOW if (message_broker)
 
             Because message_broker has been provided,
             arguments passed by subscriptions or dispatcher will be ignored.
           EOW
-        end
       end
     end
 

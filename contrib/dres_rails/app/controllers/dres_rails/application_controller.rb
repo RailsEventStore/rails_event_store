@@ -19,7 +19,7 @@ module DresRails
 
     def build_initial_spec
       RubyEventStore::Specification.new(
-        RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new)
+        RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::Default.new),
       )
     end
 

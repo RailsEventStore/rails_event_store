@@ -17,12 +17,11 @@ module RubyEventStore
         handle_unique_violation do
           @unit_of_work.call do |changesets|
             changesets << @events.create_changeset(serialized_records)
-            changesets <<
-              @stream_entries.create_changeset(
-                event_ids,
-                stream,
-                @stream_entries.resolve_version(stream, expected_version)
-              )
+            changesets << @stream_entries.create_changeset(
+              event_ids,
+              stream,
+              @stream_entries.resolve_version(stream, expected_version),
+            )
           end
         end
 
@@ -34,12 +33,11 @@ module RubyEventStore
 
         handle_unique_violation do
           @unit_of_work.call do |changesets|
-            changesets <<
-              @stream_entries.create_changeset(
-                event_ids,
-                stream,
-                @stream_entries.resolve_version(stream, expected_version)
-              )
+            changesets << @stream_entries.create_changeset(
+              event_ids,
+              stream,
+              @stream_entries.resolve_version(stream, expected_version),
+            )
           end
         end
 

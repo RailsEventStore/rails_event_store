@@ -20,9 +20,9 @@ module RubyEventStore
         [
           MoneyDeposited.new(data: { amount: 10 }),
           MoneyDeposited.new(data: { amount: 20 }),
-          MoneyWithdrawn.new(data: { amount: 5 })
+          MoneyWithdrawn.new(data: { amount: 5 }),
         ],
-        stream_name: stream_name
+        stream_name: stream_name,
       )
 
       account_balance =
@@ -99,9 +99,9 @@ module RubyEventStore
         [
           MoneyDeposited.new(data: { amount: 10 }),
           MoneyDeposited.new(data: { amount: 20 }),
-          MoneyWithdrawn.new(data: { amount: 5 })
+          MoneyWithdrawn.new(data: { amount: 5 }),
         ],
-        stream_name: stream_name
+        stream_name: stream_name,
       )
 
       stats =
@@ -116,7 +116,7 @@ module RubyEventStore
     specify "ignore unhandled events" do
       event_store.append(
         [MoneyDeposited.new(data: { amount: 10 }), MoneyWithdrawn.new(data: { amount: 2 })],
-        stream_name: stream_name
+        stream_name: stream_name,
       )
 
       deposits =
@@ -131,7 +131,7 @@ module RubyEventStore
     specify "subsrcibe one handler to many events" do
       event_store.append(
         [MoneyDeposited.new(data: { amount: 10 }), MoneyWithdrawn.new(data: { amount: 2 })],
-        stream_name: stream_name
+        stream_name: stream_name,
       )
 
       cashflow =
@@ -152,7 +152,7 @@ module RubyEventStore
       event_store.subscribe(deposits, to: deposits.handled_events)
       event_store.publish(
         [MoneyDeposited.new(data: { amount: 10 }), MoneyDeposited.new(data: { amount: 5 })],
-        stream_name: stream_name
+        stream_name: stream_name,
       )
 
       expect(deposits.current_state).to eq(total: 15)
@@ -174,9 +174,9 @@ module RubyEventStore
           MoneyWithdrawn.new(data: { amount: 2 }),
           MoneyDeposited.new(data: { amount: 4 }),
           MoneyWithdrawn.new(data: { amount: 3 }),
-          MoneyDeposited.new(data: { amount: 5 })
+          MoneyDeposited.new(data: { amount: 5 }),
         ],
-        stream_name: stream_name
+        stream_name: stream_name,
       )
 
       balance =
@@ -196,9 +196,9 @@ module RubyEventStore
           starting = MoneyWithdrawn.new(data: { amount: 2 }),
           MoneyDeposited.new(data: { amount: 4 }),
           MoneyWithdrawn.new(data: { amount: 3 }),
-          MoneyDeposited.new(data: { amount: 5 })
+          MoneyDeposited.new(data: { amount: 5 }),
         ],
-        stream_name: stream_name
+        stream_name: stream_name,
       )
 
       balance =
@@ -251,9 +251,9 @@ module RubyEventStore
           EventToBeSkipped.new,
           MoneyDeposited.new(data: { amount: 10 }),
           MoneyLost.new(data: { amount: 1 }),
-          MoneyWithdrawn.new(data: { amount: 3 })
+          MoneyWithdrawn.new(data: { amount: 3 }),
         ],
-        stream_name: "Customer$234"
+        stream_name: "Customer$234",
       )
 
       specification = Specification.new(SpecificationReader.new(repository, mapper))
@@ -314,9 +314,7 @@ module RubyEventStore
 
     specify "supports event class remapping" do
       event_store =
-        Client.new(
-          mapper: Mappers::Default.new(events_class_remapping: { MoneyInvested.to_s => MoneyLost.to_s })
-        )
+        Client.new(mapper: Mappers::Default.new(events_class_remapping: { MoneyInvested.to_s => MoneyLost.to_s }))
       event_store.append(MoneyInvested.new(data: { amount: 1 }))
 
       balance =

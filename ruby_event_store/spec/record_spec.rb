@@ -20,7 +20,7 @@ module RubyEventStore
           metadata: metadata,
           event_type: event_type,
           timestamp: timestamp,
-          valid_at: timestamp
+          valid_at: timestamp,
         )
       expect(record.event_id).to be event_id
       expect(record.metadata).to be metadata
@@ -39,7 +39,7 @@ module RubyEventStore
             metadata: metadata,
             event_type: event_type,
             timestamp: timestamp,
-            valid_at: timestamp
+            valid_at: timestamp,
           )
         end.to raise_error Record::StringsRequired
       end
@@ -53,49 +53,48 @@ module RubyEventStore
         %w[a a b a a a],
         %w[a a a b a a],
         %w[a a a a b a],
-        %w[a a a a a b]
-      ].permutation(2).each do |one, two|
-        a =
-          Record.new(
-            event_id: one[0],
-            data: one[1],
-            metadata: one[2],
-            event_type: one[3],
-            timestamp: one[4],
-            valid_at: one[5]
-          )
-        b =
-          Record.new(
-            event_id: two[0],
-            data: two[1],
-            metadata: two[2],
-            event_type: two[3],
-            timestamp: two[4],
-            valid_at: two[5]
-          )
-        c =
-          Class
-            .new(Record)
-            .new(
+        %w[a a a a a b],
+      ].permutation(2)
+        .each do |one, two|
+          a =
+            Record.new(
               event_id: one[0],
               data: one[1],
               metadata: one[2],
               event_type: one[3],
               timestamp: one[4],
-              valid_at: one[5]
+              valid_at: one[5],
             )
-        expect(a).not_to eq(b)
-        expect(a).not_to eql(b)
-        expect(a.hash).not_to eq(b.hash)
-        h = { a => :val }
-        expect(h[b]).to be_nil
+          b =
+            Record.new(
+              event_id: two[0],
+              data: two[1],
+              metadata: two[2],
+              event_type: two[3],
+              timestamp: two[4],
+              valid_at: two[5],
+            )
+          c =
+            Class.new(Record).new(
+              event_id: one[0],
+              data: one[1],
+              metadata: one[2],
+              event_type: one[3],
+              timestamp: one[4],
+              valid_at: one[5],
+            )
+          expect(a).not_to eq(b)
+          expect(a).not_to eql(b)
+          expect(a.hash).not_to eq(b.hash)
+          h = { a => :val }
+          expect(h[b]).to be_nil
 
-        expect(a).not_to eq(c)
-        expect(a).not_to eql(c)
-        expect(a.hash).not_to eq(c.hash)
-        h = { a => :val }
-        expect(h[c]).to be_nil
-      end
+          expect(a).not_to eq(c)
+          expect(a).not_to eql(c)
+          expect(a.hash).not_to eq(c.hash)
+          h = { a => :val }
+          expect(h[c]).to be_nil
+        end
     end
 
     specify "equality" do
@@ -126,7 +125,7 @@ module RubyEventStore
           metadata: "--- c\n",
           event_type: "d",
           timestamp: timestamp,
-          valid_at: timestamp
+          valid_at: timestamp,
         )
       expect(actual.serialize(Serializers::YAML)).to eq(expected)
     end
@@ -137,9 +136,10 @@ module RubyEventStore
           data: BigDecimal("12.99"),
           event_id: "a",
           event_type: "b",
-          metadata: {},
+          metadata: {
+          },
           timestamp: time,
-          valid_at: time
+          valid_at: time,
         )
       expected =
         SerializedRecord.new(
@@ -148,7 +148,7 @@ module RubyEventStore
           metadata: "--- {}\n",
           timestamp: timestamp,
           valid_at: timestamp,
-          data: "--- !ruby/object:BigDecimal 18:0.1299e2\n"
+          data: "--- !ruby/object:BigDecimal 18:0.1299e2\n",
         )
       expect(actual.serialize(Serializers::YAML)).to eq(expected)
     end

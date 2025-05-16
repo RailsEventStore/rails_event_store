@@ -15,7 +15,6 @@ module RubyEventStore
       let(:test_metrics) { Metrics::Test.new }
 
       shared_examples_for "a consumer" do
-
         specify "updates enqueued_at" do
           record = create_record("default", "default")
           consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
@@ -125,23 +124,23 @@ module RubyEventStore
                 event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8",
                 event_type: "RubyEventStore::Event",
                 data: "--- {}\n",
-                metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n"
-              }
-            ]
+                metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n",
+              },
+            ],
           }
           Repository::Record.create!(
             split_key: "default",
             created_at: Time.now.utc,
             format: "sidekiq5",
             enqueued_at: nil,
-            payload: payload.to_json
+            payload: payload.to_json,
           )
           consumer =
             Consumer.new(
               SecureRandom.uuid,
               default_configuration.with(split_keys: nil),
               logger: logger,
-              metrics: null_metrics
+              metrics: null_metrics,
             )
 
           result = consumer.process
@@ -172,7 +171,7 @@ module RubyEventStore
           Repository::Lock.obtain(
             FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
             "some-old-uuid",
-            clock: TickingClock.new(start: 10.minutes.ago)
+            clock: TickingClock.new(start: 10.minutes.ago),
           )
           record = create_record("default", "default")
           consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
@@ -219,7 +218,7 @@ module RubyEventStore
               SecureRandom.uuid,
               default_configuration.with(split_keys: ["other"]),
               logger: logger,
-              metrics: null_metrics
+              metrics: null_metrics,
             )
           consumer_with_other.process
           record = create_record("other", "other")
@@ -241,7 +240,7 @@ module RubyEventStore
               default_configuration.with(cleanup: "P7D"),
               clock: clock,
               logger: logger,
-              metrics: null_metrics
+              metrics: null_metrics,
             )
           consumer.process
           expect(redis.call("LLEN", "queue:default")).to eq(1)
@@ -261,7 +260,7 @@ module RubyEventStore
               default_configuration.with(cleanup: "P7D", cleanup_limit: 2),
               clock: clock,
               logger: logger,
-              metrics: null_metrics
+              metrics: null_metrics,
             )
           pick_up_the_pace(consumer, default_configuration.batch_size)
           3.times.map { create_record("default", "default") }
@@ -284,14 +283,16 @@ module RubyEventStore
               default_configuration.with(cleanup: "P7D"),
               clock: clock,
               logger: logger,
-              metrics: test_metrics
+              metrics: test_metrics,
             )
           consumer.process
           expect(redis.call("LLEN", "queue:default")).to eq(1)
           expect(Repository::Record.count).to eq(1)
           travel (7.days + 1.minute)
 
-          allow_any_instance_of(::ActiveRecord::Relation).to receive(:delete_all).and_raise(::ActiveRecord::LockWaitTimeout)
+          allow_any_instance_of(::ActiveRecord::Relation).to receive(:delete_all).and_raise(
+            ::ActiveRecord::LockWaitTimeout,
+          )
           consumer.process
 
           expect(Repository::Record.count).to eq(1)
@@ -308,7 +309,7 @@ module RubyEventStore
               default_configuration.with(cleanup: "P7D"),
               clock: clock,
               logger: logger,
-              metrics: test_metrics
+              metrics: test_metrics,
             )
           consumer.process
           expect(redis.call("LLEN", "queue:default")).to eq(1)
@@ -335,7 +336,7 @@ module RubyEventStore
             cleanup: :none,
             cleanup_limit: :all,
             sleep_on_empty: 1,
-            locking: locking
+            locking: locking,
           )
         end
         let(:locking) { true }
@@ -371,7 +372,7 @@ module RubyEventStore
               default_configuration.with(split_keys: ["default"]),
               clock: clock,
               logger: logger,
-              metrics: test_metrics
+              metrics: test_metrics,
             )
 
           result = consumer.process
@@ -391,7 +392,7 @@ module RubyEventStore
               default_configuration.with(split_keys: ["default"]),
               clock: clock,
               logger: logger,
-              metrics: test_metrics
+              metrics: test_metrics,
             )
 
           result = consumer.process
@@ -404,14 +405,18 @@ module RubyEventStore
 
         specify "obtaining taken lock just skip that attempt" do
           clock = TickingClock.new
-          Repository::Lock.obtain(FetchSpecification.new(SIDEKIQ5_FORMAT, "default"), "other-process-uuid", clock: clock)
+          Repository::Lock.obtain(
+            FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
+            "other-process-uuid",
+            clock: clock,
+          )
           consumer =
             Consumer.new(
               SecureRandom.uuid,
               default_configuration.with(split_keys: ["default"]),
               clock: clock,
               logger: logger,
-              metrics: test_metrics
+              metrics: test_metrics,
             )
 
           result = consumer.process
@@ -425,10 +430,9 @@ module RubyEventStore
         specify "deadlock when releasing lock doesnt do anything" do
           create_record("default", "default")
           allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
-            if caller.any? do |l|
-              l.include?("in `release'") || # Ruby < 3.4
-                l.include?("in 'RubyEventStore::Outbox::Repository::Lock.release'") # Ruby 3.4+
-            end
+            if caller.any? { |l|
+                 l.include?("in `release'") || l.include?("in 'RubyEventStore::Outbox::Repository::Lock.release'") # Ruby < 3.4 # Ruby 3.4+
+               }
               raise ::ActiveRecord::Deadlocked
             else
               m.call(*args)
@@ -441,7 +445,7 @@ module RubyEventStore
               default_configuration.with(split_keys: ["default"]),
               clock: clock,
               logger: logger,
-              metrics: test_metrics
+              metrics: test_metrics,
             )
 
           result = consumer.process
@@ -455,10 +459,9 @@ module RubyEventStore
         specify "lock timeout when releasing lock doesnt do anything" do
           create_record("default", "default")
           allow(Repository::Lock).to receive(:lock).and_wrap_original do |m, *args|
-            if caller.any? do |l|
-              l.include?("in release") || # Ruby < 3.4
-                l.include?("in 'RubyEventStore::Outbox::Repository::Lock.release'") # Ruby 3.4+
-            end
+            if caller.any? { |l|
+                 l.include?("in release") || l.include?("in 'RubyEventStore::Outbox::Repository::Lock.release'") # Ruby < 3.4 # Ruby 3.4+
+               }
               raise ::ActiveRecord::LockWaitTimeout
             else
               m.call(*args)
@@ -471,7 +474,7 @@ module RubyEventStore
               default_configuration.with(split_keys: ["default"]),
               clock: clock,
               logger: logger,
-              metrics: test_metrics
+              metrics: test_metrics,
             )
 
           result = consumer.process
@@ -508,9 +511,11 @@ module RubyEventStore
           result = consumer.process
 
           expect(logger_output.string).to include(
-            "Releasing lock for split_key 'default' failed (not taken by this process)"
+            "Releasing lock for split_key 'default' failed (not taken by this process)",
           )
-          expect(test_metrics.operation_results).to include({ operation: "release", result: "not_taken_by_this_process" })
+          expect(test_metrics.operation_results).to include(
+            { operation: "release", result: "not_taken_by_this_process" },
+          )
           expect(result).to be(true)
           expect(redis.call("LLEN", "queue:default")).to eq(1)
         end
@@ -536,7 +541,7 @@ module RubyEventStore
           Repository::Lock.obtain(
             FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
             "some-old-uuid",
-            clock: TickingClock.new(start: 9.minutes.ago)
+            clock: TickingClock.new(start: 9.minutes.ago),
           )
           create_record("default", "default")
           consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: null_metrics)
@@ -553,7 +558,7 @@ module RubyEventStore
           Repository::Lock.obtain(
             FetchSpecification.new(SIDEKIQ5_FORMAT, "default"),
             "some-other-process-uuid",
-            clock: clock
+            clock: clock,
           )
 
           result = consumer.process
@@ -578,7 +583,6 @@ module RubyEventStore
           expect(result).to be(true)
           expect(Repository::Record.where("enqueued_at is not null").count).to be_positive
         end
-
       end
 
       context "with non-locking repository" do
@@ -592,13 +596,12 @@ module RubyEventStore
             cleanup: :none,
             cleanup_limit: :all,
             sleep_on_empty: 1,
-            locking: locking
+            locking: locking,
           )
         end
         let(:locking) { false }
 
         it_behaves_like "a consumer"
-
       end
     end
   end

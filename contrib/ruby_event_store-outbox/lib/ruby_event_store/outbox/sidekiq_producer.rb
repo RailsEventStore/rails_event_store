@@ -20,7 +20,7 @@ module RubyEventStore
           Repository::Record.create!(
             format: SIDEKIQ5_FORMAT,
             split_key: payload.fetch("queue"),
-            payload: payload.to_json
+            payload: payload.to_json,
           )
         end
       end

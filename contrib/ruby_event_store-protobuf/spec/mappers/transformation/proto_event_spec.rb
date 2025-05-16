@@ -15,29 +15,25 @@ module RubyEventStore
             TestEvent.new(
               event_id: uuid,
               data: {
-                some: "value"
+                some: "value",
               },
               metadata: {
                 some: "meta",
                 timestamp: time,
-                valid_at: time
-              }
+                valid_at: time,
+              },
             )
           end
           let(:record) do
             Record.new(
               event_id: uuid,
               metadata: {
-                some: "meta"
+                some: "meta",
               },
-              data:
-                ResTesting::OrderCreated.new(
-                  customer_id: 123,
-                  order_id: "K3THNX9"
-                ),
+              data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9"),
               event_type: "res_testing.OrderCreated",
               timestamp: time,
-              valid_at: time
+              valid_at: time,
             )
           end
 

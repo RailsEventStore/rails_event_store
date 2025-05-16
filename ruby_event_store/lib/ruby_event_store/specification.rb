@@ -53,7 +53,7 @@ module RubyEventStore
         result.dup do |r|
           r.older_than = time
           r.older_than_or_equal = nil
-        end
+        end,
       )
     end
 
@@ -69,7 +69,7 @@ module RubyEventStore
         result.dup do |r|
           r.older_than = nil
           r.older_than_or_equal = time
-        end
+        end,
       )
     end
 
@@ -85,7 +85,7 @@ module RubyEventStore
         result.dup do |r|
           r.newer_than_or_equal = nil
           r.newer_than = time
-        end
+        end,
       )
     end
 
@@ -101,7 +101,7 @@ module RubyEventStore
         result.dup do |r|
           r.newer_than_or_equal = time
           r.newer_than = nil
-        end
+        end,
       )
     end
 
@@ -241,7 +241,7 @@ module RubyEventStore
         result.dup do |r|
           r.read_as = :batch
           r.batch_size = batch_size
-        end
+        end,
       )
     end
     alias in_batches_of in_batches

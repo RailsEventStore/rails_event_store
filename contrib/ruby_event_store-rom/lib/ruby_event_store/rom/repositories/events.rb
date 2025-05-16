@@ -37,7 +37,7 @@ module RubyEventStore
             BatchEnumerator.new(
               specification.batch_size,
               specification.limit,
-              ->(offset, limit) { query_builder(serializer, query, offset: offset, limit: limit).to_ary }
+              ->(offset, limit) { query_builder(serializer, query, offset: offset, limit: limit).to_ary },
             ).each
           else
             query = query_builder(serializer, query, limit: (specification.limit if specification.limit?))
@@ -66,9 +66,7 @@ module RubyEventStore
         protected
 
         def find_event_id_in_stream(specification_event_id, specification_stream_name)
-          stream_entries
-            .by_stream_and_event_id(specification_stream_name, specification_event_id)
-            .fetch(:id)
+          stream_entries.by_stream_and_event_id(specification_stream_name, specification_event_id).fetch(:id)
         rescue ::ROM::TupleCountMismatchError
           raise EventNotFound.new(specification_event_id)
         end
@@ -102,7 +100,7 @@ module RubyEventStore
                 specification.stream,
                 offset_entry_id,
                 stop_entry_id,
-                specification.time_sort_by
+                specification.time_sort_by,
               )
             query = query.combine(:event)
             query = query.map_with(:stream_entry_to_serialized_record, auto_struct: false)
@@ -111,9 +109,17 @@ module RubyEventStore
           query = query.by_event_id(specification.with_ids) if specification.with_ids
           query = query.by_event_type(specification.with_types) if specification.with_types?
           query = query.older_than(specification.older_than, specification.time_sort_by) if specification.older_than
-          query = query.older_than_or_equal(specification.older_than_or_equal, specification.time_sort_by) if specification.older_than_or_equal
+          query =
+            query.older_than_or_equal(
+              specification.older_than_or_equal,
+              specification.time_sort_by,
+            ) if specification.older_than_or_equal
           query = query.newer_than(specification.newer_than, specification.time_sort_by) if specification.newer_than
-          query = query.newer_than_or_equal(specification.newer_than_or_equal, specification.time_sort_by) if specification.newer_than_or_equal
+          query =
+            query.newer_than_or_equal(
+              specification.newer_than_or_equal,
+              specification.time_sort_by,
+            ) if specification.newer_than_or_equal
           query
         end
 

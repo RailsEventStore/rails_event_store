@@ -8,9 +8,7 @@ module AggregateRoot
     end
 
     def call(aggregate, event)
-      instrumentation.instrument("apply.aggregate_root",
-        aggregate: aggregate,
-        event:     event) do
+      instrumentation.instrument("apply.aggregate_root", aggregate: aggregate, event: event) do
         strategy.call(aggregate, event)
       end
     end

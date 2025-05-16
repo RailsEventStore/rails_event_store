@@ -21,7 +21,7 @@ module RubyEventStore
             failed: failed,
             remaining: remaining,
             format: format,
-            split_key: split_key
+            split_key: split_key,
           }
         end
 

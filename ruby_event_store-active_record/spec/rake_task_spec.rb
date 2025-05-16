@@ -12,7 +12,7 @@ module RubyEventStore
         allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "PostgreSQL"))
 
         load File.join(
-               File.expand_path("../../lib/ruby_event_store/active_record/tasks", __FILE__) + "/migration_tasks.rake"
+               File.expand_path("../../lib/ruby_event_store/active_record/tasks", __FILE__) + "/migration_tasks.rake",
              )
         Rake::Task["db:migrations:copy"].reenable
       end
@@ -34,11 +34,9 @@ module RubyEventStore
       end
 
       def expect_migration_file_in_directory(directory)
-        expect(
-          File
-        ).to exist(
-            File.join(File.expand_path("../../", __FILE__), directory, "20221130213700_create_event_store_events.rb")
-          )
+        expect(File).to exist(
+          File.join(File.expand_path("../../", __FILE__), directory, "20221130213700_create_event_store_events.rb"),
+        )
       end
 
       def with_custom_directory

@@ -14,18 +14,16 @@ module RubyEventStore
             data: event.data,
             event_type: event.event_type,
             timestamp: timestamp,
-            valid_at: valid_at
+            valid_at: valid_at,
           )
         end
 
         def load(record)
-          Object
-            .const_get(record.event_type)
-            .new(
-              event_id: record.event_id,
-              data: record.data,
-              metadata: record.metadata.merge(timestamp: record.timestamp, valid_at: record.valid_at)
-            )
+          Object.const_get(record.event_type).new(
+            event_id: record.event_id,
+            data: record.data,
+            metadata: record.metadata.merge(timestamp: record.timestamp, valid_at: record.valid_at),
+          )
         rescue NameError
           Event.new(
             event_id: record.event_id,
@@ -34,8 +32,8 @@ module RubyEventStore
               record.metadata.merge(
                 timestamp: record.timestamp,
                 valid_at: record.valid_at,
-                event_type: record.event_type
-              )
+                event_type: record.event_type,
+              ),
           )
         end
       end

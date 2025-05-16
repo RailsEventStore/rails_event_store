@@ -22,8 +22,8 @@ module RubyEventStore
       def migration_template
         ERB.new(
           File.read(
-            File.join(absolute_path("./templates"), "add_event_id_index_to_event_store_events_in_streams_template.erb")
-          )
+            File.join(absolute_path("./templates"), "add_event_id_index_to_event_store_events_in_streams_template.erb"),
+          ),
         )
       end
 

@@ -6,6 +6,7 @@ module DresRails
     source_root File.join(File.dirname(__FILE__), "..", "templates")
 
     desc "Installs additional Dres Rails resources."
-    def install; end
+    def install
+    end
   end
 end

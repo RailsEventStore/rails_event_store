@@ -32,7 +32,7 @@ module RubyEventStore
           before_retry:
             lambda do |_num, ex|
               env.logger.warn("RETRY TRANSACTION [#{self.class.name} => #{ex.class.name}] #{ex.message}")
-            end
+            end,
         ) { changesets.each(&:commit) }
       end
     end

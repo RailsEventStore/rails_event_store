@@ -32,7 +32,7 @@ module RubyEventStore
 
         expect(client).to have_received(:write_point).with(
           "ruby_event_store.outbox.queue",
-          include({ values: { enqueued: 0, failed: 0, remaining: 0 } })
+          include({ values: { enqueued: 0, failed: 0, remaining: 0 } }),
         )
       end
 
@@ -46,8 +46,8 @@ module RubyEventStore
         expect(client).to have_received(:write_point).with(
           "ruby_event_store.outbox.queue",
           include(
-            { values: { enqueued: 4, failed: 3, remaining: 5 }, tags: { format: "sidekiq5", split_key: "somekey" } }
-          )
+            { values: { enqueued: 4, failed: 3, remaining: 5 }, tags: { format: "sidekiq5", split_key: "somekey" } },
+          ),
         )
       end
 
@@ -60,7 +60,7 @@ module RubyEventStore
 
         expect(client).to have_received(:write_point).with(
           "ruby_event_store.outbox.lock",
-          include({ values: { value: 1 }, tags: { operation: "obtain", result: "deadlocked" } })
+          include({ values: { value: 1 }, tags: { operation: "obtain", result: "deadlocked" } }),
         )
       end
 
@@ -73,7 +73,7 @@ module RubyEventStore
 
         expect(client).to have_received(:write_point).with(
           "ruby_event_store.outbox.queue",
-          include({ timestamp: be_within(nanoseconds_in_second).of(Time.now.to_f * nanoseconds_in_second) })
+          include({ timestamp: be_within(nanoseconds_in_second).of(Time.now.to_f * nanoseconds_in_second) }),
         )
       end
     end

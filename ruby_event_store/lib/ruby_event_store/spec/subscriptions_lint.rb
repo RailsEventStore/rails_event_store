@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples 'subscriptions' do |subscriptions_class|
+RSpec.shared_examples "subscriptions" do |subscriptions_class|
   Test1DomainEvent = Class.new(RubyEventStore::Event)
   Test2DomainEvent = Class.new(RubyEventStore::Event)
   Test3DomainEvent = Class.new(RubyEventStore::Event)
@@ -24,8 +24,8 @@ RSpec.shared_examples 'subscriptions' do |subscriptions_class|
     another_handler = TestHandler.new
     global_handler = TestHandler.new
 
-    subscriptions.add_subscription(handler, ['Test1DomainEvent', 'Test3DomainEvent'])
-    subscriptions.add_subscription(another_handler, ['Test2DomainEvent'])
+    subscriptions.add_subscription(handler, %w[Test1DomainEvent Test3DomainEvent])
+    subscriptions.add_subscription(another_handler, ["Test2DomainEvent"])
     subscriptions.add_global_subscription(global_handler)
 
     expect(subscriptions.all_for("Test1DomainEvent")).to eq([handler, global_handler])
@@ -38,14 +38,15 @@ RSpec.shared_examples 'subscriptions' do |subscriptions_class|
     another_handler = TestHandler.new
     global_handler = TestHandler.new
 
-    subscriptions.add_thread_subscription(handler, ['Test1DomainEvent', 'Test3DomainEvent'])
-    subscriptions.add_thread_subscription(another_handler, ['Test2DomainEvent'])
+    subscriptions.add_thread_subscription(handler, %w[Test1DomainEvent Test3DomainEvent])
+    subscriptions.add_thread_subscription(another_handler, ["Test2DomainEvent"])
     subscriptions.add_thread_global_subscription(global_handler)
-    t = Thread.new do
-      subscriptions.add_thread_subscription(handler, ['Test2DomainEvent'])
-      subscriptions.add_thread_global_subscription(another_handler)
-      expect(subscriptions.all_for('Test2DomainEvent')).to eq([another_handler, handler])
-    end
+    t =
+      Thread.new do
+        subscriptions.add_thread_subscription(handler, ["Test2DomainEvent"])
+        subscriptions.add_thread_global_subscription(another_handler)
+        expect(subscriptions.all_for("Test2DomainEvent")).to eq([another_handler, handler])
+      end
 
     expect(subscriptions.all_for("Test1DomainEvent")).to eq([global_handler, handler])
     expect(subscriptions.all_for("Test2DomainEvent")).to eq([global_handler, another_handler])
@@ -79,9 +80,9 @@ RSpec.shared_examples 'subscriptions' do |subscriptions_class|
   it "revokes subscription" do
     handler = TestHandler.new
 
-    revoke    = subscriptions.add_subscription(handler, ['Test1DomainEvent', 'Test2DomainEvent'])
-    expect(subscriptions.all_for('Test1DomainEvent')).to eq([handler])
-    expect(subscriptions.all_for('Test2DomainEvent')).to eq([handler])
+    revoke = subscriptions.add_subscription(handler, %w[Test1DomainEvent Test2DomainEvent])
+    expect(subscriptions.all_for("Test1DomainEvent")).to eq([handler])
+    expect(subscriptions.all_for("Test2DomainEvent")).to eq([handler])
     revoke.()
     expect(subscriptions.all_for("Test1DomainEvent")).to eq([])
     expect(subscriptions.all_for("Test2DomainEvent")).to eq([])
@@ -101,9 +102,9 @@ RSpec.shared_examples 'subscriptions' do |subscriptions_class|
   it "revokes thread subscription" do
     handler = TestHandler.new
 
-    revoke    = subscriptions.add_thread_subscription(handler, ['Test1DomainEvent', 'Test2DomainEvent'])
-    expect(subscriptions.all_for('Test1DomainEvent')).to eq([handler])
-    expect(subscriptions.all_for('Test2DomainEvent')).to eq([handler])
+    revoke = subscriptions.add_thread_subscription(handler, %w[Test1DomainEvent Test2DomainEvent])
+    expect(subscriptions.all_for("Test1DomainEvent")).to eq([handler])
+    expect(subscriptions.all_for("Test2DomainEvent")).to eq([handler])
     revoke.()
     expect(subscriptions.all_for("Test1DomainEvent")).to eq([])
     expect(subscriptions.all_for("Test2DomainEvent")).to eq([])
@@ -117,10 +118,10 @@ RSpec.shared_examples 'subscriptions' do |subscriptions_class|
     expect(subscriptions.all_for("Test1DomainEvent")).to eq([handler, handler])
   end
 
-  it 'subscribes by type of event which is a class' do
+  it "subscribes by type of event which is a class" do
     handler = TestHandler.new
-    subscriptions.add_subscription(handler, ['Test1DomainEvent'])
-    subscriptions.add_thread_subscription(handler, ['Test1DomainEvent'])
+    subscriptions.add_subscription(handler, ["Test1DomainEvent"])
+    subscriptions.add_thread_subscription(handler, ["Test1DomainEvent"])
 
     expect(subscriptions.all_for("Test1DomainEvent")).to eq([handler, handler])
   end

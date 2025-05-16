@@ -46,23 +46,23 @@ module RubyEventStore
           Record.new(
             event_id: event.event_id,
             data: {
-              item: 1
+              item: 1,
             },
             metadata: "",
             event_type: "TestEvent",
             timestamp: Time.now.utc,
-            valid_at: Time.now.utc
+            valid_at: Time.now.utc,
           )
         record2 =
           Record.new(
             event_id: event.event_id,
             data: {
-              item: 2
+              item: 2,
             },
             metadata: "",
             event_type: "TestEvent",
             timestamp: Time.now.utc,
-            valid_at: Time.now.utc
+            valid_at: Time.now.utc,
           )
         expect(domain_mapper).to receive(:dump).with(event).and_return(record1)
         expect(transformation_1).to receive(:dump).with(record1).and_return(record2)
@@ -82,29 +82,29 @@ module RubyEventStore
             metadata: "",
             event_type: "TestEvent",
             timestamp: Time.now.utc,
-            valid_at: Time.now.utc
+            valid_at: Time.now.utc,
           )
         record1 =
           Record.new(
             event_id: record.event_id,
             data: {
-              item: 1
+              item: 1,
             },
             metadata: "",
             event_type: "TestEvent",
             timestamp: Time.now.utc,
-            valid_at: Time.now.utc
+            valid_at: Time.now.utc,
           )
         record2 =
           Record.new(
             event_id: record.event_id,
             data: {
-              item: 2
+              item: 2,
             },
             metadata: "",
             event_type: "TestEvent",
             timestamp: Time.now.utc,
-            valid_at: Time.now.utc
+            valid_at: Time.now.utc,
           )
         expect(transformation_2).to receive(:load).with(record).and_return(record1)
         expect(transformation_1).to receive(:load).with(record1).and_return(record2)

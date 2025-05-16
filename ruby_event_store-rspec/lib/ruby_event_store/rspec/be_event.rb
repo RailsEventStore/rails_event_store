@@ -120,9 +120,16 @@ module RubyEventStore
         def to_s
           [
             ExpectedLine.new(@expected_klass, @expected_metadata, @expected_data, formatter: @formatter),
-            ActualLine.new(@actual_klass, @actual_metadata.to_h, @actual_data, @expected_metadata, @expected_data, formatter: @formatter),
+            ActualLine.new(
+              @actual_klass,
+              @actual_metadata.to_h,
+              @actual_data,
+              @expected_metadata,
+              @expected_data,
+              formatter: @formatter,
+            ),
             Diff.new(@actual_metadata.to_h, @expected_metadata, "Metadata", differ: @differ, formatter: @formatter),
-            Diff.new(@actual_data, @expected_data, "Data", differ: @differ, formatter: @formatter)
+            Diff.new(@actual_data, @expected_data, "Data", differ: @differ, formatter: @formatter),
           ].map(&:to_s).join
         end
       end
@@ -161,7 +168,7 @@ module RubyEventStore
           expected_metadata,
           actual_metadata,
           differ: differ,
-          formatter: formatter
+          formatter: formatter,
         ).to_s
       end
 

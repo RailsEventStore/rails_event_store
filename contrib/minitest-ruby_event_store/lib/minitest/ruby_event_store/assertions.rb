@@ -40,28 +40,29 @@ module Minitest
         refute events.empty?, "Expected some events of #{event_type} type, none were there"
         events.each do |e|
           assert_equal with_data.with_indifferent_access, e.data, "Event data mismatch" if with_data
-          assert_equal with_metadata.with_indifferent_access,
-                       e.metadata.to_h.with_indifferent_access.slice(*with_metadata.keys),
-                       "Event metadata mismatch" if with_metadata
+          if with_metadata
+            assert_equal with_metadata.with_indifferent_access,
+                         e.metadata.to_h.with_indifferent_access.slice(*with_metadata.keys),
+                         "Event metadata mismatch"
+          end
         end
       end
 
       def assert_published_once(event_store, event_type, with_data: nil, with_metadata: nil, within_stream: nil, &block)
-        events = assert_published(
-          event_store,
-          event_type,
-          with_data: with_data,
-          with_metadata: with_metadata,
-          within_stream: within_stream,
-          &block
-        )
+        events =
+          assert_published(
+            event_store,
+            event_type,
+            with_data: with_data,
+            with_metadata: with_metadata,
+            within_stream: within_stream,
+            &block
+          )
         assert_equal 1, events.size, "Expected only one event of #{event_type} type"
       end
 
       def assert_nothing_published(event_store, &block)
-        assert_equal 0,
-                     events_published(event_store, nil, nil, &block).size,
-                     "Expected no events published"
+        assert_equal 0, events_published(event_store, nil, nil, &block).size, "Expected no events published"
       end
 
       def assert_event_in_stream(event_store, event, stream_name)
@@ -78,36 +79,25 @@ module Minitest
         events_so_far = event_store.read.to_a
         block.call
         new_events = (event_store.read.to_a - events_so_far).map(&:class)
-        assert_equal(
-          expected_new_events,
-          new_events,
-          "Expected new events weren't found"
-        )
+        assert_equal(expected_new_events, new_events, "Expected new events weren't found")
       end
 
       def assert_new_events_include(event_store, expected_events, &block)
         events_so_far = event_store.read.to_a
         block.call
         new_events = (event_store.read.to_a - events_so_far).map(&:class)
-        assert(
-          (expected_events - new_events).empty?,
-          "Didn't include all of: #{expected_events} in #{new_events}"
-        )
+        assert((expected_events - new_events).empty?, "Didn't include all of: #{expected_events} in #{new_events}")
       end
 
       def assert_equal_event(expected, actual, verify_id: false)
-        if verify_id
-          assert_equal expected.event_id, actual.event_id
-        end
+        assert_equal expected.event_id, actual.event_id if verify_id
         assert_equal expected.class, actual.class
         assert_equal expected.data, actual.data
       end
 
       def assert_equal_events(expected, checked, verify_id: false)
         assert_equal expected.size, checked.size
-        expected.zip(checked) do |e, c|
-          assert_equal_event(e, c, verify_id: verify_id)
-        end
+        expected.zip(checked) { |e, c| assert_equal_event(e, c, verify_id: verify_id) }
       end
 
       private

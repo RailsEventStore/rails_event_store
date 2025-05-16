@@ -19,7 +19,10 @@ module RubyEventStore
       end
 
       def migration_code(database_adapter)
-        migration_template(template_root(database_adapter), "create_event_store_events").result_with_hash(migration_version: migration_version, data_type: database_adapter.data_type)
+        migration_template(template_root(database_adapter), "create_event_store_events").result_with_hash(
+          migration_version: migration_version,
+          data_type: database_adapter.data_type,
+        )
       end
 
       def template_root(database_adapter)

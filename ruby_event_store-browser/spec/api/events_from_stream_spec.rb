@@ -12,44 +12,40 @@ module RubyEventStore
     let(:stream_name) { "dummy" }
 
     def publish_dummy_event
-      event_store.with_metadata(
-        correlation_id: correlation_id,
-        timestamp: timestamp
-      ) { event_store.append(dummy_event, stream_name: stream_name) }
+      event_store.with_metadata(correlation_id: correlation_id, timestamp: timestamp) do
+        event_store.append(dummy_event, stream_name: stream_name)
+      end
     end
 
     specify "happy path" do
       publish_dummy_event
 
-      %w[
-        /api/streams/all/relationships/events
-        /api/streams/dummy/relationships/events
-      ].each do |endpoint|
+      %w[/api/streams/all/relationships/events /api/streams/dummy/relationships/events].each do |endpoint|
         api_client.get endpoint
         expect(api_client.last_response).to be_ok
-        expect(api_client.parsed_body["data"]).to contain_exactly({
-              "id" => dummy_event.event_id,
-              "type" => "events",
-              "attributes" => {
-                "event_type" => dummy_event.event_type,
-                "data" => {
-                  "foo" => dummy_event.data[:foo],
-                  "bar" => dummy_event.data[:bar],
-                  "baz" => dummy_event.data[:baz]
-                },
-                "metadata" => {
-                  "timestamp" => timestamp.iso8601(6),
-                  "valid_at" => timestamp.iso8601(6),
-                  "correlation_id" => correlation_id
-                },
-                "correlation_stream_name" =>
-                  "$by_correlation_id_#{dummy_event.correlation_id}",
-                "causation_stream_name" =>
-                  "$by_causation_id_#{dummy_event.event_id}",
-                "type_stream_name" => "$by_type_#{dummy_event.event_type}",
-                "parent_event_id" => nil
-              }
-            })
+        expect(api_client.parsed_body["data"]).to contain_exactly(
+          {
+            "id" => dummy_event.event_id,
+            "type" => "events",
+            "attributes" => {
+              "event_type" => dummy_event.event_type,
+              "data" => {
+                "foo" => dummy_event.data[:foo],
+                "bar" => dummy_event.data[:bar],
+                "baz" => dummy_event.data[:baz],
+              },
+              "metadata" => {
+                "timestamp" => timestamp.iso8601(6),
+                "valid_at" => timestamp.iso8601(6),
+                "correlation_id" => correlation_id,
+              },
+              "correlation_stream_name" => "$by_correlation_id_#{dummy_event.correlation_id}",
+              "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
+              "type_stream_name" => "$by_type_#{dummy_event.event_type}",
+              "parent_event_id" => nil,
+            },
+          },
+        )
       end
     end
   end

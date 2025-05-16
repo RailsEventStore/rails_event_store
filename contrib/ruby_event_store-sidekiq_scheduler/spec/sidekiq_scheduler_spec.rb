@@ -4,9 +4,8 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe SidekiqScheduler do
-    it_behaves_like 'scheduler',
-                    SidekiqScheduler.new(serializer: Serializers::YAML)
-    it_behaves_like 'scheduler', SidekiqScheduler.new(serializer: JSON)
+    it_behaves_like "scheduler", SidekiqScheduler.new(serializer: Serializers::YAML)
+    it_behaves_like "scheduler", SidekiqScheduler.new(serializer: JSON)
 
     describe "#verify" do
       let(:scheduler) { SidekiqScheduler.new(serializer: JSON) }
@@ -34,7 +33,7 @@ module RubyEventStore
       let(:event) do
         TimeEnrichment.with(
           Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
-          timestamp: Time.utc(2019, 9, 30)
+          timestamp: Time.utc(2019, 9, 30),
         )
       end
       let(:record) { Mappers::Default.new.event_to_record(event) }
@@ -56,11 +55,11 @@ module RubyEventStore
                 "data" => "--- {}\n",
                 "metadata" => "--- {}\n",
                 "timestamp" => "2019-09-30T00:00:00.000000Z",
-                "valid_at" => "2019-09-30T00:00:00.000000Z"
-              }
+                "valid_at" => "2019-09-30T00:00:00.000000Z",
+              },
             ],
-            "queue" => "default"
-          }
+            "queue" => "default",
+          },
         )
       end
 
@@ -79,11 +78,11 @@ module RubyEventStore
                 "data" => "--- {}\n",
                 "metadata" => "--- {}\n",
                 "timestamp" => "2019-09-30T00:00:00.000000Z",
-                "valid_at" => "2019-09-30T00:00:00.000000Z"
-              }
+                "valid_at" => "2019-09-30T00:00:00.000000Z",
+              },
             ],
-            "queue" => "non-default"
-          }
+            "queue" => "non-default",
+          },
         )
       end
 
@@ -95,8 +94,8 @@ module RubyEventStore
             "data" => "--- {}\n",
             "metadata" => "--- {}\n",
             "timestamp" => "2019-09-30T00:00:00.000000Z",
-            "valid_at" => "2019-09-30T00:00:00.000000Z"
-          }
+            "valid_at" => "2019-09-30T00:00:00.000000Z",
+          },
         )
 
         scheduler.call(MyAsyncHandler, record)
@@ -112,8 +111,8 @@ module RubyEventStore
             "data" => "--- {}\n",
             "metadata" => "--- {}\n",
             "timestamp" => "2019-09-30T00:00:00.000000Z",
-            "valid_at" => "2019-09-30T00:00:00.000000Z"
-          }
+            "valid_at" => "2019-09-30T00:00:00.000000Z",
+          },
         )
       end
     end

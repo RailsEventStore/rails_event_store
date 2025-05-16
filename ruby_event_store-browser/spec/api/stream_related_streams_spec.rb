@@ -10,9 +10,7 @@ module RubyEventStore
       api_client.get "/api/streams/all"
 
       expect(api_client.last_response).to be_ok
-      expect(
-        api_client.parsed_body["data"]["attributes"]["related_streams"]
-      ).to be_nil
+      expect(api_client.parsed_body["data"]["attributes"]["related_streams"]).to be_nil
     end
 
     specify "requsting stream resource with related streams" do
@@ -20,23 +18,17 @@ module RubyEventStore
 
       api_client.get "/api/streams/all"
       expect(api_client.last_response).to be_ok
-      expect(
-        api_client.parsed_body["data"]["attributes"]["related_streams"]
-      ).to eq([])
+      expect(api_client.parsed_body["data"]["attributes"]["related_streams"]).to eq([])
 
       api_client.get "/api/streams/dummy"
       expect(api_client.last_response).to be_ok
-      expect(
-        api_client.parsed_body["data"]["attributes"]["related_streams"]
-      ).to eq(["dummy_too"])
+      expect(api_client.parsed_body["data"]["attributes"]["related_streams"]).to eq(["dummy_too"])
     end
 
     let(:app_with_related_streams) do
       Browser::App.for(
         event_store_locator: -> { event_store },
-        related_streams_query: ->(stream_name) do
-          stream_name == "dummy" ? ["dummy_too"] : []
-        end
+        related_streams_query: ->(stream_name) { stream_name == "dummy" ? ["dummy_too"] : [] },
       )
     end
   end

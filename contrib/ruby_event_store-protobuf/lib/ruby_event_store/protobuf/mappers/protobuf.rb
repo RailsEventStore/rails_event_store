@@ -16,8 +16,8 @@ module RubyEventStore
               Transformation::ProtobufEncoder.new,
               RubyEventStore::Mappers::Transformation::EventClassRemapper.new(events_class_remapping),
               Transformation::ProtobufNestedStructMetadata.new,
-              to_domain_event: Transformation::ProtoEvent.new
-            )
+              to_domain_event: Transformation::ProtoEvent.new,
+            ),
           )
         end
       end

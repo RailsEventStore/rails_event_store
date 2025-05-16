@@ -14,7 +14,7 @@ module RubyEventStore
           CleanOldEnqueued.new(
             repository,
             ActiveSupport::Duration.parse(configuration.cleanup),
-            configuration.cleanup_limit
+            configuration.cleanup_limit,
           )
         end
       end

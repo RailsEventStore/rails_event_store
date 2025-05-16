@@ -241,29 +241,29 @@ module RubyEventStore
            event_2,
            :subscriber1,
            event_2,
-           :subscriber2
+           :subscriber2,
          ]
     end
 
     specify "subscribe unallowed calls" do
-      expect { client.subscribe(-> {  }, to: []) {} }.to raise_error(
+      expect { client.subscribe(-> {}, to: []) {} }.to raise_error(
         ArgumentError,
-        "subscriber must be first argument or block, cannot be both"
+        "subscriber must be first argument or block, cannot be both",
       )
 
       expect { client.subscribe(to: []) }.to raise_error(
         SubscriberNotExist,
-        "subscriber must be first argument or block"
+        "subscriber must be first argument or block",
       )
 
       expect { client.subscribe_to_all_events }.to raise_error(
         SubscriberNotExist,
-        "subscriber must be first argument or block"
+        "subscriber must be first argument or block",
       )
 
-      expect { client.subscribe_to_all_events(-> {  }) {} }.to raise_error(
+      expect { client.subscribe_to_all_events(-> {}) {} }.to raise_error(
         ArgumentError,
-        "subscriber must be first argument or block, cannot be both"
+        "subscriber must be first argument or block, cannot be both",
       )
     end
 

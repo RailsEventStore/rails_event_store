@@ -5,7 +5,7 @@ require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
   ::RSpec.describe Dispatcher do
-    it_behaves_like 'dispatcher', Dispatcher.new
+    it_behaves_like "dispatcher", Dispatcher.new
     let(:event) { instance_double(Event) }
     let(:record) { instance_double(Record) }
     let(:handler) { HandlerClass.new }
@@ -27,7 +27,8 @@ module RubyEventStore
             @something = something
           end
 
-          def call; end
+          def call
+          end
         end
       expect(Dispatcher.new.verify(klass)).to be(false)
     end

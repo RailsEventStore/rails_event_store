@@ -12,18 +12,20 @@ module RubyEventStore
     specify { expect(Stream.new("meh").global?).to be(false) }
 
     specify "in-equality" do
-      %w[possible stream names].permutation(2).each do |one, two|
-        a = Stream.new(one)
-        b = Stream.new(two)
-        c = Class.new(Stream).new(one)
-        expect(a).not_to eq(b)
-        expect(a).not_to eql(b)
-        expect(a.hash).not_to eq(b.hash)
+      %w[possible stream names]
+        .permutation(2)
+        .each do |one, two|
+          a = Stream.new(one)
+          b = Stream.new(two)
+          c = Class.new(Stream).new(one)
+          expect(a).not_to eq(b)
+          expect(a).not_to eql(b)
+          expect(a.hash).not_to eq(b.hash)
 
-        expect(a).not_to eq(c)
-        expect(a).not_to eql(c)
-        expect(a.hash).not_to eq(c.hash)
-      end
+          expect(a).not_to eq(c)
+          expect(a).not_to eql(c)
+          expect(a.hash).not_to eq(c.hash)
+        end
     end
 
     specify "equality" do

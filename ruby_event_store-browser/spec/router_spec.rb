@@ -11,10 +11,7 @@ module RubyEventStore
           router = Router.new
           router.add_route("GET", "/some/:funky/:segment", &probe)
           router.handle(request)
-        end.to yield_with_args(
-          { "funky" => "foo", "segment" => "bar" },
-          urls.with_request(request)
-        )
+        end.to yield_with_args({ "funky" => "foo", "segment" => "bar" }, urls.with_request(request))
       end
 
       specify "encoded params" do
@@ -23,10 +20,7 @@ module RubyEventStore
           router = Router.new
           router.add_route("GET", "/:try_me", &probe)
           router.handle(request)
-        end.to yield_with_args(
-          { "try_me" => "foo-bar.xml" },
-          urls.with_request(request)
-        )
+        end.to yield_with_args({ "try_me" => "foo-bar.xml" }, urls.with_request(request))
       end
 
       specify "route params and query params" do
@@ -35,10 +29,7 @@ module RubyEventStore
           router = Router.new
           router.add_route("GET", "/:try_me", &probe)
           router.handle(request)
-        end.to yield_with_args(
-          { "try_me" => "dont", "try" => "me" },
-          urls.with_request(request)
-        )
+        end.to yield_with_args({ "try_me" => "dont", "try" => "me" }, urls.with_request(request))
       end
 
       specify "not found by path" do
@@ -67,7 +58,7 @@ module RubyEventStore
               map "/mounted" do
                 run ->(env) { router.handle(Rack::Request.new(env)) }
               end
-            end
+            end,
           ).get("/mounted")
         expect(response).to be_no_content
       end

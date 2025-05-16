@@ -101,9 +101,9 @@ module RubyEventStore
                 events_with_correct_type.each_with_index.map do |event_with_correct_type, index|
                   event_diff(expected_event, event_with_correct_type, index)
                 end,
-                nil
+                nil,
               ]
-            end
+            end,
           ].compact.join("\n")
         end
 
@@ -120,7 +120,7 @@ module RubyEventStore
           [
             "#{index + 1}) #{event_with_correct_type.inspect}",
             indent(data_diff(expected_event, event_with_correct_type), 4),
-            indent(metadata_diff(expected_event, event_with_correct_type), 4)
+            indent(metadata_diff(expected_event, event_with_correct_type), 4),
           ].reject(&:empty?)
         end
 

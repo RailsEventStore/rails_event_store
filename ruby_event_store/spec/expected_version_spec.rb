@@ -63,18 +63,20 @@ module RubyEventStore
     end
 
     specify "in-equality" do
-      %i[any none auto].permutation(2).each do |one, two|
-        a = ExpectedVersion.new(one)
-        b = ExpectedVersion.new(two)
-        c = Class.new(ExpectedVersion).new(one)
-        expect(a).not_to eq(b)
-        expect(a).not_to eql(b)
-        expect(a.hash).not_to eq(b.hash)
+      %i[any none auto]
+        .permutation(2)
+        .each do |one, two|
+          a = ExpectedVersion.new(one)
+          b = ExpectedVersion.new(two)
+          c = Class.new(ExpectedVersion).new(one)
+          expect(a).not_to eq(b)
+          expect(a).not_to eql(b)
+          expect(a.hash).not_to eq(b.hash)
 
-        expect(a).not_to eq(c)
-        expect(a).not_to eql(c)
-        expect(a.hash).not_to eq(c.hash)
-      end
+          expect(a).not_to eq(c)
+          expect(a).not_to eql(c)
+          expect(a.hash).not_to eq(c.hash)
+        end
     end
 
     specify "equality" do

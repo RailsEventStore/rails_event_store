@@ -37,7 +37,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        subscriber = -> {  }
+        subscriber = -> {}
         event_types = []
 
         instrumented_broker.add_subscription(subscriber, event_types)
@@ -48,7 +48,7 @@ module RubyEventStore
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_subscription.broker.rails_event_store") do |notification_calls|
-          subscriber = -> {  }
+          subscriber = -> {}
           event_types = []
 
           instrumented_broker.add_subscription(subscriber, event_types)
@@ -62,7 +62,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        subscriber = -> {  }
+        subscriber = -> {}
 
         instrumented_broker.add_global_subscription(subscriber)
 
@@ -72,7 +72,7 @@ module RubyEventStore
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_global_subscription.broker.rails_event_store") do |notification_calls|
-          subscriber = -> {  }
+          subscriber = -> {}
 
           instrumented_broker.add_global_subscription(subscriber)
 
@@ -85,7 +85,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        subscriber = -> {  }
+        subscriber = -> {}
         event_types = []
 
         instrumented_broker.add_thread_subscription(subscriber, event_types)
@@ -96,7 +96,7 @@ module RubyEventStore
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_thread_subscription.broker.rails_event_store") do |notification_calls|
-          subscriber = -> {  }
+          subscriber = -> {}
           event_types = []
 
           instrumented_broker.add_thread_subscription(subscriber, event_types)
@@ -110,7 +110,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        subscriber = -> {  }
+        subscriber = -> {}
 
         instrumented_broker.add_thread_global_subscription(subscriber)
 
@@ -120,7 +120,7 @@ module RubyEventStore
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_thread_global_subscription.broker.rails_event_store") do |notification_calls|
-          subscriber = -> {  }
+          subscriber = -> {}
 
           instrumented_broker.add_thread_global_subscription(subscriber)
 
@@ -171,7 +171,7 @@ module RubyEventStore
       expect(instrumented_broker).not_to respond_to(:arbitrary_method_name)
       expect { instrumented_broker.arbitrary_method_name }.to raise_error(
         NoMethodError,
-        /undefined method.+arbitrary_method_name.+RubyEventStore::InstrumentedBroker/
+        /undefined method.+arbitrary_method_name.+RubyEventStore::InstrumentedBroker/,
       )
     end
 

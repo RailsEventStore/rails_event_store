@@ -23,10 +23,10 @@ module RubyEventStore
               ten: {
                 some: "hash",
                 with: {
-                  nested: "values"
-                }
+                  nested: "values",
+                },
               },
-              eleven: [1, 2, 3]
+              eleven: [1, 2, 3],
             }
           end
           let(:uuid) { SecureRandom.uuid }
@@ -37,7 +37,7 @@ module RubyEventStore
               data: "anything",
               metadata: metadata,
               timestamp: Time.new.utc,
-              valid_at: Time.new.utc
+              valid_at: Time.new.utc,
             )
           end
 

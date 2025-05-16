@@ -6,6 +6,7 @@ module DresRails
     source_root File.join(File.dirname(__FILE__), "..", "templates")
 
     desc "Upgrades previously installed Dres Rails resources."
-    def upgrade; end
+    def upgrade
+    end
   end
 end

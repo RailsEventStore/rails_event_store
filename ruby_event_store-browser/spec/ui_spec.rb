@@ -20,11 +20,9 @@ module RubyEventStore
 
       expect(session).to have_content(foo_bar_event.event_id)
       expect(session).to have_content(
-        "timestamp: \"#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}\""
+        "timestamp: \"#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}\"",
       )
-      expect(session).to have_content(
-        "valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\""
-      )
+      expect(session).to have_content("valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\"")
       expect(session).to have_content("foo: \"bar\"")
     end
 
@@ -42,11 +40,9 @@ module RubyEventStore
 
       expect(session).to have_content(foo_bar_event.event_id)
       expect(session).to have_content(
-        "timestamp: \"#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}\""
+        "timestamp: \"#{foo_bar_event.metadata[:timestamp].iso8601(TIMESTAMP_PRECISION)}\"",
       )
-      expect(session).to have_content(
-        "valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\""
-      )
+      expect(session).to have_content("valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\"")
       expect(session).to have_content("foo: \"bar\"")
     end
 
@@ -60,9 +56,9 @@ module RubyEventStore
               "default-src 'self'",
               "connect-src 'self'",
               "ws://localhost:41221 http://127.0.0.1",
-              "script-src 'self'"
-            ].join(";")
-          )
+              "script-src 'self'",
+            ].join(";"),
+          ),
         )
 
       foo_bar_event = FooBarEvent.new(data: { foo: :bar })
@@ -77,29 +73,18 @@ module RubyEventStore
       logger = mk_logger
 
       Capybara.register_driver(:cuprite_with_logger) do |app|
-        Capybara::Cuprite::Driver.new(
-          app,
-          logger: logger,
-          browser_options: {
-            "no-sandbox" => nil
-          }
-        )
+        Capybara::Cuprite::Driver.new(app, logger: logger, browser_options: { "no-sandbox" => nil })
       end
 
       session =
         Capybara::Session.new(
           :cuprite_with_logger,
-          CspApp.new(
-            app_builder(event_store),
-            "style-src 'self'; script-src 'self'"
-          )
+          CspApp.new(app_builder(event_store), "style-src 'self'; script-src 'self'"),
         )
 
       session.visit("/")
 
-      expect(
-        logger.messages.select { |m| m["params"]["entry"]["level"] == "error" }
-      ).to be_empty
+      expect(logger.messages.select { |m| m["params"]["entry"]["level"] == "error" }).to be_empty
     end
 
     let(:event_store) { Client.new }

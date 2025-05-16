@@ -19,7 +19,7 @@ module RubyEventStore
             data: record.data,
             metadata: record.metadata,
             timestamp: record.timestamp,
-            valid_at: record.valid_at
+            valid_at: record.valid_at,
           )
         end
 

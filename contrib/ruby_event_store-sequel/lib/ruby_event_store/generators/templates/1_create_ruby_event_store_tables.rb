@@ -29,7 +29,7 @@
       column :created_at, Time, null: false, index: "index_event_store_events_on_created_at"
       column :valid_at, Time, index: "index_event_store_events_on_valid_at"
 
-      index :event_id, unique: true,  name: "index_event_store_events_on_event_id"
+      index :event_id, unique: true, name: "index_event_store_events_on_event_id"
     end
   end
 
@@ -37,5 +37,4 @@
     drop_table :event_store_events
     drop_table :event_store_events_in_streams
   end
-
 end

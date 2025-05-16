@@ -37,11 +37,14 @@ module RailsEventStore
         schedule_proc.call
       end
 
-      def rolledback!(*); end
+      def rolledback!(*)
+      end
 
-      def before_committed!; end
+      def before_committed!
+      end
 
-      def trigger_transactional_callbacks?; end
+      def trigger_transactional_callbacks?
+      end
 
       attr_reader :schedule_proc
     end

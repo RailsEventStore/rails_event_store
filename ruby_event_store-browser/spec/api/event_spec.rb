@@ -8,17 +8,7 @@ module RubyEventStore
 
     let(:correlation_id) { SecureRandom.uuid }
     let(:dummy_event) do
-      DummyEvent.new(
-        data: {
-          foo: 1,
-          bar: 2.0,
-          baz: "3",
-          bax: 1.0 / 0,
-          bay: {
-            baq: [-1.0 / 0, 0.0 / 0]
-          }
-        }
-      )
+      DummyEvent.new(data: { foo: 1, bar: 2.0, baz: "3", bax: 1.0 / 0, bay: { baq: [-1.0 / 0, 0.0 / 0] } })
     end
     let(:parent_event) { DummyEvent.new }
     let(:timestamp) { Time.utc(2020, 1, 1, 12, 0, 0, 1) }
@@ -29,7 +19,7 @@ module RubyEventStore
       event_store.with_metadata(
         correlation_id: correlation_id,
         timestamp: timestamp,
-        causation_id: parent_event.event_id
+        causation_id: parent_event.event_id,
       ) { event_store.publish(dummy_event, stream_name: stream_name) }
 
       api_client.get "/api/events/#{dummy_event.event_id}"
@@ -47,42 +37,31 @@ module RubyEventStore
               "baz" => dummy_event.data[:baz],
               "bax" => "Infinity",
               "bay" => {
-                "baq" => %w[-Infinity NaN]
-              }
+                "baq" => %w[-Infinity NaN],
+              },
             },
             "metadata" => {
               "timestamp" => timestamp.iso8601(6),
               "valid_at" => timestamp.iso8601(6),
               "correlation_id" => correlation_id,
-              "causation_id" => parent_event.event_id
+              "causation_id" => parent_event.event_id,
             },
-            "correlation_stream_name" =>
-              "$by_correlation_id_#{dummy_event.correlation_id}",
-            "causation_stream_name" =>
-              "$by_causation_id_#{dummy_event.event_id}",
+            "correlation_stream_name" => "$by_correlation_id_#{dummy_event.correlation_id}",
+            "causation_stream_name" => "$by_causation_id_#{dummy_event.event_id}",
             "type_stream_name" => "$by_type_#{dummy_event.event_type}",
-            "parent_event_id" => parent_event.event_id
+            "parent_event_id" => parent_event.event_id,
           },
           "relationships" => {
             "streams" => {
               "data" => [
                 { "id" => stream_name, "type" => "streams" },
-                {
-                  "id" => "$by_correlation_id_#{dummy_event.correlation_id}",
-                  "type" => "streams"
-                },
-                {
-                  "id" => "$by_causation_id_#{parent_event.event_id}",
-                  "type" => "streams"
-                },
-                {
-                  "id" => "$by_type_#{dummy_event.event_type}",
-                  "type" => "streams"
-                }
-              ]
-            }
-          }
-        }
+                { "id" => "$by_correlation_id_#{dummy_event.correlation_id}", "type" => "streams" },
+                { "id" => "$by_causation_id_#{parent_event.event_id}", "type" => "streams" },
+                { "id" => "$by_type_#{dummy_event.event_type}", "type" => "streams" },
+              ],
+            },
+          },
+        },
       )
     end
 

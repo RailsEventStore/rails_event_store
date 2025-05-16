@@ -14,12 +14,10 @@ module RubyEventStore
   ::RSpec.describe SidekiqScheduler do
     let(:event_store) do
       RubyEventStore::Client.new(
-        message_broker: RubyEventStore::Broker.new(
-          dispatcher:
-            ImmediateAsyncDispatcher.new(
-              scheduler: SidekiqScheduler.new(serializer: serializer)
-            )
-        )
+        message_broker:
+          RubyEventStore::Broker.new(
+            dispatcher: ImmediateAsyncDispatcher.new(scheduler: SidekiqScheduler.new(serializer: serializer)),
+          ),
       )
     end
     let(:event) { RubyEventStore::Event.new }
@@ -29,10 +27,7 @@ module RubyEventStore
       $queue = Queue.new
 
       SidekiqHandlerWithHelper.prepend(
-        RailsEventStore::AsyncHandler.with(
-          event_store: event_store,
-          serializer: serializer
-        )
+        RailsEventStore::AsyncHandler.with(event_store: event_store, serializer: serializer),
       )
       event_store.subscribe_to_all_events(SidekiqHandlerWithHelper)
       event_store.publish(event)
