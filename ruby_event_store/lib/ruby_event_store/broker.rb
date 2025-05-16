@@ -7,8 +7,8 @@ module RubyEventStore
       @dispatcher = dispatcher
     end
 
-    def call(event, record, topic = nil)
-      subscribers = subscriptions.all_for(topic || event.event_type)
+    def call(event, record, topic)
+      subscribers = subscriptions.all_for(topic)
       subscribers.each { |subscriber| dispatcher.call(subscriber, event, record) }
     end
 
