@@ -13,7 +13,7 @@ module RubyEventStore
       let(:repository) { mk_repository.call }
       let(:specification) do
         RubyEventStore::Specification.new(
-          RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new)
+          RubyEventStore::SpecificationReader.new(repository, RubyEventStore::Mappers::NullMapper.new),
         )
       end
 
@@ -23,7 +23,7 @@ module RubyEventStore
         repository.append_to_stream(
           [RubyEventStore::SRecord.new(data: { "foo" => "bar" })],
           RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.auto
+          RubyEventStore::ExpectedVersion.auto,
         )
 
         record = repository.read(specification.result).first
@@ -34,7 +34,7 @@ module RubyEventStore
             .execute("SELECT data ->> 'foo' as foo FROM event_store_events ORDER BY created_at DESC")
             .first[
             "foo"
-          ]
+          ],
         ).to eq("bar")
       end if ENV["DATABASE_URL"].include?("postgres") && %w[json jsonb].include?(ENV["DATA_TYPE"])
 
@@ -42,7 +42,7 @@ module RubyEventStore
         repository.append_to_stream(
           [RubyEventStore::SRecord.new(data: { "foo" => "bar" })],
           RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.auto
+          RubyEventStore::ExpectedVersion.auto,
         )
 
         record = repository.read(specification.result).first
