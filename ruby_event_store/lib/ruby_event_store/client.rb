@@ -57,7 +57,7 @@ module RubyEventStore
       append_records_to_stream(records, stream_name: stream_name, expected_version: expected_version)
       enriched_events.zip(records) do |event, record|
         with_metadata(correlation_id: event.metadata.fetch(:correlation_id), causation_id: event.event_id) do
-          broker.call(event, record, topic)
+          broker.call(event, record, topic || event.event_type)
         end
       end
       self

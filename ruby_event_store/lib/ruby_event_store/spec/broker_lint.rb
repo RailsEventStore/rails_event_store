@@ -11,7 +11,7 @@ RSpec.shared_examples "broker" do |broker_klass|
   specify "no dispatch when no subscriptions" do
     expect(subscriptions).to receive(:all_for).with("EventType").and_return([])
     expect(dispatcher).not_to receive(:call)
-    broker.call(event, record)
+    broker.call(event, record, event.event_type)
   end
 
   specify 'calls subscription using topic' do
@@ -23,20 +23,20 @@ RSpec.shared_examples "broker" do |broker_klass|
   specify "calls subscription" do
     expect(subscriptions).to receive(:all_for).with("EventType").and_return([handler])
     expect(dispatcher).to receive(:call).with(handler, event, record)
-    broker.call(event, record)
+    broker.call(event, record, event.event_type)
   end
 
   specify "calls subscribed class" do
     expect(subscriptions).to receive(:all_for).with("EventType").and_return([HandlerClass])
     expect(dispatcher).to receive(:call).with(HandlerClass, event, record)
-    broker.call(event, record)
+    broker.call(event, record, event.event_type)
   end
 
   specify "calls all subscriptions" do
     expect(subscriptions).to receive(:all_for).with("EventType").and_return([handler, HandlerClass])
     expect(dispatcher).to receive(:call).with(handler, event, record)
     expect(dispatcher).to receive(:call).with(HandlerClass, event, record)
-    broker.call(event, record)
+    broker.call(event, record, event.event_type)
   end
 
   specify "raise error when no subscriber" do
