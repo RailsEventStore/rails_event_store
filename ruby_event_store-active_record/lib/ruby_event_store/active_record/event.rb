@@ -8,7 +8,7 @@ module RubyEventStore
       self.primary_key = :id
       self.table_name = "event_store_events"
 
-      def self.type_for_attribute(name, &block)
+      def self.type_for_attribute(...)
         initial_column_type = super
 
         if %i[json jsonb].include?(initial_column_type.type)
