@@ -73,7 +73,14 @@ module RubyEventStore
       logger = mk_logger
 
       Capybara.register_driver(:cuprite_with_logger) do |app|
-        Capybara::Cuprite::Driver.new(app, logger: logger, browser_options: { "no-sandbox" => nil })
+        Capybara::Cuprite::Driver.new(
+          app,
+          logger: logger,
+          process_timeout: 30,
+          browser_options: {
+            "no-sandbox" => nil,
+          },
+        )
       end
 
       session =
