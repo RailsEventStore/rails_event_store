@@ -95,11 +95,7 @@ module RubyEventStore
         end
 
         def join_events
-          if dataset.opts[:join]&.map(&:table)&.include?(events.dataset.first_source_table)
-            self
-          else
-            join(:events)
-          end
+          dataset.opts[:join]&.map(&:table)&.include?(events.dataset.first_source_table) ? self : join(:events)
         end
       end
     end

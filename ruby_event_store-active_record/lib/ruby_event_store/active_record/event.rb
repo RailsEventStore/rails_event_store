@@ -18,9 +18,7 @@ module RubyEventStore
 
           if ::ActiveRecord.version >= Gem::Version.new("7.2.0")
             class_methods do
-              define_method(:hook_attribute_type) do |name, cast_type|
-                skip_json_serialization[cast_type]
-              end
+              define_method(:hook_attribute_type) { |name, cast_type| skip_json_serialization[cast_type] }
             end
           else
             included do
