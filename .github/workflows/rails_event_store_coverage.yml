@@ -5,6 +5,8 @@ on:
     types:
     - script
   push:
+    branches:
+    - master
     paths:
     - rails_event_store/Gemfile.lock
     - ".github/workflows/rails_event_store_coverage.yml"

@@ -5,6 +5,8 @@ on:
     types:
     - script
   push:
+    branches:
+    - master
     paths:
     - contrib/ruby_event_store-profiler/**
     - ".github/workflows/ruby_event_store-profiler_mutate.yml"

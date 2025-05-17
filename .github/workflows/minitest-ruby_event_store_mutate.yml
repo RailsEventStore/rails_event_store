@@ -5,6 +5,8 @@ on:
     types:
     - script
   push:
+    branches:
+    - master
     paths:
     - contrib/minitest-ruby_event_store/**
     - ".github/workflows/minitest-ruby_event_store_mutate.yml"

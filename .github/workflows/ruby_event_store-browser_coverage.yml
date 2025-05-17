@@ -5,6 +5,8 @@ on:
     types:
     - script
   push:
+    branches:
+    - master
     paths:
     - ruby_event_store-browser/Gemfile.lock
     - ".github/workflows/ruby_event_store-browser_coverage.yml"
