@@ -170,11 +170,7 @@ module RubyEventStore
     end
 
     def time_comparison_field(spec, sr)
-      if spec.time_sort_by_as_of?
-        sr.valid_at
-      else
-        sr.timestamp
-      end
+      spec.time_sort_by_as_of? ? sr.valid_at : sr.timestamp
     end
 
     def read_event(event_id)
