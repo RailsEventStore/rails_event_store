@@ -7,14 +7,14 @@ module RubyEventStore
       @dispatcher = dispatcher
     end
 
-    def call(event, record)
-      subscribers = subscriptions.all_for(event.event_type)
+    def call(event, record, topic = nil)
+      subscribers = subscriptions.all_for(topic || event.event_type)
       subscribers.each { |subscriber| dispatcher.call(subscriber, event, record) }
     end
 
-    def add_subscription(subscriber, event_types)
+    def add_subscription(subscriber, topics)
       verify_subscription(subscriber)
-      subscriptions.add_subscription(subscriber, event_types)
+      subscriptions.add_subscription(subscriber, topics)
     end
 
     def add_global_subscription(subscriber)
@@ -22,9 +22,9 @@ module RubyEventStore
       subscriptions.add_global_subscription(subscriber)
     end
 
-    def add_thread_subscription(subscriber, event_types)
+    def add_thread_subscription(subscriber, topics)
       verify_subscription(subscriber)
-      subscriptions.add_thread_subscription(subscriber, event_types)
+      subscriptions.add_thread_subscription(subscriber, topics)
     end
 
     def add_thread_global_subscription(subscriber)
