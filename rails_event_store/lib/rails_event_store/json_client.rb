@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module RailsEventStore
   class JSONClient < Client
     def initialize(
@@ -44,7 +46,7 @@ module RailsEventStore
           RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new,
         ),
       ),
-      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL),
+      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: JSON),
       subscriptions: nil,
       dispatcher: nil,
       message_broker: nil,
