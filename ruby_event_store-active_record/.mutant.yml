@@ -29,4 +29,4 @@ matcher:
     - RubyEventStore::ActiveRecord::EventRepository#append_to_stream
     - RubyEventStore::ActiveRecord::WithAbstractBaseClass#build_event_klass
     - RubyEventStore::ActiveRecord::WithAbstractBaseClass#build_stream_klass
-    - RubyEventStore::ActiveRecord::Event.type_for_attribute
+    - RubyEventStore::ActiveRecord::Event.hook_attribute_type
