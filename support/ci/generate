@@ -48,7 +48,7 @@ class CI
       release_coverage("aggregate_root"),
       release_test("ruby_event_store"),
       release_mutate("ruby_event_store"),
-      release_coverage("ruby_event_store", runs_on: "macos-14"),
+      release_coverage("ruby_event_store"),
       release_test("ruby_event_store-rspec"),
       release_mutate("ruby_event_store-rspec"),
       release_coverage("ruby_event_store-rspec"),
@@ -643,7 +643,7 @@ class CI
       steps: [checkout(depth: 0), verify_lockfile, setup_ruby, make("mutate-changes")],
       **
     )
-      Workflow.new(name, job_name: "mutate", matrix: matrix, steps: steps, **)
+      Workflow.new(name, job_name: "mutate", matrix: matrix, steps: steps, runs_on: "macos-14", **)
     end
 
     def contrib_mutate(
@@ -660,6 +660,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: contrib_triggers("#{name}_mutate", working_directory),
+        runs_on: "macos-14",
         **,
       )
     end
@@ -676,6 +677,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", name),
+        runs_on: "macos-14",
         **,
       )
     end
@@ -694,6 +696,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", working_directory),
+        runs_on: "macos-14",
         **,
       )
     end

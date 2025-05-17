@@ -24,7 +24,7 @@ on:
   - cron: 0 17 * * *
 jobs:
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-rom
