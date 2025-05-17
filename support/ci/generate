@@ -101,8 +101,8 @@ class CI
             ),
           ),
       ),
-      release_mutate("ruby_event_store-active_record"),
-      release_coverage("ruby_event_store-active_record"),
+      release_mutate("ruby_event_store-active_record", runs_on: "ubuntu-latest"),
+      release_coverage("ruby_event_store-active_record", runs_on: "ubuntu-latest"),
       contrib_test(
         "ruby_event_store-flipper",
         matrix:
@@ -150,10 +150,12 @@ class CI
           setup_ruby,
           make_nix_shell("mutate-changes"),
         ],
+        runs_on: "ubuntu-latest",
       ),
       contrib_coverage(
         "ruby_event_store-outbox",
         steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate")],
+        runs_on: "ubuntu-latest",
       ),
       contrib_test("ruby_event_store-profiler"),
       contrib_mutate("ruby_event_store-profiler"),
@@ -196,8 +198,8 @@ class CI
             ),
           ),
       ),
-      contrib_mutate("ruby_event_store-rom"),
-      contrib_coverage("ruby_event_store-rom"),
+      contrib_mutate("ruby_event_store-rom", runs_on: "ubuntu-latest"),
+      contrib_coverage("ruby_event_store-rom", runs_on: "ubuntu-latest"),
       contrib_test(
         "ruby_event_store-sequel",
         services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
@@ -223,8 +225,8 @@ class CI
             ),
           ),
       ),
-      contrib_mutate("ruby_event_store-sequel"),
-      contrib_coverage("ruby_event_store-sequel"),
+      contrib_mutate("ruby_event_store-sequel", runs_on: "ubuntu-latest"),
+      contrib_coverage("ruby_event_store-sequel", runs_on: "ubuntu-latest"),
       contrib_test(
         "ruby_event_store-sidekiq_scheduler",
         matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES)),
