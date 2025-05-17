@@ -16,6 +16,7 @@ module RubyEventStore
     end
 
     specify "append returns client when success" do
+      raise
       expect(client.append(TestEvent.new, stream_name: stream)).to eq(client)
     end
 
