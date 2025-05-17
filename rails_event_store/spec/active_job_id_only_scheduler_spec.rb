@@ -20,24 +20,24 @@ module RailsEventStore
       end
     end
 
-    before do
-      MyAsyncHandler.reset
+    before { MyAsyncHandler.reset }
+
+    it_behaves_like "scheduler", ActiveJobIdOnlyScheduler.new
+
+    let(:event) do
+      TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
     end
-
-    it_behaves_like 'scheduler', ActiveJobIdOnlyScheduler.new
-
-    let(:event)  { TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30)) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
 
     describe "#verify" do
       specify do
-        scheduler      = ActiveJobIdOnlyScheduler.new
+        scheduler = ActiveJobIdOnlyScheduler.new
         proper_handler = Class.new(ActiveJob::Base)
         expect(scheduler.verify(proper_handler)).to be(true)
       end
 
       specify do
-        scheduler  = ActiveJobIdOnlyScheduler.new
+        scheduler = ActiveJobIdOnlyScheduler.new
         some_class = Class.new
         expect(scheduler.verify(some_class)).to be(false)
       end
@@ -63,12 +63,7 @@ module RailsEventStore
         expect(enqueued_jobs[0]).to include(
           {
             job: MyAsyncHandler,
-            args: [
-              {
-                "event_id"        => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-                "_aj_symbol_keys" => [],
-              },
-            ],
+            args: [{ "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8", "_aj_symbol_keys" => [] }],
             queue: "default",
           },
         )

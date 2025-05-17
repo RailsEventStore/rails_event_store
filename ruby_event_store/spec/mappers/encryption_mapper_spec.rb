@@ -29,7 +29,7 @@ module RubyEventStore
         TimeEnrichment.with(
           SomeEventWithPersonalInfo.new(data: data, metadata: metadata, event_id: event_id),
           timestamp: time,
-          valid_at: time
+          valid_at: time,
         )
       end
       def encrypted_item(event = event())
@@ -37,7 +37,7 @@ module RubyEventStore
       end
       subject { EncryptionMapper.new(key_repository) }
 
-      it_behaves_like 'mapper',
+      it_behaves_like "mapper",
                       EncryptionMapper.new(InMemoryEncryptionKeyRepository.new),
                       TimeEnrichment.with(SomeEventWithoutPersonalInfo.new)
 
@@ -65,7 +65,7 @@ module RubyEventStore
             metadata: encrypted_item.metadata,
             event_type: SomeEventWithPersonalInfo.name,
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         event_ = subject.record_to_event(record)
         expect(event_).to eq(event)
@@ -85,7 +85,7 @@ module RubyEventStore
               metadata: encrypted.metadata,
               event_type: SomeEventWithPersonalInfo.name,
               timestamp: time,
-              valid_at: time
+              valid_at: time,
             )
           event_ = subject.record_to_event(record)
           expect(event_).to eq(source_event)
@@ -104,7 +104,7 @@ module RubyEventStore
               metadata: encrypted_item.metadata,
               event_type: SomeEventWithPersonalInfo.name,
               timestamp: time,
-              valid_at: time
+              valid_at: time,
             )
           key_repository.forget(123)
           event = subject.record_to_event(record)
@@ -112,7 +112,7 @@ module RubyEventStore
             SomeEventWithPersonalInfo.new(
               data: build_data.merge(personal_info: ForgottenData.new),
               metadata: metadata,
-              event_id: event_id
+              event_id: event_id,
             )
           expect(event).to eq(expected_event)
           expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
@@ -129,7 +129,7 @@ module RubyEventStore
               metadata: encrypted_item.metadata,
               event_type: SomeEventWithPersonalInfo.name,
               timestamp: time,
-              valid_at: time
+              valid_at: time,
             )
           key_repository.forget(123)
           key_repository.create(123)
@@ -138,7 +138,7 @@ module RubyEventStore
             SomeEventWithPersonalInfo.new(
               data: build_data.merge(personal_info: ForgottenData.new),
               metadata: metadata,
-              event_id: event_id
+              event_id: event_id,
             )
           expect(event).to eq(expected_event)
           expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
@@ -161,7 +161,7 @@ module RubyEventStore
               metadata: encrypted_item.metadata,
               event_type: SomeEventWithPersonalInfo.name,
               timestamp: time,
-              valid_at: time
+              valid_at: time,
             )
           key_repository.forget(123)
           event = subject.record_to_event(record)
@@ -169,7 +169,7 @@ module RubyEventStore
             SomeEventWithPersonalInfo.new(
               data: build_data.merge(personal_info: forgotten_data),
               metadata: metadata,
-              event_id: event_id
+              event_id: event_id,
             )
           expect(event).to eq(expected_event)
           expect(event.metadata.to_h).to eq(metadata.merge(timestamp: time, valid_at: time))
@@ -203,7 +203,7 @@ module RubyEventStore
               metadata: encrypted_item.metadata,
               event_type: SomeEventWithPersonalInfo.name,
               timestamp: time,
-              valid_at: time
+              valid_at: time,
             )
           event_ = subject.record_to_event(record)
           expect(event_).to eq(event)

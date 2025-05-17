@@ -10,7 +10,7 @@ end
 
 module RubyEventStore
   ::RSpec.describe Event do
-    it_behaves_like 'event', Event
+    it_behaves_like "event", Event
 
     specify "default values" do
       event = Test::TestCreated.new
@@ -158,10 +158,10 @@ module RubyEventStore
       expect(Event.new(event_id: "doh").hash).to eq(Event.new(event_id: "doh").hash)
       expect(Event.new(event_id: "doh").hash).not_to eq(Event.new(event_id: "bye").hash)
       expect(Event.new(event_id: "doh").hash).not_to eq(
-        Event.new(event_id: "doh", metadata: { event_type: "doh" }).hash
+        Event.new(event_id: "doh", metadata: { event_type: "doh" }).hash,
       )
       expect(Class.new(Event).new(event_id: "doh", metadata: { event_type: "doh" }).hash).not_to eq(
-        Event.new(event_id: "doh", metadata: { event_type: "doh" }).hash
+        Event.new(event_id: "doh", metadata: { event_type: "doh" }).hash,
       )
 
       expect(Event.new(event_id: "doh", data: {}).hash).to eq(Event.new(event_id: "doh", data: {}).hash)
@@ -194,9 +194,9 @@ module RubyEventStore
       expect(one).not_to eq(two)
     end
 
-    it_behaves_like 'correlatable',
-                    ->(event_id:, data: {}, metadata: nil) {
+    it_behaves_like "correlatable",
+                    ->(event_id:, data: {}, metadata: nil) do
                       Event.new(event_id: event_id, data: data, metadata: metadata)
-                    }
+                    end
   end
 end

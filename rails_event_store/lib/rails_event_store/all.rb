@@ -5,7 +5,7 @@ require_relative "async_handler_helpers"
 require_relative "link_by_metadata"
 require_relative "after_commit_async_dispatcher"
 require_relative "active_job_scheduler"
-require_relative 'active_job_id_only_scheduler'
+require_relative "active_job_id_only_scheduler"
 require_relative "client"
 require_relative "json_client"
 require_relative "version"

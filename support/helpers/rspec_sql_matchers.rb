@@ -8,9 +8,7 @@ require "active_support/notifications"
   match do
     count = 0
     ActiveSupport::Notifications.subscribed(
-      lambda do |_, _, _, _, payload|
-        count += 1 unless %w[CACHE SCHEMA].include?(payload[:name])
-      end,
+      lambda { |_, _, _, _, payload| count += 1 unless %w[CACHE SCHEMA].include?(payload[:name]) },
       /^sql\./,
       &actual
     )

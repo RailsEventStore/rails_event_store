@@ -7,9 +7,9 @@ module RubyEventStore
   module ROM
     ::RSpec.describe EventRepository do
       helper = SpecHelper.new
-      mk_repository = ->{ EventRepository.new(rom: helper.rom_container, serializer: helper.serializer) }
+      mk_repository = -> { EventRepository.new(rom: helper.rom_container, serializer: helper.serializer) }
 
-      it_behaves_like 'event repository', mk_repository, helper
+      it_behaves_like "event repository", mk_repository, helper
 
       let(:rom_container) { helper.rom_container }
       let(:repository) { mk_repository.call }
@@ -23,7 +23,7 @@ module RubyEventStore
         repository.append_to_stream(
           [event = SRecord.new(event_id: SecureRandom.uuid)],
           Stream.new("stream"),
-          ExpectedVersion.none
+          ExpectedVersion.none,
         )
 
         helper.with_transaction do
@@ -31,7 +31,7 @@ module RubyEventStore
             repository.append_to_stream(
               [SRecord.new(event_id: "9bedf448-e4d0-41a3-a8cd-f94aec7aa763")],
               Stream.new("stream"),
-              ExpectedVersion.none
+              ExpectedVersion.none,
             )
           end.to raise_error(WrongExpectedEventVersion)
           expect(repository.has_event?("9bedf448-e4d0-41a3-a8cd-f94aec7aa763")).to be false
@@ -45,7 +45,7 @@ module RubyEventStore
         repository.append_to_stream(
           [RubyEventStore::SRecord.new, RubyEventStore::SRecord.new],
           RubyEventStore::Stream.new("stream"),
-          RubyEventStore::ExpectedVersion.auto
+          RubyEventStore::ExpectedVersion.auto,
         )
 
         expect { repository.read(specification.limit(2).result) }.to match_query_count(1)

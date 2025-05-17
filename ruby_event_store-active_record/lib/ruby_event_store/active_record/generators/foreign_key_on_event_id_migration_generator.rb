@@ -16,12 +16,12 @@ module RubyEventStore
       def each_migration(database_adapter, &block)
         case database_adapter
         when DatabaseAdapter::PostgreSQL
-          [
-            'add_foreign_key_on_event_id_to_event_store_events_in_streams',
-            'validate_add_foreign_key_on_event_id_to_event_store_events_in_streams'
+          %w[
+            add_foreign_key_on_event_id_to_event_store_events_in_streams
+            validate_add_foreign_key_on_event_id_to_event_store_events_in_streams
           ]
         else
-          ['add_foreign_key_on_event_id_to_event_store_events_in_streams']
+          ["add_foreign_key_on_event_id_to_event_store_events_in_streams"]
         end.each.with_index(&block)
       end
 
@@ -30,7 +30,9 @@ module RubyEventStore
       end
 
       def migration_code(database_adapter, migration_name)
-        migration_template(template_root(database_adapter), migration_name).result_with_hash(migration_version: migration_version)
+        migration_template(template_root(database_adapter), migration_name).result_with_hash(
+          migration_version: migration_version,
+        )
       end
 
       def migration_template(template_root, name)

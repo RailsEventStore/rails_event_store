@@ -8,27 +8,26 @@ module RubyEventStore
     helper = SpecHelper.new
     mk_repository = -> { InMemoryRepository.new }
 
-    it_behaves_like 'event repository', mk_repository, helper
+    it_behaves_like "event repository", mk_repository, helper
 
     let(:repository) { mk_repository.call }
-    
 
     it "does not allow same event twice in a stream - checks stream events before checking all events" do
       repository.append_to_stream(
         [SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
         Stream.new("other"),
-        ExpectedVersion.none
+        ExpectedVersion.none,
       )
       repository.append_to_stream(
         [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
         Stream.new("stream"),
-        ExpectedVersion.none
+        ExpectedVersion.none,
       )
       expect do
         repository.append_to_stream(
           [SRecord.new(event_id: "a1b49edb-7636-416f-874a-88f94b859bef")],
           Stream.new("stream"),
-          ExpectedVersion.new(0)
+          ExpectedVersion.new(0),
         )
       end.to raise_error(EventDuplicatedInStream)
     end
@@ -37,7 +36,7 @@ module RubyEventStore
       repository.append_to_stream(
         [SRecord.new(event_id: eid = "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
         Stream.new("other"),
-        ExpectedVersion.none
+        ExpectedVersion.none,
       )
 
       expect(repository.global_position(eid)).to eq(0)
@@ -47,10 +46,10 @@ module RubyEventStore
       repository.append_to_stream(
         [
           SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a"),
-          SRecord.new(event_id: eid2 = "0b81c542-7fef-47a1-9d81-f45915d74e9b")
+          SRecord.new(event_id: eid2 = "0b81c542-7fef-47a1-9d81-f45915d74e9b"),
         ],
         Stream.new("other"),
-        ExpectedVersion.none
+        ExpectedVersion.none,
       )
 
       expect(repository.global_position(eid2)).to eq(1)
@@ -89,7 +88,7 @@ module RubyEventStore
       repository.append_to_stream([event1 = SRecord.new], Stream.new("other"), ExpectedVersion.auto)
 
       expect { repository.link_to_stream([event1.event_id], Stream.new("stream"), ExpectedVersion.any) }.to raise_error(
-        InMemoryRepository::UnsupportedVersionAnyUsage
+        InMemoryRepository::UnsupportedVersionAnyUsage,
       )
     end
 

@@ -58,9 +58,9 @@ module RubyEventStore
     specify "publish first event, fail if not empty stream" do
       client.append(first_event = TestEvent.new, stream_name: stream, expected_version: :auto)
 
-      expect {
-        client.publish(TestEvent.new, stream_name: stream, expected_version: :none)
-      }.to raise_error(WrongExpectedEventVersion)
+      expect { client.publish(TestEvent.new, stream_name: stream, expected_version: :none) }.to raise_error(
+        WrongExpectedEventVersion,
+      )
       expect(client.read.stream(stream).to_a).to eq([first_event])
     end
 
@@ -76,7 +76,7 @@ module RubyEventStore
       client.append(second_event = TestEvent.new, stream_name: stream, expected_version: :auto)
 
       expect { client.publish(TestEvent.new, stream_name: stream, expected_version: 0) }.to raise_error(
-        WrongExpectedEventVersion
+        WrongExpectedEventVersion,
       )
       expect(client.read.stream(stream).to_a).to eq([first_event, second_event])
     end
@@ -86,7 +86,7 @@ module RubyEventStore
       client.append(
         [first_event = TestEvent.new, second_event = TestEvent.new],
         stream_name: stream,
-        expected_version: -1
+        expected_version: -1,
       )
       expect(client.read.stream(stream).to_a).to eq([first_event, second_event])
     end
@@ -151,7 +151,7 @@ module RubyEventStore
       expect(published[1].metadata[:valid_at]).to be_a Time
       expect(published[1].metadata[:correlation_id]).to eq(correlation_id)
       expect(published[2].metadata.keys).to match_array(
-        %i[timestamp valid_at correlation_id request_ip nested deeply_nested]
+        %i[timestamp valid_at correlation_id request_ip nested deeply_nested],
       )
       expect(published[2].metadata[:request_ip]).to eq("1.2.3.4")
       expect(published[2].metadata[:nested]).to be true
@@ -327,9 +327,10 @@ module RubyEventStore
     specify "link events" do
       client.subscribe_to_all_events(subscriber = Subscribers::ValidHandler.new)
       client.append([first_event = TestEvent.new, second_event = TestEvent.new], stream_name: "stream")
-      client
-        .link([first_event.event_id, second_event.event_id], stream_name: "flow", expected_version: -1)
-        .link([first_event.event_id], stream_name: "cars")
+      client.link([first_event.event_id, second_event.event_id], stream_name: "flow", expected_version: -1).link(
+        [first_event.event_id],
+        stream_name: "cars",
+      )
 
       expect(client.read.stream("flow").to_a).to eq([first_event, second_event])
       expect(client.read.stream("cars").to_a).to eq([first_event])
@@ -399,11 +400,9 @@ module RubyEventStore
         client.publish(event, stream_name: "stream_name")
       end
 
-      expect { client.read.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(
-        EventNotFound
-      )
+      expect { client.read.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(EventNotFound)
       expect { client.read.backward.stream("stream_name").from(SecureRandom.uuid).limit(100).to_a }.to raise_error(
-        EventNotFound
+        EventNotFound,
       )
     end
 
@@ -449,10 +448,10 @@ module RubyEventStore
 
     specify "raise exception if stream name is incorrect" do
       expect { client.append(OrderCreated.new, stream_name: nil, expected_version: -1) }.to raise_error(
-        IncorrectStreamData
+        IncorrectStreamData,
       )
       expect { client.append(OrderCreated.new, stream_name: "", expected_version: -1) }.to raise_error(
-        IncorrectStreamData
+        IncorrectStreamData,
       )
     end
 
@@ -536,7 +535,7 @@ module RubyEventStore
       client.publish(OrderCreated.new(data: { order_id: 123 }), stream_name: "order_1")
       client.publish(
         OrderCreated.new(event_id: uid = SecureRandom.uuid, data: { order_id: 234 }),
-        stream_name: "order_2"
+        stream_name: "order_2",
       )
       client.publish(OrderCreated.new(data: { order_id: 345 }), stream_name: "order_3")
       response = client.read.backward.from(uid).limit(1).to_a
@@ -564,7 +563,7 @@ module RubyEventStore
     specify "create successfully event" do
       client.append(
         event = OrderCreated.new(event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"),
-        stream_name: "stream_name"
+        stream_name: "stream_name",
       )
       saved_events = client.read.stream("stream_name").to_a
 
@@ -581,17 +580,21 @@ module RubyEventStore
     specify "raise exception if expected version incorrect" do
       client.append(event = OrderCreated.new, stream_name: "stream_name", expected_version: :auto)
       expect { client.publish(event, stream_name: "stream_name", expected_version: 100) }.to raise_error(
-        WrongExpectedEventVersion
+        WrongExpectedEventVersion,
       )
     end
 
     specify "create event with optimistic locking" do
       expect do
-        client.append(OrderCreated.new(event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"), stream_name: "stream_name", expected_version: :auto)
+        client.append(
+          OrderCreated.new(event_id: "b2d506fd-409d-4ec7-b02f-c6d2295c7edd"),
+          stream_name: "stream_name",
+          expected_version: :auto,
+        )
         client.append(
           OrderCreated.new(event_id: "724dd49d-6e20-40e6-bc32-ed75258f886b"),
           stream_name: "stream_name",
-          expected_version: 0
+          expected_version: 0,
         )
       end.not_to raise_error
     end
@@ -635,7 +638,7 @@ module RubyEventStore
 
     specify "append fail if expected version is nil" do
       expect { client.append(OrderCreated.new, stream_name: "stream", expected_version: nil) }.to raise_error(
-        InvalidExpectedVersion
+        InvalidExpectedVersion,
       )
     end
 
@@ -643,26 +646,20 @@ module RubyEventStore
       client.append(event = OrderCreated.new, stream_name: "stream", expected_version: :any)
 
       expect { client.link(event.event_id, stream_name: "stream", expected_version: nil) }.to raise_error(
-        InvalidExpectedVersion
+        InvalidExpectedVersion,
       )
     end
 
     specify "global stream is unordered, one cannot expect specific version number to work" do
-      expect { client.append(OrderCreated.new, expected_version: 42) }.to raise_error(
-        InvalidExpectedVersion
-      )
+      expect { client.append(OrderCreated.new, expected_version: 42) }.to raise_error(InvalidExpectedVersion)
     end
 
     specify "global stream is unordered, one cannot expect :none to work" do
-      expect { client.append(OrderCreated.new, expected_version: :none) }.to raise_error(
-        InvalidExpectedVersion
-      )
+      expect { client.append(OrderCreated.new, expected_version: :none) }.to raise_error(InvalidExpectedVersion)
     end
 
     specify "global stream is unordered, one cannot expect :auto to work" do
-      expect { client.append(OrderCreated.new, expected_version: :auto) }.to raise_error(
-        InvalidExpectedVersion
-      )
+      expect { client.append(OrderCreated.new, expected_version: :auto) }.to raise_error(InvalidExpectedVersion)
     end
 
     specify "only :none, :any, :auto and Integer allowed as expected_version" do
@@ -671,7 +668,7 @@ module RubyEventStore
           client.append(
             OrderCreated.new(event_id: SecureRandom.uuid),
             stream_name: "some_stream",
-            expected_version: invalid_expected_version
+            expected_version: invalid_expected_version,
           )
         end.to raise_error(InvalidExpectedVersion)
       end
@@ -682,7 +679,7 @@ module RubyEventStore
         client.append(
           OrderCreated.new(event_id: evid = SecureRandom.uuid),
           stream_name: SecureRandom.uuid,
-          expected_version: :none
+          expected_version: :none,
         )
         expect do
           client.link(evid, stream_name: SecureRandom.uuid, expected_version: invalid_expected_version)
@@ -702,20 +699,20 @@ module RubyEventStore
           OrderCreated.new(
             event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
             data: {
-              foo: "bar"
+              foo: "bar",
             },
             metadata: {
-              bar: "baz"
-            }
+              bar: "baz",
+            },
           ),
           timestamp: Time.utc(2019, 9, 30),
-          valid_at: Time.utc(2019, 9, 30)
+          valid_at: Time.utc(2019, 9, 30),
         )
       payload = {
         event_type: "OrderCreated",
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         data: "---\n:foo: bar\n",
-        metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n:bar: baz\n"
+        metadata: "---\n:timestamp: 2019-09-30 00:00:00.000000000 Z\n:bar: baz\n",
       }
       expect(client.deserialize(serializer: Serializers::YAML, **payload)).to eq(event)
     end
@@ -727,40 +724,39 @@ module RubyEventStore
           OrderCreated.new(
             event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
             data: {
-              "foo" => "bar"
+              "foo" => "bar",
             },
             metadata: {
-              bar: "baz"
-            }
+              bar: "baz",
+            },
           ),
           timestamp: Time.utc(2019, 9, 30),
-          valid_at: Time.utc(2019, 9, 30)
+          valid_at: Time.utc(2019, 9, 30),
         )
       payload = {
         event_type: "OrderCreated",
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
         data: "{\"foo\":\"bar\"}",
-        metadata: "{\"bar\":\"baz\",\"timestamp\":\"2019-09-30 00:00:00 UTC\"}"
+        metadata: "{\"bar\":\"baz\",\"timestamp\":\"2019-09-30 00:00:00 UTC\"}",
       }
       expect(client.deserialize(serializer: JSON, **payload)).to eq(event)
     end
 
     specify "can load serialized event when using Default mapper" do
-      client =
-        Client.new
+      client = Client.new
       event =
         TimeEnrichment.with(
           OrderCreated.new(
             event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
             data: {
-              foo: "bar"
+              foo: "bar",
             },
             metadata: {
-              bar: "baz"
-            }
+              bar: "baz",
+            },
           ),
           timestamp: Time.utc(2019, 9, 30),
-          valid_at: Time.utc(2019, 9, 30)
+          valid_at: Time.utc(2019, 9, 30),
         )
       payload = {
         event_type: "OrderCreated",
@@ -768,7 +764,7 @@ module RubyEventStore
         data: "---\n:foo: bar\n",
         metadata: "---\n:bar: baz\n",
         timestamp: "2019-09-30T00:00:00.000000Z",
-        valid_at: "2019-09-30T00:00:00.000000Z"
+        valid_at: "2019-09-30T00:00:00.000000Z",
       }
       expect(client.deserialize(serializer: YAML, **payload)).to eq(event)
     end
@@ -785,7 +781,7 @@ module RubyEventStore
         client = Client.new
         client.publish(
           old = OrderCreated.new(event_id: SecureRandom.uuid, data: { customer_id: 44 }),
-          stream_name: "some_stream"
+          stream_name: "some_stream",
         )
         old.data[:amount] = 12
         old.metadata[:server] = "eu-west"
@@ -803,7 +799,7 @@ module RubyEventStore
         client.publish(
           old =
             OrderCreated.new(event_id: SecureRandom.uuid, data: { customer_id: 44 }, metadata: { server: "eu-west" }),
-          stream_name: "some_stream"
+          stream_name: "some_stream",
         )
         client.overwrite([ProductAdded.new(event_id: old.event_id, data: old.data, metadata: old.metadata)])
 
@@ -860,8 +856,7 @@ module RubyEventStore
             end
           end
 
-        client =
-          Client.new(event_type_resolver: ->(klass) { klass.event_type })
+        client = Client.new(event_type_resolver: ->(klass) { klass.event_type })
         client.subscribe(handler = Proc.new {}, to: [event_klass])
 
         expect(client.subscribers_for(event_klass)).to eq [handler]
@@ -880,10 +875,11 @@ module RubyEventStore
       client =
         Client.new(
           repository: InMemoryRepository.new(serializer: serializer),
-          dispatcher:
-            ImmediateAsyncDispatcher.new(
-              scheduler: ScheduledWithSerialization.new(serializer: serializer)
-            )
+          message_broker:
+            Broker.new(
+              dispatcher:
+                ImmediateAsyncDispatcher.new(scheduler: ScheduledWithSerialization.new(serializer: serializer)),
+            ),
         )
       uuid = SecureRandom.uuid
       client.subscribe(to: [OrderCreated]) do |event|
@@ -902,10 +898,11 @@ module RubyEventStore
       client =
         Client.new(
           repository: InMemoryRepository.new(serializer: serializer_1),
-          dispatcher:
-            ImmediateAsyncDispatcher.new(
-              scheduler: ScheduledWithSerialization.new(serializer: serializer_2)
-            )
+          message_broker:
+            Broker.new(
+              dispatcher:
+                ImmediateAsyncDispatcher.new(scheduler: ScheduledWithSerialization.new(serializer: serializer_2)),
+            ),
         )
       uuid = SecureRandom.uuid
       client.subscribe(to: [OrderCreated]) do |event|
@@ -917,17 +914,19 @@ module RubyEventStore
 
     specify "publishing with custom event class where type is not derived from class name" do
       listener =
-        Class.new do
-          def initialize
-            @queue = Queue.new
+        Class
+          .new do
+            def initialize
+              @queue = Queue.new
+            end
+            def call(event)
+              @queue.push(event)
+            end
+            def value
+              Timeout.timeout(1, RuntimeError, "did not receive an event") { @queue.pop }
+            end
           end
-          def call(event)
-            @queue.push(event)
-          end
-          def value
-            Timeout.timeout(1, RuntimeError, "did not receive an event") { @queue.pop }
-          end
-        end.new
+          .new
 
       event_klass =
         Class.new do

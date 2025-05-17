@@ -7,20 +7,42 @@ module RubyEventStore
     def initialize(
       repository: InMemoryRepository.new,
       mapper: Mappers::Default.new,
-      subscriptions: Subscriptions.new,
-      dispatcher: Dispatcher.new,
+      subscriptions: nil,
+      dispatcher: nil,
+      message_broker: nil,
       clock: default_clock,
       correlation_id_generator: default_correlation_id_generator,
       event_type_resolver: EventTypeResolver.new
     )
       @repository = repository
       @mapper = mapper
-      @subscriptions = subscriptions
-      @broker = Broker.new(subscriptions: subscriptions, dispatcher: dispatcher)
+      @broker =
+        message_broker ||
+          Broker.new(subscriptions: subscriptions || Subscriptions.new, dispatcher: dispatcher || Dispatcher.new)
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
       @event_type_resolver = event_type_resolver
+
+      if (subscriptions || dispatcher)
+        warn <<~EOW
+          Passing subscriptions and dispatcher to #{self.class} has been deprecated.
+
+          Pass it using message_broker argument. For example:
+
+          event_store = RubyEventStore::Client.new(
+            message_broker: RubyEventStore::Broker.new(
+              subscriptions: RubyEventStore::Subscriptions.new,
+              dispatcher: RubyEventStore::Dispatcher.new
+            )
+          )
+        EOW
+        warn <<~EOW if (message_broker)
+
+            Because message_broker has been provided,
+            arguments passed by subscriptions or dispatcher will be ignored.
+          EOW
+      end
     end
 
     # Persists events and notifies subscribed handlers about them
@@ -49,7 +71,7 @@ module RubyEventStore
       append_records_to_stream(
         transform(enrich_events_metadata(events)),
         stream_name: stream_name,
-        expected_version: expected_version
+        expected_version: expected_version,
       )
       self
     end
@@ -167,7 +189,7 @@ module RubyEventStore
     # @param to [Class, String] type of events to get list of sybscribed handlers
     # @return [Array<Object, Class>]
     def subscribers_for(event_class)
-      subscriptions.all_for(event_type_resolver.call(event_class))
+      broker.all_subscriptions_for(event_type_resolver.call(event_class))
     end
 
     # Builder object for collecting temporary handlers (subscribers)
@@ -231,6 +253,7 @@ module RubyEventStore
       end
 
       private
+
       attr_reader :resolver
 
       def add_thread_subscribers
@@ -274,16 +297,14 @@ module RubyEventStore
       extract_timestamp = lambda { |m| (m[:timestamp] || Time.parse(m.fetch("timestamp"))).iso8601 }
 
       mapper.record_to_event(
-        SerializedRecord
-          .new(
-            event_type: event_type,
-            event_id: event_id,
-            data: data,
-            metadata: metadata,
-            timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
-            valid_at: valid_at || timestamp_
-          )
-          .deserialize(serializer)
+        SerializedRecord.new(
+          event_type: event_type,
+          event_id: event_id,
+          data: data,
+          metadata: metadata,
+          timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
+          valid_at: valid_at || timestamp_,
+        ).deserialize(serializer),
       )
     end
 
@@ -373,6 +394,6 @@ module RubyEventStore
       -> { SecureRandom.uuid }
     end
 
-    attr_reader :repository, :mapper, :subscriptions, :broker, :clock, :correlation_id_generator, :event_type_resolver
+    attr_reader :repository, :mapper, :broker, :clock, :correlation_id_generator, :event_type_resolver
   end
 end

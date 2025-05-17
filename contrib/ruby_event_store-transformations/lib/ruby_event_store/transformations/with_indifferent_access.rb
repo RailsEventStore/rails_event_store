@@ -14,7 +14,7 @@ module RubyEventStore
           data: record.data.deep_symbolize_keys,
           event_type: record.event_type,
           timestamp: record.timestamp,
-          valid_at: record.valid_at
+          valid_at: record.valid_at,
         )
       end
 
@@ -25,7 +25,7 @@ module RubyEventStore
           data: HashWithIndifferentAccess.new(record.data),
           event_type: record.event_type,
           timestamp: record.timestamp,
-          valid_at: record.valid_at
+          valid_at: record.valid_at,
         )
       end
     end

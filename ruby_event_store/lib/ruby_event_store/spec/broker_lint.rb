@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples 'broker' do |broker_klass|
+RSpec.shared_examples "broker" do |broker_klass|
   let(:event) { instance_double(::RubyEventStore::Event, event_type: "EventType") }
   let(:record) { instance_double(::RubyEventStore::Record) }
   let(:handler) { HandlerClass.new }
@@ -36,7 +36,7 @@ RSpec.shared_examples 'broker' do |broker_klass|
   specify "raise error when no subscriber" do
     expect { broker.add_subscription(nil, []) }.to raise_error(
       RubyEventStore::SubscriberNotExist,
-      "subscriber must be first argument or block"
+      "subscriber must be first argument or block",
     )
     expect { broker.add_global_subscription(nil) }.to raise_error(RubyEventStore::SubscriberNotExist),
     "subscriber must be first argument or block"
@@ -50,19 +50,19 @@ RSpec.shared_examples 'broker' do |broker_klass|
     allow(dispatcher).to receive(:verify).and_return(false)
     expect { broker.add_subscription(HandlerClass, []) }.to raise_error(
       RubyEventStore::InvalidHandler,
-      /Handler HandlerClass is invalid for dispatcher .*Dispatcher/
+      /Handler HandlerClass is invalid for dispatcher .*Dispatcher/,
     )
     expect { broker.add_global_subscription(HandlerClass) }.to raise_error(
       RubyEventStore::InvalidHandler,
-      /is invalid for dispatcher/
+      /is invalid for dispatcher/,
     )
     expect { broker.add_thread_subscription(HandlerClass, []) }.to raise_error(
       RubyEventStore::InvalidHandler,
-      /is invalid for dispatcher/
+      /is invalid for dispatcher/,
     )
     expect { broker.add_thread_global_subscription(HandlerClass) }.to raise_error(
       RubyEventStore::InvalidHandler,
-      /is invalid for dispatcher/
+      /is invalid for dispatcher/,
     )
   end
 
@@ -88,6 +88,17 @@ RSpec.shared_examples 'broker' do |broker_klass|
     expect(dispatcher).to receive(:verify).with(handler).and_return(true)
     expect(subscriptions).to receive(:add_thread_global_subscription).with(handler)
     broker.add_thread_global_subscription(handler)
+  end
+
+  specify "all_subscriptions_for" do
+    handler = Subscribers::ValidHandler.new
+    broker.add_subscription(handler, ["ProductAdded"])
+    block = Proc.new { "Event published!" }
+    broker.add_subscription(block, ["OrderCreated"])
+
+    expect(broker.all_subscriptions_for("ProductAdded")).to eq [handler]
+    expect(broker.all_subscriptions_for("OrderCreated")).to eq [block]
+    expect(broker.all_subscriptions_for("NotExistingOne")).to eq []
   end
 
   private

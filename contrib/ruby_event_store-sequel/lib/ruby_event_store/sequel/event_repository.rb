@@ -27,14 +27,14 @@ module RubyEventStore
               data: serialized_record.data,
               metadata: serialized_record.metadata,
               created_at: record.timestamp,
-              valid_at: optimize_timestamp(record.valid_at, record.timestamp)
+              valid_at: optimize_timestamp(record.valid_at, record.timestamp),
             )
             unless stream.global?
               @db[:event_store_events_in_streams].insert(
                 event_id: serialized_record.event_id,
                 stream: stream.name,
                 created_at: Time.now.utc,
-                position: resolved_version ? resolved_version + index + 1 : nil
+                position: resolved_version ? resolved_version + index + 1 : nil,
               )
             end
           end
@@ -62,7 +62,7 @@ module RubyEventStore
               event_id: event_id,
               stream: stream.name,
               created_at: Time.now.utc,
-              position: resolved_version ? resolved_version + index + 1 : nil
+              position: resolved_version ? resolved_version + index + 1 : nil,
             )
           end
         end
@@ -78,7 +78,7 @@ module RubyEventStore
             .select(::Sequel[:event_store_events_in_streams][:position])
             .where(
               ::Sequel[:event_store_events_in_streams][:event_id] => event_id,
-              ::Sequel[:event_store_events_in_streams][:stream] => stream.name
+              ::Sequel[:event_store_events_in_streams][:stream] => stream.name,
             )
             .first
         raise EventNotFoundInStream.new if record.nil?
@@ -86,9 +86,11 @@ module RubyEventStore
       end
 
       def global_position(event_id)
-        record = @db[:event_store_events]
-                    .select(::Sequel[:event_store_events][:id])
-                   .where(::Sequel[:event_store_events][:event_id] => event_id).first
+        record =
+          @db[:event_store_events]
+            .select(::Sequel[:event_store_events][:id])
+            .where(::Sequel[:event_store_events][:event_id] => event_id)
+            .first
         raise EventNotFound.new(event_id) if record.nil?
         record[:id] - 1
       end
@@ -109,16 +111,14 @@ module RubyEventStore
         row = @db[:event_store_events_in_streams].where(stream: stream.name).order(:position, :id).last
         return row if row.nil?
         event = @db[:event_store_events].where(event_id: row[:event_id]).first
-        SerializedRecord
-          .new(
-            event_id: event[:event_id],
-            event_type: event[:event_type],
-            data: event[:data],
-            metadata: event[:metadata],
-            timestamp: event[:created_at].iso8601(TIMESTAMP_PRECISION),
-            valid_at: (event[:valid_at] || event[:created_at]).iso8601(TIMESTAMP_PRECISION)
-          )
-          .deserialize(@serializer)
+        SerializedRecord.new(
+          event_id: event[:event_id],
+          event_type: event[:event_type],
+          data: event[:data],
+          metadata: event[:metadata],
+          timestamp: event[:created_at].iso8601(TIMESTAMP_PRECISION),
+          valid_at: (event[:valid_at] || event[:created_at]).iso8601(TIMESTAMP_PRECISION),
+        ).deserialize(@serializer)
       end
 
       def read(specification)
@@ -179,16 +179,14 @@ module RubyEventStore
       end
 
       def record(h)
-        SerializedRecord
-          .new(
-            event_id: h[:event_id],
-            event_type: h[:event_type],
-            data: h[:data],
-            metadata: h[:metadata],
-            timestamp: h[:created_at].iso8601(TIMESTAMP_PRECISION),
-            valid_at: (h[:valid_at].nil? ? h[:created_at] : h[:valid_at]).iso8601(TIMESTAMP_PRECISION)
-          )
-          .deserialize(@serializer)
+        SerializedRecord.new(
+          event_id: h[:event_id],
+          event_type: h[:event_type],
+          data: h[:data],
+          metadata: h[:metadata],
+          timestamp: h[:created_at].iso8601(TIMESTAMP_PRECISION),
+          valid_at: (h[:valid_at].nil? ? h[:created_at] : h[:valid_at]).iso8601(TIMESTAMP_PRECISION),
+        ).deserialize(@serializer)
       end
 
       def read_(specification)
@@ -205,7 +203,7 @@ module RubyEventStore
               .order(:position)
               .last
               &.fetch(:position)
-          end
+          end,
         )
       end
 
@@ -219,24 +217,29 @@ module RubyEventStore
               :data,
               :metadata,
               ::Sequel[:event_store_events][:created_at],
-              :valid_at
+              :valid_at,
             )
             .where(stream: specification.stream.name)
             .order(::Sequel[:event_store_events_in_streams][:id])
 
         dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
-        dataset = dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids) if specification
-          .with_ids?
+        dataset =
+          dataset.where(::Sequel[:event_store_events][:event_id] => specification.with_ids) if specification.with_ids?
 
         if specification.start
           condition = "event_store_events_in_streams.id #{specification.forward? ? ">" : "<"} ?"
           dataset =
-            dataset.where(::Sequel.lit(condition, find_event_id_in_stream(specification.start, specification.stream.name)))
+            dataset.where(
+              ::Sequel.lit(condition, find_event_id_in_stream(specification.start, specification.stream.name)),
+            )
         end
 
         if specification.stop
           condition = "event_store_events_in_streams.id #{specification.forward? ? "<" : ">"} ?"
-          dataset = dataset.where(::Sequel.lit(condition, find_event_id_in_stream(specification.stop, specification.stream.name)))
+          dataset =
+            dataset.where(
+              ::Sequel.lit(condition, find_event_id_in_stream(specification.stop, specification.stream.name)),
+            )
         end
 
         if specification.older_than
@@ -246,7 +249,7 @@ module RubyEventStore
         if specification.older_than_or_equal
           dataset =
             dataset.where(
-              ::Sequel.lit("#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal)
+              ::Sequel.lit("#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal),
             )
         end
 
@@ -257,7 +260,7 @@ module RubyEventStore
         if specification.newer_than_or_equal
           dataset =
             dataset.where(
-              ::Sequel.lit("#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal)
+              ::Sequel.lit("#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal),
             )
         end
 
@@ -270,20 +273,18 @@ module RubyEventStore
       end
 
       def find_event_id_in_stream(specification_event_id, specification_stream_name)
-        event = @db[:event_store_events_in_streams]
-          .select(:id)
-          .where(event_id: specification_event_id, stream: specification_stream_name)
-          .first
+        event =
+          @db[:event_store_events_in_streams]
+            .select(:id)
+            .where(event_id: specification_event_id, stream: specification_stream_name)
+            .first
         raise EventNotFound.new(specification_event_id) unless event
 
         event[:id]
       end
 
       def find_event_id_globally(specification_event_id)
-        event = @db[:event_store_events]
-                  .select(:id)
-                  .where(event_id: specification_event_id)
-                  .first
+        event = @db[:event_store_events].select(:id).where(event_id: specification_event_id).first
         raise EventNotFound.new(specification_event_id) unless event
 
         event[:id]
@@ -291,16 +292,14 @@ module RubyEventStore
 
       def read_from_global_stream(specification)
         dataset =
-          @db[:event_store_events]
-            .select(
-              ::Sequel[:event_store_events][:event_id],
-              ::Sequel[:event_store_events][:event_type],
-              ::Sequel[:event_store_events][:data],
-              ::Sequel[:event_store_events][:metadata],
-              ::Sequel[:event_store_events][:created_at],
-              ::Sequel[:event_store_events][:valid_at]
-            )
-            .order(:id)
+          @db[:event_store_events].select(
+            ::Sequel[:event_store_events][:event_id],
+            ::Sequel[:event_store_events][:event_type],
+            ::Sequel[:event_store_events][:data],
+            ::Sequel[:event_store_events][:metadata],
+            ::Sequel[:event_store_events][:created_at],
+            ::Sequel[:event_store_events][:valid_at],
+          ).order(:id)
 
         dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
         dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
@@ -326,7 +325,7 @@ module RubyEventStore
         if specification.older_than_or_equal
           dataset =
             dataset.where(
-              ::Sequel.lit("#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal)
+              ::Sequel.lit("#{time_comparison_field(specification)} <= ?", specification.older_than_or_equal),
             )
         end
 
@@ -337,7 +336,7 @@ module RubyEventStore
         if specification.newer_than_or_equal
           dataset =
             dataset.where(
-              ::Sequel.lit("#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal)
+              ::Sequel.lit("#{time_comparison_field(specification)} >= ?", specification.newer_than_or_equal),
             )
         end
 
@@ -364,7 +363,7 @@ module RubyEventStore
           data: serialized_record.data,
           metadata: serialized_record.metadata,
           event_type: serialized_record.event_type,
-          valid_at: optimize_timestamp(record.valid_at, record.timestamp)
+          valid_at: optimize_timestamp(record.valid_at, record.timestamp),
         }
       end
 
@@ -381,12 +380,10 @@ module RubyEventStore
       end
 
       def commit_insert_conflict_update(hashes)
-        @db[:event_store_events]
-          .insert_conflict(
-            target: :event_id,
-            update: UPSERT_COLUMNS.each_with_object({}) { |column, memo| memo[column] = ::Sequel[:excluded][column] }
-          )
-          .multi_insert(hashes)
+        @db[:event_store_events].insert_conflict(
+          target: :event_id,
+          update: UPSERT_COLUMNS.each_with_object({}) { |column, memo| memo[column] = ::Sequel[:excluded][column] },
+        ).multi_insert(hashes)
       end
     end
   end

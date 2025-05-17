@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'delegate'
+require "delegate"
 module AggregateRoot
   class InstrumentedRepository
     def initialize(repository, instrumentation)
@@ -21,7 +21,7 @@ module AggregateRoot
         aggregate: aggregate,
         version: aggregate.version,
         stored_events: aggregate.unpublished_events.to_a,
-        stream: stream_name
+        stream: stream_name,
       ) { repository.store(aggregate, stream_name) }
     end
 

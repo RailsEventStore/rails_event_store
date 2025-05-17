@@ -36,7 +36,7 @@ module RubyEventStore
 
         def newer_than(time, time_sort_by)
           if time_sort_by == :as_of
-            join_events.where { |r| string::coalesce(r.events[:valid_at], r.events[:created_at]) > time.localtime }
+            join_events.where { |r| string.coalesce(r.events[:valid_at], r.events[:created_at]) > time.localtime }
           else
             join_events.where { |r| r.events[:created_at] > time.localtime }
           end
@@ -44,7 +44,7 @@ module RubyEventStore
 
         def newer_than_or_equal(time, time_sort_by)
           if time_sort_by == :as_of
-            join_events.where { |r| string::coalesce(r.events[:valid_at], r.events[:created_at]) >= time.localtime }
+            join_events.where { |r| string.coalesce(r.events[:valid_at], r.events[:created_at]) >= time.localtime }
           else
             join_events.where { |r| r.events[:created_at] >= time.localtime }
           end
@@ -52,7 +52,7 @@ module RubyEventStore
 
         def older_than(time, time_sort_by)
           if time_sort_by == :as_of
-            join_events.where { |r| string::coalesce(r.events[:valid_at], r.events[:created_at]) < time.localtime }
+            join_events.where { |r| string.coalesce(r.events[:valid_at], r.events[:created_at]) < time.localtime }
           else
             join_events.where { |r| r.events[:created_at] < time.localtime }
           end
@@ -60,7 +60,7 @@ module RubyEventStore
 
         def older_than_or_equal(time, time_sort_by)
           if time_sort_by == :as_of
-            join_events.where { |r| string::coalesce(r.events[:valid_at], r.events[:created_at]) <= time.localtime }
+            join_events.where { |r| string.coalesce(r.events[:valid_at], r.events[:created_at]) <= time.localtime }
           else
             join_events.where { |r| r.events[:created_at] <= time.localtime }
           end

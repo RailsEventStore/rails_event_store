@@ -34,20 +34,19 @@ module RubyEventStore
         metadata: metadata,
         event_type: event_type,
         timestamp: timestamp,
-        valid_at: valid_at
+        valid_at: valid_at,
       }
     end
 
     def serialize(serializer)
-      @serialized_records[serializer] ||=
-        SerializedRecord.new(
-          event_id: event_id,
-          event_type: event_type,
-          data: serializer.dump(data),
-          metadata: serializer.dump(metadata),
-          timestamp: timestamp.iso8601(TIMESTAMP_PRECISION),
-          valid_at: valid_at.iso8601(TIMESTAMP_PRECISION)
-        )
+      @serialized_records[serializer] ||= SerializedRecord.new(
+        event_id: event_id,
+        event_type: event_type,
+        data: serializer.dump(data),
+        metadata: serializer.dump(metadata),
+        timestamp: timestamp.iso8601(TIMESTAMP_PRECISION),
+        valid_at: valid_at.iso8601(TIMESTAMP_PRECISION),
+      )
     end
 
     alias_method :eql?, :==

@@ -12,7 +12,7 @@ module RubyEventStore
           metadata: hash,
           event_type: "does-not-matter",
           timestamp: time,
-          valid_at: time
+          valid_at: time,
         )
       end
 
@@ -53,9 +53,9 @@ module RubyEventStore
               array: [1, 2, 3, ActiveSupport::HashWithIndifferentAccess.new({ some: "hash" })],
               hash:
                 ActiveSupport::HashWithIndifferentAccess.new(
-                  { nested: ActiveSupport::HashWithIndifferentAccess.new({ any: "value" }), meh: 3 }
-                )
-            }
+                  { nested: ActiveSupport::HashWithIndifferentAccess.new({ any: "value" }), meh: 3 },
+                ),
+            },
           )
         result = WithIndifferentAccess.new.dump(record(hash, time))
 
@@ -84,10 +84,10 @@ module RubyEventStore
           "array" => [1, 2, 3, { "some" => "hash" }],
           "hash" => {
             "nested" => {
-              "any" => "value"
+              "any" => "value",
             },
-            "meh" => 3
-          }
+            "meh" => 3,
+          },
         }
         result = WithIndifferentAccess.new.dump(record(hash, time))
 

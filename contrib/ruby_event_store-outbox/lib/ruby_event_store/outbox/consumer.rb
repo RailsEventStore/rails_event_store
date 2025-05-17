@@ -44,14 +44,17 @@ module RubyEventStore
       end
 
       def handle_split(fetch_specification)
-        repository.with_next_batch(fetch_specification, tempo.batch_size, consumer_uuid, locking, @clock) do |record|
-          now = @clock.now.utc
-          processor.process(record, now)
-          repository.mark_as_enqueued(record, now)
-        end.tap do
-          cleanup(fetch_specification)
-          processor.after_batch
-        end.success_count > 0
+        repository
+          .with_next_batch(fetch_specification, tempo.batch_size, consumer_uuid, locking, @clock) do |record|
+            now = @clock.now.utc
+            processor.process(record, now)
+            repository.mark_as_enqueued(record, now)
+          end
+          .tap do
+            cleanup(fetch_specification)
+            processor.after_batch
+          end
+          .success_count > 0
       end
 
       private

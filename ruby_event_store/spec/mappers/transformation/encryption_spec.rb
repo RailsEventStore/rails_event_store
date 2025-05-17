@@ -12,13 +12,13 @@ module RubyEventStore
             sender: {
               name: ->(data) { data.dig(:sender, :user_id) },
               email: ->(data) { data.dig(:sender, :user_id) },
-              twitter: ->(data) { data.dig(:sender, :user_id) }
+              twitter: ->(data) { data.dig(:sender, :user_id) },
             },
             recipient: {
               name: ->(data) { data.dig(:recipient, :user_id) },
               email: ->(data) { data.dig(:recipient, :user_id) },
-              twitter: ->(data) { data.dig(:sender, :user_id) }
-            }
+              twitter: ->(data) { data.dig(:sender, :user_id) },
+            },
           }
         end
       end
@@ -63,7 +63,7 @@ module RubyEventStore
             metadata: metadata,
             event_type: "RubyEventStore::Mappers::TicketTransferred",
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         end
 
@@ -71,12 +71,12 @@ module RubyEventStore
           Record.new(
             event_id: event_id,
             data: {
-              ticket_id: ticket_id
+              ticket_id: ticket_id,
             },
             metadata: metadata,
             event_type: "RubyEventStore::Mappers::TicketCancelled",
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         end
 
@@ -132,10 +132,10 @@ module RubyEventStore
                 user_id: sender_id,
                 name: ForgottenData::FORGOTTEN_DATA,
                 email: ForgottenData::FORGOTTEN_DATA,
-                twitter: ForgottenData::FORGOTTEN_DATA
+                twitter: ForgottenData::FORGOTTEN_DATA,
               },
-              recipient: recipient
-            }
+              recipient: recipient,
+            },
           )
           expect(event.metadata).to eq(metadata)
         end
@@ -157,10 +157,10 @@ module RubyEventStore
                 user_id: sender_id,
                 name: ForgottenData::FORGOTTEN_DATA,
                 email: ForgottenData::FORGOTTEN_DATA,
-                twitter: ForgottenData::FORGOTTEN_DATA
+                twitter: ForgottenData::FORGOTTEN_DATA,
               },
-              recipient: recipient
-            }
+              recipient: recipient,
+            },
           )
           expect(event.metadata).to eq(metadata)
         end
@@ -181,7 +181,7 @@ module RubyEventStore
         specify "raises error on encryption with missing encryption key" do
           expect { encrypt(ticket_transferred) }.to raise_error(
             Encryption::MissingEncryptionKey,
-            "Could not find encryption key for '#{sender_id}'"
+            "Could not find encryption key for '#{sender_id}'",
           )
         end
 
@@ -222,13 +222,13 @@ module RubyEventStore
                 data: {
                   ticket_id: ticket_id,
                   sender: sender,
-                  recipient: sender
+                  recipient: sender,
                 },
                 metadata: metadata,
                 event_type: "RubyEventStore::Mappers::TicketTransferred",
                 timestamp: time,
-                valid_at: time
-              )
+                valid_at: time,
+              ),
             )
           data = record.data
 
@@ -247,14 +247,14 @@ module RubyEventStore
                   data: {
                     ticket_id: ticket_id,
                     user_id: sender_id,
-                    email: sender_email
+                    email: sender_email,
                   },
                   metadata: metadata,
                   event_type: "RubyEventStore::Mappers::TicketHolderEmailProvided",
                   timestamp: time,
-                  valid_at: time
-                )
-              )
+                  valid_at: time,
+                ),
+              ),
             )
 
           expect(event.event_id).to eq(event_id)
@@ -273,14 +273,14 @@ module RubyEventStore
                   data: {
                     ticket_id: ticket_id,
                     user_id: sender_id,
-                    email: [sender_email]
+                    email: [sender_email],
                   },
                   metadata: metadata,
                   event_type: "RubyEventStore::Mappers::TicketHolderEmailProvided",
                   timestamp: time,
-                  valid_at: time
-                )
-              )
+                  valid_at: time,
+                ),
+              ),
             )
 
           expect(event.event_id).to eq(event_id)
@@ -298,14 +298,14 @@ module RubyEventStore
                   event_id: event_id,
                   data: {
                     user_id: owner_id,
-                    balance: BigDecimal(42)
+                    balance: BigDecimal(42),
                   },
                   metadata: metadata,
                   event_type: "RubyEventStore::Mappers::BalanceChanged",
                   timestamp: time,
-                  valid_at: time
-                )
-              )
+                  valid_at: time,
+                ),
+              ),
             )
 
           expect(event.event_id).to eq(event_id)
@@ -323,13 +323,13 @@ module RubyEventStore
                 data: {
                   ticket_id: ticket_id,
                   user_id: sender_id,
-                  email: nil
+                  email: nil,
                 },
                 metadata: metadata,
                 event_type: "RubyEventStore::Mappers::TicketHolderEmailProvided",
                 timestamp: time,
-                valid_at: time
-              )
+                valid_at: time,
+              ),
             )
           event = decrypt(record)
 

@@ -95,16 +95,12 @@ module RubyEventStore
 
     it "raises error when no valid method on thread handler" do
       subscriber = InvalidTestHandler.new
-      expect { client.within {}.subscribe(subscriber, to: [Test1DomainEvent]).call }.to raise_error(
-        InvalidHandler
-      )
+      expect { client.within {}.subscribe(subscriber, to: [Test1DomainEvent]).call }.to raise_error(InvalidHandler)
     end
 
     it "raises error when no valid method on global thread handler" do
       subscriber = InvalidTestHandler.new
-      expect { client.within {}.subscribe(subscriber, to: [Test1DomainEvent]).call }.to raise_error(
-        InvalidHandler
-      )
+      expect { client.within {}.subscribe(subscriber, to: [Test1DomainEvent]).call }.to raise_error(InvalidHandler)
     end
 
     it "returns lambda as an output of global subscribe methods" do
@@ -173,15 +169,11 @@ module RubyEventStore
       event1 = TimeEnrichment.with(Test1DomainEvent.new)
 
       mapper = Mappers::Default.new
-      client_with_custom_dispatcher =
-        Client.new(
-          mapper: mapper,
-          dispatcher: dispatcher
-        )
+      client_with_custom_dispatcher = Client.new(mapper: mapper, message_broker: Broker.new(dispatcher: dispatcher))
       client_with_custom_dispatcher.subscribe(handler, to: [Test1DomainEvent])
       client_with_custom_dispatcher.publish(event1)
       expect(dispatcher.dispatched).to eq(
-        [{ subscriber: handler, event: event1, record: mapper.event_to_record(event1) }]
+        [{ subscriber: handler, event: event1, record: mapper.event_to_record(event1) }],
       )
     end
 

@@ -8,7 +8,7 @@ require "active_support/notifications"
 
 module RubyEventStore
   ::RSpec.describe InstrumentedDispatcher do
-    it_behaves_like 'dispatcher', InstrumentedDispatcher.new(Dispatcher.new, ActiveSupport::Notifications)
+    it_behaves_like "dispatcher", InstrumentedDispatcher.new(Dispatcher.new, ActiveSupport::Notifications)
 
     describe "#call" do
       specify "wraps around original implementation" do
@@ -16,7 +16,7 @@ module RubyEventStore
         instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
         event = Object.new
         record = Object.new
-        subscriber = -> {  }
+        subscriber = -> {}
 
         instrumented_dispatcher.call(subscriber, event, record)
 
@@ -28,7 +28,7 @@ module RubyEventStore
         subscribe_to("call.dispatcher.rails_event_store") do |notification_calls|
           event = Object.new
           record = Object.new
-          subscriber = -> {  }
+          subscriber = -> {}
 
           instrumented_dispatcher.call(subscriber, event, record)
 
@@ -41,7 +41,7 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_dispatcher = spy
         instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
-        subscriber = -> {  }
+        subscriber = -> {}
 
         instrumented_dispatcher.verify(subscriber)
 
@@ -68,7 +68,7 @@ module RubyEventStore
       expect(instrumented_dispatcher).not_to respond_to(:arbitrary_method_name)
       expect { instrumented_dispatcher.arbitrary_method_name }.to raise_error(
         NoMethodError,
-        /undefined method.+arbitrary_method_name.+RubyEventStore::InstrumentedDispatcher/
+        /undefined method.+arbitrary_method_name.+RubyEventStore::InstrumentedDispatcher/,
       )
     end
 

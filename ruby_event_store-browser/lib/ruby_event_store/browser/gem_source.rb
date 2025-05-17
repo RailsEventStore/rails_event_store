@@ -9,9 +9,7 @@ module RubyEventStore
         @path =
           load_path
             .select { |entry| String === entry }
-            .find do |entry|
-              entry.match? %r{ruby_event_store-browser(?:-\d+\.\d+\.\d+)?/lib\z}
-            end
+            .find { |entry| entry.match? %r{ruby_event_store-browser(?:-\d+\.\d+\.\d+)?/lib\z} }
       end
 
       def version

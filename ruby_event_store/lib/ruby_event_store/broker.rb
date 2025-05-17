@@ -2,7 +2,7 @@
 
 module RubyEventStore
   class Broker
-    def initialize(subscriptions:, dispatcher:)
+    def initialize(subscriptions: Subscriptions.new, dispatcher: Dispatcher.new)
       @subscriptions = subscriptions
       @dispatcher = dispatcher
     end
@@ -30,6 +30,10 @@ module RubyEventStore
     def add_thread_global_subscription(subscriber)
       verify_subscription(subscriber)
       subscriptions.add_thread_global_subscription(subscriber)
+    end
+
+    def all_subscriptions_for(event_type)
+      subscriptions.all_for(event_type)
     end
 
     private

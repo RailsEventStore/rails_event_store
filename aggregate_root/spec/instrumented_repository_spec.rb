@@ -84,7 +84,7 @@ module AggregateRoot
           instrumented_repository.store(aggregate, "SomeStream")
 
           expect(notification_calls).to eq(
-            [{ aggregate: aggregate, version: -1, stored_events: events, stream: "SomeStream" }]
+            [{ aggregate: aggregate, version: -1, stored_events: events, stream: "SomeStream" }],
           )
         end
       end
@@ -109,7 +109,7 @@ module AggregateRoot
             end
 
             expect(store_notification_calls).to eq(
-              [{ aggregate: aggregate, version: -1, stored_events: events, stream: "SomeStream" }]
+              [{ aggregate: aggregate, version: -1, stored_events: events, stream: "SomeStream" }],
             )
           end
 
@@ -137,23 +137,26 @@ module AggregateRoot
       expect(instrumented_repository).not_to respond_to(:arbitrary_method_name)
       expect { instrumented_repository.arbitrary_method_name }.to raise_error(
         NoMethodError,
-        /undefined method.+arbitrary_method_name.+AggregateRoot::InstrumentedRepository/
+        /undefined method.+arbitrary_method_name.+AggregateRoot::InstrumentedRepository/,
       )
     end
 
     describe "#handle_error" do
       specify "instruments" do
         $error = StandardError.new("Some error")
-        repository = Class.new do
-          attr_accessor :error_handler
-          def load(_, _)
-            error_handler.call($error)
-          end
-        end.new
+        repository =
+          Class
+            .new do
+              attr_accessor :error_handler
+              def load(_, _)
+                error_handler.call($error)
+              end
+            end
+            .new
         instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
         subscribe_to("error_occured.repository.aggregate_root") do |notification_calls|
           instrumented_repository.load(order_klass.new(SecureRandom.uuid), "SomeStream")
-          expect(notification_calls).to eq([{ :exception => ["StandardError", "Some error"], :exception_object => $error }])
+          expect(notification_calls).to eq([{ exception: ["StandardError", "Some error"], exception_object: $error }])
         end
       end
     end

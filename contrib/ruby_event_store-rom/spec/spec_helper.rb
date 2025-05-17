@@ -73,16 +73,18 @@ module RubyEventStore
 
       def gateway
         @config ||=
-          ::ROM::Configuration.new(
-            :sql,
-            database_uri,
-            max_connections: /sqlite/.match?(database_uri) ? 1 : 5,
-            preconnect: :concurrently,
-            fractional_seconds: true
-        ).tap do |config|
-          config.default.use_logger(Logger.new(STDOUT)) if ENV.has_key?("VERBOSE")
-          config.default.run_migrations
-        end
+          ::ROM::Configuration
+            .new(
+              :sql,
+              database_uri,
+              max_connections: /sqlite/.match?(database_uri) ? 1 : 5,
+              preconnect: :concurrently,
+              fractional_seconds: true,
+            )
+            .tap do |config|
+              config.default.use_logger(Logger.new(STDOUT)) if ENV.has_key?("VERBOSE")
+              config.default.run_migrations
+            end
         @rom_container ||= ROM.setup(@config)
 
         rom_container.gateways.fetch(:default)

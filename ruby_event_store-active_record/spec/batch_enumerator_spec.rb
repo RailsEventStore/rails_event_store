@@ -48,7 +48,7 @@ module RubyEventStore
           collection[6000...7000],
           collection[7000...8000],
           collection[8000...9000],
-          collection[9000...10_000]
+          collection[9000...10_000],
         )
       end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples 'event' do |event_class, data, metadata|
+RSpec.shared_examples "event" do |event_class, data, metadata|
   it "allows initialization" do
     expect {
       event_class.new(event_id: Object.new, data: data || Object.new, metadata: metadata || {})

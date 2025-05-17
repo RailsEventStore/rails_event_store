@@ -13,9 +13,9 @@ class Minitest::RubyEventStoreTest < Minitest::Test
       RubyEventStore::Client.new(
         mapper:
           RubyEventStore::Mappers::PipelineMapper.new(
-            RubyEventStore::Mappers::Pipeline.new(to_domain_event: RubyEventStore::Transformations::IdentityMap.new)
+            RubyEventStore::Mappers::Pipeline.new(to_domain_event: RubyEventStore::Transformations::IdentityMap.new),
           ),
-        correlation_id_generator: Proc.new {}
+        correlation_id_generator: Proc.new {},
       )
   end
 
@@ -79,12 +79,10 @@ to NOT include
 
     message = <<-EOM.chomp
 Event data mismatch.
-Expected: #{{"foo"=>"foo"}}
-  Actual: #{{"foo"=>"bar"}}
+Expected: #{{ "foo" => "foo" }}
+  Actual: #{{ "foo" => "bar" }}
     EOM
-    assert_triggered(message) do
-      assert_published(@event_store, DummyEvent, with_data: { "foo" => "foo" })
-    end
+    assert_triggered(message) { assert_published(@event_store, DummyEvent, with_data: { "foo" => "foo" }) }
   end
 
   def test_assert_published_failure_based_on_metadata_mismatch
@@ -92,21 +90,17 @@ Expected: #{{"foo"=>"foo"}}
 
     message = <<-EOM.chomp
 Event metadata mismatch.
-Expected: #{{"foo"=>"foo"}}
-  Actual: #{{"foo"=>"bar"}}
+Expected: #{{ "foo" => "foo" }}
+  Actual: #{{ "foo" => "bar" }}
     EOM
-    assert_triggered(message) do
-      assert_published(@event_store, DummyEvent, with_metadata: { "foo" => "foo" })
-    end
+    assert_triggered(message) { assert_published(@event_store, DummyEvent, with_metadata: { "foo" => "foo" }) }
   end
 
   def test_assert_published_failure_based_on_type_mismatch
     @event_store.publish(DummyEvent.new)
 
-    message = 'Expected some events of AnotherDummyEvent type, none were there'
-    assert_triggered(message) do
-      assert_published(@event_store, AnotherDummyEvent)
-    end
+    message = "Expected some events of AnotherDummyEvent type, none were there"
+    assert_triggered(message) { assert_published(@event_store, AnotherDummyEvent) }
   end
 
   def test_assert_not_published
@@ -122,9 +116,7 @@ Expected no event of DummyEvent type.
 Expected: 0
   Actual: 1
     EOM
-    assert_triggered(message) do
-      assert_not_published(@event_store, DummyEvent)
-    end
+    assert_triggered(message) { assert_not_published(@event_store, DummyEvent) }
   end
 
   def test_assert_published_once
@@ -140,33 +132,27 @@ Expected only one event of DummyEvent type.
 Expected: 1
   Actual: 2
     EOM
-    assert_triggered(message) do
-      assert_published_once(@event_store, DummyEvent)
-    end
+    assert_triggered(message) { assert_published_once(@event_store, DummyEvent) }
   end
 
   def test_assert_published_once_failure_based_on_data_mismatch
     @event_store.publish(DummyEvent.new(data: { "foo" => "bar" }))
     message = <<-EOM.chomp
 Event data mismatch.
-Expected: #{{"foo"=>"foo"}}
-  Actual: #{{"foo"=>"bar"}}
+Expected: #{{ "foo" => "foo" }}
+  Actual: #{{ "foo" => "bar" }}
     EOM
-    assert_triggered(message) do
-      assert_published_once(@event_store, DummyEvent, with_data: { foo: "foo" })
-    end
+    assert_triggered(message) { assert_published_once(@event_store, DummyEvent, with_data: { foo: "foo" }) }
   end
 
   def test_assert_published_once_failure_based_on_metadata_mismatch
     @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new) }
     message = <<-EOM.chomp
 Event metadata mismatch.
-Expected: #{{"foo"=>"foo"}}
-  Actual: #{{"foo"=>"bar"}}
+Expected: #{{ "foo" => "foo" }}
+  Actual: #{{ "foo" => "bar" }}
     EOM
-    assert_triggered(message) do
-      assert_published_once(@event_store, DummyEvent, with_metadata: { foo: "foo" })
-    end
+    assert_triggered(message) { assert_published_once(@event_store, DummyEvent, with_metadata: { foo: "foo" }) }
   end
 
   def test_assert_nothing_published
@@ -180,16 +166,12 @@ Expected no events published.
 Expected: 0
   Actual: 1
     EOM
-    assert_triggered(message) do
-      assert_nothing_published(@event_store)
-    end
+    assert_triggered(message) { assert_nothing_published(@event_store) }
   end
 
   def test_assert_published_once_with_block
     2.times { @event_store.publish(DummyEvent.new) }
-    assert_published_once(@event_store, DummyEvent) do
-      @event_store.publish(DummyEvent.new)
-    end
+    assert_published_once(@event_store, DummyEvent) { @event_store.publish(DummyEvent.new) }
   end
 
   def test_assert_nothing_published_with_block
@@ -228,9 +210,7 @@ Expected: 0
       Expected event #{event.event_id} in specific-stream stream, none was there
     EOM
 
-    assert_triggered(message) do
-      assert_event_in_stream(@event_store, event, "specific-stream")
-    end
+    assert_triggered(message) { assert_event_in_stream(@event_store, event, "specific-stream") }
   end
 
   def test_assert_event_not_in_stream
@@ -248,9 +228,7 @@ Expected: 0
       Expected event #{event.event_id} not to be in specific-stream stream, but it was there
     EOM
 
-    assert_triggered(message) do
-      assert_event_not_in_stream(@event_store, event, "specific-stream")
-    end
+    assert_triggered(message) { assert_event_not_in_stream(@event_store, event, "specific-stream") }
   end
 
   def test_exact_new_events
@@ -280,9 +258,7 @@ Expected new events weren't found.
 
     EOM
 
-    assert_triggered(message) do
-      assert_exact_new_events(@event_store, new_events.map(&:class)) {}
-    end
+    assert_triggered(message) { assert_exact_new_events(@event_store, new_events.map(&:class)) {} }
   end
 
   def test_new_events_include
@@ -291,9 +267,7 @@ Expected new events weren't found.
 
     new_events = [AnotherDummyEvent.new, AnotherDummyEvent.new, DummyEvent.new]
 
-    assert_new_events_include(@event_store, [DummyEvent]) do
-      new_events.each { |event| @event_store.publish(event) }
-    end
+    assert_new_events_include(@event_store, [DummyEvent]) { new_events.each { |event| @event_store.publish(event) } }
   end
 
   def test_new_events_include_failure_no_new_messages
@@ -304,9 +278,7 @@ Expected new events weren't found.
 Didn't include all of: [DummyEvent] in []
     EOM
 
-    assert_triggered(message) do
-      assert_new_events_include(@event_store, [DummyEvent]) {}
-    end
+    assert_triggered(message) { assert_new_events_include(@event_store, [DummyEvent]) {} }
   end
 
   def test_new_events_include_failure_expected_message_not_included
@@ -338,13 +310,11 @@ Didn't include all of: [DummyEvent] in [AnotherDummyEvent]
     actual_event = @event_store.read.backward.first
 
     message = <<-EOM.chomp
-Expected: #{{:foo=>"foo"}}
-  Actual: #{{:foo=>"bar"}}
+Expected: #{{ foo: "foo" }}
+  Actual: #{{ foo: "bar" }}
     EOM
 
-    assert_triggered(message) do
-      assert_equal_event(expected_event, actual_event)
-    end
+    assert_triggered(message) { assert_equal_event(expected_event, actual_event) }
   end
 
   def test_equal_event_failure_on_class
@@ -358,9 +328,7 @@ Expected: DummyEvent
   Actual: AnotherDummyEvent
     EOM
 
-    assert_triggered(message) do
-      assert_equal_event(expected_event, actual_event)
-    end
+    assert_triggered(message) { assert_equal_event(expected_event, actual_event) }
   end
 
   def test_equal_event_with_id
@@ -388,9 +356,7 @@ Expected: DummyEvent
 +#{dummy_event.event_id.inspect}
     EOM
 
-    assert_triggered(message) do
-      assert_equal_event(expected_event, actual_event, verify_id: true)
-    end
+    assert_triggered(message) { assert_equal_event(expected_event, actual_event, verify_id: true) }
   end
 
   def test_equal_events
@@ -416,9 +382,7 @@ Expected: 2
   Actual: 1
     EOM
 
-    assert_triggered(message) do
-      assert_equal_events([event, second_event], events)
-    end
+    assert_triggered(message) { assert_equal_events([event, second_event], events) }
   end
 
   def test_equal_events_with_id_verification
@@ -449,8 +413,6 @@ Expected: 2
 
     EOM
 
-    assert_triggered(message) do
-      assert_equal_events([event, second_event], events, verify_id: true)
-    end
+    assert_triggered(message) { assert_equal_events([event, second_event], events, verify_id: true) }
   end
 end

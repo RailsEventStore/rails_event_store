@@ -35,8 +35,7 @@ require "aggregate_root"
     order_created =
       RubyEventStore::Protobuf::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data:
-          ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9")
+        data: ResTesting::OrderCreated.new(customer_id: 123, order_id: "K3THNX9"),
       )
 
     order.apply(order_created)
@@ -48,7 +47,7 @@ require "aggregate_root"
     order_paid =
       RubyEventStore::Protobuf::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data: ResTesting::OrderPaid.new
+        data: ResTesting::OrderPaid.new,
       )
 
     order.apply(order_paid)
@@ -60,12 +59,12 @@ require "aggregate_root"
     spanish_inquisition =
       RubyEventStore::Protobuf::Proto.new(
         event_id: "f90b8848-e478-47fe-9b4a-9f2a1d53622b",
-        data: ResTesting::SpanishInquisition.new
+        data: ResTesting::SpanishInquisition.new,
       )
 
     expect { order.apply(spanish_inquisition) }.to raise_error(
       AggregateRoot::MissingHandler,
-      "Missing handler method apply_spanish_inquisition on aggregate ResTesting::Order"
+      "Missing handler method apply_spanish_inquisition on aggregate ResTesting::Order",
     )
   end
 end

@@ -12,7 +12,7 @@ module RubyEventStore
         HaveApplied.new(
           *expected,
           phraser: phraser,
-          failure_message_formatter: RSpec.default_formatter.have_applied(colorless_differ)
+          failure_message_formatter: RSpec.default_formatter.have_applied(colorless_differ),
         )
       end
 
@@ -170,10 +170,10 @@ module RubyEventStore
         matcher_ =
           matcher(
             matchers.an_event(FooEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" }),
-            matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" })
+            matchers.an_event(BazEvent).with_metadata({ baz: "foo" }).with_data({ baz: "foo" }),
           )
         expect(matcher_.description).to eq(
-          "have applied events that have to (be an event FooEvent (with data including #{formatter[baz: "foo"]} and with metadata including #{formatter[baz: "foo"]}) and be an event BazEvent (with data including #{formatter[baz: "foo"]} and with metadata including #{formatter[baz: "foo"]}))"
+          "have applied events that have to (be an event FooEvent (with data including #{formatter[baz: "foo"]} and with metadata including #{formatter[baz: "foo"]}) and be an event BazEvent (with data including #{formatter[baz: "foo"]} and with metadata including #{formatter[baz: "foo"]}))",
         )
       end
 
@@ -185,7 +185,7 @@ module RubyEventStore
       specify do
         matcher_ = matcher(FooEvent, BarEvent, BazEvent)
         expect(matcher_.description).to eq(
-          "have applied events that have to (be a FooEvent, be a BarEvent and be a BazEvent)"
+          "have applied events that have to (be a FooEvent, be a BarEvent and be a BazEvent)",
         )
       end
     end

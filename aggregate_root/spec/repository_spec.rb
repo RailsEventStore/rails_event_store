@@ -121,7 +121,7 @@ module AggregateRoot
         expect(event_store).to have_received(:publish).with(
           [order_created, order_expired],
           stream_name: stream_name,
-          expected_version: -1
+          expected_version: -1,
         )
         expect(event_store).not_to have_received(:publish).with(kind_of(Enumerator), any_args)
       end
@@ -134,11 +134,19 @@ module AggregateRoot
         allow(event_store).to receive(:publish)
 
         repository.store(order, stream_name)
-        expect(event_store).to have_received(:publish).with([order_created], stream_name: stream_name, expected_version: -1)
+        expect(event_store).to have_received(:publish).with(
+          [order_created],
+          stream_name: stream_name,
+          expected_version: -1,
+        )
 
         order.apply(order_expired)
         repository.store(order, stream_name)
-        expect(event_store).to have_received(:publish).with([order_expired], stream_name: stream_name, expected_version: 0)
+        expect(event_store).to have_received(:publish).with(
+          [order_expired],
+          stream_name: stream_name,
+          expected_version: 0,
+        )
       end
     end
 

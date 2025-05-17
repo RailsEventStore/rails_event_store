@@ -7,8 +7,8 @@ module RubyEventStore
         super(
           Pipeline.new(
             Transformation::Encryption.new(key_repository, serializer: serializer, forgotten_data: forgotten_data),
-            Transformation::SymbolizeMetadataKeys.new
-          )
+            Transformation::SymbolizeMetadataKeys.new,
+          ),
         )
       end
     end

@@ -17,14 +17,12 @@ def header
     "module LinkedTimezones exposing (mapLinkedTimeZone)",
     "mapLinkedTimeZone : String -> String",
     "mapLinkedTimeZone str =",
-    "  case str of"
+    "  case str of",
   ]
 end
 
 def links
-  TZInfo::Timezone.all_linked_zones.map do |zone|
-    "    \"#{zone.identifier}\" -> \"#{zone.canonical_identifier}\""
-  end
+  TZInfo::Timezone.all_linked_zones.map { |zone| "    \"#{zone.identifier}\" -> \"#{zone.canonical_identifier}\"" }
 end
 
 def footer

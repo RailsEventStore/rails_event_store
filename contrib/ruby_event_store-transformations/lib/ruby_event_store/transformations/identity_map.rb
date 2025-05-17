@@ -19,7 +19,7 @@ module RubyEventStore
           data: domain_event.data,
           event_type: domain_event.event_type,
           timestamp: timestamp,
-          valid_at: valid_at
+          valid_at: valid_at,
         )
       end
 

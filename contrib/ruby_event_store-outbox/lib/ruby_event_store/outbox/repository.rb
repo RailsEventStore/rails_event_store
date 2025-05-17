@@ -151,57 +151,53 @@ module RubyEventStore
         BatchResult.empty.tap do |result|
           obtained_lock = obtain_lock_for_process(fetch_specification, consumer_uuid, clock: clock)
           case obtained_lock
-            when :deadlocked
-              logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
-              metrics.write_operation_result("obtain", "deadlocked")
-              return BatchResult.empty
-            when :lock_timeout
-              logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
-              metrics.write_operation_result("obtain", "lock_timeout")
-              return BatchResult.empty
-            when :taken
-              logger.debug "Obtaining lock for split_key '#{fetch_specification.split_key}' unsuccessful (taken)"
-              metrics.write_operation_result("obtain", "taken")
-              return BatchResult.empty
+          when :deadlocked
+            logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
+            metrics.write_operation_result("obtain", "deadlocked")
+            return BatchResult.empty
+          when :lock_timeout
+            logger.warn "Obtaining lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
+            metrics.write_operation_result("obtain", "lock_timeout")
+            return BatchResult.empty
+          when :taken
+            logger.debug "Obtaining lock for split_key '#{fetch_specification.split_key}' unsuccessful (taken)"
+            metrics.write_operation_result("obtain", "taken")
+            return BatchResult.empty
           end
 
           Consumer::MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK.times do
             batch = retrieve_batch(fetch_specification, batch_size).to_a
             break if batch.empty?
-            batch.each do |record|
-              handle_execution(result) do
-                block.call(record)
-              end
-            end
+            batch.each { |record| handle_execution(result) { block.call(record) } }
             case (refresh_result = obtained_lock.refresh(clock: clock))
-              when :ok
-              when :deadlocked
-                logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (deadlock)"
-                metrics.write_operation_result("refresh", "deadlocked")
-                break
-              when :lock_timeout
-                logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (lock timeout)"
-                metrics.write_operation_result("refresh", "lock_timeout")
-                break
-              when :stolen
-                logger.debug "Refreshing lock for split_key '#{lock.split_key}' unsuccessful (stolen)"
-                metrics.write_operation_result("refresh", "stolen")
-                break
-              else
-                raise "Unexpected result #{refresh_result}"
+            when :ok
+            when :deadlocked
+              logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (deadlock)"
+              metrics.write_operation_result("refresh", "deadlocked")
+              break
+            when :lock_timeout
+              logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (lock timeout)"
+              metrics.write_operation_result("refresh", "lock_timeout")
+              break
+            when :stolen
+              logger.debug "Refreshing lock for split_key '#{lock.split_key}' unsuccessful (stolen)"
+              metrics.write_operation_result("refresh", "stolen")
+              break
+            else
+              raise "Unexpected result #{refresh_result}"
             end
           end
 
           case release_lock_for_process(fetch_specification, consumer_uuid)
-            when :deadlocked
-              logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
-              metrics.write_operation_result("release", "deadlocked")
-            when :lock_timeout
-              logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
-              metrics.write_operation_result("release", "lock_timeout")
-            when :not_taken_by_this_process
-              logger.debug "Releasing lock for split_key '#{fetch_specification.split_key}' failed (not taken by this process)"
-              metrics.write_operation_result("release", "not_taken_by_this_process")
+          when :deadlocked
+            logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
+            metrics.write_operation_result("release", "deadlocked")
+          when :lock_timeout
+            logger.warn "Releasing lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
+            metrics.write_operation_result("release", "lock_timeout")
+          when :not_taken_by_this_process
+            logger.debug "Releasing lock for split_key '#{fetch_specification.split_key}' failed (not taken by this process)"
+            metrics.write_operation_result("release", "not_taken_by_this_process")
           end
           instrument_batch_result(fetch_specification, result)
         end
@@ -212,11 +208,7 @@ module RubyEventStore
           Record.transaction do
             batch = retrieve_batch(fetch_specification, batch_size).lock("FOR UPDATE SKIP LOCKED")
             break if batch.empty?
-            batch.each do |record|
-              handle_execution(result) do
-                block.call(record)
-              end
-            end
+            batch.each { |record| handle_execution(result) { block.call(record) } }
           end
 
           instrument_batch_result(fetch_specification, result)
@@ -229,7 +221,7 @@ module RubyEventStore
           failed: result.failed_count,
           format: fetch_specification.message_format,
           split_key: fetch_specification.split_key,
-          remaining: Record.remaining_for(fetch_specification).count
+          remaining: Record.remaining_for(fetch_specification).count,
         )
 
         logger.info "Sent #{result.success_count} messages from outbox table"

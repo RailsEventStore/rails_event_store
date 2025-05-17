@@ -36,8 +36,8 @@ module RailsEventStore
       $queue.push(
         Rails.configuration.event_store.deserialize(
           serializer: RubyEventStore::Serializers::YAML,
-          **payload.transform_keys(&:to_sym)
-        )
+          **payload.transform_keys(&:to_sym),
+        ),
       )
     end
   end
@@ -73,7 +73,11 @@ module RailsEventStore
     let(:another_event_store) { RailsEventStore::Client.new }
     let(:json_event_store) do
       RailsEventStore::Client.new(
-        dispatcher: RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON))
+        message_broker:
+          RubyEventStore::Broker.new(
+            dispatcher:
+              RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON)),
+          ),
       )
     end
     let(:application) { instance_double(Rails::Application) }
@@ -106,7 +110,7 @@ module RailsEventStore
     specify "with specified event store locator" do
       HandlerWithEventStoreLocator.prepend RailsEventStore::AsyncHandler.with(
                                              event_store: nil,
-                                             event_store_locator: -> { another_event_store }
+                                             event_store_locator: -> { another_event_store },
                                            )
       another_event_store.subscribe_to_all_events(HandlerWithEventStoreLocator)
       another_event_store.publish(ev = RubyEventStore::Event.new)
@@ -116,7 +120,7 @@ module RailsEventStore
     specify "with specified serializer" do
       HandlerWithSpecifiedSerializer.prepend RailsEventStore::AsyncHandler.with(
                                                event_store: json_event_store,
-                                               serializer: JSON
+                                               serializer: JSON,
                                              )
       json_event_store.subscribe_to_all_events(HandlerWithSpecifiedSerializer)
       json_event_store.publish(ev = RubyEventStore::Event.new)

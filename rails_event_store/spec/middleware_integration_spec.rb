@@ -45,7 +45,7 @@ module RailsEventStore
             to: ->(_env) do
               app.config.event_store.publish(DummyEvent.new)
               [200, {}, [""]]
-            end
+            end,
           )
         end
       end

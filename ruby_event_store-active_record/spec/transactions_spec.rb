@@ -11,20 +11,14 @@ module RubyEventStore
       mk_repository = -> { EventRepository.new(serializer: helper.serializer) }
 
       let(:repository) { mk_repository.call }
-      let(:specification) do
-        Specification.new(
-          SpecificationReader.new(repository, Mappers::Default.new)
-        )
-      end
+      let(:specification) { Specification.new(SpecificationReader.new(repository, Mappers::Default.new)) }
 
       let(:stream) { Stream.new(SecureRandom.uuid) }
       let(:foo) { SRecord.new(event_id: SecureRandom.uuid) }
       let(:bar) { SRecord.new(event_id: SecureRandom.uuid) }
       let(:baz) { SRecord.new(event_id: SecureRandom.uuid) }
       let(:global_to_a) { repository.read(specification.result).to_a }
-      let(:stream_to_a) do
-        repository.read(specification.stream(stream.name).result).to_a
-      end
+      let(:stream_to_a) { repository.read(specification.stream(stream.name).result).to_a }
 
       around { |example| helper.run_lifecycle { example.run } }
 
@@ -33,10 +27,9 @@ module RubyEventStore
         ::ActiveRecord::Base.logger =
           Logger
             .new(STDOUT)
-            .tap do |l|
-              l.formatter =
-                proc { |severity, datetime, progname, msg| "#{msg}\n" }
-            end if ENV.has_key?("VERBOSE")
+            .tap { |l| l.formatter = proc { |severity, datetime, progname, msg| "#{msg}\n" } } if ENV.has_key?(
+          "VERBOSE",
+        )
         example.run
       ensure
         ::ActiveRecord::Base.logger = previous_logger

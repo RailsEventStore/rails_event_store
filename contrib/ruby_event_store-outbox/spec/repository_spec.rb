@@ -50,12 +50,12 @@ module RubyEventStore
         Repository::Lock.obtain(
           FetchSpecification.new("other_message_format", split_key),
           some_process_uuid,
-          clock: clock
+          clock: clock,
         )
         Repository::Lock.obtain(
           FetchSpecification.new(message_format, "other_split_key"),
           some_process_uuid,
-          clock: clock
+          clock: clock,
         )
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
 
@@ -156,8 +156,7 @@ module RubyEventStore
 
       specify "refreshing lock when other process stole it" do
         expected_fetch_specification = FetchSpecification.new(message_format, split_key)
-        lock_for_some_process =
-          Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
+        lock_for_some_process = Repository::Lock.obtain(expected_fetch_specification, some_process_uuid, clock: clock)
         wait_for_lock_duration
         Repository::Lock.obtain(expected_fetch_specification, other_process_uuid, clock: clock)
 

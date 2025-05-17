@@ -10,8 +10,7 @@ module RubyEventStore
         @mysql8_pkey_error = "for key '#{event_store_events}.index_#{event_store_events}_on_event_id'".freeze
         @mysql5_index_error = "for key 'index_#{event_store_events_in_streams}_on_stream_and_event_id'".freeze
         @mysql8_index_error =
-          "for key '#{event_store_events_in_streams}.index_#{event_store_events_in_streams}_on_stream_and_event_id'"
-            .freeze
+          "for key '#{event_store_events_in_streams}.index_#{event_store_events_in_streams}_on_stream_and_event_id'".freeze
         @sqlite3_pkey_error = "constraint failed: #{event_store_events}.event_id".freeze
         @sqlite3_index_error =
           "constraint failed: #{event_store_events_in_streams}.stream, #{event_store_events_in_streams}.event_id".freeze

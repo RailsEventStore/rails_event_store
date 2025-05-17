@@ -12,13 +12,18 @@ module RailsEventStore
       after_commit -> { raise DummyError }
     end
 
-    it_behaves_like 'dispatcher', AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
+    it_behaves_like "dispatcher",
+                    AfterCommitAsyncDispatcher.new(
+                      scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+                    )
 
     let(:event) { TimeEnrichment.with(RubyEventStore::Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8")) }
     let(:record) { RubyEventStore::Mappers::Default.new.event_to_record(event) }
     let(:serialized_record) { record.serialize(RubyEventStore::Serializers::YAML).to_h.transform_keys(&:to_s) }
 
-    let(:dispatcher) { AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)) }
+    let(:dispatcher) do
+      AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
+    end
 
     before { MyActiveJobAsyncHandler.reset }
 
@@ -72,7 +77,9 @@ module RailsEventStore
       expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyActiveJobAsyncHandler) do
-            ActiveRecord::Base.transaction(requires_new: false) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
+            ActiveRecord::Base.transaction(requires_new: false) do
+              dispatcher.call(MyActiveJobAsyncHandler, event, record)
+            end
           end
         end
       end
@@ -85,7 +92,9 @@ module RailsEventStore
       expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
         ActiveRecord::Base.transaction do
           expect_no_enqueued_job(MyActiveJobAsyncHandler) do
-            ActiveRecord::Base.transaction(requires_new: true) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
+            ActiveRecord::Base.transaction(requires_new: true) do
+              dispatcher.call(MyActiveJobAsyncHandler, event, record)
+            end
           end
         end
       end
@@ -117,7 +126,9 @@ module RailsEventStore
           begin
             ActiveRecord::Base.transaction do
               DummyRecord.new.save!
-              expect_no_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
+              expect_no_enqueued_job(MyActiveJobAsyncHandler) do
+                dispatcher.call(MyActiveJobAsyncHandler, event, record)
+              end
             end
           rescue DummyError
           end
@@ -137,7 +148,9 @@ module RailsEventStore
             begin
               ActiveRecord::Base.transaction do
                 DummyRecord.new.save!
-                expect_no_enqueued_job(MyActiveJobAsyncHandler) { dispatcher.call(MyActiveJobAsyncHandler, event, record) }
+                expect_no_enqueued_job(MyActiveJobAsyncHandler) do
+                  dispatcher.call(MyActiveJobAsyncHandler, event, record)
+                end
               end
             rescue DummyError
             end

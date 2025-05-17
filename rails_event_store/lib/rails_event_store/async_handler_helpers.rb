@@ -29,10 +29,7 @@ module RailsEventStore
       with
     end
 
-    def self.with(
-      event_store: Rails.configuration.event_store,
-      event_store_locator: nil
-    )
+    def self.with(event_store: Rails.configuration.event_store, event_store_locator: nil)
       Module.new do
         define_method :perform do |payload|
           event_store = event_store_locator.call if event_store_locator
@@ -45,7 +42,6 @@ module RailsEventStore
       host_class.prepend with_defaults
     end
   end
-
 
   module CorrelatedHandler
     def perform(event)

@@ -17,11 +17,11 @@ module RubyEventStore
         TimeEnrichment.with(
           SomethingHappened.new(data: data, metadata: metadata, event_id: event_id),
           timestamp: time,
-          valid_at: time
+          valid_at: time,
         )
       end
 
-      it_behaves_like 'mapper', Default.new, TimeEnrichment.with(SomethingHappened.new)
+      it_behaves_like "mapper", Default.new, TimeEnrichment.with(SomethingHappened.new)
 
       specify "#event_to_record returns transformed record" do
         record = subject.event_to_record(event)
@@ -39,14 +39,14 @@ module RubyEventStore
           Record.new(
             event_id: event.event_id,
             data: {
-              some_attribute: 5
+              some_attribute: 5,
             },
             metadata: {
-              some_meta: 1
+              some_meta: 1,
             },
             event_type: SomethingHappened.name,
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         event_ = subject.record_to_event(record)
         expect(event_).to eq(event)
@@ -63,14 +63,14 @@ module RubyEventStore
           Record.new(
             event_id: event.event_id,
             data: {
-              some_attribute: 5
+              some_attribute: 5,
             },
             metadata: {
-              some_meta: 1
+              some_meta: 1,
             },
             event_type: "EventNameBeforeRefactor",
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         event_ = subject.record_to_event(record)
         expect(event_).to eq(event)
@@ -81,12 +81,12 @@ module RubyEventStore
           Record.new(
             event_id: event.event_id,
             data: {
-              some_attribute: 5
+              some_attribute: 5,
             },
             metadata: stringify({ some_meta: 1 }),
             event_type: SomethingHappened.name,
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         event_ = subject.record_to_event(record)
         expect(event_).to eq(event)

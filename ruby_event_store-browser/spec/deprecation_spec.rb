@@ -5,25 +5,18 @@ require "spec_helper"
 module RubyEventStore
   ::RSpec.describe Browser do
     specify do
-      expect {
-        Browser::App.for(
-          event_store_locator: -> { event_store },
-          environment: :test
-        )
-      }.to output(<<~EOS).to_stderr
+      expect { Browser::App.for(event_store_locator: -> { event_store }, environment: :test) }.to output(
+        <<~EOS,
           Passing :environment to RubyEventStore::Browser::App.for is deprecated. 
 
           This option is no-op, has no effect and will be removed in next major release.
       EOS
+      ).to_stderr
     end
 
     specify do
-      expect {
-        Browser::App.for(
-          event_store_locator: -> { event_store },
-          host: "http://localhost:31337"
-        )
-      }.to output(<<~EOS).to_stderr
+      expect { Browser::App.for(event_store_locator: -> { event_store }, host: "http://localhost:31337") }.to output(
+        <<~EOS,
           Passing :host to RubyEventStore::Browser::App.for is deprecated. 
 
           This option will be removed in next major release. 
@@ -31,12 +24,11 @@ module RubyEventStore
           Host and mount points are correctly recognized from Rack environment 
           and this option is redundant.
       EOS
+      ).to_stderr
     end
 
     specify do
-      expect {
-        Browser::App.for(event_store_locator: -> { event_store }, path: "/res")
-      }.to output(<<~EOS).to_stderr
+      expect { Browser::App.for(event_store_locator: -> { event_store }, path: "/res") }.to output(<<~EOS).to_stderr
           Passing :path to RubyEventStore::Browser::App.for is deprecated. 
 
           This option will be removed in next major release. 

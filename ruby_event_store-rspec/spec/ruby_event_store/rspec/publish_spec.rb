@@ -8,10 +8,7 @@ module RubyEventStore
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
       let(:event_store) do
         Client.new(
-          mapper:
-            Mappers::PipelineMapper.new(
-              Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)
-            )
+          mapper: Mappers::PipelineMapper.new(Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)),
         )
       end
 
@@ -25,7 +22,7 @@ module RubyEventStore
 
       specify do
         expect { expect { true }.to matcher }.to raise_error(
-          "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`"
+          "You have to set the event store instance with `in`, e.g. `expect { ... }.to publish(an_event(MyEvent)).in(event_store)`",
         )
       end
 
@@ -38,17 +35,17 @@ module RubyEventStore
       end
 
       specify do
-        expect { event_store.publish(FooEvent.new, stream_name: "Foo$1") }.not_to matcher
-          .in(event_store)
-          .in_stream("Bar$1")
+        expect { event_store.publish(FooEvent.new, stream_name: "Foo$1") }.not_to matcher.in(event_store).in_stream(
+          "Bar$1",
+        )
       end
 
       specify { expect { event_store.publish(FooEvent.new) }.not_to matcher.in(event_store).in_streams("Foo$1") }
 
       specify do
-        expect { event_store.publish(FooEvent.new, stream_name: "Foo$1") }.not_to matcher
-          .in(event_store)
-          .in_streams(%w[Foo$1 Bar$1])
+        expect { event_store.publish(FooEvent.new, stream_name: "Foo$1") }.not_to matcher.in(event_store).in_streams(
+          %w[Foo$1 Bar$1],
+        )
       end
 
       specify do
@@ -65,15 +62,15 @@ module RubyEventStore
       specify { expect { event_store.publish(FooEvent.new) }.to matcher(matchers.an_event(FooEvent)).in(event_store) }
 
       specify do
-        expect { event_store.publish(FooEvent.new, stream_name: "Foo$1") }.to matcher(matchers.an_event(FooEvent))
-          .in(event_store)
-          .in_stream("Foo$1")
+        expect { event_store.publish(FooEvent.new, stream_name: "Foo$1") }.to matcher(matchers.an_event(FooEvent)).in(
+          event_store,
+        ).in_stream("Foo$1")
       end
 
       specify do
-        expect { event_store.publish(FooEvent.new) }.not_to matcher(matchers.an_event(FooEvent))
-          .in(event_store)
-          .in_stream("Foo$1")
+        expect { event_store.publish(FooEvent.new) }.not_to matcher(matchers.an_event(FooEvent)).in(
+          event_store,
+        ).in_stream("Foo$1")
       end
 
       specify do
@@ -205,12 +202,9 @@ module RubyEventStore
       specify do
         expect do
           expect { event_store.publish(FooEvent.new) }.to matcher(
-              matchers.an_event(FooEvent),
-              matchers.an_event(FooEvent)
-            )
-            .in(event_store)
-            .exactly(3)
-            .times
+            matchers.an_event(FooEvent),
+            matchers.an_event(FooEvent),
+          ).in(event_store).exactly(3).times
         end.to raise_error(NotSupported)
       end
 
@@ -255,10 +249,7 @@ module RubyEventStore
         expect do
           event_store.publish(BarEvent.new, stream_name: "Stream$1")
           event_store.publish(BarEvent.new, stream_name: "Stream$3")
-        end.to matcher(matchers.an_event(BarEvent))
-                 .strict
-                 .in(event_store)
-                 .in_streams(%w[Stream$1 Stream$3])
+        end.to matcher(matchers.an_event(BarEvent)).strict.in(event_store).in_streams(%w[Stream$1 Stream$3])
       end
     end
   end

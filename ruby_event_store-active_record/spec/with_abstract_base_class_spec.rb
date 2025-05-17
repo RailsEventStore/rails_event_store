@@ -12,19 +12,19 @@ module RubyEventStore
       specify "Base for event factory models must be an abstract class" do
         NonAbstractClass = Class.new(::ActiveRecord::Base)
         expect { WithAbstractBaseClass.new(NonAbstractClass) }.to raise_error(ArgumentError).with_message(
-          "RubyEventStore::ActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base"
+          "RubyEventStore::ActiveRecord::NonAbstractClass must be an abstract class that inherits from ActiveRecord::Base",
         )
       end
 
       specify "Base for event factory models could not be the ActiveRecord::Base" do
         expect { WithAbstractBaseClass.new(::ActiveRecord::Base) }.to raise_error(ArgumentError).with_message(
-          "ActiveRecord::Base must be an abstract class that inherits from ActiveRecord::Base"
+          "ActiveRecord::Base must be an abstract class that inherits from ActiveRecord::Base",
         )
       end
 
       specify "Base for event factory models must inherit from ActiveRecord::Base" do
         expect { WithAbstractBaseClass.new(Object) }.to raise_error(ArgumentError).with_message(
-          "Object must be an abstract class that inherits from ActiveRecord::Base"
+          "Object must be an abstract class that inherits from ActiveRecord::Base",
         )
       end
 
@@ -53,13 +53,9 @@ module RubyEventStore
           repository =
             EventRepository.new(
               model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-              serializer: Serializers::YAML
+              serializer: Serializers::YAML,
             )
-          repository.append_to_stream(
-            [event = SRecord.new],
-            Stream.new(GLOBAL_STREAM),
-            ExpectedVersion.any
-          )
+          repository.append_to_stream([event = SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
           reader = SpecificationReader.new(repository, Mappers::Default.new)
           specification = Specification.new(reader)
           read_event = repository.read(specification.result).first
@@ -77,12 +73,12 @@ module RubyEventStore
           repository =
             EventRepository.new(
               model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-              serializer: Serializers::YAML
+              serializer: Serializers::YAML,
             )
           repository.append_to_stream(
             [event = SRecord.new(event_type: "Dummy")],
             Stream.new("some"),
-            ExpectedVersion.any
+            ExpectedVersion.any,
           )
           reader = SpecificationReader.new(repository, Mappers::Default.new)
 
@@ -92,8 +88,7 @@ module RubyEventStore
           end.to match_query(/SELECT.*FROM.*event_store_events.*/)
 
           expect do
-            read_event =
-              repository.read(Specification.new(reader).of_type("Dummy").stream("some").result).first
+            read_event = repository.read(Specification.new(reader).of_type("Dummy").stream("some").result).first
             expect(read_event).to eq(event)
           end.to match_query(/SELECT.*FROM.*event_store_events_in_streams.*/)
         ensure

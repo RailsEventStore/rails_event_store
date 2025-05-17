@@ -43,7 +43,6 @@ module RubyEventStore
             @resolver = resolver
           end
 
-
           NULL_TYPE = NullType.new
           private_constant :NULL_TYPE
 
@@ -56,6 +55,7 @@ module RubyEventStore
           end
 
           private
+
           attr_reader :resolver, :types
         end
         private_constant :Registry
@@ -78,7 +78,7 @@ module RubyEventStore
             data: data,
             metadata: metadata,
             timestamp: record.timestamp,
-            valid_at: record.valid_at
+            valid_at: record.valid_at,
           )
         end
 
@@ -100,7 +100,7 @@ module RubyEventStore
             data: data,
             metadata: metadata,
             timestamp: record.timestamp,
-            valid_at: record.valid_at
+            valid_at: record.valid_at,
           )
         end
 
@@ -108,6 +108,7 @@ module RubyEventStore
         private_constant :DEFAULT_STORE_TYPE
 
         private
+
         attr_reader :registry
 
         def transform_hash(argument)

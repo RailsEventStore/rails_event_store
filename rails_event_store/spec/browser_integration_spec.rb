@@ -14,7 +14,7 @@ module RailsEventStore
 
       expect(response.status).to eq(200)
       expect(
-        response.body
+        response.body,
       ).to match %r{<script type="text/javascript" src="http://example.org/res/ruby_event_store_browser.js"></script>}
     end
 
@@ -28,8 +28,8 @@ module RailsEventStore
           "last" =>
             "http://example.org/res/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
           "next" =>
-            "http://example.org/res/api/streams/all/relationships/events?page%5Bposition%5D=#{events[1].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20"
-        }
+            "http://example.org/res/api/streams/all/relationships/events?page%5Bposition%5D=#{events[1].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
+        },
       )
     end
 

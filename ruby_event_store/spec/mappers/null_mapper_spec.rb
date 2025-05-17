@@ -14,11 +14,11 @@ module RubyEventStore
         TimeEnrichment.with(
           TestEvent.new(data: data, metadata: metadata, event_id: event_id),
           timestamp: time,
-          valid_at: time
+          valid_at: time,
         )
       end
 
-      it_behaves_like 'mapper', NullMapper.new, TimeEnrichment.with(TestEvent.new)
+      it_behaves_like "mapper", NullMapper.new, TimeEnrichment.with(TestEvent.new)
 
       specify "#event_to_record" do
         record = subject.event_to_record(event)

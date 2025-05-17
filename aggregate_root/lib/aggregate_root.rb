@@ -62,19 +62,19 @@ module AggregateRoot
       @unpublished_events.each
     end
 
-    UNMARSHALED_VARIABLES = [:@version, :@unpublished_events]
+    UNMARSHALED_VARIABLES = %i[@version @unpublished_events]
 
     def marshal_dump
-      instance_variables.reject{|m| UNMARSHALED_VARIABLES.include? m}.inject({}) do |vars, attr|
-        vars[attr] = instance_variable_get(attr)
-        vars
-      end
+      instance_variables
+        .reject { |m| UNMARSHALED_VARIABLES.include? m }
+        .inject({}) do |vars, attr|
+          vars[attr] = instance_variable_get(attr)
+          vars
+        end
     end
 
     def marshal_load(vars)
-      vars.each do |attr, value|
-        instance_variable_set(attr, value) unless UNMARSHALED_VARIABLES.include?(attr)
-      end
+      vars.each { |attr, value| instance_variable_set(attr, value) unless UNMARSHALED_VARIABLES.include?(attr) }
     end
   end
 

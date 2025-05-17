@@ -401,7 +401,7 @@ class CI
     end
 
     def pr_trigger(paths)
-      { "pull_request" => { "types" => %w[opened reopened], "paths" => paths } }
+      { "pull_request" => { "paths" => paths } }
     end
 
     def scheduled_trigger

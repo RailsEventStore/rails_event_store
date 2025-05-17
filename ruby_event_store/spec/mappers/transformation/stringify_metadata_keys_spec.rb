@@ -16,19 +16,19 @@ module RubyEventStore
             data: JSON.parse(JSON.dump({ some: "value" })),
             event_type: "TestEvent",
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         end
         let(:changed_record) do
           Record.new(
             event_id: uuid,
             metadata: {
-              some: "meta"
+              some: "meta",
             },
             data: JSON.parse(JSON.dump({ some: "value" })),
             event_type: "TestEvent",
             timestamp: time,
-            valid_at: time
+            valid_at: time,
           )
         end
 
