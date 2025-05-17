@@ -101,8 +101,8 @@ class CI
             ),
           ),
       ),
-      release_mutate("ruby_event_store-active_record", runs_on: "ubuntu-latest"),
-      release_coverage("ruby_event_store-active_record", runs_on: "ubuntu-latest"),
+      release_mutate("ruby_event_store-active_record"),
+      release_coverage("ruby_event_store-active_record"),
       contrib_test(
         "ruby_event_store-flipper",
         matrix:
@@ -150,12 +150,10 @@ class CI
           setup_ruby,
           make_nix_shell("mutate-changes"),
         ],
-        runs_on: "ubuntu-latest",
       ),
       contrib_coverage(
         "ruby_event_store-outbox",
         steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("mutate")],
-        runs_on: "ubuntu-latest",
       ),
       contrib_test("ruby_event_store-profiler"),
       contrib_mutate("ruby_event_store-profiler"),
@@ -198,8 +196,8 @@ class CI
             ),
           ),
       ),
-      contrib_mutate("ruby_event_store-rom", runs_on: "ubuntu-latest"),
-      contrib_coverage("ruby_event_store-rom", runs_on: "ubuntu-latest"),
+      contrib_mutate("ruby_event_store-rom"),
+      contrib_coverage("ruby_event_store-rom"),
       contrib_test(
         "ruby_event_store-sequel",
         services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
@@ -225,8 +223,8 @@ class CI
             ),
           ),
       ),
-      contrib_mutate("ruby_event_store-sequel", runs_on: "ubuntu-latest"),
-      contrib_coverage("ruby_event_store-sequel", runs_on: "ubuntu-latest"),
+      contrib_mutate("ruby_event_store-sequel"),
+      contrib_coverage("ruby_event_store-sequel"),
       contrib_test(
         "ruby_event_store-sidekiq_scheduler",
         matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES)),
@@ -574,7 +572,8 @@ class CI
         steps: [checkout, verify_lockfile, setup_ruby, make("test")],
         services: [],
         triggers: release_triggers(name),
-        runs_on: "ubuntu-latest"
+        runs_on: "ubuntu-latest",
+        env: {}
       )
         @gem = gem
         @job_name = job_name
@@ -585,13 +584,14 @@ class CI
         @services = services
         @triggers = triggers
         @runs_on = runs_on
+        @env = env
       end
 
       def to_h
         { "name" => name, "on" => triggers.reduce(&:merge), "jobs" => { job_name => job } }
       end
 
-      attr_reader :gem, :job_name, :name, :working_directory, :matrix, :steps, :services, :triggers, :runs_on
+      attr_reader :gem, :job_name, :name, :working_directory, :matrix, :steps, :services, :triggers, :runs_on, :env
 
       private
 
@@ -599,7 +599,7 @@ class CI
         {
           "runs-on" => runs_on,
           "timeout-minutes" => 120,
-          "env" => { "WORKING_DIRECTORY" => working_directory }.merge(env(matrix)),
+          "env" => { "WORKING_DIRECTORY" => working_directory }.merge(mk_env(matrix)).merge(env),
           "services" => services.reduce(&:merge),
           "strategy" => {
             "fail-fast" => false,
@@ -611,7 +611,7 @@ class CI
         }.reject { |k, _| k == "services" && services.empty? }.reject { |k, _| k == "strategy" && matrix.empty? }
       end
 
-      def env(matrix)
+      def mk_env(matrix)
         matrix
           .take(1)
           .reduce({}) do |acc, matrix_item|
@@ -645,7 +645,17 @@ class CI
       steps: [checkout(depth: 0), verify_lockfile, setup_ruby, make("mutate-changes")],
       **
     )
-      Workflow.new(name, job_name: "mutate", matrix: matrix, steps: steps, runs_on: "macos-14", **)
+      Workflow.new(
+        name,
+        job_name: "mutate",
+        matrix: matrix,
+        steps: steps,
+        runs_on: "macos-14",
+        env: {
+          "BUNDLE_WITHOUT" => "database",
+        },
+        **,
+      )
     end
 
     def contrib_mutate(
@@ -663,6 +673,9 @@ class CI
         steps: steps,
         triggers: contrib_triggers("#{name}_mutate", working_directory),
         runs_on: "macos-14",
+        env: {
+          "BUNDLE_WITHOUT" => "database",
+        },
         **,
       )
     end
@@ -680,6 +693,9 @@ class CI
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", name),
         runs_on: "macos-14",
+        env: {
+          "BUNDLE_WITHOUT" => "database",
+        },
         **,
       )
     end
@@ -699,6 +715,9 @@ class CI
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", working_directory),
         runs_on: "macos-14",
+        env: {
+          "BUNDLE_WITHOUT" => "database",
+        },
         **,
       )
     end

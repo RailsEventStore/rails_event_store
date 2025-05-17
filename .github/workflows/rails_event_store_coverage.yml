@@ -30,6 +30,7 @@ jobs:
       WORKING_DIRECTORY: rails_event_store
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      BUNDLE_WITHOUT: database
     strategy:
       fail-fast: false
       matrix:

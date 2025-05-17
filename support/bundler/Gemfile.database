@@ -1,2 +1,4 @@
-gem "pg", "~> 1.5.6"
-gem "mysql2", "~> 0.5.6"
+group "database" do
+  gem "pg", "~> 1.5.6"
+  gem "mysql2", "~> 0.5.6"
+end

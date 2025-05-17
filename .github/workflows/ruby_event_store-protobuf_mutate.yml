@@ -28,6 +28,7 @@ jobs:
       WORKING_DIRECTORY: contrib/ruby_event_store-protobuf
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      BUNDLE_WITHOUT: database
     strategy:
       fail-fast: false
       matrix:
