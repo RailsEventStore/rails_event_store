@@ -5,6 +5,8 @@ on:
     types:
     - script
   push:
+    branches:
+    - master
     paths:
     - contrib/ruby_event_store-sidekiq_scheduler/Gemfile.lock
     - ".github/workflows/ruby_event_store-sidekiq_scheduler_coverage.yml"

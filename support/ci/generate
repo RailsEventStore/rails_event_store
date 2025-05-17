@@ -33,20 +33,11 @@ class CI
 
   GEMFILE = "Gemfile"
 
-  RAILS_GEMFILES = [
-    GEMFILE_RAILS_7_2 = "Gemfile.rails_7_2",
-    GEMFILE_RAILS_7_1 = "Gemfile.rails_7_1",
-  ].flatten
+  RAILS_GEMFILES = [GEMFILE_RAILS_7_2 = "Gemfile.rails_7_2", GEMFILE_RAILS_7_1 = "Gemfile.rails_7_1"].flatten
 
-  AS_GEMFILES = [
-    GEMFILE_AS_7_2 = "Gemfile.activesupport_7_2",
-    GEMFILE_AS_7_1 = "Gemfile.activesupport_7_1",
-  ]
+  AS_GEMFILES = [GEMFILE_AS_7_2 = "Gemfile.activesupport_7_2", GEMFILE_AS_7_1 = "Gemfile.activesupport_7_1"]
 
-  AR_GEMFILES = [
-    GEMFILE_AR_7_2 = "Gemfile.activerecord_7_2",
-    GEMFILE_AR_7_1 = "Gemfile.activerecord_7_1",
-  ]
+  AR_GEMFILES = [GEMFILE_AR_7_2 = "Gemfile.activerecord_7_2", GEMFILE_AR_7_1 = "Gemfile.activerecord_7_1"]
 
   SIDEKIQ_GEMFILES = [GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5"]
 
@@ -70,53 +61,56 @@ class CI
       release_coverage("ruby_event_store-browser"),
       release_test(
         "rails_event_store",
-        matrix: join(
-          generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-          generate(ruby_version(RUBY_3_4), bundle_gemfile(RAILS_GEMFILES.take(1))),
-          generate(ruby_version(RUBY_3_3), bundle_gemfile(RAILS_GEMFILES.drop(1))),
-        ),
+        matrix:
+          join(
+            generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+            generate(ruby_version(RUBY_3_4), bundle_gemfile(RAILS_GEMFILES.take(1))),
+            generate(ruby_version(RUBY_3_3), bundle_gemfile(RAILS_GEMFILES.drop(1))),
+          ),
       ),
       release_mutate("rails_event_store"),
       release_coverage("rails_event_store"),
       release_test(
         "ruby_event_store-active_record",
         services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
-        matrix: join(
-          generate(
-            generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-            join(
-              generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
-              generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
-              generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+        matrix:
+          join(
+            generate(
+              generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+              join(
+                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+                generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+              ),
+            ),
+            generate(
+              generate(ruby_version(RUBY_3_4), bundle_gemfile(AR_GEMFILES.take(1))),
+              join(
+                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+                generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+              ),
+            ),
+            generate(
+              generate(ruby_version(RUBY_3_3), bundle_gemfile(AR_GEMFILES.drop(1))),
+              join(
+                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+                generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+              ),
             ),
           ),
-          generate(
-            generate(ruby_version(RUBY_3_4), bundle_gemfile(AR_GEMFILES.take(1))),
-            join(
-              generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
-              generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
-              generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
-            ),
-          ),
-          generate(
-            generate(ruby_version(RUBY_3_3), bundle_gemfile(AR_GEMFILES.drop(1))),
-            join(
-              generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
-              generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
-              generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
-            ),
-          ),
-        ),
       ),
       release_mutate("ruby_event_store-active_record"),
       release_coverage("ruby_event_store-active_record"),
       contrib_test(
         "ruby_event_store-flipper",
-        matrix: join(
-          generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-          generate(ruby_version(RUBY_3_4), bundle_gemfile(AS_GEMFILES.take(1))),
-          generate(ruby_version(RUBY_3_3), bundle_gemfile(AS_GEMFILES.drop(1))),
-        ),
+        matrix:
+          join(
+            generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+            generate(ruby_version(RUBY_3_4), bundle_gemfile(AS_GEMFILES.take(1))),
+            generate(ruby_version(RUBY_3_3), bundle_gemfile(AS_GEMFILES.drop(1))),
+          ),
       ),
       contrib_mutate("ruby_event_store-flipper"),
       contrib_coverage("ruby_event_store-flipper"),
@@ -166,11 +160,8 @@ class CI
       contrib_coverage("ruby_event_store-profiler"),
       contrib_test(
         "ruby_event_store-protobuf",
-        matrix: generate(
-          ruby_version(MRI_RUBY - [RUBY_3_4]),
-          bundle_gemfile(GEMFILE, RAILS_GEMFILES),
-          database_url(SQLITE3)
-        ),
+        matrix:
+          generate(ruby_version(MRI_RUBY - [RUBY_3_4]), bundle_gemfile(GEMFILE, RAILS_GEMFILES), database_url(SQLITE3)),
       ),
       contrib_mutate(
         "ruby_event_store-protobuf",
@@ -264,12 +255,13 @@ class CI
       contrib_test(
         "dres_rails",
         services: [postgres_13, postgres_17],
-        matrix: generate(
-          ruby_version(MRI_RUBY),
-          bundle_gemfile(GEMFILE),
-          database_url(POSTGRES),
-          data_type(DATA_TYPES_IN_AR),
-        ),
+        matrix:
+          generate(
+            ruby_version(MRI_RUBY),
+            bundle_gemfile(GEMFILE),
+            database_url(POSTGRES),
+            data_type(DATA_TYPES_IN_AR),
+          ),
         triggers: dres_triggers("dres_rails_test"),
       ),
       assets("ruby_event_store-browser"),
@@ -397,7 +389,7 @@ class CI
 
     def push_trigger(paths = [])
       return { "push" => nil } if paths.empty?
-      { "push" => { "paths" => paths } }
+      { "push" => { "branches" => ["master"], "paths" => paths } }
     end
 
     def pr_trigger(paths)

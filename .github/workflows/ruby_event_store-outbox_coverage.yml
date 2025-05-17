@@ -5,6 +5,8 @@ on:
     types:
     - script
   push:
+    branches:
+    - master
     paths:
     - contrib/ruby_event_store-outbox/Gemfile.lock
     - ".github/workflows/ruby_event_store-outbox_coverage.yml"
