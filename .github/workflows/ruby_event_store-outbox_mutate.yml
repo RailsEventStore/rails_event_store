@@ -12,9 +12,6 @@ on:
     - "!support/bundler/**"
     - "!support/ci/**"
   pull_request:
-    types:
-    - opened
-    - reopened
     paths:
     - contrib/ruby_event_store-outbox/**
     - ".github/workflows/ruby_event_store-outbox_mutate.yml"

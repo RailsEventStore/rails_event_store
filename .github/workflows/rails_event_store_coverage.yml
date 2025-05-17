@@ -12,9 +12,6 @@ on:
     - "!support/bundler/**"
     - "!support/ci/**"
   pull_request:
-    types:
-    - opened
-    - reopened
     paths:
     - rails_event_store/Gemfile.lock
     - ".github/workflows/rails_event_store_coverage.yml"
