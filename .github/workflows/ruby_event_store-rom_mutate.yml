@@ -22,12 +22,13 @@ on:
     - "!support/ci/**"
 jobs:
   mutate:
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     timeout-minutes: 120
     env:
       WORKING_DIRECTORY: contrib/ruby_event_store-rom
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
+      BUNDLE_WITHOUT: database
     strategy:
       fail-fast: false
       matrix:
