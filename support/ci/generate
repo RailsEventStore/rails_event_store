@@ -48,7 +48,7 @@ class CI
       release_coverage("aggregate_root"),
       release_test("ruby_event_store"),
       release_mutate("ruby_event_store"),
-      release_coverage("ruby_event_store"),
+      release_coverage("ruby_event_store", runs_on: "macos-14"),
       release_test("ruby_event_store-rspec"),
       release_mutate("ruby_event_store-rspec"),
       release_coverage("ruby_event_store-rspec"),
