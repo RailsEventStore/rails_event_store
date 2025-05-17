@@ -12,9 +12,6 @@ on:
     - "!support/bundler/**"
     - "!support/ci/**"
   pull_request:
-    types:
-    - opened
-    - reopened
     paths:
     - aggregate_root/Gemfile.lock
     - ".github/workflows/aggregate_root_coverage.yml"

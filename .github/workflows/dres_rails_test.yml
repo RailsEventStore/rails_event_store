@@ -13,9 +13,6 @@ on:
     - "!support/bundler/**"
     - "!support/ci/**"
   pull_request:
-    types:
-    - opened
-    - reopened
     paths:
     - contrib/dres_client/**
     - contrib/dres_rails/**

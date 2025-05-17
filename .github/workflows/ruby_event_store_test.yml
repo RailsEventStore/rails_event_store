@@ -17,9 +17,6 @@ on:
     - "!support/bundler/**"
     - "!support/ci/**"
   pull_request:
-    types:
-    - opened
-    - reopened
     paths:
     - aggregate_root/**
     - rails_event_store/**

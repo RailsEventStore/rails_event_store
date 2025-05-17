@@ -12,9 +12,6 @@ on:
     - "!support/bundler/**"
     - "!support/ci/**"
   pull_request:
-    types:
-    - opened
-    - reopened
     paths:
     - contrib/minitest-ruby_event_store/**
     - ".github/workflows/minitest-ruby_event_store_test.yml"

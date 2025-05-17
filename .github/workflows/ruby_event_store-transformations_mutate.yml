@@ -12,9 +12,6 @@ on:
     - "!support/bundler/**"
     - "!support/ci/**"
   pull_request:
-    types:
-    - opened
-    - reopened
     paths:
     - contrib/ruby_event_store-transformations/**
     - ".github/workflows/ruby_event_store-transformations_mutate.yml"
