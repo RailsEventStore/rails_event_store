@@ -15,17 +15,36 @@ module RubyEventStore
         event = Object.new
         record = Object.new
 
+        expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
         instrumented_broker.call(event, record, "topic")
 
         expect(some_broker).to have_received(:call).with(event, record, "topic")
       end
 
+      specify "wraps around legacy implementation" do
+        some_broker = spy
+        instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
+        event = Object.new
+        record = Object.new
+
+        expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 2))
+        expect { instrumented_broker.call(event, record, "topic") }.to output(<<~EOS).to_stderr
+            Message broker shall support topics. 
+            Topic WILL BE IGNORED in the current broker.
+            Modify the broker implementation to pass topic as an argument to broker.call method.
+          EOS
+
+        expect(some_broker).to have_received(:call).with(event, record)
+      end
+
       specify "instruments" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
+        some_broker = spy
+        instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
         subscribe_to("call.broker.rails_event_store") do |notification_calls|
           event = Object.new
           record = Object.new
 
+          expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
           instrumented_broker.call(event, record, "topic")
 
           expect(notification_calls).to eq([{ event: event, record: record, topic: "topic" }])
