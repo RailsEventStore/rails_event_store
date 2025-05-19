@@ -14,7 +14,7 @@ module DresRails
     private
 
     def repository
-      RubyEventStore::ActiveRecord::PgLinearizedEventRepository.new(serializer: JSON)
+      RubyEventStore::ActiveRecord::PgLinearizedEventRepository.new(serializer: RubyEventStore::NULL)
     end
 
     def build_initial_spec
