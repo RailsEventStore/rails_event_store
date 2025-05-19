@@ -57,7 +57,16 @@ module RubyEventStore
       append_records_to_stream(records, stream_name: stream_name, expected_version: expected_version)
       enriched_events.zip(records) do |event, record|
         with_metadata(correlation_id: event.metadata.fetch(:correlation_id), causation_id: event.event_id) do
-          broker.call(event, record, topic || event.event_type)
+          if broker.public_method(:call).arity == 3
+            broker.call(event, record, topic || event.event_type)
+          else
+            warn <<~EOW
+              Message broker shall support topics. 
+              Topic WILL BE IGNORED in the current broker.
+              Modify the broker implementation to pass topic as an argument to broker.call method.
+            EOW
+            broker.call(event, record)
+          end
         end
       end
       self
