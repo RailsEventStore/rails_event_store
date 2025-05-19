@@ -13,7 +13,7 @@ module RubyEventStore
           broker.call(event, record, topic)
         else
           warn <<~EOW
-            Message broker shall support topics. 
+            Message broker shall support topics.
             Topic WILL BE IGNORED in the current broker.
             Modify the broker implementation to pass topic as an argument to broker.call method.
           EOW
