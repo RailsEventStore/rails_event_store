@@ -16,9 +16,9 @@ module RubyEventStore
         record = Object.new
 
         expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
-        instrumented_broker.call(event, record, "topic")
+        instrumented_broker.call("topic", event, record)
 
-        expect(some_broker).to have_received(:call).with(event, record, "topic")
+        expect(some_broker).to have_received(:call).with("topic", event, record)
       end
 
       specify "wraps around legacy implementation" do
@@ -28,7 +28,7 @@ module RubyEventStore
         record = Object.new
 
         expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 2))
-        expect { instrumented_broker.call(event, record, "topic") }.to output(<<~EOS).to_stderr
+        expect { instrumented_broker.call("topic", event, record) }.to output(<<~EOS).to_stderr
             Message broker shall support topics.
             Topic WILL BE IGNORED in the current broker.
             Modify the broker implementation to pass topic as an argument to broker.call method.
@@ -45,9 +45,9 @@ module RubyEventStore
           record = Object.new
 
           expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
-          instrumented_broker.call(event, record, "topic")
+          instrumented_broker.call("topic", event, record)
 
-          expect(notification_calls).to eq([{ event: event, record: record, topic: "topic" }])
+          expect(notification_calls).to eq([{ topic: "topic", event: event, record: record }])
         end
       end
     end
