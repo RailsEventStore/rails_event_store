@@ -13,6 +13,7 @@ module RubyEventStore
   ReservedInternalName = Class.new(Error)
   InvalidHandler = Class.new(Error)
   EventNotFoundInStream = Class.new(Error)
+  SubscriptionsNotSupported = Class.new(Error)
 
   class EventNotFound < Error
     attr_reader :event_id
