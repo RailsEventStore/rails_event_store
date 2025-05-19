@@ -29,7 +29,7 @@ module RubyEventStore
 
         expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 2))
         expect { instrumented_broker.call(event, record, "topic") }.to output(<<~EOS).to_stderr
-            Message broker shall support topics. 
+            Message broker shall support topics.
             Topic WILL BE IGNORED in the current broker.
             Modify the broker implementation to pass topic as an argument to broker.call method.
           EOS
