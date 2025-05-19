@@ -7,9 +7,9 @@ module RubyEventStore
       @instrumentation = instrumentation
     end
 
-    def call(event, record)
-      instrumentation.instrument("call.broker.rails_event_store", event: event, record: record) do
-        broker.call(event, record)
+    def call(event, record, topic)
+      instrumentation.instrument("call.broker.rails_event_store", event: event, record: record, topic: topic) do
+        broker.call(event, record, topic)
       end
     end
 

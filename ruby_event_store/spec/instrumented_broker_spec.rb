@@ -15,9 +15,9 @@ module RubyEventStore
         event = Object.new
         record = Object.new
 
-        instrumented_broker.call(event, record)
+        instrumented_broker.call(event, record, "topic")
 
-        expect(some_broker).to have_received(:call).with(event, record)
+        expect(some_broker).to have_received(:call).with(event, record, "topic")
       end
 
       specify "instruments" do
@@ -26,9 +26,9 @@ module RubyEventStore
           event = Object.new
           record = Object.new
 
-          instrumented_broker.call(event, record)
+          instrumented_broker.call(event, record, "topic")
 
-          expect(notification_calls).to eq([{ event: event, record: record }])
+          expect(notification_calls).to eq([{ event: event, record: record, topic: "topic" }])
         end
       end
     end
