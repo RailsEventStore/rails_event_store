@@ -57,22 +57,22 @@ module RubyEventStore
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
         subscriber = -> {}
-        event_types = []
+        topics = []
 
-        instrumented_broker.add_subscription(subscriber, event_types)
+        instrumented_broker.add_subscription(subscriber, topics)
 
-        expect(some_broker).to have_received(:add_subscription).with(subscriber, event_types)
+        expect(some_broker).to have_received(:add_subscription).with(subscriber, topics)
       end
 
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_subscription.broker.rails_event_store") do |notification_calls|
           subscriber = -> {}
-          event_types = []
+          topics = []
 
-          instrumented_broker.add_subscription(subscriber, event_types)
+          instrumented_broker.add_subscription(subscriber, topics)
 
-          expect(notification_calls).to eq([{ subscriber: subscriber, event_types: event_types }])
+          expect(notification_calls).to eq([{ subscriber: subscriber, topics: topics }])
         end
       end
     end
@@ -105,22 +105,22 @@ module RubyEventStore
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
         subscriber = -> {}
-        event_types = []
+        topics = []
 
-        instrumented_broker.add_thread_subscription(subscriber, event_types)
+        instrumented_broker.add_thread_subscription(subscriber, topics)
 
-        expect(some_broker).to have_received(:add_thread_subscription).with(subscriber, event_types)
+        expect(some_broker).to have_received(:add_thread_subscription).with(subscriber, topics)
       end
 
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_thread_subscription.broker.rails_event_store") do |notification_calls|
           subscriber = -> {}
-          event_types = []
+          topics = []
 
-          instrumented_broker.add_thread_subscription(subscriber, event_types)
+          instrumented_broker.add_thread_subscription(subscriber, topics)
 
-          expect(notification_calls).to eq([{ subscriber: subscriber, event_types: event_types }])
+          expect(notification_calls).to eq([{ subscriber: subscriber, topics: topics }])
         end
       end
     end
@@ -152,21 +152,21 @@ module RubyEventStore
       specify "wraps around original implementation" do
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        event_type = String.new
+        topic = String.new
 
-        instrumented_broker.all_subscriptions_for(event_type)
+        instrumented_broker.all_subscriptions_for(topic)
 
-        expect(some_broker).to have_received(:all_subscriptions_for).with(event_type)
+        expect(some_broker).to have_received(:all_subscriptions_for).with(topic)
       end
 
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("all_subscriptions_for.broker.rails_event_store") do |notification_calls|
-          event_type = String.new
+          topic = String.new
 
-          instrumented_broker.all_subscriptions_for(event_type)
+          instrumented_broker.all_subscriptions_for(topic)
 
-          expect(notification_calls).to eq([{ event_type: event_type }])
+          expect(notification_calls).to eq([{ topic: topic }])
         end
       end
     end
