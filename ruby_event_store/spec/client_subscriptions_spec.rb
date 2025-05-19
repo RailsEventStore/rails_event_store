@@ -22,6 +22,53 @@ class CustomDispatcher
   end
 end
 
+class LegacyBroker
+  def initialize(subscriptions: RubyEventStore::Subscriptions.new, dispatcher: RubyEventStore::Dispatcher.new)
+    @subscriptions = subscriptions
+    @dispatcher = dispatcher
+  end
+
+  def call(event, record)
+    subscribers = subscriptions.all_for(event.event_type)
+    subscribers.each { |subscriber| dispatcher.call(subscriber, event, record) }
+  end
+
+  def add_subscription(subscriber, event_types)
+    verify_subscription(subscriber)
+    subscriptions.add_subscription(subscriber, event_types)
+  end
+
+  def add_global_subscription(subscriber)
+    verify_subscription(subscriber)
+    subscriptions.add_global_subscription(subscriber)
+  end
+
+  def add_thread_subscription(subscriber, event_types)
+    verify_subscription(subscriber)
+    subscriptions.add_thread_subscription(subscriber, event_types)
+  end
+
+  def add_thread_global_subscription(subscriber)
+    verify_subscription(subscriber)
+    subscriptions.add_thread_global_subscription(subscriber)
+  end
+
+  def all_subscriptions_for(event_type)
+    subscriptions.all_for(event_type)
+  end
+
+  private
+
+  attr_reader :dispatcher, :subscriptions
+
+  def verify_subscription(subscriber)
+    raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber
+    unless dispatcher.verify(subscriber)
+      raise InvalidHandler.new("Handler #{subscriber} is invalid for dispatcher #{dispatcher}")
+    end
+  end
+end
+
 module RubyEventStore
   ::RSpec.describe Client do
     let(:mapper) { Mappers::Default.new }
@@ -50,17 +97,40 @@ module RubyEventStore
       expect(subscriber.handled_events).to eq [event]
     end
 
-    specify 'notifies subscribers listening on topic' do
+    specify "still supports old brokers, topic will be ignored" do
+      dispatcher = CustomDispatcher.new
+      client = RubyEventStore::Client.new(message_broker: LegacyBroker.new(dispatcher: dispatcher))
+      subscriber_1 = Subscribers::ValidHandler.new
+      subscriber_2 = Subscribers::ValidHandler.new
+      client.subscribe(subscriber_1, to: [TestEvent])
+      client.subscribe(subscriber_2, to: ["topic"])
+      event = TestEvent.new
+      client.publish(event, topic: "topic")
+      record = mapper.event_to_record(event)
+      expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
+    end
+
+    specify "warns when using old broker" do
+      expect { RubyEventStore::Client.new(message_broker: LegacyBroker.new).publish(TestEvent.new) }.to output(
+        <<~EOS,
+          Message broker shall support topics. 
+          Topic WILL BE IGNORED in the current broker.
+          Modify the broker implementation to pass topic as an argument to broker.call method.
+        EOS
+      ).to_stderr
+    end
+
+    specify "notifies subscribers listening on topic" do
       subscriber = Subscribers::ValidHandler.new
-      client.subscribe(subscriber, to: ['topic', TestEvent])
+      client.subscribe(subscriber, to: ["topic", TestEvent])
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       event_3 = TestEvent.new
       event_4 = TestEvent.new
-      client.publish(event_1, topic: 'topic')
-      client.publish(event_2, topic: 'another_topic')
+      client.publish(event_1, topic: "topic")
+      client.publish(event_2, topic: "another_topic")
       client.publish(event_3)
-      client.publish(event_4, topic: 'not_that_topic')
+      client.publish(event_4, topic: "not_that_topic")
       expect(subscriber.handled_events).to eq [event_1, event_3]
     end
 
