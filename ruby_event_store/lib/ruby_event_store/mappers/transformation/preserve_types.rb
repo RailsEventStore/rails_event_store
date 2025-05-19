@@ -144,8 +144,7 @@ module RubyEventStore
           when Hash
             argument.each_with_object({}) do |(key, value), hash|
               key_type, value_type = type.fetch(key.to_sym) { type.fetch(key.to_s) }
-              restored_key = restore_type(key, key_type)
-              hash[restored_key] = restore_type(value, value_type)
+              hash[restore_type(key, key_type)] = restore_type(value, value_type)
             end
           when Array
             argument.each_with_index.map { |a, idx| restore_type(a, type.fetch(idx)) }
