@@ -129,8 +129,8 @@ module RubyEventStore
         def store_type(argument)
           case argument
           when Hash
-            argument.each_with_object({}) do |(key, value), hash|
-              hash[transform(key)] = [store_type(key), store_type(value)]
+            argument.reduce({}) do |hash, (key, value)|
+              hash.merge(transform(key) => [store_type(key), store_type(value)])
             end
           when Array
             argument.map { |i| store_type(i) }
@@ -142,9 +142,9 @@ module RubyEventStore
         def restore_type(argument, type)
           case type
           when Hash
-            argument.each_with_object({}) do |(key, value), hash|
+            argument.reduce({}) do |hash, (key, value)|
               key_type, value_type = type.fetch(key.to_sym) { type.fetch(key.to_s) }
-              hash[restore_type(key, key_type)] = restore_type(value, value_type)
+              hash.merge(restore_type(key, key_type) => restore_type(value, value_type))
             end
           when Array
             argument.each_with_index.map { |a, idx| restore_type(a, type.fetch(idx)) }
