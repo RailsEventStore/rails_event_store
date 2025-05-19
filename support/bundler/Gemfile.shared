@@ -1,5 +1,5 @@
 gem "rake", ">= 10.0"
-gem "rspec", "~> 3.6"
-gem "mutant-rspec", "= 0.12.0",    require: false
-gem "mutant-minitest", "= 0.12.0", require: false
-gem "mutant", "= 0.12.0",          require: false
+gem "rspec"
+gem "mutant-rspec", require: false
+gem "mutant-minitest", require: false
+gem "mutant", require: false
