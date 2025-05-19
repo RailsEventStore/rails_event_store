@@ -32,8 +32,8 @@ module RubyEventStore
       subscriptions.add_thread_global_subscription(subscriber)
     end
 
-    def all_subscriptions_for(event_type)
-      subscriptions.all_for(event_type)
+    def all_subscriptions_for(topic)
+      subscriptions.all_for(topic)
     end
 
     private

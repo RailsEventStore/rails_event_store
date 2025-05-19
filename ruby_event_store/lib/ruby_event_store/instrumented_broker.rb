@@ -22,12 +22,10 @@ module RubyEventStore
       end
     end
 
-    def add_subscription(subscriber, event_types)
-      instrumentation.instrument(
-        "add_subscription.broker.rails_event_store",
-        subscriber: subscriber,
-        event_types: event_types,
-      ) { broker.add_subscription(subscriber, event_types) }
+    def add_subscription(subscriber, topics)
+      instrumentation.instrument("add_subscription.broker.rails_event_store", subscriber: subscriber, topics: topics) do
+        broker.add_subscription(subscriber, topics)
+      end
     end
 
     def add_global_subscription(subscriber)
@@ -36,12 +34,12 @@ module RubyEventStore
       end
     end
 
-    def add_thread_subscription(subscriber, event_types)
+    def add_thread_subscription(subscriber, topics)
       instrumentation.instrument(
         "add_thread_subscription.broker.rails_event_store",
         subscriber: subscriber,
-        event_types: event_types,
-      ) { broker.add_thread_subscription(subscriber, event_types) }
+        topics: topics,
+      ) { broker.add_thread_subscription(subscriber, topics) }
     end
 
     def add_thread_global_subscription(subscriber)
@@ -50,9 +48,9 @@ module RubyEventStore
       end
     end
 
-    def all_subscriptions_for(event_type)
-      instrumentation.instrument("all_subscriptions_for.broker.rails_event_store", event_type: event_type) do
-        broker.all_subscriptions_for(event_type)
+    def all_subscriptions_for(topic)
+      instrumentation.instrument("all_subscriptions_for.broker.rails_event_store", topic: topic) do
+        broker.all_subscriptions_for(topic)
       end
     end
 
