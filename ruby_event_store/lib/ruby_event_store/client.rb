@@ -58,10 +58,10 @@ module RubyEventStore
       enriched_events.zip(records) do |event, record|
         with_metadata(correlation_id: event.metadata.fetch(:correlation_id), causation_id: event.event_id) do
           if broker.public_method(:call).arity == 3
-            broker.call(event, record, topic || event.event_type)
+            broker.call(topic || event.event_type, event, record)
           else
             warn <<~EOW
-              Message broker shall support topics. 
+              Message broker shall support topics.
               Topic WILL BE IGNORED in the current broker.
               Modify the broker implementation to pass topic as an argument to broker.call method.
             EOW

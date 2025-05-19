@@ -7,10 +7,10 @@ module RubyEventStore
       @instrumentation = instrumentation
     end
 
-    def call(event, record, topic)
-      instrumentation.instrument("call.broker.rails_event_store", event: event, record: record, topic: topic) do
+    def call(topic, event, record)
+      instrumentation.instrument("call.broker.rails_event_store", topic: topic, event: event, record: record) do
         if broker.public_method(:call).arity == 3
-          broker.call(event, record, topic)
+          broker.call(topic, event, record)
         else
           warn <<~EOW
             Message broker shall support topics.

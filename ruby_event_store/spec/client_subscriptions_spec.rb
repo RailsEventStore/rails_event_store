@@ -113,7 +113,7 @@ module RubyEventStore
     specify "warns when using old broker" do
       expect { RubyEventStore::Client.new(message_broker: LegacyBroker.new).publish(TestEvent.new) }.to output(
         <<~EOS,
-          Message broker shall support topics. 
+          Message broker shall support topics.
           Topic WILL BE IGNORED in the current broker.
           Modify the broker implementation to pass topic as an argument to broker.call method.
         EOS
