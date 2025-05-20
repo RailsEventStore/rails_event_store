@@ -9,8 +9,6 @@ module RailsEventStore
       allow(Rails).to receive_message_chain(:application, :config).and_return(FakeConfiguration.new)
       Rails.configuration.event_store = event_store
 
-      ActiveJob::Base.queue_adapter = :async
-
       $queue = Queue.new
       stub_const("TestHandler", Class.new(ActiveJob::Base) { def perform(event) = $queue.push(event) })
       stub_const(
@@ -18,6 +16,8 @@ module RailsEventStore
         Class.new(ActiveJob::Base) { def perform(event) = $queue.push(Rails.configuration.event_store.metadata) },
       )
     end
+
+    around { |example| ActiveJob::Base.with(queue_adapter: :async) { example.run } }
 
     specify "with defaults" do
       TestHandler.prepend RailsEventStore::AsyncHandler
