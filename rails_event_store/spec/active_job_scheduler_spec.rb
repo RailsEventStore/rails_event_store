@@ -11,6 +11,7 @@ module RailsEventStore
 
     it_behaves_like "scheduler", ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
     it_behaves_like "scheduler", ActiveJobScheduler.new(serializer: RubyEventStore::NULL)
+    it_behaves_like "scheduler", ActiveJobScheduler.new(serializer: JSON)
 
     let(:event) do
       TimeEnrichment.with(Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"), timestamp: Time.utc(2019, 9, 30))
