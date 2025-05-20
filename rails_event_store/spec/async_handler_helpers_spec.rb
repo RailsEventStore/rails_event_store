@@ -43,11 +43,12 @@ module RailsEventStore
 
     around { |example| Timeout.timeout(2) { example.run } }
 
+    around { |example| ActiveJob::Base.with(queue_adapter: :async) { example.run } }
+
     before do
       allow(Rails).to receive(:application).and_return(application)
       allow(application).to receive(:config).and_return(config)
       Rails.configuration.event_store = event_store
-      ActiveJob::Base.queue_adapter = :async
       $queue = Queue.new
     end
 
