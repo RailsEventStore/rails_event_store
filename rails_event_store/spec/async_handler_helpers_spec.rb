@@ -101,7 +101,6 @@ module RailsEventStore
       with_test_handler do |handler|
         handler.prepend RailsEventStore::AsyncHandler
 
-        event_store.subscribe_to_all_events(HandlerWithHelper)
         event_store.publish(ev = RubyEventStore::Event.new)
         expect($queue.pop).to eq(ev)
       end
