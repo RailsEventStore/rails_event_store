@@ -56,21 +56,6 @@ module RailsEventStore
         MyActiveJobAsyncHandler.perform_enqueued_jobs
         expect(MyActiveJobAsyncHandler.received).to be_nil
       end
-
-      context "when raise_in_transactional_callbacks is enabled" do
-        around { |example| with_raise_in_transactional_callbacks { example.run } }
-
-        it "does not dispatch job" do
-          expect_no_enqueued_job(MyActiveJobAsyncHandler) do
-            ActiveRecord::Base.transaction do
-              dispatcher.call(MyActiveJobAsyncHandler, event, record)
-              raise ::ActiveRecord::Rollback
-            end
-          end
-          MyActiveJobAsyncHandler.perform_enqueued_jobs
-          expect(MyActiveJobAsyncHandler.received).to be_nil
-        end
-      end
     end
 
     it "dispatch job only after top-level transaction (nested is not new) commit" do
@@ -139,29 +124,6 @@ module RailsEventStore
         MyActiveJobAsyncHandler.perform_enqueued_jobs
         expect(MyActiveJobAsyncHandler.received).to eq(serialized_record)
       end
-
-      context "when raise_in_transactional_callbacks is enabled" do
-        around { |example| with_raise_in_transactional_callbacks { example.run } }
-
-        it "dispatches the job after commit" do
-          expect_to_have_enqueued_job(MyActiveJobAsyncHandler) do
-            begin
-              ActiveRecord::Base.transaction do
-                DummyRecord.new.save!
-                expect_no_enqueued_job(MyActiveJobAsyncHandler) do
-                  dispatcher.call(MyActiveJobAsyncHandler, event, record)
-                end
-              end
-            rescue DummyError
-            end
-          end
-          expect(DummyRecord.count).to eq(1)
-          expect(MyActiveJobAsyncHandler.received).to be_nil
-
-          MyActiveJobAsyncHandler.perform_enqueued_jobs
-          expect(MyActiveJobAsyncHandler.received).to eq(serialized_record)
-        end
-      end
     end
 
     context "within a non-joinable transaction" do
@@ -194,17 +156,6 @@ module RailsEventStore
       raise unless block_given?
       yield
       expect(job.queued).not_to be_nil
-    end
-
-    def with_raise_in_transactional_callbacks
-      skip unless ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks)
-
-      old_transaction_config = ActiveRecord::Base.raise_in_transactional_callbacks
-      ActiveRecord::Base.raise_in_transactional_callbacks = true
-
-      yield
-
-      ActiveRecord::Base.raise_in_transactional_callbacks = old_transaction_config
     end
 
     class MyActiveJobAsyncHandler < ActiveJob::Base
