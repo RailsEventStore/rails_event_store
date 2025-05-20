@@ -10,56 +10,70 @@ module RailsEventStore
       Rails.configuration.event_store = event_store
 
       $queue = Queue.new
-      stub_const("TestHandler", Class.new(ActiveJob::Base) { def perform(event) = $queue.push(event) })
       stub_const(
         "MetadataHandler",
         Class.new(ActiveJob::Base) { def perform(event) = $queue.push(Rails.configuration.event_store.metadata) },
       )
     end
 
+    def with_test_handler
+      stub_const("TestHandler", Class.new(ActiveJob::Base) { def perform(event) = $queue.push(event) })
+      yield TestHandler
+    end
+
     around { |example| ActiveJob::Base.with(queue_adapter: :async) { example.run } }
 
     specify "with defaults" do
-      TestHandler.prepend RailsEventStore::AsyncHandler
-      event_store.subscribe_to_all_events(TestHandler)
-      event_store.publish(ev = RubyEventStore::Event.new)
+      with_test_handler do |handler|
+        handler.prepend RailsEventStore::AsyncHandler
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(ev = RubyEventStore::Event.new)
 
-      expect_to_receive(ev)
+        expect_to_receive(ev)
+      end
     end
 
     specify "with specified event store" do
-      TestHandler.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
-      event_store.subscribe_to_all_events(TestHandler)
-      event_store.publish(ev = RubyEventStore::Event.new)
+      with_test_handler do |handler|
+        handler.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(ev = RubyEventStore::Event.new)
 
-      expect_to_receive(ev)
+        expect_to_receive(ev)
+      end
     end
 
     specify "with specified event store locator" do
-      TestHandler.prepend RailsEventStore::AsyncHandler.with(
-                            event_store: nil,
-                            event_store_locator: -> { another_event_store },
-                          )
-      another_event_store.subscribe_to_all_events(TestHandler)
-      another_event_store.publish(ev = RubyEventStore::Event.new)
+      with_test_handler do |handler|
+        handler.prepend RailsEventStore::AsyncHandler.with(
+                          event_store: nil,
+                          event_store_locator: -> { another_event_store },
+                        )
+        another_event_store.subscribe_to_all_events(handler)
+        another_event_store.publish(ev = RubyEventStore::Event.new)
 
-      expect_to_receive(ev)
+        expect_to_receive(ev)
+      end
     end
 
     specify "with specified serializer" do
-      TestHandler.prepend RailsEventStore::AsyncHandler.with(event_store: json_event_store, serializer: JSON)
-      json_event_store.subscribe_to_all_events(TestHandler)
-      json_event_store.publish(ev = RubyEventStore::Event.new)
+      with_test_handler do |handler|
+        handler.prepend RailsEventStore::AsyncHandler.with(event_store: json_event_store, serializer: JSON)
+        json_event_store.subscribe_to_all_events(handler)
+        json_event_store.publish(ev = RubyEventStore::Event.new)
 
-      expect_to_receive(ev)
+        expect_to_receive(ev)
+      end
     end
 
     specify "ActiveJob with AsyncHandler prepended" do
-      TestHandler.prepend RailsEventStore::AsyncHandler
-      event_store.subscribe_to_all_events(TestHandler)
-      event_store.publish(ev = RubyEventStore::Event.new)
+      with_test_handler do |handler|
+        handler.prepend RailsEventStore::AsyncHandler
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(ev = RubyEventStore::Event.new)
 
-      expect_to_receive(ev)
+        expect_to_receive(ev)
+      end
     end
 
     specify "ActiveJob with CorrelatedHandler prepended" do
@@ -91,27 +105,33 @@ module RailsEventStore
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended" do
-      TestHandler.prepend AsyncHandlerJobIdOnly
-      event_store.subscribe_to_all_events(TestHandler)
-      event_store.publish(ev = RubyEventStore::Event.new)
+      with_test_handler do |handler|
+        handler.prepend AsyncHandlerJobIdOnly
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(ev = RubyEventStore::Event.new)
 
-      expect_to_receive(ev)
+        expect_to_receive(ev)
+      end
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended with event store locator" do
-      TestHandler.prepend AsyncHandlerJobIdOnly.with(event_store: nil, event_store_locator: -> { event_store })
-      event_store.subscribe_to_all_events(TestHandler)
-      event_store.publish(ev = RubyEventStore::Event.new)
+      with_test_handler do |handler|
+        handler.prepend AsyncHandlerJobIdOnly.with(event_store: nil, event_store_locator: -> { event_store })
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(ev = RubyEventStore::Event.new)
 
-      expect_to_receive(ev)
+        expect_to_receive(ev)
+      end
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended to host class" do
-      TestHandler.prepend AsyncHandlerJobIdOnly
-      event_store.subscribe_to_all_events(TestHandler)
-      event_store.publish(ev = RubyEventStore::Event.new)
+      with_test_handler do |handler|
+        handler.prepend AsyncHandlerJobIdOnly
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(ev = RubyEventStore::Event.new)
 
-      expect_to_receive(ev)
+        expect_to_receive(ev)
+      end
     end
 
     private
