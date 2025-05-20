@@ -38,16 +38,13 @@ module RailsEventStore
           ),
       )
     end
-    let(:application) { instance_double(Rails::Application) }
-    let(:config) { FakeConfiguration.new }
 
     around { |example| Timeout.timeout(2) { example.run } }
 
     around { |example| ActiveJob::Base.with(queue_adapter: :async) { example.run } }
 
     before do
-      allow(Rails).to receive(:application).and_return(application)
-      allow(application).to receive(:config).and_return(config)
+      allow(Rails).to receive_message_chain(:application, :config).and_return(FakeConfiguration.new)
       Rails.configuration.event_store = event_store
       $queue = Queue.new
     end
