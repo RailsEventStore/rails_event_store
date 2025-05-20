@@ -10,15 +10,6 @@ module RailsEventStore
       Rails.configuration.event_store = event_store
 
       $queue = Queue.new
-      stub_const(
-        "MetadataHandler",
-        Class.new(ActiveJob::Base) { def perform(event) = $queue.push(Rails.configuration.event_store.metadata) },
-      )
-    end
-
-    def with_test_handler
-      stub_const("TestHandler", Class.new(ActiveJob::Base) { def perform(event) = $queue.push(event) })
-      yield TestHandler
     end
 
     around { |example| ActiveJob::Base.with(queue_adapter: :async) { example.run } }
@@ -147,6 +138,30 @@ module RailsEventStore
               RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON)),
           ),
       )
+    end
+
+    def with_correlated_handler
+      stub_const(
+        "TestHandler",
+        Class.new(ActiveJob::Base) do
+          def perform(event)
+            $queue.push(Rails.configuration.event_store.metadata)
+          end
+        end,
+      )
+      yield TestHandler
+    end
+
+    def with_test_handler
+      stub_const(
+        "TestHandler",
+        Class.new(ActiveJob::Base) do
+          def perform(event)
+            $queue.push(event)
+          end
+        end,
+      )
+      yield TestHandler
     end
 
     def mk_event_store = RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
