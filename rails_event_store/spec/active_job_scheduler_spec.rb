@@ -5,20 +5,7 @@ require "ruby_event_store/spec/scheduler_lint"
 
 module RailsEventStore
   ::RSpec.describe ActiveJobScheduler do
-    around do |example|
-      begin
-        original_logger = ActiveJob::Base.logger
-        ActiveJob::Base.logger = nil
-
-        original_adapter = ActiveJob::Base.queue_adapter
-        ActiveJob::Base.queue_adapter = :test
-
-        example.run
-      ensure
-        ActiveJob::Base.logger = original_logger
-        ActiveJob::Base.queue_adapter = original_adapter
-      end
-    end
+    around { |example| ActiveJob::Base.with(logger: nil, queue_adapter: :test) { example.run } }
 
     before { MyAsyncHandler.reset }
 
