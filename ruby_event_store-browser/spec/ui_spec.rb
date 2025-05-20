@@ -24,6 +24,8 @@ module RubyEventStore
       )
       expect(session).to have_content("valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\"")
       expect(session).to have_content("foo: \"bar\"")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
     end
 
     specify "stream view", mutant: false do
@@ -44,6 +46,8 @@ module RubyEventStore
       )
       expect(session).to have_content("valid_at: \"#{foo_bar_event.metadata[:valid_at].iso8601(TIMESTAMP_PRECISION)}\"")
       expect(session).to have_content("foo: \"bar\"")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
     end
 
     specify "Content-Security-Policy", mutant: false do
@@ -67,6 +71,8 @@ module RubyEventStore
       session.visit("/")
 
       expect(session).to have_content("Events in all")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
     end
 
     specify "expect no severe browser warnings", mutant: false do
@@ -92,6 +98,8 @@ module RubyEventStore
       session.visit("/")
 
       expect(logger.messages.select { |m| m["params"]["entry"]["level"] == "error" }).to be_empty
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
     end
 
     let(:event_store) { Client.new }
