@@ -17,14 +17,11 @@ module RailsEventStore
           ),
       )
     end
-    let(:application) { instance_double(Rails::Application) }
-    let(:config) { FakeConfiguration.new }
 
     def expect_to_receive(something) = Timeout.timeout(2) { expect($queue.pop).to eq(something) }
 
     before do
-      allow(Rails).to receive(:application).and_return(application)
-      allow(application).to receive(:config).and_return(config)
+      allow(Rails).to receive_message_chain(:application, :config).and_return(FakeConfiguration.new)
       Rails.configuration.event_store = event_store
 
       ActiveJob::Base.queue_adapter = :async
