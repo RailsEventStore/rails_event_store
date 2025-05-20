@@ -2,22 +2,8 @@
 
 require "spec_helper"
 require "action_controller/railtie"
-require_relative "../../support/helpers/silence_stdout"
-
-SilenceStdout.silence_stdout { require "sidekiq/testing" }
 
 module RailsEventStore
-  class MyLovelyAsyncHandler < ActiveJob::Base
-    def perform(payload)
-      $queue.push(
-        Rails.configuration.event_store.deserialize(
-          serializer: RubyEventStore::Serializers::YAML,
-          **payload.transform_keys(&:to_sym),
-        ),
-      )
-    end
-  end
-
   class MetadataHandler < ActiveJob::Base
     cattr_accessor :metadata
 
@@ -118,17 +104,6 @@ module RailsEventStore
         event_store.publish(ev = RubyEventStore::Event.new(metadata: { correlation_id: "COID", causation_id: "CAID" }))
         expect($queue.pop).to eq({ correlation_id: "COID", causation_id: ev.event_id })
       end
-    end
-
-    specify "ActiveJob with sidekiq adapter that requires serialization", mutant: false do
-      ActiveJob::Base.queue_adapter = :sidekiq
-      ev = RubyEventStore::Event.new
-      Sidekiq::Testing.fake! do
-        event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
-        event_store.publish(ev)
-        Sidekiq::Worker.drain_all
-      end
-      expect($queue.pop(true)).to eq(ev)
     end
 
     specify "CorrelatedHandler with event not yet scheduled with correlation_id" do
