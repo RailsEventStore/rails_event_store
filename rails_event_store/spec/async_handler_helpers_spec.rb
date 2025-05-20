@@ -5,8 +5,8 @@ require "action_controller/railtie"
 
 module RailsEventStore
   ::RSpec.describe AsyncHandler do
-    let(:event_store) { RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
-    let(:another_event_store) { RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new) }
+    let(:event_store) { mk_event_store }
+    let(:another_event_store) { mk_event_store }
     let(:json_event_store) do
       RailsEventStore::Client.new(
         repository: RubyEventStore::InMemoryRepository.new,
@@ -18,6 +18,7 @@ module RailsEventStore
       )
     end
 
+    def mk_event_store = RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
     def expect_to_receive(something) = Timeout.timeout(2) { expect($queue.pop).to eq(something) }
 
     before do
