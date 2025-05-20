@@ -4,53 +4,21 @@ require "spec_helper"
 require "action_controller/railtie"
 
 module RailsEventStore
-  class HandlerWithDefaults < ActiveJob::Base
-    def perform(event)
-      $queue.push(event)
-    end
-  end
-
-  class HandlerWithAnotherEventStore < ActiveJob::Base
-    def perform(event)
-      $queue.push(event)
-    end
-  end
-
-  class HandlerWithEventStoreLocator < ActiveJob::Base
-    def perform(event)
-      $queue.push(event)
-    end
-  end
-
-  class HandlerWithSpecifiedSerializer < ActiveJob::Base
-    def perform(event)
-      $queue.push(event)
-    end
-  end
-
-  class HandlerWithHelper < ActiveJob::Base
-    def perform(event)
-      $queue.push(event)
-    end
-  end
+  %w[
+    HandlerWithDefaults
+    HandlerWithAnotherEventStore
+    HandlerWithEventStoreLocator
+    HandlerWithSpecifiedSerializer
+    HandlerWithHelper
+    IdOnlyHandler
+    YetAnotherIdOnlyHandler
+  ].each { |name| const_set(name, Class.new(ActiveJob::Base) { def perform(event) = $queue.push(event) }) }
 
   class MetadataHandler < ActiveJob::Base
     cattr_accessor :metadata
 
     def perform(_event)
       $queue.push(Rails.configuration.event_store.metadata)
-    end
-  end
-
-  class IdOnlyHandler < ActiveJob::Base
-    def perform(event)
-      $queue.push(event)
-    end
-  end
-
-  class YetAnotherIdOnlyHandler < ActiveJob::Base
-    def perform(event)
-      $queue.push(event)
     end
   end
 
