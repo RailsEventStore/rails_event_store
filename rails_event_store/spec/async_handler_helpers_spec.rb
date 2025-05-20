@@ -17,20 +17,22 @@ module RailsEventStore
     specify "with defaults" do
       with_test_handler do |handler|
         handler.prepend RailsEventStore::AsyncHandler
-        event_store.subscribe_to_all_events(handler)
-        event_store.publish(ev = RubyEventStore::Event.new)
 
-        expect_to_receive(ev)
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(event)
+
+        expect_to_receive(event)
       end
     end
 
     specify "with specified event store" do
       with_test_handler do |handler|
         handler.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
-        event_store.subscribe_to_all_events(handler)
-        event_store.publish(ev = RubyEventStore::Event.new)
 
-        expect_to_receive(ev)
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(event)
+
+        expect_to_receive(event)
       end
     end
 
@@ -40,93 +42,111 @@ module RailsEventStore
                           event_store: nil,
                           event_store_locator: -> { another_event_store },
                         )
-        another_event_store.subscribe_to_all_events(handler)
-        another_event_store.publish(ev = RubyEventStore::Event.new)
 
-        expect_to_receive(ev)
+        another_event_store.subscribe_to_all_events(handler)
+        another_event_store.publish(event)
+
+        expect_to_receive(event)
       end
     end
 
     specify "with specified serializer" do
       with_test_handler do |handler|
         handler.prepend RailsEventStore::AsyncHandler.with(event_store: json_event_store, serializer: JSON)
-        json_event_store.subscribe_to_all_events(handler)
-        json_event_store.publish(ev = RubyEventStore::Event.new)
 
-        expect_to_receive(ev)
+        json_event_store.subscribe_to_all_events(handler)
+        json_event_store.publish(event)
+
+        expect_to_receive(event)
       end
     end
 
     specify "ActiveJob with AsyncHandler prepended" do
       with_test_handler do |handler|
         handler.prepend RailsEventStore::AsyncHandler
-        event_store.subscribe_to_all_events(handler)
-        event_store.publish(ev = RubyEventStore::Event.new)
 
-        expect_to_receive(ev)
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(event)
+
+        expect_to_receive(event)
       end
     end
 
     specify "ActiveJob with CorrelatedHandler prepended" do
-      MetadataHandler.prepend RailsEventStore::CorrelatedHandler
-      MetadataHandler.prepend RailsEventStore::AsyncHandler
-      event_store.subscribe_to_all_events(MetadataHandler)
-      event_store.publish(ev = RubyEventStore::Event.new)
+      with_correlated_handler do |handler|
+        handler.prepend RailsEventStore::CorrelatedHandler
+        handler.prepend RailsEventStore::AsyncHandler
 
-      expect_to_receive({ correlation_id: ev.correlation_id, causation_id: ev.event_id })
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(event)
+
+        expect_to_receive({ correlation_id: event.correlation_id, causation_id: event.event_id })
+      end
     end
 
     specify "ActiveJob with CorrelatedHandler prepended (2)" do
-      MetadataHandler.prepend RailsEventStore::CorrelatedHandler
-      MetadataHandler.prepend RailsEventStore::AsyncHandler
-      event_store.subscribe_to_all_events(MetadataHandler)
-      event_store.publish(ev = RubyEventStore::Event.new(metadata: { correlation_id: "COID", causation_id: "CAID" }))
+      with_correlated_handler do |handler|
+        handler.prepend RailsEventStore::CorrelatedHandler
+        handler.prepend RailsEventStore::AsyncHandler
 
-      expect_to_receive({ correlation_id: "COID", causation_id: ev.event_id })
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(
+          event = RubyEventStore::Event.new(metadata: { correlation_id: "COID", causation_id: "CAID" }),
+        )
+
+        expect_to_receive({ correlation_id: "COID", causation_id: event.event_id })
+      end
     end
 
     specify "CorrelatedHandler with event not yet scheduled with correlation_id" do
-      MetadataHandler.prepend RailsEventStore::CorrelatedHandler
-      MetadataHandler.prepend RailsEventStore::AsyncHandler
-      event_store.append(ev = RubyEventStore::Event.new)
-      ev = event_store.read.event(ev.event_id)
-      MetadataHandler.perform_now(serialize_without_correlation_id(ev))
+      with_correlated_handler do |handler|
+        handler.prepend RailsEventStore::CorrelatedHandler
+        handler.prepend RailsEventStore::AsyncHandler
 
-      expect_to_receive({ correlation_id: nil, causation_id: ev.event_id })
+        event_store.append(event)
+        read_event = event_store.read.event(event.event_id)
+        handler.perform_now(serialize_without_correlation_id(read_event))
+
+        expect_to_receive({ correlation_id: nil, causation_id: read_event.event_id })
+      end
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended" do
       with_test_handler do |handler|
         handler.prepend AsyncHandlerJobIdOnly
-        event_store.subscribe_to_all_events(handler)
-        event_store.publish(ev = RubyEventStore::Event.new)
 
-        expect_to_receive(ev)
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(event)
+
+        expect_to_receive(event)
       end
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended with event store locator" do
       with_test_handler do |handler|
         handler.prepend AsyncHandlerJobIdOnly.with(event_store: nil, event_store_locator: -> { event_store })
-        event_store.subscribe_to_all_events(handler)
-        event_store.publish(ev = RubyEventStore::Event.new)
 
-        expect_to_receive(ev)
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(event)
+
+        expect_to_receive(event)
       end
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended to host class" do
       with_test_handler do |handler|
         handler.prepend AsyncHandlerJobIdOnly
-        event_store.subscribe_to_all_events(handler)
-        event_store.publish(ev = RubyEventStore::Event.new)
 
-        expect_to_receive(ev)
+        event_store.subscribe_to_all_events(handler)
+        event_store.publish(event)
+
+        expect_to_receive(event)
       end
     end
 
     private
 
+    let(:event) { RubyEventStore::Event.new }
     let(:event_store) { mk_event_store }
     let(:another_event_store) { mk_event_store }
     let(:json_event_store) do
