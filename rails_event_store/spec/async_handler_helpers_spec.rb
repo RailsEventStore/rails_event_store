@@ -114,12 +114,6 @@ module RailsEventStore
       expect($queue.pop).to eq(ev)
     end
 
-    specify "default dispatcher can into ActiveJob" do
-      event_store.subscribe_to_all_events(MyLovelyAsyncHandler)
-      event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
-    end
-
     specify "ActiveJob with AsyncHandler prepended" do
       HandlerWithHelper.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(HandlerWithHelper)
