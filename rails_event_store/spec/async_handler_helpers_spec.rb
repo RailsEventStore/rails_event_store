@@ -5,22 +5,6 @@ require "action_controller/railtie"
 
 module RailsEventStore
   ::RSpec.describe AsyncHandler do
-    let(:event_store) { mk_event_store }
-    let(:another_event_store) { mk_event_store }
-    let(:json_event_store) do
-      RailsEventStore::Client.new(
-        repository: RubyEventStore::InMemoryRepository.new,
-        message_broker:
-          RubyEventStore::Broker.new(
-            dispatcher:
-              RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON)),
-          ),
-      )
-    end
-
-    def mk_event_store = RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-    def expect_to_receive(something) = Timeout.timeout(2) { expect($queue.pop).to eq(something) }
-
     before do
       allow(Rails).to receive_message_chain(:application, :config).and_return(FakeConfiguration.new)
       Rails.configuration.event_store = event_store
@@ -131,6 +115,23 @@ module RailsEventStore
     end
 
     private
+
+    let(:event_store) { mk_event_store }
+    let(:another_event_store) { mk_event_store }
+    let(:json_event_store) do
+      RailsEventStore::Client.new(
+        repository: RubyEventStore::InMemoryRepository.new,
+        message_broker:
+          RubyEventStore::Broker.new(
+            dispatcher:
+              RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON)),
+          ),
+      )
+    end
+
+    def mk_event_store = RailsEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+
+    def expect_to_receive(something) = Timeout.timeout(2) { expect($queue.pop).to eq(something) }
 
     def serialize_without_correlation_id(ev)
       serialized = event_store.__send__(:mapper).event_to_record(ev).serialize(RubyEventStore::Serializers::YAML).to_h
