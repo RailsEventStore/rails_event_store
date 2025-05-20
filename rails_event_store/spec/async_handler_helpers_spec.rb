@@ -28,7 +28,7 @@ module RailsEventStore
       )
     end
 
-    around { |example| Timeout.timeout(2) { example.run } }
+    def expect_to_receive(something) = Timeout.timeout(2) { expect($queue.pop).to eq(something) }
 
     before do
       allow(Rails).to receive(:application).and_return(application)
@@ -42,14 +42,16 @@ module RailsEventStore
       TestHandler.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(TestHandler)
       event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
+
+      expect_to_receive(ev)
     end
 
     specify "with specified event store" do
       TestHandler.prepend RailsEventStore::AsyncHandler.with(event_store: another_event_store)
       event_store.subscribe_to_all_events(TestHandler)
       event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
+
+      expect_to_receive(ev)
     end
 
     specify "with specified event store locator" do
@@ -59,21 +61,24 @@ module RailsEventStore
                           )
       another_event_store.subscribe_to_all_events(TestHandler)
       another_event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
+
+      expect_to_receive(ev)
     end
 
     specify "with specified serializer" do
       TestHandler.prepend RailsEventStore::AsyncHandler.with(event_store: json_event_store, serializer: JSON)
       json_event_store.subscribe_to_all_events(TestHandler)
       json_event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
+
+      expect_to_receive(ev)
     end
 
     specify "ActiveJob with AsyncHandler prepended" do
       TestHandler.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(TestHandler)
       event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
+
+      expect_to_receive(ev)
     end
 
     specify "ActiveJob with CorrelatedHandler prepended" do
@@ -81,7 +86,8 @@ module RailsEventStore
       MetadataHandler.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(MetadataHandler)
       event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq({ correlation_id: ev.correlation_id, causation_id: ev.event_id })
+
+      expect_to_receive({ correlation_id: ev.correlation_id, causation_id: ev.event_id })
     end
 
     specify "ActiveJob with CorrelatedHandler prepended (2)" do
@@ -89,7 +95,8 @@ module RailsEventStore
       MetadataHandler.prepend RailsEventStore::AsyncHandler
       event_store.subscribe_to_all_events(MetadataHandler)
       event_store.publish(ev = RubyEventStore::Event.new(metadata: { correlation_id: "COID", causation_id: "CAID" }))
-      expect($queue.pop).to eq({ correlation_id: "COID", causation_id: ev.event_id })
+
+      expect_to_receive({ correlation_id: "COID", causation_id: ev.event_id })
     end
 
     specify "CorrelatedHandler with event not yet scheduled with correlation_id" do
@@ -98,31 +105,32 @@ module RailsEventStore
       event_store.append(ev = RubyEventStore::Event.new)
       ev = event_store.read.event(ev.event_id)
       MetadataHandler.perform_now(serialize_without_correlation_id(ev))
-      expect($queue.pop).to eq({ correlation_id: nil, causation_id: ev.event_id })
+
+      expect_to_receive({ correlation_id: nil, causation_id: ev.event_id })
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended" do
       TestHandler.prepend AsyncHandlerJobIdOnly
       event_store.subscribe_to_all_events(TestHandler)
-
       event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
+
+      expect_to_receive(ev)
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended with event store locator" do
       TestHandler.prepend AsyncHandlerJobIdOnly.with(event_store: nil, event_store_locator: -> { event_store })
       event_store.subscribe_to_all_events(TestHandler)
-
       event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
+
+      expect_to_receive(ev)
     end
 
     specify "ActiveJob with AsyncHandlerJobIdOnly prepended to host class" do
       TestHandler.prepend AsyncHandlerJobIdOnly
       event_store.subscribe_to_all_events(TestHandler)
-
       event_store.publish(ev = RubyEventStore::Event.new)
-      expect($queue.pop).to eq(ev)
+
+      expect_to_receive(ev)
     end
 
     private
