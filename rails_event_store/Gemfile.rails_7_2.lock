@@ -214,8 +214,6 @@ GEM
     rake (13.2.1)
     rdoc (6.13.1)
       psych (>= 4.0.0)
-    redis-client (0.24.0)
-      connection_pool
     regexp_parser (2.9.3)
     reline (0.6.1)
       io-console (~> 0.5)
@@ -233,12 +231,6 @@ GEM
       rspec-support (~> 3.13.0)
     rspec-support (3.13.2)
     securerandom (0.4.1)
-    sidekiq (7.3.9)
-      base64
-      connection_pool (>= 2.3.0)
-      logger
-      rack (>= 2.2.4)
-      redis-client (>= 0.22.2)
     sorbet-runtime (0.5.11899)
     sqlite3 (2.6.0-arm64-darwin)
     sqlite3 (2.6.0-x86_64-darwin)
@@ -277,7 +269,6 @@ DEPENDENCIES
   ruby_event_store!
   ruby_event_store-active_record!
   ruby_event_store-browser!
-  sidekiq
   sqlite3 (>= 1.7.3)
   zeitwerk (~> 2.6.0)
 

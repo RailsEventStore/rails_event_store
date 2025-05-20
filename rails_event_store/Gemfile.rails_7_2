@@ -11,7 +11,6 @@ gem "ruby_event_store-active_record", path: ".."
 gem "rails_event_store_active_record", path: ".."
 gem "aggregate_root", path: ".."
 
-gem "sidekiq"
 gem "rack-test"
 gem "rails", "~> 7.2.2.1"
 gem "sqlite3", ">= 1.7.3"
