@@ -1,33 +1,58 @@
 # frozen_string_literal: true
 
 module RubyEventStore
+  # @private
+  class OneByOneMapping
+    # @api private
+    # @private
+    def initialize(mapper)
+      @mapper = mapper
+    end
+
+    # @api private
+    # @private
+    def call(batch)
+      batch.map { |record| @mapper.record_to_event(record) }
+    end
+  end
+
+  # @private
+  class BatchMapping
+    # @api private
+    # @private
+    def initialize(mapper)
+      @mapper = mapper
+    end
+
+    # @api private
+    # @private
+    def call(batch)
+      @mapper.map_records_to_events(batch)
+    end
+  end
+
   # Used for fetching events based on given query specification.
   class SpecificationReader
     # @api private
     # @private
-    def initialize(repository, mapper)
+    def initialize(repository, mapper, mapping: OneByOneMapping)
       @repository = repository
-      @mapper = mapper
-      @batch_mapper = mapper.respond_to?(:map_records_to_events)
+      @mapping = mapping.new(mapper)
     end
 
     # @api private
     # @private
     def one(specification_result)
       record = repository.read(specification_result)
-      mapper.record_to_event(record) if record
+      mapping.call([record]).first if record
     end
 
     # @api private
     # @private
     def each(specification_result)
-      if @batch_mapper
-        repository.read(specification_result).each { |batch| yield mapper.map_records_to_events(batch) }
-      else
-        repository
-          .read(specification_result)
-          .each { |batch| yield batch.map { |record| mapper.record_to_event(record) } }
-      end
+      repository
+        .read(specification_result)
+        .each { |batch| yield @mapping.call(batch) }
     end
 
     # @api private
@@ -38,6 +63,6 @@ module RubyEventStore
 
     private
 
-    attr_reader :repository, :mapper
+    attr_reader :repository, :mapping
   end
 end
