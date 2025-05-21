@@ -62,7 +62,7 @@ RSpec.shared_examples "subscriptions" do |subscriptions_class|
 
   it "returns lambda as an output of subscribe methods" do
     handler = TestHandler.new
-    result = subscriptions.add_subscription(handler, [Test1DomainEvent, Test2DomainEvent])
+    result = subscriptions.add_subscription(handler, %w[Test1DomainEvent Test2DomainEvent])
     expect(result).to respond_to(:call)
   end
 
