@@ -1,6 +1,6 @@
-### unreleased
+### 0.2.0 2025-05-21
 
-- change the timestamp reported in `enqueued_at` to Sidekiq when pushing jobs from the current time to the record created at timestamp (so that the latency reported in Sidekiq includes the time a job has spent in outbox)
+- Change: the timestamp reported in `enqueued_at` to Sidekiq when pushing jobs from the current time to the record created at timestamp (so that the latency reported in Sidekiq includes the time a job has spent in outbox)
 
 ### 0.1.0 2025-03-25
 
