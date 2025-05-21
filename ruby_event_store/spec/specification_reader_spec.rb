@@ -7,40 +7,57 @@ module RubyEventStore
   ::RSpec.describe SpecificationReader do
     mk_repository = -> { InMemoryRepository.new }
 
+    let(:records) { 3.times.map { SRecord.new(event_id: SecureRandom.uuid) } }
     let(:repository) do
       mk_repository.call.tap do |repo|
         repo.append_to_stream(
-          [SRecord.new(event_id: "fbce0b3d-40e3-4d1d-90a1-901f1ded5a4a")],
+          records,
           Stream.new("other"),
-          ExpectedVersion.none,
+          ExpectedVersion.none
         )
       end
     end
-    let(:mapper_klass) do
-      Class.new(Mappers::Default) do
-        attr_reader :invoked_map_records_to_events
 
-        def map_records_to_events(...)
-          @invoked_map_records_to_events = true
-          super(...)
-        end
+    specify "reading from mapper in batches" do
+      mapper = spy
+      specification =
+        Specification.new(
+          SpecificationReader.new(repository, mapper, mapping: BatchMapping)
+        )
+      specification.to_a
+      expect(mapper).to have_received(:map_records_to_events).with(records)
+    end
+
+    specify "reading from non batch compatible mappers" do
+      mapper = spy
+
+      specification =
+        Specification.new(SpecificationReader.new(repository, mapper))
+      specification.to_a
+      records.each do |record|
+        expect(mapper).to have_received(:map_record_to_event).with(record)
       end
     end
 
-    specify "reading invokes the mapper in batches" do
-      mapper = mapper_klass.new
-      specification = Specification.new(SpecificationReader.new(repository, mapper))
-      specification.to_a
-      expect(mapper.invoked_map_records_to_events).to eq(true)
+    specify "reading single event from mapper in batches" do
+      mapper = spy
+      specification =
+        Specification.new(
+          SpecificationReader.new(repository, mapper, mapping: BatchMapping)
+        )
+      specification.last
+      expect(mapper).to have_received(:map_records_to_events).with(
+        [records.last]
+      )
     end
 
-    specify "specification can still handle non batch compatible mappers" do
-      mapper_klass.undef_method(:map_records_to_events)
-      mapper = mapper_klass.new
+    specify "reading single event from non batch compatible mappers" do
+      mapper = spy
 
-      specification = Specification.new(SpecificationReader.new(repository, mapper))
-      specification.to_a
-      expect(mapper.invoked_map_records_to_events).to_not eq(true)
+      specification =
+        Specification.new(SpecificationReader.new(repository, mapper))
+      specification.last
+      expect(mapper).to have_received(:map_record_to_event).with(records.last)
     end
   end
 end
