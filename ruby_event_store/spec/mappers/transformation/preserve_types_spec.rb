@@ -35,6 +35,7 @@ module RubyEventStore
             valid_at: time,
           )
         end
+
         let(:dump_of_record) do
           Record.new(
             event_id: uuid,
@@ -337,16 +338,14 @@ module RubyEventStore
               event_id: uuid,
               metadata: {
               },
-              data: {
-                active_support_time_with_zone: active_support_time_with_zone,
-              },
+              data: active_support_time_with_zone,
               event_type: "TestEvent",
               timestamp: nil,
               valid_at: nil,
             )
 
           expect(transformation.dump(record).metadata[:types]).to eq(
-            { data: { "active_support_time_with_zone" => %w[Symbol ActiveSupport::TimeWithZone] }, metadata: {} },
+            { data: "ActiveSupport::TimeWithZone", metadata: {} },
           )
           expect(transformation.load(transformation.dump(record))).to eq(record)
         ensure
