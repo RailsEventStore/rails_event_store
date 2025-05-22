@@ -113,6 +113,10 @@ module RubyEventStore
             )
         end
 
+        let(:transformation_with_symbolized_metadata) do
+          Pipeline.new(transformation, SymbolizeMetadataKeys.new, to_domain_event: NULL)
+        end
+
         specify "#dump" do
           result = transformation.dump(record)
           expect(result).to eq(dump_of_record)
@@ -338,16 +342,23 @@ module RubyEventStore
               event_id: uuid,
               metadata: {
               },
-              data: active_support_time_with_zone,
+              data: {
+                active_support_time_with_zone: active_support_time_with_zone,
+              },
               event_type: "TestEvent",
               timestamp: nil,
               valid_at: nil,
             )
 
           expect(transformation.dump(record).metadata[:types]).to eq(
-            { data: "ActiveSupport::TimeWithZone", metadata: {} },
+            { data: { "active_support_time_with_zone" => %w[Symbol ActiveSupport::TimeWithZone] }, metadata: {} },
           )
-          expect(transformation.load(transformation.dump(record))).to eq(record)
+          expect(transformation_with_symbolized_metadata.dump(record).metadata[:types]).to eq(
+            { data: { active_support_time_with_zone: %w[Symbol ActiveSupport::TimeWithZone] }, metadata: {} },
+          )
+          [transformation, transformation_with_symbolized_metadata].each do |t|
+            expect(t.load(t.dump(record))).to eq(record)
+          end
         ensure
           Time.zone = current_tz
         end
@@ -365,14 +376,23 @@ module RubyEventStore
               event_id: uuid,
               metadata: {
               },
-              data: ostruct,
+              data: {
+                ostruct: ostruct,
+              },
               event_type: "TestEvent",
               timestamp: nil,
               valid_at: nil,
             )
 
-          expect(transformation.dump(record).metadata[:types]).to eq({ data: "OpenStruct", metadata: {} })
-          expect(transformation.load(transformation.dump(record))).to eq(record)
+          expect(transformation.dump(record).metadata[:types]).to eq(
+            { data: { ostruct: %w[Symbol OpenStruct] }, metadata: {} },
+          )
+          expect(transformation_with_symbolized_metadata.dump(record).metadata[:types]).to eq(
+            { data: { ostruct: %w[Symbol OpenStruct] }, metadata: {} },
+          )
+          [transformation, transformation_with_symbolized_metadata].each do |t|
+            expect(t.load(t.dump(record))).to eq(record)
+          end
         end
 
         specify "handle classes with overloaded name like ActiveSupport::TimeWithZone < 7.1" do
