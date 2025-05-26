@@ -24,7 +24,7 @@ module RubyEventStore
         Specification.new(
           SpecificationReader.new(repository, mapper, mapping: BatchMapping)
         )
-      specification.to_a
+      expect(specification.to_a).to be_an(Array)
       expect(mapper).to have_received(:records_to_events).with(records)
     end
 
@@ -33,7 +33,7 @@ module RubyEventStore
 
       specification =
         Specification.new(SpecificationReader.new(repository, mapper))
-      specification.to_a
+      expect(specification.to_a).to be_an(Array)
       records.each do |record|
         expect(mapper).to have_received(:record_to_event).with(record)
       end
@@ -45,7 +45,7 @@ module RubyEventStore
         Specification.new(
           SpecificationReader.new(repository, mapper, mapping: BatchMapping)
         )
-      specification.last
+      expect(specification.last).not_to be_an(Array)
       expect(mapper).to have_received(:records_to_events).with([records.last])
     end
 
@@ -54,8 +54,34 @@ module RubyEventStore
 
       specification =
         Specification.new(SpecificationReader.new(repository, mapper))
-      specification.last
+      expect(specification.last).not_to be_an(Array)
       expect(mapper).to have_received(:record_to_event).with(records.last)
+    end
+
+    specify "no mapping when no read records" do
+      mapper = spy
+      Specification.new(SpecificationReader.new(repository, mapper)).event(
+        SecureRandom.uuid
+      )
+      Specification
+        .new(SpecificationReader.new(repository, mapper))
+        .stream("not-existing")
+        .to_a
+      expect(mapper).not_to have_received(:record_to_event)
+    end
+
+    specify "counts read records" do
+      mapper = spy
+      expect(
+        Specification.new(SpecificationReader.new(repository, mapper)).count
+      ).to eq(3)
+
+      expect(
+        Specification
+          .new(SpecificationReader.new(repository, mapper))
+          .stream("not-existing")
+          .count
+      ).to eq(0)
     end
   end
 end
