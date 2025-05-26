@@ -123,7 +123,7 @@ module RubyEventStore
       client.subscribe(subscriber_1, to: [TestEvent])
       client.subscribe(subscriber_2, to: ["topic"])
       event = TestEvent.new
-      client.publish(event, topic: "topic")
+      silence_warnings { client.publish(event, topic: "topic") }
       record = mapper.event_to_record(event)
       expect(dispatcher.dispatched_events).to eq [
            { to: Subscribers::ValidHandler, event: event, record: record }
