@@ -23,7 +23,10 @@ class CustomDispatcher
 end
 
 class LegacyBroker
-  def initialize(subscriptions: RubyEventStore::Subscriptions.new, dispatcher: RubyEventStore::Dispatcher.new)
+  def initialize(
+    subscriptions: RubyEventStore::Subscriptions.new,
+    dispatcher: RubyEventStore::Dispatcher.new
+  )
     @subscriptions = subscriptions
     @dispatcher = dispatcher
   end
@@ -62,9 +65,13 @@ class LegacyBroker
   attr_reader :dispatcher, :subscriptions
 
   def verify_subscription(subscriber)
-    raise SubscriberNotExist, "subscriber must be first argument or block" unless subscriber
+    unless subscriber
+      raise SubscriberNotExist, "subscriber must be first argument or block"
+    end
     unless dispatcher.verify(subscriber)
-      raise InvalidHandler.new("Handler #{subscriber} is invalid for dispatcher #{dispatcher}")
+      raise InvalidHandler.new(
+              "Handler #{subscriber} is invalid for dispatcher #{dispatcher}"
+            )
     end
   end
 end
@@ -75,18 +82,26 @@ module RubyEventStore
     let(:client) { Client.new(mapper: mapper) }
 
     specify "throws exception if subscriber is not defined" do
-      expect { client.subscribe(nil, to: []) }.to raise_error(SubscriberNotExist)
-      expect { client.subscribe_to_all_events(nil) }.to raise_error(SubscriberNotExist)
+      expect { client.subscribe(nil, to: []) }.to raise_error(
+        SubscriberNotExist
+      )
+      expect { client.subscribe_to_all_events(nil) }.to raise_error(
+        SubscriberNotExist
+      )
     end
 
     specify "throws exception if subscriber has not call method - handling subscribed events" do
       subscriber = Subscribers::InvalidHandler.new
-      expect { client.subscribe(subscriber, to: [OrderCreated]) }.to raise_error(InvalidHandler)
+      expect {
+        client.subscribe(subscriber, to: [OrderCreated])
+      }.to raise_error(InvalidHandler)
     end
 
     specify "throws exception if subscriber has not call method - handling all events" do
       subscriber = Subscribers::InvalidHandler.new
-      expect { client.subscribe_to_all_events(subscriber) }.to raise_error(InvalidHandler)
+      expect { client.subscribe_to_all_events(subscriber) }.to raise_error(
+        InvalidHandler
+      )
     end
 
     specify "notifies subscribers listening on all events" do
@@ -99,7 +114,10 @@ module RubyEventStore
 
     specify "still supports old brokers, topic will be ignored" do
       dispatcher = CustomDispatcher.new
-      client = RubyEventStore::Client.new(message_broker: LegacyBroker.new(dispatcher: dispatcher))
+      client =
+        RubyEventStore::Client.new(
+          message_broker: LegacyBroker.new(dispatcher: dispatcher)
+        )
       subscriber_1 = Subscribers::ValidHandler.new
       subscriber_2 = Subscribers::ValidHandler.new
       client.subscribe(subscriber_1, to: [TestEvent])
@@ -107,17 +125,21 @@ module RubyEventStore
       event = TestEvent.new
       client.publish(event, topic: "topic")
       record = mapper.event_to_record(event)
-      expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
+      expect(dispatcher.dispatched_events).to eq [
+           { to: Subscribers::ValidHandler, event: event, record: record }
+         ]
     end
 
     specify "warns when using old broker" do
-      expect { RubyEventStore::Client.new(message_broker: LegacyBroker.new).publish(TestEvent.new) }.to output(
-        <<~EOS,
+      expect {
+        RubyEventStore::Client.new(message_broker: LegacyBroker.new).publish(
+          TestEvent.new
+        )
+      }.to output(<<~EOS).to_stderr
           Message broker shall support topics.
           Topic WILL BE IGNORED in the current broker.
           Modify the broker implementation to pass topic as an argument to broker.call method.
         EOS
-      ).to_stderr
     end
 
     specify "notifies subscribers listening on topic" do
@@ -178,7 +200,9 @@ module RubyEventStore
 
     specify "notifies subscribers listening on list of events - with proc" do
       handled_events = []
-      client.subscribe(to: [OrderCreated, ProductAdded]) { |event| handled_events << event }
+      client.subscribe(to: [OrderCreated, ProductAdded]) do |event|
+        handled_events << event
+      end
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       client.publish(event_1)
@@ -188,13 +212,19 @@ module RubyEventStore
 
     specify "allows to provide a custom dispatcher" do
       dispatcher = CustomDispatcher.new
-      client = Client.new(message_broker: Broker.new(dispatcher: dispatcher), mapper: mapper)
+      client =
+        Client.new(
+          message_broker: Broker.new(dispatcher: dispatcher),
+          mapper: mapper
+        )
       subscriber = Subscribers::ValidHandler.new
       client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
       record = mapper.event_to_record(event)
-      expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
+      expect(dispatcher.dispatched_events).to eq [
+           { to: Subscribers::ValidHandler, event: event, record: record }
+         ]
     end
 
     specify "unsubscribes" do
@@ -214,7 +244,10 @@ module RubyEventStore
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       subscriber = Subscribers::ValidHandler.new
-      client.within { client.publish(event_1) }.subscribe(subscriber, to: [OrderCreated, ProductAdded]).call
+      client
+        .within { client.publish(event_1) }
+        .subscribe(subscriber, to: [OrderCreated, ProductAdded])
+        .call
       client.publish(event_2)
       expect(subscriber.handled_events).to eq [event_1]
       expect(client.read.to_a).to eq([event_1, event_2])
@@ -231,43 +264,67 @@ module RubyEventStore
     end
 
     specify "throws exception if subscriber klass does not have call method - handling subscribed events" do
-      expect { client.subscribe(Subscribers::InvalidHandler, to: [OrderCreated]) }.to raise_error(InvalidHandler)
+      expect {
+        client.subscribe(Subscribers::InvalidHandler, to: [OrderCreated])
+      }.to raise_error(InvalidHandler)
     end
 
     specify "throws exception if subscriber klass have not call method - handling all events" do
-      expect { client.subscribe_to_all_events(Subscribers::InvalidHandler) }.to raise_error(InvalidHandler)
+      expect {
+        client.subscribe_to_all_events(Subscribers::InvalidHandler)
+      }.to raise_error(InvalidHandler)
     end
 
     specify "dispatch events to subscribers via proxy" do
       dispatcher = CustomDispatcher.new
-      client = Client.new(mapper: mapper, message_broker: Broker.new(dispatcher: dispatcher))
+      client =
+        Client.new(
+          mapper: mapper,
+          message_broker: Broker.new(dispatcher: dispatcher)
+        )
       client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
       record = mapper.event_to_record(event)
-      expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
+      expect(dispatcher.dispatched_events).to eq [
+           { to: Subscribers::ValidHandler, event: event, record: record }
+         ]
     end
 
     specify "dispatch all events to subscribers via proxy" do
       dispatcher = CustomDispatcher.new
-      client = Client.new(mapper: mapper, message_broker: Broker.new(dispatcher: dispatcher))
+      client =
+        Client.new(
+          mapper: mapper,
+          message_broker: Broker.new(dispatcher: dispatcher)
+        )
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish(event)
       record = mapper.event_to_record(event)
-      expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
+      expect(dispatcher.dispatched_events).to eq [
+           { to: Subscribers::ValidHandler, event: event, record: record }
+         ]
     end
 
     specify "lambda is an output of global subscribe via proxy" do
       dispatcher = CustomDispatcher.new
-      client = Client.new(mapper: mapper, message_broker: Broker.new(dispatcher: dispatcher))
+      client =
+        Client.new(
+          mapper: mapper,
+          message_broker: Broker.new(dispatcher: dispatcher)
+        )
       result = client.subscribe_to_all_events(Subscribers::ValidHandler)
       expect(result).to respond_to(:call)
     end
 
     specify "lambda is an output of subscribe via proxy" do
       dispatcher = CustomDispatcher.new
-      client = Client.new(mapper: mapper, message_broker: Broker.new(dispatcher: dispatcher))
+      client =
+        Client.new(
+          mapper: mapper,
+          message_broker: Broker.new(dispatcher: dispatcher)
+        )
       result = client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       expect(result).to respond_to(:call)
     end
@@ -276,7 +333,11 @@ module RubyEventStore
       event_1 = OrderCreated.new
       event_2 = ProductAdded.new
       dispatcher = CustomDispatcher.new
-      client = Client.new(mapper: mapper, message_broker: Broker.new(dispatcher: dispatcher))
+      client =
+        Client.new(
+          mapper: mapper,
+          message_broker: Broker.new(dispatcher: dispatcher)
+        )
       result =
         client
           .within do
@@ -287,7 +348,9 @@ module RubyEventStore
           .call
       client.publish(event_2)
       record = mapper.event_to_record(event_1)
-      expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event_1, record: record }]
+      expect(dispatcher.dispatched_events).to eq [
+           { to: Subscribers::ValidHandler, event: event_1, record: record }
+         ]
       expect(result).to eq(:elo)
       expect(client.read.to_a).to eq([event_1, event_2])
     end
@@ -325,29 +388,29 @@ module RubyEventStore
            event_2,
            :subscriber1,
            event_2,
-           :subscriber2,
+           :subscriber2
          ]
     end
 
     specify "subscribe unallowed calls" do
       expect { client.subscribe(-> {}, to: []) {} }.to raise_error(
         ArgumentError,
-        "subscriber must be first argument or block, cannot be both",
+        "subscriber must be first argument or block, cannot be both"
       )
 
       expect { client.subscribe(to: []) }.to raise_error(
         SubscriberNotExist,
-        "subscriber must be first argument or block",
+        "subscriber must be first argument or block"
       )
 
       expect { client.subscribe_to_all_events }.to raise_error(
         SubscriberNotExist,
-        "subscriber must be first argument or block",
+        "subscriber must be first argument or block"
       )
 
       expect { client.subscribe_to_all_events(-> {}) {} }.to raise_error(
         ArgumentError,
-        "subscriber must be first argument or block, cannot be both",
+        "subscriber must be first argument or block, cannot be both"
       )
     end
 
@@ -356,7 +419,11 @@ module RubyEventStore
         event_1 = OrderCreated.new
         event_2 = ProductAdded.new
         dispatcher = CustomDispatcher.new
-        client = Client.new(mapper: mapper, message_broker: Broker.new(dispatcher: dispatcher))
+        client =
+          Client.new(
+            mapper: mapper,
+            message_broker: Broker.new(dispatcher: dispatcher)
+          )
 
         result =
           client
@@ -369,7 +436,9 @@ module RubyEventStore
 
         client.publish(event_2)
         record = mapper.event_to_record(event_1)
-        expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event_1, record: record }]
+        expect(dispatcher.dispatched_events).to eq [
+             { to: Subscribers::ValidHandler, event: event_1, record: record }
+           ]
         expect(client.read.to_a).to eq([event_1, event_2])
         expect(result).to eq(:yo)
       end
@@ -409,7 +478,10 @@ module RubyEventStore
                   client.publish(e4 = OrderCreated.new)
                   :result1
                 end
-                .subscribe(h2 = Subscribers::ValidHandler.new, to: [OrderCreated])
+                .subscribe(
+                  h2 = Subscribers::ValidHandler.new,
+                  to: [OrderCreated]
+                )
                 .call
               client.publish(e5 = ProductAdded.new)
               client.publish(e6 = OrderCreated.new)
