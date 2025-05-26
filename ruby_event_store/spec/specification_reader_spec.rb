@@ -25,7 +25,7 @@ module RubyEventStore
           SpecificationReader.new(repository, mapper, mapping: BatchMapping)
         )
       specification.to_a
-      expect(mapper).to have_received(:map_records_to_events).with(records)
+      expect(mapper).to have_received(:records_to_events).with(records)
     end
 
     specify "reading from non batch compatible mappers" do
@@ -35,7 +35,7 @@ module RubyEventStore
         Specification.new(SpecificationReader.new(repository, mapper))
       specification.to_a
       records.each do |record|
-        expect(mapper).to have_received(:map_record_to_event).with(record)
+        expect(mapper).to have_received(:record_to_event).with(record)
       end
     end
 
@@ -46,9 +46,7 @@ module RubyEventStore
           SpecificationReader.new(repository, mapper, mapping: BatchMapping)
         )
       specification.last
-      expect(mapper).to have_received(:map_records_to_events).with(
-        [records.last]
-      )
+      expect(mapper).to have_received(:records_to_events).with([records.last])
     end
 
     specify "reading single event from non batch compatible mappers" do
@@ -57,7 +55,7 @@ module RubyEventStore
       specification =
         Specification.new(SpecificationReader.new(repository, mapper))
       specification.last
-      expect(mapper).to have_received(:map_record_to_event).with(records.last)
+      expect(mapper).to have_received(:record_to_event).with(records.last)
     end
   end
 end

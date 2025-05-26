@@ -27,7 +27,7 @@ module RubyEventStore
     # @api private
     # @private
     def call(batch)
-      @mapper.map_records_to_events(batch)
+      @mapper.records_to_events(batch)
     end
   end
 
