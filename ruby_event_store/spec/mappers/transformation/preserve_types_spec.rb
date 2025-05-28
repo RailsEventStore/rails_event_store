@@ -10,12 +10,22 @@ module RubyEventStore
   module Mappers
     module Transformation
       ::RSpec.describe PreserveTypes do
+        def mk_record(data: {}, metadata: {})
+          Record.new(
+            data: data,
+            metadata: metadata,
+            timestamp: time,
+            valid_at: time,
+            event_type: "TestEvent",
+            event_id: uuid,
+          )
+        end
+
         let(:time) { Time.now.utc }
         let(:iso_time) { time.iso8601(9) }
         let(:uuid) { SecureRandom.uuid }
         let(:record) do
-          Record.new(
-            event_id: uuid,
+          mk_record(
             metadata: {
               :some => "meta",
               :any => :symbol,
@@ -30,14 +40,10 @@ module RubyEventStore
                 array: [123, { "deeply_nested" => { time: time }, "and" => "something" }, { and_another_time: time }],
               },
             },
-            event_type: "TestEvent",
-            timestamp: time,
-            valid_at: time,
           )
         end
         let(:dump_of_record) do
-          Record.new(
-            event_id: uuid,
+          mk_record(
             metadata: {
               "some" => "meta",
               "any" => "symbol",
@@ -82,20 +88,13 @@ module RubyEventStore
                 ],
               },
             },
-            event_type: "TestEvent",
-            timestamp: time,
-            valid_at: time,
           )
         end
 
         let(:json_record) do
-          Record.new(
-            event_id: uuid,
+          mk_record(
             metadata: TransformKeys.symbolize(JSON.parse(JSON.dump(dump_of_record.metadata))),
             data: JSON.parse(JSON.dump(dump_of_record.data)),
-            event_type: "TestEvent",
-            timestamp: time,
-            valid_at: time,
           )
         end
 
@@ -126,19 +125,7 @@ module RubyEventStore
 
         specify "no op when no types" do
           record_without_types =
-            Record.new(
-              event_id: uuid,
-              metadata: {
-                "some" => "meta",
-                "any" => "symbol",
-              },
-              data: {
-                "some" => "value",
-              },
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
-            )
+            mk_record(metadata: { "some" => "meta", "any" => "symbol" }, data: { "some" => "value" })
 
           result = transformation.load(record_without_types)
           expect(result).to eq(record_without_types)
@@ -147,8 +134,7 @@ module RubyEventStore
 
         specify "no data transform when no data types" do
           record_without_types =
-            Record.new(
-              event_id: uuid,
+            mk_record(
               metadata: {
                 "some" => "meta",
                 "any" => "symbol",
@@ -162,9 +148,6 @@ module RubyEventStore
               data: {
                 "some" => "value",
               },
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
             )
 
           result = transformation.load(record_without_types)
@@ -174,8 +157,7 @@ module RubyEventStore
 
         specify "no metadata transform when no metadata types" do
           record_without_types =
-            Record.new(
-              event_id: uuid,
+            mk_record(
               metadata: {
                 "some" => "meta",
                 "any" => "symbol",
@@ -188,9 +170,6 @@ module RubyEventStore
               data: {
                 "some" => "value",
               },
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
             )
 
           result = transformation.load(record_without_types)
@@ -199,15 +178,7 @@ module RubyEventStore
         end
 
         specify "#dump - no changes if data or metadata are not Hash" do
-          record =
-            Record.new(
-              event_id: uuid,
-              metadata: metadata = Object.new,
-              data: data = Object.new,
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
-            )
+          record = mk_record(metadata: metadata = Object.new, data: data = Object.new)
 
           result = transformation.dump(record)
           expect(result.data).to eq(data)
@@ -215,15 +186,7 @@ module RubyEventStore
         end
 
         specify "#load - no changes if data or metadata are not Hash" do
-          record =
-            Record.new(
-              event_id: uuid,
-              metadata: metadata = Object.new,
-              data: data = Object.new,
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
-            )
+          record = mk_record(metadata: metadata = Object.new, data: data = Object.new)
 
           result = transformation.load(record)
           expect(result.data).to eq(data)
@@ -231,17 +194,7 @@ module RubyEventStore
         end
 
         specify "#dump - works with Metadata object" do
-          record_with_meta =
-            Record.new(
-              event_id: uuid,
-              metadata: metadata = Metadata.new({ some: "meta" }),
-              data: {
-                some: "value",
-              },
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
-            )
+          record_with_meta = mk_record(metadata: metadata = Metadata.new({ some: "meta" }), data: { some: "value" })
 
           result = transformation.dump(record_with_meta)
           expect(result.data).to eq({ "some" => "value" })
@@ -254,8 +207,7 @@ module RubyEventStore
 
         specify "#load - works with Metadata object" do
           record_with_meta =
-            Record.new(
-              event_id: uuid,
+            mk_record(
               metadata:
                 metadata =
                   Metadata.new(
@@ -272,9 +224,6 @@ module RubyEventStore
               data: {
                 "some" => "value",
               },
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
             )
 
           result = transformation.load(record_with_meta)
@@ -285,16 +234,7 @@ module RubyEventStore
         end
 
         specify "#dump - works with serializable objects" do
-          record =
-            Record.new(
-              event_id: uuid,
-              metadata: {
-              },
-              data: time,
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
-            )
+          record = mk_record(metadata: {}, data: time)
 
           result = transformation.dump(record)
           expect(result.data).to eq(time.iso8601(9))
@@ -302,19 +242,7 @@ module RubyEventStore
         end
 
         specify "#load - no changes if data or metadata are not Hash" do
-          record =
-            Record.new(
-              event_id: uuid,
-              metadata: {
-                types: {
-                  data: "Symbol",
-                },
-              },
-              data: :any_given_symbol,
-              event_type: "TestEvent",
-              timestamp: time,
-              valid_at: time,
-            )
+          record = mk_record(metadata: { types: { data: "Symbol" } }, data: :any_given_symbol)
 
           result = transformation.load(record)
           expect(result.data).to eq(:any_given_symbol)
@@ -332,18 +260,7 @@ module RubyEventStore
           current_tz = Time.zone
           Time.zone = "Europe/Warsaw"
           active_support_time_with_zone = Time.zone.local(2015, 10, 21, 11, 5, 0)
-          record =
-            Record.new(
-              event_id: uuid,
-              metadata: {
-              },
-              data: {
-                active_support_time_with_zone: active_support_time_with_zone,
-              },
-              event_type: "TestEvent",
-              timestamp: nil,
-              valid_at: nil,
-            )
+          record = mk_record(data: { active_support_time_with_zone: active_support_time_with_zone })
 
           expect(transformation.dump(record).metadata[:types]).to eq(
             { data: { "active_support_time_with_zone" => %w[Symbol ActiveSupport::TimeWithZone] }, metadata: {} },
@@ -361,16 +278,7 @@ module RubyEventStore
               deserializer: ->(v) { OpenStruct.new(v) },
             )
           ostruct = OpenStruct.new(foo: "bar")
-          record =
-            Record.new(
-              event_id: uuid,
-              metadata: {
-              },
-              data: ostruct,
-              event_type: "TestEvent",
-              timestamp: nil,
-              valid_at: nil,
-            )
+          record = mk_record(data: ostruct)
 
           expect(transformation.dump(record).metadata[:types]).to eq({ data: "OpenStruct", metadata: {} })
           expect(transformation.load(transformation.dump(record))).to eq(record)
@@ -393,16 +301,7 @@ module RubyEventStore
               stored_type: ->(*) { "RoyalTimeWithZone" },
             )
 
-          record =
-            Record.new(
-              event_id: uuid,
-              metadata: {
-              },
-              data: ::RoyalTimeWithZone.new(Time.utc(2024, 5, 23), zone),
-              event_type: "TestEvent",
-              timestamp: nil,
-              valid_at: nil,
-            )
+          record = mk_record(data: ::RoyalTimeWithZone.new(Time.utc(2024, 5, 23), zone))
 
           expect(transformation.dump(record).metadata[:types]).to eq({ data: "RoyalTimeWithZone", metadata: {} })
           expect(transformation.load(transformation.dump(record))).to eq(record)
