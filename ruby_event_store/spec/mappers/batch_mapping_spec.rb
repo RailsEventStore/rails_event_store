@@ -13,16 +13,15 @@ module RubyEventStore
         mk_repository.call.tap { |repo| repo.append_to_stream(records, Stream.new("other"), ExpectedVersion.none) }
       end
 
-      class CustomMapper
-        include BatchMapping
-
-        def record_to_event(record)
-          record
-        end
-      end
-
       specify "use batch mapping with custom mapper" do
-        mapper = CustomMapper.new
+        mapper =
+          Class
+            .new do
+              include BatchMapping
+
+              def record_to_event(record) = record
+            end
+            .new
         specification =
           Specification.new(SpecificationReader.new(repository, mapper, mapping: RubyEventStore::BatchMapping))
         records.each { |record| expect(mapper).to receive(:record_to_event).with(record).and_call_original }
