@@ -19,13 +19,13 @@ module RubyEventStore
             .new do
               include BatchMapping
 
-              def record_to_event(record) = record
+              def record_to_event(record) = record.event_id
             end
             .new
         specification =
           Specification.new(SpecificationReader.new(repository, mapper, mapping: RubyEventStore::BatchMapping))
         records.each { |record| expect(mapper).to receive(:record_to_event).with(record).and_call_original }
-        expect(specification.to_a).to eq(records)
+        expect(specification.to_a).to eq(records.map(&:event_id))
       end
     end
   end
