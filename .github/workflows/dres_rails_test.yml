@@ -73,10 +73,6 @@ jobs:
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10017/rails_event_store
           data_type: json
-        - ruby_version: ruby-3.4
-          bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
-          data_type: jsonb
     steps:
     - uses: actions/checkout@v4
       with:
