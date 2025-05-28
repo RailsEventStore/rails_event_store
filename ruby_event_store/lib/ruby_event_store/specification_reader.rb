@@ -50,9 +50,7 @@ module RubyEventStore
     # @api private
     # @private
     def each(specification_result)
-      repository
-        .read(specification_result)
-        .each { |batch| yield mapping.call(batch) }
+      repository.read(specification_result).each { |batch| yield mapping.call(batch) }
     end
 
     # @api private

@@ -9,13 +9,7 @@ module RubyEventStore
 
     let(:records) { 3.times.map { SRecord.new(event_id: SecureRandom.uuid) } }
     let(:repository) do
-      mk_repository.call.tap do |repo|
-        repo.append_to_stream(
-          records,
-          Stream.new("other"),
-          ExpectedVersion.none
-        )
-      end
+      mk_repository.call.tap { |repo| repo.append_to_stream(records, Stream.new("other"), ExpectedVersion.none) }
     end
 
     class CustomMapper
@@ -28,15 +22,8 @@ module RubyEventStore
 
     specify "use batch mapping with custom mapper" do
       mapper = CustomMapper.new
-      specification =
-        Specification.new(
-          SpecificationReader.new(repository, mapper, mapping: BatchMapping)
-        )
-      records.each do |record|
-        expect(mapper).to receive(:record_to_event).with(
-          record
-        ).and_call_original
-      end
+      specification = Specification.new(SpecificationReader.new(repository, mapper, mapping: BatchMapping))
+      records.each { |record| expect(mapper).to receive(:record_to_event).with(record).and_call_original }
       expect(specification.to_a).to eq(records)
     end
   end
