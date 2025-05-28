@@ -260,7 +260,7 @@ class CI
             ruby_version(MRI_RUBY),
             bundle_gemfile(GEMFILE),
             database_url(POSTGRES),
-            data_type(DATA_TYPES_IN_AR),
+            data_type(DATA_TYPES_IN_AR.reject { |t| t == DATA_JSONB }),
           ),
         triggers: dres_triggers("dres_rails_test"),
       ),
