@@ -143,7 +143,7 @@ module RubyEventStore
           case type
           when Hash
             argument.reduce({}) do |hash, (key, value)|
-              key_type, value_type = type.fetch(key.to_sym) { type.fetch(key.to_s) }
+              key_type, value_type = type.fetch(key.to_sym) { type.fetch(key) }
               hash.merge(restore_type(key, key_type) => restore_type(value, value_type))
             end
           when Array
