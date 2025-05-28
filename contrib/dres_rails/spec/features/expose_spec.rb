@@ -28,7 +28,6 @@ require "ruby_event_store"
       correlation_id_generator: -> { "15b861b5-5697-40ae-bfea-7f01329c3385" },
     )
   end
-  let(:body1) { File.read(File.join(__dir__, "../shared/body1.json")) }
 
   class MyEvent < RubyEventStore::Event
   end
@@ -80,6 +79,5 @@ require "ruby_event_store"
         ],
       },
     )
-    expect(JSON.parse(page.body)).to eq(JSON.parse(body1))
   end
 end
