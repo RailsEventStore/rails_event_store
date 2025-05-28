@@ -95,27 +95,27 @@ Data diff:
       specify { expect(FooEvent.new(metadata: { baz: "bar" })).not_to matcher(FooEvent).with_metadata({ foo: "bar" }) }
 
       specify do
-        matcher_ = matcher(FooEvent).with_metadata({ foo: "bar" })
+        matcher_ = matcher(FooEvent).with_metadata({ foo: "bar", baz: "bar" })
         matcher_.matches?(FooEvent.new)
         expect(matcher_.failure_message).to eq(
           "
-expected: FooEvent with metadata: #{formatter[foo: "bar"]}
+expected: FooEvent with metadata: #{formatter[foo: "bar", baz: "bar"]}
      got: FooEvent with metadata: {}
 
 Metadata diff:
 @@ -1,2 +1,2 @@
--#{formatter[foo: "bar"]}
+-#{formatter[foo: "bar", baz: "bar"]}
 +{}
 ",
         )
       end
 
       specify do
-        matcher_ = matcher(FooEvent).with_data({ foo: "bar" }).with_metadata({ bar: "baz" })
+        matcher_ = matcher(FooEvent).with_data({ foo: "bar", baz: "bar" }).with_metadata({ bar: "baz" })
         matcher_.matches?(FooEvent.new)
         expect(matcher_.failure_message).to eq(
           "
-expected: FooEvent with metadata: #{formatter[bar: "baz"]} data: #{formatter[foo: "bar"]}
+expected: FooEvent with metadata: #{formatter[bar: "baz"]} data: #{formatter[foo: "bar", baz: "bar"]}
      got: FooEvent with metadata: {} data: {}
 
 Metadata diff:
@@ -125,7 +125,7 @@ Metadata diff:
 
 Data diff:
 @@ -1,2 +1,2 @@
--#{formatter[foo: "bar"]}
+-#{formatter[foo: "bar", baz: "bar"]}
 +{}
 ",
         )
@@ -133,21 +133,21 @@ Data diff:
 
       specify do
         matcher_ = matcher(FooEvent).with_data({ foo: "bar" }).with_metadata({ bar: "baz" })
-        matcher_.matches?(FooEvent.new(data: { bar: "baz" }, metadata: { baz: "foo" }))
+        matcher_.matches?(FooEvent.new(data: { baz: "bar", bar: "baz" }, metadata: { baz: "foo", bar: "foo" }))
         expect(matcher_.failure_message).to eq(
           "
 expected: FooEvent with metadata: #{formatter[bar: "baz"]} data: #{formatter[foo: "bar"]}
-     got: FooEvent with metadata: #{formatter[baz: "foo"]} data: #{formatter[bar: "baz"]}
+     got: FooEvent with metadata: #{formatter[baz: "foo", bar: "foo"]} data: #{formatter[baz: "bar", bar: "baz"]}
 
 Metadata diff:
 @@ -1,2 +1,2 @@
 -#{formatter[bar: "baz"]}
-+#{formatter[baz: "foo"]}
++#{formatter[baz: "foo", bar: "foo"]}
 
 Data diff:
 @@ -1,2 +1,2 @@
 -#{formatter[foo: "bar"]}
-+#{formatter[bar: "baz"]}
++#{formatter[baz: "bar", bar: "baz"]}
 ",
         )
       end
