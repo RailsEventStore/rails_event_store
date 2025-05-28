@@ -1,6 +1,5 @@
 # https://github.com/mbj/mutant/blob/master/docs/configuration.md
 
-jobs: 6
 usage: opensource
 requires:
   - rails_event_store
