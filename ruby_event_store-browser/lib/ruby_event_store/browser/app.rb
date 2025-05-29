@@ -130,6 +130,7 @@ module RubyEventStore
             <title>RubyEventStore::Browser</title>
             <link type="text/css" rel="stylesheet" href="<%= browser_css_src %>">
             <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(initial_data)) %>">
+            <meta name="robots" content="noindex, nofollow">
             <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
             <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
             <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
