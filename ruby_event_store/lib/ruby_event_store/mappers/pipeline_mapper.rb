@@ -3,8 +3,6 @@
 module RubyEventStore
   module Mappers
     class PipelineMapper
-      include BatchMapping
-
       def initialize(pipeline)
         @pipeline = pipeline
       end
