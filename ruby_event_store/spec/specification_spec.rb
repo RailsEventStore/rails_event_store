@@ -854,7 +854,7 @@ module RubyEventStore
     let(:reader) { SpecificationReader.new(repository, mapper) }
     let(:specification) { Specification.new(reader) }
     let(:event_id) { SecureRandom.uuid }
-    let(:none_such_id) { SecureRandom.uuid }
+
     let(:stream_name) { SecureRandom.hex }
     let(:test_event) { TestEvent.new(event_id: event_id) }
     let(:target_date) { Time.utc(2020, 9, 17) }
