@@ -52,7 +52,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.4)
-    sorbet-runtime (0.5.12104)
+    sorbet-runtime (0.5.12135)
     unparser (0.7.0)
       diff-lcs (~> 1.6)
       parser (>= 3.3.0)
