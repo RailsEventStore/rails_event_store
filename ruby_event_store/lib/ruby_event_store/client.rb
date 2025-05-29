@@ -375,7 +375,6 @@ module RubyEventStore
     def enrich_events_metadata(events)
       events = Array(events)
       events.each { |event| enrich_event_metadata(event) }
-      events
     end
 
     def enrich_event_metadata(event)
