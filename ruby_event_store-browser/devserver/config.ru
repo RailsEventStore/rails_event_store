@@ -4,8 +4,7 @@ require "ruby_event_store"
 require_relative "../lib/ruby_event_store/browser/app"
 require_relative "../spec/support/csp_app"
 
-repository = RubyEventStore::InMemoryRepository.new
-event_store = RubyEventStore::Client.new(repository: repository)
+event_store = RubyEventStore::Client.new
 
 event_store.subscribe_to_all_events(
   RubyEventStore::LinkByCorrelationId.new(event_store: event_store)
