@@ -66,7 +66,6 @@ module RubyEventStore
         def deep_dup(hash)
           duplicate = hash.dup
           duplicate.each { |k, v| duplicate[k] = v.instance_of?(Hash) ? deep_dup(v) : v }
-          duplicate
         end
 
         def encryption_metadata(data, schema)
