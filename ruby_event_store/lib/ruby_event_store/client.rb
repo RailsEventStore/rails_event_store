@@ -15,15 +15,7 @@ module RubyEventStore
       event_type_resolver: EventTypeResolver.new
     )
       @repository = repository
-
-      warn <<~EOW unless batch_mapper?(mapper)
-        Mappers that process items one by one are deprecated.
-        Wrap your mapper with BatchMapper:
-          RubyEventStore::Mappers::BatchMapper.new(mapper)
-        or implement mapper that process items in batches.
-      EOW
       @mapper = batch_mapper?(mapper) ? mapper : Mappers::BatchMapper.new(mapper)
-
       @broker =
         message_broker ||
           Broker.new(subscriptions: subscriptions || Subscriptions.new, dispatcher: dispatcher || Dispatcher.new)
