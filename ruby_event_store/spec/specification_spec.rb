@@ -850,7 +850,7 @@ module RubyEventStore
     end
 
     let(:repository) { InMemoryRepository.new }
-    let(:mapper) { Mappers::Default.new }
+    let(:mapper) { Mappers::BatchMapper.new }
     let(:reader) { SpecificationReader.new(repository, mapper) }
     let(:specification) { Specification.new(reader) }
     let(:event_id) { SecureRandom.uuid }
@@ -866,9 +866,9 @@ module RubyEventStore
       timestamp: target_date,
       valid_at: nil
     )
-      mapper.event_to_record(
-        TimeEnrichment.with(event_type.new(event_id: event_id, data: data), timestamp: timestamp, valid_at: valid_at),
-      )
+      mapper.events_to_records(
+        [TimeEnrichment.with(event_type.new(event_id: event_id, data: data), timestamp: timestamp, valid_at: valid_at)],
+      ).first
     end
 
     def with_event_of_id(event_id, &block)
