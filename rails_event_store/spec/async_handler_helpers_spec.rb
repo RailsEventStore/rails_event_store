@@ -144,6 +144,26 @@ module RailsEventStore
       end
     end
 
+    specify "running inline via .perform_now" do
+      with_test_handler do |handler|
+        handler.prepend RailsEventStore::AsyncHandler
+
+        handler.perform_now(event)
+
+        expect_to_receive(event)
+      end
+    end
+
+    specify "running inline via #perform_now" do
+      with_test_handler do |handler|
+        handler.prepend RailsEventStore::AsyncHandler
+
+        handler.new(event).perform_now
+
+        expect_to_receive(event)
+      end
+    end
+
     private
 
     let(:event) { RubyEventStore::Event.new }
