@@ -9,10 +9,7 @@ module RubyEventStore
       let(:aggregate) { TestAggregate.new }
       let(:event_store) do
         Client.new(
-          mapper:
-            Mappers::BatchMapper.new(
-              Mappers::PipelineMapper.new(Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)),
-            ),
+          mapper: Mappers::PipelineMapper.new(Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)),
         )
       end
 
