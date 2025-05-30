@@ -8,7 +8,10 @@ module RubyEventStore
       let(:matchers) { Object.new.tap { |o| o.extend(Matchers) } }
       let(:event_store) do
         Client.new(
-          mapper: Mappers::PipelineMapper.new(Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)),
+          mapper:
+            Mappers::BatchMapper.new(
+              Mappers::PipelineMapper.new(Mappers::Pipeline.new(to_domain_event: Transformations::IdentityMap.new)),
+            ),
         )
       end
 
