@@ -82,5 +82,12 @@ module RubyEventStore
           )
       EOS
     end
+
+    specify { expect { RubyEventStore::Client.new(mapper: Mappers::Default.new) }.to output(<<~EOS).to_stderr }
+        Mappers that process items one by one are deprecated.
+        Wrap your mapper with BatchMapper:
+          RubyEventStore::Mappers::BatchMapper.new(mapper)
+        or implement mapper that process items in batches.
+      EOS
   end
 end
