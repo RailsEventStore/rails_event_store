@@ -11,7 +11,7 @@ module RubyEventStore
     MoneyInvested = Class.new(Event)
 
     let(:event_store) { Client.new(repository: repository, mapper: mapper) }
-    let(:mapper) { Mappers::BatchMapper.new }
+    let(:mapper) { Mappers::Default.new }
     let(:repository) { InMemoryRepository.new }
     let(:stream_name) { "Customer$123" }
 
@@ -314,12 +314,7 @@ module RubyEventStore
 
     specify "supports event class remapping" do
       event_store =
-        Client.new(
-          mapper:
-            Mappers::BatchMapper.new(
-              Mappers::Default.new(events_class_remapping: { MoneyInvested.to_s => MoneyLost.to_s }),
-            ),
-        )
+        Client.new(mapper: Mappers::Default.new(events_class_remapping: { MoneyInvested.to_s => MoneyLost.to_s }))
       event_store.append(MoneyInvested.new(data: { amount: 1 }))
 
       balance =

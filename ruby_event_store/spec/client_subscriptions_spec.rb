@@ -71,7 +71,7 @@ end
 
 module RubyEventStore
   ::RSpec.describe Client do
-    let(:mapper) { Mappers::BatchMapper.new }
+    let(:mapper) { Mappers::Default.new }
     let(:client) { Client.new(mapper: mapper) }
 
     specify "throws exception if subscriber is not defined" do
@@ -106,7 +106,7 @@ module RubyEventStore
       client.subscribe(subscriber_2, to: ["topic"])
       event = TestEvent.new
       silence_warnings { client.publish(event, topic: "topic") }
-      record = mapper.events_to_records([event]).first
+      record = mapper.event_to_record(event)
       expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
     end
 
@@ -193,7 +193,7 @@ module RubyEventStore
       client.subscribe(subscriber, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
-      record = mapper.events_to_records([event]).first
+      record = mapper.event_to_record(event)
       expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
     end
 
@@ -244,7 +244,7 @@ module RubyEventStore
       client.subscribe(Subscribers::ValidHandler, to: [OrderCreated])
       event = OrderCreated.new
       client.publish(event)
-      record = mapper.events_to_records([event]).first
+      record = mapper.event_to_record(event)
       expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
     end
 
@@ -254,7 +254,7 @@ module RubyEventStore
       client.subscribe_to_all_events(Subscribers::ValidHandler)
       event = OrderCreated.new
       client.publish(event)
-      record = mapper.events_to_records([event]).first
+      record = mapper.event_to_record(event)
       expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event, record: record }]
     end
 
@@ -286,7 +286,7 @@ module RubyEventStore
           .subscribe_to_all_events(Subscribers::ValidHandler)
           .call
       client.publish(event_2)
-      record = mapper.events_to_records([event_1]).first
+      record = mapper.event_to_record(event_1)
       expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event_1, record: record }]
       expect(result).to eq(:elo)
       expect(client.read.to_a).to eq([event_1, event_2])
@@ -368,7 +368,7 @@ module RubyEventStore
             .call
 
         client.publish(event_2)
-        record = mapper.events_to_records([event_1]).first
+        record = mapper.event_to_record(event_1)
         expect(dispatcher.dispatched_events).to eq [{ to: Subscribers::ValidHandler, event: event_1, record: record }]
         expect(client.read.to_a).to eq([event_1, event_2])
         expect(result).to eq(:yo)
