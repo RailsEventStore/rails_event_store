@@ -12,7 +12,7 @@ module RubyEventStore
       let(:records) { events.map { |event| Default.new.event_to_record(event) } }
 
       specify "deserialize & serialize records" do
-        mapper = BatchMapper.new(Default.new)
+        mapper = BatchMapper.new
         serialized_records = mapper.records_to_events(records)
         expect(mapper.events_to_records(serialized_records)).to eq(records)
       end
