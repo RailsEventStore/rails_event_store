@@ -189,7 +189,8 @@ module RailsEventStore
     def expect_to_receive(something) = Timeout.timeout(2) { expect($queue.pop).to eq(something) }
 
     def serialize_without_correlation_id(ev)
-      serialized = event_store.__send__(:mapper).event_to_record(ev).serialize(RubyEventStore::Serializers::YAML).to_h
+      serialized =
+        event_store.__send__(:mapper).events_to_records([ev]).first.serialize(RubyEventStore::Serializers::YAML).to_h
       serialized[:metadata] = "--- {}\n"
       serialized
     end
