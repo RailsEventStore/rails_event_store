@@ -324,7 +324,7 @@ module RubyEventStore
             valid_at: valid_at || timestamp_,
           ).deserialize(serializer),
         ],
-      )&.first
+      ).first
     end
 
     # Read additional metadata which will be added for published events

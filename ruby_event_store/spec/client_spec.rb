@@ -776,6 +776,32 @@ module RubyEventStore
       expect { client.within {}.subscribe_to_all_events(nil).call }.to raise_error(SubscriberNotExist)
     end
 
+    specify "wrap single item mappers with BatchMapper" do
+      silence_warnings do
+        mapper_of = ->(instance) { instance.send(:mapper) }
+        expect(mapper_of.call(client)).to be_a(Mappers::BatchMapper)
+        batch_mapper = Mappers::BatchMapper.new(Mappers::Default.new)
+        expect(mapper_of.call(Client.new(mapper: batch_mapper))).to eq(batch_mapper)
+
+        expect(mapper_of.call(Client.new(mapper: Mappers::Default.new))).to be_a(Mappers::BatchMapper)
+
+        without_records_to_events =
+          Class.new do
+            def events_to_records(events)
+              events
+            end
+          end
+        expect(mapper_of.call(Client.new(mapper: without_records_to_events.new))).to be_a(Mappers::BatchMapper)
+        without_events_to_records =
+          Class.new do
+            def records_to_events(records)
+              records
+            end
+          end
+        expect(mapper_of.call(Client.new(mapper: without_events_to_records.new))).to be_a(Mappers::BatchMapper)
+      end
+    end
+
     describe "#overwrite" do
       specify "overwrites events data and metadata" do
         client = Client.new
