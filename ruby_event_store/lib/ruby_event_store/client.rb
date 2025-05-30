@@ -6,7 +6,7 @@ module RubyEventStore
   class Client
     def initialize(
       repository: InMemoryRepository.new,
-      mapper: Mappers::Default.new,
+      mapper: Mappers::BatchMapper.new,
       subscriptions: nil,
       dispatcher: nil,
       message_broker: nil,
@@ -15,7 +15,15 @@ module RubyEventStore
       event_type_resolver: EventTypeResolver.new
     )
       @repository = repository
-      @mapper = mapper
+
+      warn <<~EOW unless batch_mapper?(mapper)
+        Mappers that process items one by one are deprecated.
+        Wrap your mapper with BatchMapper:
+          RubyEventStore::Mappers::BatchMapper.new(mapper)
+        or implement mapper that process items in batches.
+      EOW
+      @mapper = batch_mapper?(mapper) ? mapper : Mappers::BatchMapper.new(mapper)
+
       @broker =
         message_broker ||
           Broker.new(subscriptions: subscriptions || Subscriptions.new, dispatcher: dispatcher || Dispatcher.new)
@@ -305,16 +313,18 @@ module RubyEventStore
     def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
       extract_timestamp = lambda { |m| (m[:timestamp] || Time.parse(m.fetch("timestamp"))).iso8601 }
 
-      mapper.record_to_event(
-        SerializedRecord.new(
-          event_type: event_type,
-          event_id: event_id,
-          data: data,
-          metadata: metadata,
-          timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
-          valid_at: valid_at || timestamp_,
-        ).deserialize(serializer),
-      )
+      mapper.records_to_events(
+        [
+          SerializedRecord.new(
+            event_type: event_type,
+            event_id: event_id,
+            data: data,
+            metadata: metadata,
+            timestamp: timestamp || timestamp_ = extract_timestamp[serializer.load(metadata)],
+            valid_at: valid_at || timestamp_,
+          ).deserialize(serializer),
+        ],
+      )&.first
     end
 
     # Read additional metadata which will be added for published events
@@ -369,7 +379,7 @@ module RubyEventStore
     private
 
     def transform(events)
-      events.map { |ev| mapper.event_to_record(ev) }
+      mapper.events_to_records(events)
     end
 
     def enrich_events_metadata(events)
@@ -390,6 +400,10 @@ module RubyEventStore
     end
 
     protected
+
+    def batch_mapper?(mapper)
+      %i[events_to_records records_to_events].all? { |m| mapper.respond_to? m }
+    end
 
     def metadata=(value)
       @metadata.value = value
