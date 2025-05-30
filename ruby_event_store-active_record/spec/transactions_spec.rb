@@ -155,6 +155,29 @@ module RubyEventStore
         expect(global_to_a).to eq([foo, bar])
         expect(stream_to_a).to eq([foo, bar])
       end
+
+      specify "append uniquely pattern" do
+        # https://railseventstore.org/docs/common-usage-patterns/publishing_unique_events/
+
+        append_uniquely = ->(record, *fields) do
+          repository.append_to_stream(
+            [record],
+            Stream.new("$unique_by_#{[record.event_type, *fields].join("_")}"),
+            ExpectedVersion.none,
+          )
+        rescue RubyEventStore::WrongExpectedEventVersion
+        end
+
+        append_uniquely[foo, "payload"]
+
+        helper.with_transaction do
+          repository.append_to_stream([bar], stream, ExpectedVersion.any)
+
+          append_uniquely[baz, "payload"]
+        end
+
+        expect(global_to_a).to eq([foo, bar])
+      end
     end
   end
 end
