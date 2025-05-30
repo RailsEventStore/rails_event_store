@@ -3,7 +3,7 @@
 module RubyEventStore
   module Mappers
     class BatchMapper
-      def initialize(mapper)
+      def initialize(mapper = Default.new)
         @mapper = mapper
       end
 
