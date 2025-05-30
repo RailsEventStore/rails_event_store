@@ -13,8 +13,12 @@ module RailsEventStore
     )
       Module.new do
         define_method :perform do |payload|
-          event_store = event_store_locator.call if event_store_locator
-          super(event_store.deserialize(serializer: serializer, **payload.transform_keys(&:to_sym)))
+          if Hash === payload
+            event_store = event_store_locator.call if event_store_locator
+            super(event_store.deserialize(serializer: serializer, **payload.transform_keys(&:to_sym)))
+          else
+            super(payload)
+          end
         end
       end
     end
