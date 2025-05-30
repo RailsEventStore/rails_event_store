@@ -14,13 +14,13 @@ module RubyEventStore
     # @private
     def one(specification_result)
       record = repository.read(specification_result)
-      mapper.record_to_event(record) if record
+      map([record]).first if record
     end
 
     # @api private
     # @private
     def each(specification_result)
-      repository.read(specification_result).each { |batch| yield batch.map { |record| mapper.record_to_event(record) } }
+      repository.read(specification_result).each { |batch| yield map(batch) }
     end
 
     # @api private
@@ -30,6 +30,10 @@ module RubyEventStore
     end
 
     private
+
+    def map(records)
+      mapper.records_to_events(records)
+    end
 
     attr_reader :repository, :mapper
   end

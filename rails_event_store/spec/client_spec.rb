@@ -50,7 +50,21 @@ module RailsEventStore
 
     specify "wraps mapper into instrumentation" do
       client =
-        Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::Default.new)
+        Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::BatchMapper.new)
+
+      received_notifications = 0
+      ActiveSupport::Notifications.subscribe("serialize.mapper.rails_event_store") { received_notifications += 1 }
+
+      client.publish(TestEvent.new)
+
+      expect(received_notifications).to eq(1)
+    end
+
+    specify "wraps single item mapper into instrumentation" do
+      client =
+        silence_warnings do
+          Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::Default.new)
+        end
 
       received_notifications = 0
       ActiveSupport::Notifications.subscribe("serialize.mapper.rails_event_store") { received_notifications += 1 }

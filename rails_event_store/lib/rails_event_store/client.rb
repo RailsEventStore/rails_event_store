@@ -5,7 +5,7 @@ module RailsEventStore
     attr_reader :request_metadata
 
     def initialize(
-      mapper: RubyEventStore::Mappers::Default.new,
+      mapper: RubyEventStore::Mappers::BatchMapper.new,
       repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
       subscriptions: nil,
       dispatcher: nil,
@@ -16,7 +16,14 @@ module RailsEventStore
     )
       super(
         repository: RubyEventStore::InstrumentedRepository.new(repository, ActiveSupport::Notifications),
-        mapper: RubyEventStore::Mappers::InstrumentedMapper.new(mapper, ActiveSupport::Notifications),
+        mapper:
+          (
+            if batch_mapper?(mapper)
+              RubyEventStore::Mappers::InstrumentedBatchMapper.new(mapper, ActiveSupport::Notifications)
+            else
+              RubyEventStore::Mappers::InstrumentedMapper.new(mapper, ActiveSupport::Notifications)
+            end
+          ),
         subscriptions: nil,
         clock: clock,
         correlation_id_generator: correlation_id_generator,
