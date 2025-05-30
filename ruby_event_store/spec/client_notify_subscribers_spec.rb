@@ -168,12 +168,12 @@ module RubyEventStore
       handler = TestHandler.new
       event1 = TimeEnrichment.with(Test1DomainEvent.new)
 
-      mapper = Mappers::Default.new
+      mapper = Mappers::BatchMapper.new
       client_with_custom_dispatcher = Client.new(mapper: mapper, message_broker: Broker.new(dispatcher: dispatcher))
       client_with_custom_dispatcher.subscribe(handler, to: [Test1DomainEvent])
       client_with_custom_dispatcher.publish(event1)
       expect(dispatcher.dispatched).to eq(
-        [{ subscriber: handler, event: event1, record: mapper.event_to_record(event1) }],
+        [{ subscriber: handler, event: event1, record: mapper.events_to_records([event1]).first }],
       )
     end
 
