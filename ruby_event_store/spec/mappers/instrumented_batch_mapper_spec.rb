@@ -21,7 +21,7 @@ module RubyEventStore
 
         specify "instruments" do
           instrumented_mapper = InstrumentedBatchMapper.new(spy, ActiveSupport::Notifications)
-          subscribe_to("serialize.mapper.rails_event_store") do |notification_calls|
+          subscribe_to("events_to_records.mapper.rails_event_store") do |notification_calls|
             instrumented_mapper.events_to_records(events)
             expect(notification_calls).to eq([{ domain_events: events }])
           end
@@ -39,7 +39,7 @@ module RubyEventStore
 
         specify "instruments" do
           instrumented_mapper = InstrumentedBatchMapper.new(spy, ActiveSupport::Notifications)
-          subscribe_to("deserialize.mapper.rails_event_store") do |notification_calls|
+          subscribe_to("records_to_events.mapper.rails_event_store") do |notification_calls|
             instrumented_mapper.records_to_events(records)
             expect(notification_calls).to eq([{ records: records }])
           end
