@@ -8,4 +8,4 @@ mutate-fast: ## Run mutation tests with --fail-fast
 
 mutate-changes: ## Run incremental mutation tests
 	@echo "Running mutation tests"
-	@bundle exec mutant run --since HEAD~1 $(SUBJECT)
+	@bundle exec mutant run --since master $(SUBJECT)
