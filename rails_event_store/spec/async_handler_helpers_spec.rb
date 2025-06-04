@@ -14,6 +14,29 @@ module RailsEventStore
 
     around { |example| ActiveJob::Base.with(queue_adapter: :async) { example.run } }
 
+    specify "ancestors" do
+      with_test_handler do |handler|
+        ancestors = handler.ancestors
+        handler.prepend AsyncHandler
+
+        expect(handler.ancestors - ancestors).to have_attributes(size: 2)
+      end
+
+      with_test_handler do |handler|
+        ancestors = handler.ancestors
+        handler.prepend AsyncHandler.with_defaults
+
+        expect(handler.ancestors - ancestors).to have_attributes(size: 1)
+      end
+
+      with_test_handler do |handler|
+        ancestors = handler.ancestors
+        handler.prepend AsyncHandler.with(event_store_locator: -> { another_event_store })
+
+        expect(handler.ancestors - ancestors).to have_attributes(size: 1)
+      end
+    end
+
     specify "with defaults" do
       with_test_handler do |handler|
         handler.prepend RailsEventStore::AsyncHandler
