@@ -87,7 +87,7 @@ require "spec_helper"
     expect { order.apply(spanish_inquisition) }.not_to raise_error
   end
 
-  it "include with_strategy should warn about depracations" do
+  it "include with_strategy should warn about deprecations" do
     expect {
       Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
     }.to output(<<~EOW).to_stderr
@@ -139,12 +139,9 @@ require "spec_helper"
     expect(order.status).to eq :created
   end
 
-  it "ruby 2.7 compatibility" do
-    klass = Class.new { include AggregateRoot.with_default_apply_strategy }
+  it "included modules" do
+    klass = silence_warnings { Class.new { include AggregateRoot.with_default_apply_strategy } }
 
-    # This is just a way to ensure that the AggregateMethods was included on
-    # the klass directly, not that it was an include to the anonymous module.
-    # This test can be removed when ruby 2.7 will be no longer supported.
     expect(klass.included_modules[0]).to eq(AggregateRoot::AggregateMethods)
   end
 
