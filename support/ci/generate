@@ -653,6 +653,7 @@ class CI
         runs_on: "macos-14",
         env: {
           "BUNDLE_WITHOUT" => "database",
+          "BASE_REF" => "${{ github.base_ref || 'HEAD~1' }}",
         },
         **,
       )
@@ -675,6 +676,7 @@ class CI
         runs_on: "macos-14",
         env: {
           "BUNDLE_WITHOUT" => "database",
+          "BASE_REF" => "${{ github.base_ref || 'HEAD~1' }}",
         },
         **,
       )
