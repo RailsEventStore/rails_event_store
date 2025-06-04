@@ -274,6 +274,7 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
+  irb
   mutant
   mutant-minitest
   mutant-rspec

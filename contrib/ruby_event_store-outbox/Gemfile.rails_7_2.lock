@@ -257,6 +257,7 @@ PLATFORMS
 DEPENDENCIES
   childprocess
   influxdb (~> 0.8.1)
+  irb
   mutant
   mutant-minitest
   mutant-rspec

@@ -266,6 +266,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  irb
   mutant
   mutant-minitest
   mutant-rspec

@@ -263,6 +263,7 @@ PLATFORMS
 
 DEPENDENCIES
   aggregate_root!
+  irb
   minitest (~> 5.0)
   minitest-ruby_event_store!
   mutant

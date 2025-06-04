@@ -3,3 +3,4 @@ gem "rspec"
 gem "mutant-rspec", require: false
 gem "mutant-minitest", require: false
 gem "mutant", require: false
+gem "irb"

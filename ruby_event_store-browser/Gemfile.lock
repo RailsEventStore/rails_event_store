@@ -32,13 +32,20 @@ GEM
     cuprite (0.17)
       capybara (~> 3.0)
       ferrum (~> 0.17.0)
+    date (3.4.1)
     diff-lcs (1.6.2)
+    erb (5.0.1)
     ferrum (0.17.1)
       addressable (~> 2.5)
       base64 (~> 0.2)
       concurrent-ruby (~> 1.1)
       webrick (~> 1.7)
       websocket-driver (~> 0.7)
+    io-console (0.8.0)
+    irb (1.15.2)
+      pp (>= 0.6.0)
+      rdoc (>= 4.0.0)
+      reline (>= 0.4.2)
     json-schema (5.1.1)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -68,6 +75,12 @@ GEM
     parser (3.3.8.0)
       ast (~> 2.4.1)
       racc
+    pp (0.6.2)
+      prettyprint
+    prettyprint (0.2.0)
+    psych (5.2.6)
+      date
+      stringio
     public_suffix (6.0.2)
     racc (1.8.1)
     rack (3.0.18)
@@ -76,7 +89,12 @@ GEM
     rackup (2.2.1)
       rack (>= 3)
     rake (13.2.1)
+    rdoc (6.14.0)
+      erb
+      psych (>= 4.0.0)
     regexp_parser (2.10.0)
+    reline (0.6.1)
+      io-console (~> 0.5)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -91,6 +109,7 @@ GEM
       rspec-support (~> 3.13.0)
     rspec-support (3.13.4)
     sorbet-runtime (0.5.12135)
+    stringio (3.1.7)
     unparser (0.7.0)
       diff-lcs (~> 1.6)
       parser (>= 3.3.0)
@@ -110,6 +129,7 @@ PLATFORMS
 DEPENDENCIES
   capybara (~> 3.35)
   cuprite
+  irb
   json-schema
   mutant
   mutant-minitest

@@ -292,6 +292,7 @@ DEPENDENCIES
   capybara
   childprocess
   dres_rails!
+  irb
   mutant
   mutant-minitest
   mutant-rspec

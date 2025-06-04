@@ -246,6 +246,7 @@ PLATFORMS
 DEPENDENCIES
   aggregate_root!
   diff-lcs (= 1.3.0)
+  irb
   mutant
   mutant-minitest
   mutant-rspec
