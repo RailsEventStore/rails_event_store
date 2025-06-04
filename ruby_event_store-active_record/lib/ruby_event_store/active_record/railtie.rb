@@ -2,6 +2,10 @@
 
 module RubyEventStore
   module ActiveRecord
-    Railtie = Class.new(::Rails::Railtie)
+    class Railtie < ::Rails::Railtie
+      initializer "ruby_event_store-active_record" do
+        ActiveSupport.on_load(:active_record) { require_relative "../active_record/event" }
+      end
+    end
   end
 end

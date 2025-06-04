@@ -7,7 +7,6 @@ require_relative "active_record/generators/event_id_index_migration_generator"
 require_relative "active_record/generators/rails_event_id_index_migration_generator"
 require_relative "active_record/generators/foreign_key_on_event_id_migration_generator"
 require_relative "active_record/generators/rails_foreign_key_on_event_id_migration_generator"
-require_relative "active_record/event"
 require_relative "active_record/with_default_models"
 require_relative "active_record/with_abstract_base_class"
 require_relative "active_record/event_repository"
@@ -16,4 +15,8 @@ require_relative "active_record/event_repository_reader"
 require_relative "active_record/index_violation_detector"
 require_relative "active_record/pg_linearized_event_repository"
 require_relative "active_record/version"
-require_relative "active_record/railtie" if defined?(Rails::Engine)
+if defined?(Rails::Engine)
+  require_relative "active_record/railtie"
+else
+  require_relative "active_record/event"
+end
