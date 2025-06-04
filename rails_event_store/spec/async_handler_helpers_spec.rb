@@ -16,24 +16,24 @@ module RailsEventStore
 
     specify "ancestors" do
       with_test_handler do |handler|
-        ancestors = handler.ancestors
+        base_modules = handler.included_modules
         handler.prepend AsyncHandler
 
-        expect(handler.ancestors - ancestors).to have_attributes(size: 2)
+        expect(handler.included_modules - base_modules).to have_attributes(size: 2)
       end
 
       with_test_handler do |handler|
-        ancestors = handler.ancestors
+        base_modules = handler.included_modules
         handler.prepend AsyncHandler.with_defaults
 
-        expect(handler.ancestors - ancestors).to have_attributes(size: 1)
+        expect(handler.included_modules - base_modules).to have_attributes(size: 1)
       end
 
       with_test_handler do |handler|
-        ancestors = handler.ancestors
+        base_modules = handler.included_modules
         handler.prepend AsyncHandler.with(event_store_locator: -> { another_event_store })
 
-        expect(handler.ancestors - ancestors).to have_attributes(size: 1)
+        expect(handler.included_modules - base_modules).to have_attributes(size: 1)
       end
     end
 
