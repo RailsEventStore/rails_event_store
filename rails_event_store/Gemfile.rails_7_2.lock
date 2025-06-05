@@ -104,9 +104,9 @@ GEM
     arkency-command_bus (0.4.1)
       concurrent-ruby
     ast (2.4.3)
-    base64 (0.2.0)
-    benchmark (0.4.0)
-    bigdecimal (3.1.9)
+    base64 (0.3.0)
+    benchmark (0.4.1)
+    bigdecimal (3.2.2)
     builder (3.3.0)
     concurrent-ruby (1.3.5)
     connection_pool (2.5.3)
@@ -177,7 +177,7 @@ GEM
       date
       stringio
     racc (1.8.1)
-    rack (3.1.15)
+    rack (3.1.16)
     rack-session (2.1.1)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -214,7 +214,7 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
-    rake (13.2.1)
+    rake (13.3.0)
     rdoc (6.14.0)
       erb
       psych (>= 4.0.0)
@@ -235,7 +235,7 @@ GEM
       rspec-support (~> 3.13.0)
     rspec-support (3.13.4)
     securerandom (0.4.1)
-    sorbet-runtime (0.5.12135)
+    sorbet-runtime (0.5.12155)
     sqlite3 (2.6.0-arm64-darwin)
     sqlite3 (2.6.0-x86_64-darwin)
     sqlite3 (2.6.0-x86_64-linux-gnu)

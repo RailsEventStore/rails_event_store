@@ -108,9 +108,9 @@ GEM
     arkency-command_bus (0.4.1)
       concurrent-ruby
     ast (2.4.3)
-    base64 (0.2.0)
-    benchmark (0.4.0)
-    bigdecimal (3.1.9)
+    base64 (0.3.0)
+    benchmark (0.4.1)
+    bigdecimal (3.2.2)
     builder (3.3.0)
     concurrent-ruby (1.3.5)
     connection_pool (2.5.3)
@@ -122,13 +122,13 @@ GEM
     erubi (1.13.1)
     globalid (1.2.1)
       activesupport (>= 6.1)
-    google-protobuf (4.31.0-arm64-darwin)
+    google-protobuf (4.31.1-arm64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.31.0-x86_64-darwin)
+    google-protobuf (4.31.1-x86_64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.31.0-x86_64-linux-gnu)
+    google-protobuf (4.31.1-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     i18n (1.14.7)
@@ -192,7 +192,7 @@ GEM
       date
       stringio
     racc (1.8.1)
-    rack (3.1.15)
+    rack (3.1.16)
     rack-session (2.1.1)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -229,7 +229,7 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
-    rake (13.2.1)
+    rake (13.3.0)
     rdoc (6.14.0)
       erb
       psych (>= 4.0.0)
@@ -250,7 +250,7 @@ GEM
       rspec-support (~> 3.13.0)
     rspec-support (3.13.4)
     securerandom (0.4.1)
-    sorbet-runtime (0.5.12135)
+    sorbet-runtime (0.5.12155)
     stringio (3.1.7)
     thor (1.3.2)
     timeout (0.4.3)
