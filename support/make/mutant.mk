@@ -1,4 +1,4 @@
-BASE_REF ?= master
+SINCE_SHA ?= master
 
 mutate: ## Run mutation tests
 	@echo "Running mutation tests"
@@ -17,5 +17,5 @@ mutate-changes: ## Run incremental mutation tests
 	@echo "Running mutation tests"
 	@bundle exec mutant run \
  		$(if $(MUTANT_JOBS), --jobs $(MUTANT_JOBS)) \
-		--since $(BASE_REF) \
+		--since $(SINCE_SHA) \
 		$(SUBJECT)

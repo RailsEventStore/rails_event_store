@@ -39,7 +39,7 @@ jobs:
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       BUNDLE_WITHOUT: database
-      BASE_REF: "${{ github.base_ref || 'HEAD~1' }}"
+      SINCE_SHA: "${{ github.event.pull_request.base.sha || 'HEAD~1' }}"
     strategy:
       fail-fast: false
       matrix:
