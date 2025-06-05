@@ -27,7 +27,7 @@ module RubyEventStore
       end
 
     describe "#verify" do
-      specify "pass topic to all until first verified brokers for verification" do
+      specify "pass topic to all until first verified brokers for verification (single mode)" do
         skippy = sample_broker.new("skip")
         broker = sample_broker.new("test")
         another_skippy = sample_broker.new("skip this too")
@@ -38,6 +38,20 @@ module RubyEventStore
         expect(broker).to receive(:verify).with("test").and_call_original
         expect(another_skippy).not_to receive(:verify).with("test")
         expect(another_broker).not_to receive(:verify).with("test")
+        composed_broker.verify("test")
+      end
+
+      specify "pass topic to all brokers for verification (multiple mode)" do
+        skippy = sample_broker.new("skip")
+        broker = sample_broker.new("test")
+        another_skippy = sample_broker.new("skip this too")
+        another_broker = sample_broker.new("test")
+        composed_broker = ComposedBroker.new(skippy, broker, another_skippy, another_broker, multiple_brokers: true)
+
+        expect(skippy).to receive(:verify).with("test").and_call_original
+        expect(broker).to receive(:verify).with("test").and_call_original
+        expect(another_skippy).to receive(:verify).with("test").and_call_original
+        expect(another_broker).to receive(:verify).with("test").and_call_original
         composed_broker.verify("test")
       end
 
@@ -53,7 +67,7 @@ module RubyEventStore
     end
 
     describe "#call" do
-      specify "pass arguments to first verified broker" do
+      specify "pass arguments to first verified broker (single mode)" do
         skippy = sample_broker.new("skip")
         broker = sample_broker.new("test")
         another_broker = sample_broker.new("test")
@@ -65,6 +79,20 @@ module RubyEventStore
         expect(skippy.called).to be_falsey
         expect(broker.called).to eq([event, record, "test"])
         expect(another_broker.called).to be_falsey
+      end
+
+      specify "pass arguments to all verified broker (multiple mode)" do
+        skippy = sample_broker.new("skip")
+        broker = sample_broker.new("test")
+        another_broker = sample_broker.new("test")
+        composed_broker = ComposedBroker.new(skippy, broker, another_broker, multiple_brokers: true)
+        event = instance_double(Event)
+        record = instance_double(Record)
+
+        composed_broker.call(event, record, "test")
+        expect(skippy.called).to be_falsey
+        expect(broker.called).to eq([event, record, "test"])
+        expect(another_broker.called).to eq([event, record, "test"])
       end
 
       specify "warn when no broker to handle topic" do
@@ -85,6 +113,7 @@ module RubyEventStore
         composed_broker = ComposedBroker.new(broker1, broker2)
 
         expect(composed_broker.all_subscriptions_for("test")).to eq(%w[sub1 sub2 sub4])
+        expect(composed_broker.all_subscriptions_for("not-existing")).to eq([])
       end
     end
 
