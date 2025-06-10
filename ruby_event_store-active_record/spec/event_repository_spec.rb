@@ -311,6 +311,29 @@ module RubyEventStore
         }.not_to raise_error
       end
 
+      specify "JSON/B backwards compatibility — with mistakenly configured double serialization" do
+        skip unless %w[json jsonb].include?(ENV["DATA_TYPE"])
+
+        repository = EventRepository.new(serializer: JSON)
+        repository.append_to_stream(
+          [SRecord.new(data: JSON.dump({ "simulate" => "double" }))],
+          Stream.new("stream"),
+          ExpectedVersion.any,
+        )
+        repository.append_to_stream(
+          [SRecord.new(data: { "simulate" => "single" })],
+          Stream.new("stream"),
+          ExpectedVersion.any,
+        )
+
+        expect(repository.read(specification.backward.limit(1).result).first.data).to eq({ "simulate" => "single" })
+        expect {
+          expect(repository.read(specification.forward.limit(1).result).first.data).to eq({ "simulate" => "double" })
+        }.to output(<<~MSG).to_stderr
+          Double serialization of data column detected
+        MSG
+      end
+
       private
 
       def with_precision(time)
