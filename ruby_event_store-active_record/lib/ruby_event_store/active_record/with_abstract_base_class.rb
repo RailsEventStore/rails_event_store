@@ -22,8 +22,6 @@ module RubyEventStore
           Class.new(@base_klass) do
             self.primary_key = :id
             self.table_name = "event_store_events"
-
-            include SkipJsonSerialization
           end,
         )
       end

@@ -9,6 +9,7 @@ module RubyEventStore
         @serializer = serializer
 
         @event_klass, @stream_klass = model_factory.call
+        @event_klass.include(SkipJsonSerialization)
         @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
         @index_violation_detector = IndexViolationDetector.new(@event_klass.table_name, @stream_klass.table_name)
       end

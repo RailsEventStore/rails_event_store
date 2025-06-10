@@ -7,8 +7,6 @@ module RubyEventStore
     class Event < ::ActiveRecord::Base
       self.primary_key = :id
       self.table_name = "event_store_events"
-
-      include SkipJsonSerialization
     end
     private_constant :Event
 
