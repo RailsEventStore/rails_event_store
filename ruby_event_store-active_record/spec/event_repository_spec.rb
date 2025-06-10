@@ -283,6 +283,34 @@ module RubyEventStore
         )
       end
 
+      specify "JSON/B backwards compatibility — explicit NULL serializer as advised before introduction of JSONClient" do
+        skip unless %w[json jsonb].include?(ENV["DATA_TYPE"])
+
+        expect { repository = EventRepository.new(serializer: NULL) }.to output(<<~MSG).to_stderr
+          The data or metadata column is of a JSON/B type and expects a JSON string. 
+
+          Yet the repository serializer is configured as RubyEventStore::NULL and it would not 
+          produce the expected JSON string. 
+
+          In ActiveRecord there's an implicit serialization to JSON for JSON/B column types 
+          that made it work so far. This behaviour is unfortunately also a source of undesired 
+          double serialization — first in the EventRepository, second in the ActiveRecord.
+          
+          In the past we've advised workarounds that introduced configuration incosistency 
+          with other data types and serialization formats, i.e. explicitly passing NULL serializer 
+          just for the JSON/B data types.
+
+          As of now this special ActiveRecord behaviour is disabled. You should be using JSON 
+          serializer back again:
+
+          RubyEventStore::ActiveRecord::EventRepository.new(serializer: JSON)
+        MSG
+
+        expect {
+          repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
+        }.not_to raise_error
+      end
+
       private
 
       def with_precision(time)

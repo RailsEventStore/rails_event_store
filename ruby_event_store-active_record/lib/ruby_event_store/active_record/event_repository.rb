@@ -7,9 +7,30 @@ module RubyEventStore
 
       def initialize(model_factory: WithDefaultModels.new, serializer:)
         @serializer = serializer
-
         @event_klass, @stream_klass = model_factory.call
-        @event_klass.include(SkipJsonSerialization)
+        if serializer == NULL && json_data_type?
+          warn <<~MSG
+            The data or metadata column is of a JSON/B type and expects a JSON string. 
+
+            Yet the repository serializer is configured as #{serializer} and it would not 
+            produce the expected JSON string. 
+
+            In ActiveRecord there's an implicit serialization to JSON for JSON/B column types 
+            that made it work so far. This behaviour is unfortunately also a source of undesired 
+            double serialization — first in the EventRepository, second in the ActiveRecord.
+            
+            In the past we've advised workarounds that introduced configuration incosistency 
+            with other data types and serialization formats, i.e. explicitly passing NULL serializer 
+            just for the JSON/B data types.
+
+            As of now this special ActiveRecord behaviour is disabled. You should be using JSON 
+            serializer back again:
+
+            RubyEventStore::ActiveRecord::EventRepository.new(serializer: JSON)
+          MSG
+        else
+          @event_klass.include(SkipJsonSerialization)
+        end
         @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
         @index_violation_detector = IndexViolationDetector.new(@event_klass.table_name, @stream_klass.table_name)
       end
@@ -163,6 +184,12 @@ module RubyEventStore
           event_ids << record.event_id
         end
         add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all!(hashes) }
+      end
+
+      private
+
+      def json_data_type?
+        %i[data metadata].any? { |attr| @event_klass.column_for_attribute(attr).type.start_with?("json") }
       end
     end
   end
