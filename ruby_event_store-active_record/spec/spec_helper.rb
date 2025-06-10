@@ -24,6 +24,7 @@ module RubyEventStore
       def run_lifecycle
         establish_database_connection
         load_database_schema
+        reset_column_information
         yield
       ensure
         drop_database
@@ -63,6 +64,10 @@ module RubyEventStore
 
       def connection_pool_size
         ::ActiveRecord::Base.connection.pool.size
+      end
+
+      def reset_column_information
+        ::ActiveRecord::Base.reset_column_information
       end
     end
   end

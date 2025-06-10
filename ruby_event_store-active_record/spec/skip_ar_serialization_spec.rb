@@ -28,6 +28,7 @@ module RubyEventStore
 
         record = repository.read(specification.result).first
         expect(record.data).to eq({ "foo" => "bar" })
+
         expect(
           ::ActiveRecord::Base
             .connection
