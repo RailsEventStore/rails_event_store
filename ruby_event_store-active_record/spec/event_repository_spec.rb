@@ -8,16 +8,17 @@ module RubyEventStore
   module ActiveRecord
     ::RSpec.describe EventRepository do
       helper = SpecHelper.new
-      mk_repository = -> do
-        serializer =
-          case ENV["DATA_TYPE"]
-          when /json/
-            JSON
-          else
-            RubyEventStore::Serializers::YAML
-          end
-        EventRepository.new(serializer: serializer)
+
+      mk_serializer = -> do
+        case ENV["DATA_TYPE"]
+        when /json/
+          JSON
+        else
+          RubyEventStore::Serializers::YAML
+        end
       end
+
+      mk_repository = -> { EventRepository.new(serializer: mk_serializer.call) }
 
       it_behaves_like "event repository", mk_repository, helper
 
@@ -74,7 +75,7 @@ module RubyEventStore
       end
 
       specify "use default models" do
-        repository = EventRepository.new(serializer: Serializers::YAML)
+        repository = EventRepository.new(serializer: mk_serializer.call)
         expect(repository.instance_variable_get(:@event_klass)).to be(Event)
         expect(repository.instance_variable_get(:@stream_klass)).to be(EventInStream)
       end
@@ -83,7 +84,7 @@ module RubyEventStore
         repository =
           EventRepository.new(
             model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-            serializer: Serializers::YAML,
+            serializer: mk_serializer.call,
           )
         expect(repository.instance_variable_get(:@event_klass).ancestors).to include(CustomApplicationRecord)
         expect(repository.instance_variable_get(:@stream_klass).ancestors).to include(CustomApplicationRecord)
@@ -93,7 +94,7 @@ module RubyEventStore
         repository =
           EventRepository.new(
             model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-            serializer: Serializers::YAML,
+            serializer: mk_serializer.call,
           )
         repository.append_to_stream([event = SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
         reader = SpecificationReader.new(repository, Mappers::Default.new)

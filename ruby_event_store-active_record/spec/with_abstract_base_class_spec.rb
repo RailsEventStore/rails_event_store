@@ -9,6 +9,15 @@ module RubyEventStore
     ::RSpec.describe WithAbstractBaseClass do
       include SchemaHelper
 
+      mk_serializer = -> do
+        case ENV["DATA_TYPE"]
+        when /json/
+          JSON
+        else
+          RubyEventStore::Serializers::YAML
+        end
+      end
+
       specify "Base for event factory models must be an abstract class" do
         NonAbstractClass = Class.new(::ActiveRecord::Base)
         expect { WithAbstractBaseClass.new(NonAbstractClass) }.to raise_error(ArgumentError).with_message(
@@ -53,7 +62,7 @@ module RubyEventStore
           repository =
             EventRepository.new(
               model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-              serializer: Serializers::YAML,
+              serializer: mk_serializer.call,
             )
           repository.append_to_stream([event = SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
           reader = SpecificationReader.new(repository, Mappers::Default.new)
@@ -73,7 +82,7 @@ module RubyEventStore
           repository =
             EventRepository.new(
               model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
-              serializer: Serializers::YAML,
+              serializer: mk_serializer.call,
             )
           repository.append_to_stream(
             [event = SRecord.new(event_type: "Dummy")],
