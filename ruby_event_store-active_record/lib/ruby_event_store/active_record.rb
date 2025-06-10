@@ -18,5 +18,6 @@ require_relative "active_record/version"
 if defined?(Rails::Engine)
   require_relative "active_record/railtie"
 else
+  require_relative "active_record/skip_json_serialization"
   require_relative "active_record/event"
 end
