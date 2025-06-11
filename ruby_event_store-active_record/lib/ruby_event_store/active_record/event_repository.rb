@@ -35,8 +35,7 @@ module RubyEventStore
         EventRepositoryReader.prepend(
           Module.new do
             def unwrap(column_name, deserialized_payload)
-              case deserialized_payload
-              when String
+              if String === deserialized_payload && deserialized_payload.start_with?("\{")
                 warn "Double serialization of #{column_name} column detected"
                 JSON.parse(deserialized_payload)
               else
