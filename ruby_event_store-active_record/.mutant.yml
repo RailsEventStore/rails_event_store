@@ -30,3 +30,9 @@ matcher:
     - RubyEventStore::ActiveRecord::WithAbstractBaseClass#build_event_klass
     - RubyEventStore::ActiveRecord::WithAbstractBaseClass#build_stream_klass
     - RubyEventStore::ActiveRecord::Event.hook_attribute_type
+    - RubyEventStore::ActiveRecord::DoubleSerializationDetector
+    - RubyEventStore::ActiveRecord::EventRepositoryReader#initialize
+    - RubyEventStore::ActiveRecord::EventRepository#initialize
+    - RubyEventStore::ActiveRecord::EventRepository#json_data_type?
+    - RubyEventStore::ActiveRecord::DoubleSerializationDetector
+    - RubyEventStore::ActiveRecord::SkipJsonSerialization
