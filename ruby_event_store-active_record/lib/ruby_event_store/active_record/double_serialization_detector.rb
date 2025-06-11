@@ -6,7 +6,7 @@ module RubyEventStore
       def unwrap(column_name, deserialized_payload)
         if String === deserialized_payload && deserialized_payload.start_with?("\{")
           warn "Double serialization of #{column_name} column detected"
-          JSON.parse(deserialized_payload)
+          serializer.load(deserialized_payload)
         else
           deserialized_payload
         end
