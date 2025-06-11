@@ -3,12 +3,12 @@
 module RubyEventStore
   module ActiveRecord
     module DoubleSerializationDetector
-      def unwrap(column_name, deserialized_payload)
-        if String === deserialized_payload && deserialized_payload.start_with?("\{")
+      def unwrap(column_name, payload)
+        if String === payload && payload.start_with?("\{")
           warn "Double serialization of #{column_name} column detected"
-          serializer.load(deserialized_payload)
+          serializer.load(payload)
         else
-          deserialized_payload
+          payload
         end
       end
 
