@@ -49,6 +49,11 @@ const CompaniesList = [
     img: "/images/anenta.png",
     link: "https://anentawaste.com",
   },
+  {
+    name: "elucid",
+    img: "/images/elucid.svg",
+    link: "https://elucid.social"
+  }
 ];
 
 function Company({ name, img, link }) {
