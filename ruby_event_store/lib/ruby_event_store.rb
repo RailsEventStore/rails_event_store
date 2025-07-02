@@ -2,6 +2,7 @@
 
 require_relative "ruby_event_store/deprecations"
 require_relative "ruby_event_store/sync_scheduler"
+require_relative "ruby_event_store/configuration"
 require_relative "ruby_event_store/subscriptions"
 require_relative "ruby_event_store/broker"
 require_relative "ruby_event_store/in_memory_repository"
