@@ -7,6 +7,9 @@
 [build.environment]
   NODE_VERSION = "20.10"
 
+[build.processing.html]
+  pretty_urls = false
+
 [[redirects]]
   from = "http://www.railseventstore.org/*"
   to = "https://railseventstore.org/:splat"
