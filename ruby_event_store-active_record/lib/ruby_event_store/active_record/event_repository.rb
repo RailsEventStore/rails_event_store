@@ -32,9 +32,13 @@ module RubyEventStore
           @event_klass.include(SkipJsonSerialization)
         end
         @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
-        EventRepositoryReader.prepend(DoubleSerializationDetector) if serializer == JSON && json_data_type?
+        rescue_from_double_json_serialization!
 
         @index_violation_detector = IndexViolationDetector.new(@event_klass.table_name, @stream_klass.table_name)
+      end
+
+      def rescue_from_double_json_serialization!
+        EventRepositoryReader.prepend(DoubleSerializationDetector) if serializer == JSON && json_data_type?
       end
 
       def append_to_stream(records, stream, expected_version)
