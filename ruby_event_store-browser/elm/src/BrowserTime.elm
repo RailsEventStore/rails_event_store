@@ -16,12 +16,12 @@ defaultTimeZone =
 format : TimeZone -> Time.Posix -> String
 format { zone } time =
     DateFormat.format
-        [ dayOfMonthFixed
-        , text "."
+        [ yearNumber
+        , text "-"
         , monthFixed
-        , text "."
-        , yearNumber
-        , text " "
+        , text "-"
+        , dayOfMonthFixed
+        , text "T"
         , hourMilitaryFixed
         , text ":"
         , minuteFixed
