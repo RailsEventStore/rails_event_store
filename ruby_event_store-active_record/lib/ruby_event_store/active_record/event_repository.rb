@@ -32,8 +32,6 @@ module RubyEventStore
           @event_klass.include(SkipJsonSerialization)
         end
         @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
-        rescue_from_double_json_serialization!
-
         @index_violation_detector = IndexViolationDetector.new(@event_klass.table_name, @stream_klass.table_name)
       end
 

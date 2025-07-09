@@ -1007,5 +1007,17 @@ module RubyEventStore
       expect(client.event_in_stream?(fact.event_id, GLOBAL_STREAM)).to be(true)
       expect(client.event_in_stream?("924acfb8-755d-4fd5-b758-f92423b6560a", GLOBAL_STREAM)).to be(false)
     end
+
+    specify "delegate double serialization rescue to supporting repository" do
+      client = Client.new(repository: repository = spy(:event_repository))
+      client.rescue_from_double_json_serialization!
+
+      expect(repository).to have_received(:rescue_from_double_json_serialization!)
+    end
+
+    specify "don't delegate double serialization rescue to not-supporting repository" do
+      client = Client.new(repository: repository = InMemoryRepository.new)
+      expect { client.rescue_from_double_json_serialization! }.not_to raise_error
+    end
   end
 end

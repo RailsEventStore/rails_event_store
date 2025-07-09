@@ -45,6 +45,11 @@ module RubyEventStore
       end
     end
 
+    def rescue_from_double_json_serialization!
+      return unless @repository.respond_to? :rescue_from_double_json_serialization!
+      @repository.rescue_from_double_json_serialization!
+    end
+
     # Persists events and notifies subscribed handlers about them
     #
     # @param events [Array<Event>, Event] event(s)
