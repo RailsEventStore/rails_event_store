@@ -1,31 +1,31 @@
 PATH
   remote: ..
   specs:
-    aggregate_root (2.17.0)
-      ruby_event_store (= 2.17.0)
-    rails_event_store_active_record (2.17.0)
-      ruby_event_store-active_record (= 2.17.0)
-    ruby_event_store (2.17.0)
+    aggregate_root (2.17.1)
+      ruby_event_store (= 2.17.1)
+    rails_event_store_active_record (2.17.1)
+      ruby_event_store-active_record (= 2.17.1)
+    ruby_event_store (2.17.1)
       concurrent-ruby (~> 1.0, >= 1.1.6)
-    ruby_event_store-active_record (2.17.0)
+    ruby_event_store-active_record (2.17.1)
       activerecord (>= 6.0)
-      ruby_event_store (= 2.17.0)
-    ruby_event_store-browser (2.17.0)
+      ruby_event_store (= 2.17.1)
+    ruby_event_store-browser (2.17.1)
       rack
-      ruby_event_store (= 2.17.0)
+      ruby_event_store (= 2.17.1)
 
 PATH
   remote: .
   specs:
-    rails_event_store (2.17.0)
+    rails_event_store (2.17.1)
       activejob (>= 6.0)
       activemodel (>= 6.0)
       activesupport (>= 6.0)
-      aggregate_root (= 2.17.0)
+      aggregate_root (= 2.17.1)
       arkency-command_bus (>= 0.4)
-      rails_event_store_active_record (= 2.17.0)
-      ruby_event_store (= 2.17.0)
-      ruby_event_store-browser (= 2.17.0)
+      rails_event_store_active_record (= 2.17.1)
+      ruby_event_store (= 2.17.1)
+      ruby_event_store-browser (= 2.17.1)
 
 GEM
   remote: https://rubygems.org/
