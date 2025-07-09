@@ -15,9 +15,6 @@ require_relative "active_record/event_repository_reader"
 require_relative "active_record/index_violation_detector"
 require_relative "active_record/pg_linearized_event_repository"
 require_relative "active_record/version"
-if defined?(Rails::Engine)
-  require_relative "active_record/railtie"
-else
-  require_relative "active_record/skip_json_serialization"
-  require_relative "active_record/event"
-end
+require_relative "active_record/skip_json_serialization"
+require_relative "active_record/event"
+require_relative "active_record/railtie" if defined?(Rails::Engine)
