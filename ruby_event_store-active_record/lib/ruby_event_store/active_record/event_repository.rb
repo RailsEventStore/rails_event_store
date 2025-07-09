@@ -36,7 +36,31 @@ module RubyEventStore
       end
 
       def rescue_from_double_json_serialization!
-        EventRepositoryReader.prepend(DoubleSerializationDetector) if serializer == JSON && json_data_type?
+        if serializer == JSON && json_data_type?
+          @repo_reader.instance_eval { alias __record__ record }
+
+          @repo_reader.define_singleton_method :unwrap do |column_name, payload|
+            if String === payload && payload.start_with?("\{")
+              warn "Double serialization of #{column_name} column detected"
+              serializer.load(payload)
+            else
+              payload
+            end
+          end
+
+          @repo_reader.define_singleton_method :record do |record|
+            r = __record__(record)
+
+            Record.new(
+              event_id: r.event_id,
+              metadata: unwrap("metadata", r.metadata),
+              data: unwrap("data", r.data),
+              event_type: r.event_type,
+              timestamp: r.timestamp,
+              valid_at: r.valid_at,
+            )
+          end
+        end
       end
 
       def append_to_stream(records, stream, expected_version)

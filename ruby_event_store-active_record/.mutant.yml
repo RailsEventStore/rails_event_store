@@ -34,5 +34,5 @@ matcher:
     - RubyEventStore::ActiveRecord::EventRepositoryReader#initialize
     - RubyEventStore::ActiveRecord::EventRepository#initialize
     - RubyEventStore::ActiveRecord::EventRepository#json_data_type?
-    - RubyEventStore::ActiveRecord::DoubleSerializationDetector
+    - RubyEventStore::ActiveRecord::EventRepository#rescue_from_double_json_serialization!
     - RubyEventStore::ActiveRecord::SkipJsonSerialization

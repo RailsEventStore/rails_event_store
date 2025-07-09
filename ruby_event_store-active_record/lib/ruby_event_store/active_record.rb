@@ -14,7 +14,6 @@ require_relative "active_record/batch_enumerator"
 require_relative "active_record/event_repository_reader"
 require_relative "active_record/index_violation_detector"
 require_relative "active_record/pg_linearized_event_repository"
-require_relative "active_record/double_serialization_detector"
 require_relative "active_record/version"
 if defined?(Rails::Engine)
   require_relative "active_record/railtie"
