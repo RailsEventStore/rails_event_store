@@ -21,6 +21,7 @@ matcher:
     - RubyEventStore::Client#initialize
     - RubyEventStore::Client#default_clock
     - RubyEventStore::Client#default_correlation_id_generator
+    - RubyEventStore::Client#rescue_from_double_json_serialization!
     - RubyEventStore::Client::Within#add_thread_subscribers
     - RubyEventStore::Client::Within#add_thread_global_subscribers
     - RubyEventStore::Client::Within#call
