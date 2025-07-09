@@ -315,7 +315,6 @@ module RubyEventStore
         skip unless %w[json jsonb].include?(ENV["DATA_TYPE"])
 
         repository = EventRepository.new(serializer: JSON)
-        repository.rescue_from_double_json_serialization!
         repository.append_to_stream(
           [SRecord.new(data: JSON.dump({ "simulate" => "double" }))],
           Stream.new("stream"),
@@ -326,6 +325,7 @@ module RubyEventStore
           Stream.new("stream"),
           ExpectedVersion.any,
         )
+        repository.rescue_from_double_json_serialization!
 
         expect(repository.read(specification.backward.limit(1).result).first.data).to eq({ "simulate" => "single" })
         expect {
