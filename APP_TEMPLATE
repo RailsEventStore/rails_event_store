@@ -35,7 +35,7 @@ end
 
 profile = Profile.new(options, ENV["LOCATION"])
 
-gem "rails_event_store", "~> 2.16.0"
+gem "rails_event_store", "~> 2.17.0"
 
 initializer "rails_event_store.rb", <<~CODE
   require "rails_event_store"
