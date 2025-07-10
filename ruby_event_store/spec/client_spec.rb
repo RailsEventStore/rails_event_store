@@ -778,7 +778,8 @@ module RubyEventStore
 
     specify "wrap single item mappers with BatchMapper" do
       silence_warnings do
-        mapper_of = ->(instance) { instance.send(:mapper) }
+        mapper_of = ->(instance) { instance.instance_variable_get(:@mapper) }
+
         expect(mapper_of.call(client)).to be_a(Mappers::BatchMapper)
         batch_mapper = Mappers::BatchMapper.new(Mappers::Default.new)
         expect(mapper_of.call(Client.new(mapper: batch_mapper))).to eq(batch_mapper)
