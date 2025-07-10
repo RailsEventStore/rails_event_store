@@ -36,13 +36,13 @@ module RubyEventStore
       end
 
       def rescue_from_double_json_serialization!
-        if serializer == JSON && json_data_type?
+        if @serializer == JSON && json_data_type?
           @repo_reader.instance_eval { alias __record__ record }
 
           @repo_reader.define_singleton_method :unwrap do |column_name, payload|
             if String === payload && payload.start_with?("\{")
               warn "Double serialization of #{column_name} column detected"
-              serializer.load(payload)
+              @serializer.load(payload)
             else
               payload
             end
@@ -96,7 +96,7 @@ module RubyEventStore
       end
 
       def update_messages(records)
-        hashes = records.map { |record| upsert_hash(record, record.serialize(serializer)) }
+        hashes = records.map { |record| upsert_hash(record, record.serialize(@serializer)) }
         for_update = records.map(&:event_id)
         start_transaction do
           existing =
@@ -130,8 +130,6 @@ module RubyEventStore
       end
 
       private
-
-      attr_reader :serializer
 
       def add_to_stream(event_ids, stream, expected_version)
         last_stream_version = ->(stream_) do
@@ -208,7 +206,7 @@ module RubyEventStore
         hashes = []
         event_ids = []
         records.each do |record|
-          hashes << insert_hash(record, record.serialize(serializer))
+          hashes << insert_hash(record, record.serialize(@serializer))
           event_ids << record.event_id
         end
         add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all!(hashes) }
