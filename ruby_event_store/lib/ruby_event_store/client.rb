@@ -46,8 +46,8 @@ module RubyEventStore
     end
 
     def rescue_from_double_json_serialization!
-      return unless repository.respond_to? :rescue_from_double_json_serialization!
-      repository.rescue_from_double_json_serialization!
+      return unless @repository.respond_to? :rescue_from_double_json_serialization!
+      @repository.rescue_from_double_json_serialization!
     end
 
     # Persists events and notifies subscribed handlers about them
@@ -62,15 +62,15 @@ module RubyEventStore
       append_records_to_stream(records, stream_name: stream_name, expected_version: expected_version)
       enriched_events.zip(records) do |event, record|
         with_metadata(correlation_id: event.metadata.fetch(:correlation_id), causation_id: event.event_id) do
-          if broker.public_method(:call).arity == 3
-            broker.call(topic || event.event_type, event, record)
+          if @broker.public_method(:call).arity == 3
+            @broker.call(topic || event.event_type, event, record)
           else
             warn <<~EOW
               Message broker shall support topics.
               Topic WILL BE IGNORED in the current broker.
               Modify the broker implementation to pass topic as an argument to broker.call method.
             EOW
-            broker.call(event, record)
+            @broker.call(event, record)
           end
         end
       end
@@ -98,7 +98,7 @@ module RubyEventStore
     # @param expected_version (see #publish)
     # @return [self]
     def link(event_ids, stream_name:, expected_version: :any)
-      repository.link_to_stream(Array(event_ids), Stream.new(stream_name), ExpectedVersion.new(expected_version))
+      @repository.link_to_stream(Array(event_ids), Stream.new(stream_name), ExpectedVersion.new(expected_version))
       self
     end
 
@@ -109,7 +109,7 @@ module RubyEventStore
     # @param stream_name [String] name of the stream to be cleared.
     # @return [self]
     def delete_stream(stream_name)
-      repository.delete_stream(Stream.new(stream_name))
+      @repository.delete_stream(Stream.new(stream_name))
       self
     end
 
@@ -118,14 +118,14 @@ module RubyEventStore
     #
     # @return [Specification]
     def read
-      Specification.new(SpecificationReader.new(repository, mapper))
+      Specification.new(SpecificationReader.new(@repository, @mapper))
     end
 
     # Gets list of streams where event is stored or linked
     #
     # @return [Array<Stream>] where event is stored or linked
     def streams_of(event_id)
-      repository.streams_of(event_id)
+      @repository.streams_of(event_id)
     end
 
     # Gets position of the event in given stream
@@ -139,7 +139,7 @@ module RubyEventStore
     # @return [Integer] nonnegative integer position of event in stream
     # @raise [EventNotInStream]
     def position_in_stream(event_id, stream_name)
-      repository.position_in_stream(event_id, Stream.new(stream_name))
+      @repository.position_in_stream(event_id, Stream.new(stream_name))
     end
 
     # Gets position of the event in global stream
@@ -152,7 +152,7 @@ module RubyEventStore
     # @raise [EventNotFound]
     # @return [Integer] nonnegno ative integer position of event in global stream
     def global_position(event_id)
-      repository.global_position(event_id)
+      @repository.global_position(event_id)
     end
 
     # Checks whether event is linked in given stream
@@ -162,7 +162,7 @@ module RubyEventStore
     # @return [Boolean] true if event is linked to given stream, false otherwise
     def event_in_stream?(event_id, stream_name)
       stream = Stream.new(stream_name)
-      stream.global? ? repository.has_event?(event_id) : repository.event_in_stream?(event_id, stream)
+      stream.global? ? @repository.has_event?(event_id) : @repository.event_in_stream?(event_id, stream)
     end
 
     # Subscribes a handler (subscriber) that will be invoked for published events of provided type.
@@ -180,7 +180,7 @@ module RubyEventStore
     def subscribe(subscriber = nil, to:, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
       subscriber ||= proc
-      broker.add_subscription(subscriber, to.map { |event_klass| event_type_resolver.call(event_klass) })
+      @broker.add_subscription(subscriber, to.map { |event_klass| @event_type_resolver.call(event_klass) })
     end
 
     # Subscribes a handler (subscriber) that will be invoked for all published events
@@ -195,7 +195,7 @@ module RubyEventStore
     #   @raise [ArgumentError, SubscriberNotExist]
     def subscribe_to_all_events(subscriber = nil, &proc)
       raise ArgumentError, "subscriber must be first argument or block, cannot be both" if subscriber && proc
-      broker.add_global_subscription(subscriber || proc)
+      @broker.add_global_subscription(subscriber || proc)
     end
 
     # Get list of handlers subscribed to an event
@@ -203,7 +203,7 @@ module RubyEventStore
     # @param to [Class, String] type of events to get list of sybscribed handlers
     # @return [Array<Object, Class>]
     def subscribers_for(event_class)
-      broker.all_subscriptions_for(event_type_resolver.call(event_class))
+      @broker.all_subscriptions_for(@event_type_resolver.call(event_class))
     end
 
     # Builder object for collecting temporary handlers (subscribers)
@@ -286,7 +286,7 @@ module RubyEventStore
     # @return [Within] builder object which collects temporary subscriptions
     def within(&block)
       raise ArgumentError if block.nil?
-      Within.new(block, broker, event_type_resolver)
+      Within.new(block, @broker, @event_type_resolver)
     end
 
     # Set additional metadata for all events published within the provided block
@@ -310,7 +310,7 @@ module RubyEventStore
     def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
       extract_timestamp = lambda { |m| (m[:timestamp] || Time.parse(m.fetch("timestamp"))).iso8601 }
 
-      mapper.records_to_events(
+      @mapper.records_to_events(
         [
           SerializedRecord.new(
             event_type: event_type,
@@ -362,7 +362,7 @@ module RubyEventStore
     # @param events [Array<Event>, Event] event(s) to serialize and overwrite again
     # @return [self]
     def overwrite(events_or_event)
-      repository.update_messages(transform(Array(events_or_event)))
+      @repository.update_messages(transform(Array(events_or_event)))
       self
     end
 
@@ -376,7 +376,7 @@ module RubyEventStore
     private
 
     def transform(events)
-      mapper.events_to_records(events)
+      @mapper.events_to_records(events)
     end
 
     def enrich_events_metadata(events)
@@ -386,13 +386,13 @@ module RubyEventStore
 
     def enrich_event_metadata(event)
       metadata.each { |key, value| event.metadata[key] ||= value }
-      event.metadata[:timestamp] ||= clock.call
+      event.metadata[:timestamp] ||= @clock.call
       event.metadata[:valid_at] ||= event.metadata.fetch(:timestamp)
-      event.metadata[:correlation_id] ||= correlation_id_generator.call
+      event.metadata[:correlation_id] ||= @correlation_id_generator.call
     end
 
     def append_records_to_stream(records, stream_name:, expected_version:)
-      repository.append_to_stream(records, Stream.new(stream_name), ExpectedVersion.new(expected_version))
+      @repository.append_to_stream(records, Stream.new(stream_name), ExpectedVersion.new(expected_version))
     end
 
     protected
@@ -412,7 +412,5 @@ module RubyEventStore
     def default_correlation_id_generator
       -> { SecureRandom.uuid }
     end
-
-    attr_reader :repository, :mapper, :broker, :clock, :correlation_id_generator, :event_type_resolver
   end
 end
