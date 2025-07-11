@@ -13,7 +13,7 @@ const config = {
   tagline:
     "The open-source implementation of an Event Store for Ruby and Rails",
   favicon: "img/favicon.ico",
-  themes: ["@docusaurus/theme-mermaid"],
+  themes: ['@docusaurus/theme-mermaid'],
   markdown: {
     mermaid: true,
   },
@@ -45,7 +45,6 @@ const config = {
       "classic",
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
-        debug: true,
         docs: {
           lastVersion: "2.17.0",
           versions: {
@@ -187,13 +186,8 @@ const config = {
     }),
 
   plugins: [tailwindPlugin],
-  scripts: [
-    {
-      src: "https://plausible.io/js/script.js",
-      defer: true,
-      "data-domain": "railseventstore.org",
-    },
-  ],
+  scripts: [{src: 'https://plausible.io/js/script.js', defer: true, 'data-domain': 'railseventstore.org'}],
+
 };
 
 export default config;
