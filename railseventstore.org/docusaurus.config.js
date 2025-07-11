@@ -46,6 +46,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          banner: "none",
           lastVersion: "2.17.0",
           versions: {
             current: {
