@@ -36,7 +36,7 @@ Serialization is needed not only when writing to and reading from storage, but a
 
 ```ruby
 Rails.configuration.event_store = RailsEventStore::Client.new(
-  message_broker: RubyEventStore::Broker.new( 
+  message_broker: RubyEventStore::Broker.new(
     dispatcher: RubyEventStore::ComposedDispatcher.new(
       RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: Marshal)),
       RubyEventStore::Dispatcher.new
@@ -71,7 +71,7 @@ Next, configure your event store client to the JSON client:
 Rails.configuration.event_store = RailsEventStore::JSONClient.new
 ```
 
-If you need additional configuration beyond the included JSON client, continue from here. In your `RailsEventStore::Client` initialization, set repository serialization to ` RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)`
+If you need additional configuration beyond the included JSON client, continue from here. In your `RailsEventStore::Client` initialization, set repository serialization to ` RailsEventStoreActiveRecord::EventRepository.new(serializer: JSON)`
 
 ```ruby
 # config/environments/*.rb
@@ -79,17 +79,15 @@ If you need additional configuration beyond the included JSON client, continue f
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)
+      repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: JSON)
     )
   end
 end
 ```
 
-Using the `RubyEventStore::NULL` serializer will prevent the event store from serializing the event data and metadata. This is necessary because the Active Record will handle serialization before putting the data into the database. And will do otherwise when reading. Database itself expect data to be json already.
-
 <div class="px-4 py-1 text-blue-600 bg-blue-100 border-l-4 border-blue-500" role="alert">
   <p class="text-base font-bold">Note that <code>JSON</code> converts symbols to strings. Ensure your code accounts for this when retrieving events.</p>
-  
+
 ```ruby
 JSON.load(JSON.dump({foo: :bar}))
 => {"foo"=>"bar"}
