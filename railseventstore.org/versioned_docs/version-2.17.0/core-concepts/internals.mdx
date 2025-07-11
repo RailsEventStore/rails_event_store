@@ -1,0 +1,86 @@
+---
+title: Internals
+---
+
+import Mermaid from '@theme/Mermaid';
+import SubscribeDequenceDiagram from '!!raw-loader!./../subscribe-sequence-diagram.mmd'
+import PublishDequenceDiagram from '!!raw-loader!./../publish-sequence-diagram.mmd'
+import ReadDequenceDiagram from '!!raw-loader!./../read-sequence-diagram.mmd'
+
+
+RailsEventStore (RES) is a set of Ruby gems designed for event sourcing 
+in Rails and Ruby applications. It helps developers store domain events, 
+publish them to subscribers, and build read models — all while embracing 
+a CQRS (Command Query Responsibility Segregation) and Event Sourcing architecture.
+
+
+Let’s break down the internal parts:
+
+## Core Components of RailsEventStore
+
+### Client
+
+Acts as the main entry point for appending, publishing & subscribing to events.
+Both `RubyEventStore::Client` and `RailsEventStore::Client` (inherited from the Ruby client)
+allow you to set up the RES instance according to your project's needs.
+It orchestrates the flow between application code and RES storage & pub/sub parts.
+
+`RailsEventStore::Client` provides client setup ready to use with Ruby on Rails,
+featuring an `ActiveRecord`-based event repository (storage) and asynchronous-ready dispatcher
+based on `ActiveJob` (pub/sub) . It also wraps internal components with instrumentation
+provided by `ActiveSupport::Notifications`. At the same time it allows you to configure each part 
+based on project's needs.
+
+### Storage
+
+Manages the persistence and retrieval of events.
+As simple as it sounds, the implementation focuses on the efficient storage and retrieval of events from the database.
+
+Each event stored must be mapped into `SerializedRecord` object using provided mapper.
+Read events (`SerializedRecord` objects) are transformed into Ruby domain event classes
+using the mapper component.
+It can be replaced by your own implementation 
+(see [contrib gems](https://github.com/RailsEventStore/rails_event_store/tree/master/contrib) for `ROM` & `Sequel` event repository implementations).
+
+### Mapper
+
+This component is responsible for transforming domain event (Ruby class) into `SerializedRecord` - each to store & transmit form of event's data.
+
+By default it is set up to use pipeline mapper with defined set of transformations.
+It could be extended by defining new transformations (see `RubyEventStore::Mappers::EncryptionMapper` 
+as an example) or completely replaced by your own implementation. It needs to transform in both directions 
+between domain object class and `SerializedRecord` object.
+
+### Pub/Sub broker
+
+This component is responsible for delivering domain events to subscribers.
+It manages the subscriptions for domain events, and dispatches published events to their destinations.
+While `RubyEventStore::Client` uses only simple synchronous dispatcher, the `RailsEventStore::Client` has a 
+far more sophisticated setup.
+
+The `RailsEventStore::Client` default setup uses composed dispatchers, allowing several methods 
+of delivering events to subscribers. The defined dispatchers are processed in order, 
+and the first capable of handling delivery is used. This enables a mix of synchronous 
+and asynchronous delivery of domain events.
+Asynchrounus delivery is handled by `RailsEventStore::AfterCommitAsyncDispatcher`, 
+which ensures that domain events are scheduled in the asynchronous queue only after being stored in the database.
+By default, it uses `RailsEventStore::ActiveJobScheduler` to schedule processing via `ActiveJob`, but 
+other solutions have also been implemented (like `Sidekiq` using [`ruby_event_store-sidekiq_scheduler` gem](https://rubygems.org/search?query=ruby_event_store-sidekiq_scheduler)).
+
+Both `RubyEventStore::Client` and `RailsEventStore::Client` can be customized with your own dispatcher to suit your needs.
+
+## Typical usage
+
+The diagrams below show (almost) all internal interactions between RES components for the most common operations.
+
+### Subscribe
+
+<Mermaid value={SubscribeDequenceDiagram} />
+
+### Publish
+
+<Mermaid value={PublishDequenceDiagram} />
+
+### Read
+
+<Mermaid value={ReadDequenceDiagram} />
