@@ -47,7 +47,7 @@ const config = {
       ({
         debug: true,
         docs: {
-          lastVersion: "2.17.1",
+          lastVersion: "2.17.0",
           versions: {
             current: {
               label: "Master",
