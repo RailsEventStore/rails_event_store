@@ -48,7 +48,6 @@ const config = {
         docs: {
           lastVersion: "2.17.0",
           versions: {
-            banner: "none",
             current: {
               label: "Master",
               path: "master",
