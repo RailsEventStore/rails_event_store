@@ -370,7 +370,7 @@ module RubyEventStore
       "#<#{self.class}:0x#{__id__.to_s(16)}>\n" \
         "  - repository: #{@repository.respond_to?(:cleaner_inspect) ? @repository.cleaner_inspect(indent: 2) : @repository.inspect}\n" \
         "  - broker: #{@broker.respond_to?(:cleaner_inspect) ? @broker.cleaner_inspect(indent: 2) : @broker.inspect}\n" \
-        "  - mapper: #{@mapper.inspect}"
+        "  - mapper: #{@mapper.respond_to?(:cleaner_inspect) ? @mapper.cleaner_inspect(indent: 2) : @mapper.inspect}"
     end
 
     EMPTY_HASH = {}.freeze
