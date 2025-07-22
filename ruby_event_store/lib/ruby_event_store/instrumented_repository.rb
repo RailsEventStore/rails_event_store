@@ -61,6 +61,13 @@ module RubyEventStore
       repository.respond_to?(method_name)
     end
 
+    def cleaner_inspect(indent: 0)
+      <<~EOS.chomp
+        #{' ' * indent}#<#{self.class}:0x#{__id__.to_s(16)}>
+        #{' ' * indent}  - repository: #{repository.respond_to?(:cleaner_inspect) ? repository.cleaner_inspect(indent: indent + 2) : repository.inspect}
+      EOS
+    end
+
     private
 
     attr_reader :repository, :instrumentation

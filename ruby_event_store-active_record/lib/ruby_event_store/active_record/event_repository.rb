@@ -129,6 +129,13 @@ module RubyEventStore
         @repo_reader.event_in_stream?(event_id, stream)
       end
 
+      def cleaner_inspect(indent: 0)
+        <<~EOS.chomp
+          #{' ' * indent}#<#{self.class}:0x#{__id__.to_s(16)}>
+          #{' ' * indent}  - serializer: #{@serializer.inspect}
+        EOS
+      end
+
       private
 
       def add_to_stream(event_ids, stream, expected_version)

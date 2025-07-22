@@ -368,7 +368,7 @@ module RubyEventStore
 
     def inspect
       "#<#{self.class}:0x#{__id__.to_s(16)}>\n" \
-        "  - repository: #{@repository.inspect}\n" \
+        "  - repository: #{@repository.respond_to?(:cleaner_inspect) ? @repository.cleaner_inspect(indent: 2) : @repository.inspect}\n" \
         "  - broker: #{@broker.respond_to?(:cleaner_inspect) ? @broker.cleaner_inspect(indent: 2) : @broker.inspect}\n" \
         "  - mapper: #{@mapper.inspect}"
     end

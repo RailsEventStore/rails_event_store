@@ -148,5 +148,19 @@ module RubyEventStore
         repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
       end.not_to raise_error
     end
+
+    specify "#cleaner_inspect" do
+      expect(repository.cleaner_inspect).to eq(<<~EOS.chomp)
+        #<#{repository.class.name}:0x#{repository.object_id.to_s(16)}>
+          - serializer: #{repository.instance_variable_get(:@serializer).inspect}
+      EOS
+    end
+
+    specify "#cleaner_inspect with indent" do
+      expect(repository.cleaner_inspect(indent: 4)).to eq(<<~EOS.chomp)
+        #{' ' * 4}#<#{repository.class.name}:0x#{repository.object_id.to_s(16)}>
+        #{' ' * 4}  - serializer: #{repository.instance_variable_get(:@serializer).inspect}
+      EOS
+    end
   end
 end
