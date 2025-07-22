@@ -367,7 +367,10 @@ module RubyEventStore
     end
 
     def inspect
-      "#<#{self.class}:0x#{__id__.to_s(16)}>"
+      "#<#{self.class}:0x#{__id__.to_s(16)}>\n" \
+        "  - repository: #{@repository.inspect}\n" \
+        "  - broker: #{@broker.inspect}\n" \
+        "  - mapper: #{@mapper.inspect}"
     end
 
     EMPTY_HASH = {}.freeze

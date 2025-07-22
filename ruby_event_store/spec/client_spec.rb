@@ -892,7 +892,12 @@ module RubyEventStore
 
     specify "#inspect" do
       object_id = client.object_id.to_s(16)
-      expect(client.inspect).to eq("#<RubyEventStore::Client:0x#{object_id}>")
+      expect(client.inspect).to eq(<<~EOS.chomp)
+        #<RubyEventStore::Client:0x#{object_id}>
+          - repository: #{client.instance_variable_get(:@repository).inspect}
+          - broker: #{client.instance_variable_get(:@broker).inspect}
+          - mapper: #{client.instance_variable_get(:@mapper).inspect}
+      EOS
     end
 
     specify "transform Record to SerializedRecord is only once when using the same serializer" do
