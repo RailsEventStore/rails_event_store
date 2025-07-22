@@ -892,10 +892,11 @@ module RubyEventStore
 
     specify "#inspect" do
       object_id = client.object_id.to_s(16)
+      broker = client.instance_variable_get(:@broker)
       expect(client.inspect).to eq(<<~EOS.chomp)
         #<RubyEventStore::Client:0x#{object_id}>
           - repository: #{client.instance_variable_get(:@repository).inspect}
-          - broker: #{client.instance_variable_get(:@broker).inspect}
+          - broker: #{broker.respond_to?(:cleaner_inspect) ? broker.cleaner_inspect(indent: 2) : broker.inspect}
           - mapper: #{client.instance_variable_get(:@mapper).inspect}
       EOS
     end

@@ -66,6 +66,13 @@ module RubyEventStore
       broker.respond_to?(method_name)
     end
 
+    def cleaner_inspect(indent: 0)
+      <<~EOS.chomp
+        #{' ' * indent}#<#{self.class}:0x#{__id__.to_s(16)}>
+        #{' ' * indent}  - broker: #{broker.respond_to?(:cleaner_inspect) ? broker.cleaner_inspect(indent: indent + 2) : broker.inspect}
+      EOS
+    end
+
     private
 
     attr_reader :instrumentation, :broker
