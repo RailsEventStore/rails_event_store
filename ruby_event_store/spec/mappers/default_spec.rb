@@ -102,6 +102,26 @@ module RubyEventStore
       def stringify(hash)
         hash.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v }
       end
+
+      specify "#cleaner_inspect" do
+        mapper = Default.new
+        transformations_list = mapper.instance_variable_get(:@pipeline).transformations.map { |t| "    - #{t.inspect}" }.join("\n")
+        expect(mapper.cleaner_inspect).to eq(<<~EOS.chomp)
+          #<#{mapper.class.name}:0x#{mapper.object_id.to_s(16)}>
+            - transformations:
+          #{transformations_list}
+        EOS
+      end
+
+      specify "#cleaner_inspect with indent" do
+        mapper = Default.new
+        transformations_list = mapper.instance_variable_get(:@pipeline).transformations.map { |t| "#{' ' * 8}- #{t.inspect}" }.join("\n")
+        expect(mapper.cleaner_inspect(indent: 4)).to eq(<<~EOS.chomp)
+          #{' ' * 4}#<#{mapper.class.name}:0x#{mapper.object_id.to_s(16)}>
+          #{' ' * 4}  - transformations:
+          #{transformations_list}
+        EOS
+      end
     end
   end
 end

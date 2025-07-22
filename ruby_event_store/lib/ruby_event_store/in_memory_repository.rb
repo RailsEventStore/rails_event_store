@@ -137,6 +137,13 @@ module RubyEventStore
       !streams[stream.name].find { |event_in_stream| event_in_stream.event_id.eql?(event_id) }.nil?
     end
 
+    def cleaner_inspect(indent: 0)
+      <<~EOS.chomp
+        #{' ' * indent}#<#{self.class}:0x#{__id__.to_s(16)}>
+        #{' ' * indent}  - serializer: #{serializer.inspect}
+      EOS
+    end
+
     private
 
     def read_scope(spec)
