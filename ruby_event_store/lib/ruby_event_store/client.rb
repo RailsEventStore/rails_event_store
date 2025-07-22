@@ -137,7 +137,7 @@ module RubyEventStore
     # @param event_id [String]
     # @param stream_name [String]
     # @return [Integer] nonnegative integer position of event in stream
-    # @raise [EventNotInStream]
+    # @raise [EventNotFoundInStream]
     def position_in_stream(event_id, stream_name)
       @repository.position_in_stream(event_id, Stream.new(stream_name))
     end
