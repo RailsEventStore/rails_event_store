@@ -212,8 +212,6 @@ module RubyEventStore
         add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all!(hashes) }
       end
 
-      private
-
       def json_data_type?
         %i[data metadata].any? { |attr| @event_klass.column_for_attribute(attr).type.start_with?("json") }
       end
