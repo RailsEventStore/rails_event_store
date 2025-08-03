@@ -367,10 +367,6 @@ module RubyEventStore
         }
       end
 
-      def optimize_timestamp(valid_at, created_at)
-        valid_at unless valid_at.eql?(created_at)
-      end
-
       def supports_on_duplicate_key_update?
         @db.adapter_scheme =~ /mysql/
       end
