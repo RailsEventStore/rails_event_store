@@ -36,6 +36,13 @@ module RubyEventStore
       subscriptions.all_for(topic)
     end
 
+    def cleaner_inspect(indent: 0)
+      <<~EOS.chomp
+        #{' ' * indent}#<#{self.class}:0x#{__id__.to_s(16)}>
+        #{' ' * indent}  - dispatcher: #{dispatcher.inspect}
+      EOS
+    end
+
     private
 
     attr_reader :dispatcher, :subscriptions
