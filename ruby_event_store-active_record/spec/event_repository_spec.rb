@@ -286,21 +286,23 @@ module RubyEventStore
       specify "JSON/B backwards compatibility — explicit NULL serializer as advised before introduction of JSONClient" do
         skip unless %w[json jsonb].include?(ENV["DATA_TYPE"])
 
-        expect { repository = EventRepository.new(serializer: NULL) }.to output(<<~MSG).to_stderr
-          The data or metadata column is of a JSON/B type and expects a JSON string. 
+        expect { EventRepository.new(serializer: NULL) }.not_to output.to_stderr
 
-          Yet the repository serializer is configured as RubyEventStore::NULL and it would not 
-          produce the expected JSON string. 
+        expect { repository = EventRepository.new(serializer: NULL).has_event?(SecureRandom.uuid) }.to output(<<~MSG).to_stderr
+          The data or metadata column is of a JSON/B type and expects a JSON string.
 
-          In ActiveRecord there's an implicit serialization to JSON for JSON/B column types 
-          that made it work so far. This behaviour is unfortunately also a source of undesired 
+          Yet the repository serializer is configured as RubyEventStore::NULL and it would not
+          produce the expected JSON string.
+
+          In ActiveRecord there's an implicit serialization to JSON for JSON/B column types
+          that made it work so far. This behaviour is unfortunately also a source of undesired
           double serialization — first in the EventRepository, second in the ActiveRecord.
-          
-          In the past we've advised workarounds that introduced configuration incosistency 
-          with other data types and serialization formats, i.e. explicitly passing NULL serializer 
+
+          In the past we've advised workarounds that introduced configuration incosistency
+          with other data types and serialization formats, i.e. explicitly passing NULL serializer
           just for the JSON/B data types.
 
-          As of now this special ActiveRecord behaviour is disabled. You should be using JSON 
+          As of now this special ActiveRecord behaviour is disabled. You should be using JSON
           serializer back again:
 
           RubyEventStore::ActiveRecord::EventRepository.new(serializer: JSON)
