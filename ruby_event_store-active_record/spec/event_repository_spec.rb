@@ -76,8 +76,8 @@ module RubyEventStore
 
       specify "use default models" do
         repository = EventRepository.new(serializer: mk_serializer.call)
-        expect(repository.instance_variable_get(:@event_klass)).to be(Event)
-        expect(repository.instance_variable_get(:@stream_klass)).to be(EventInStream)
+        expect(repository.send(:event_klass)).to be(Event)
+        expect(repository.send(:stream_klass)).to be(EventInStream)
       end
 
       specify "allows custom base class" do
@@ -86,8 +86,8 @@ module RubyEventStore
             model_factory: WithAbstractBaseClass.new(CustomApplicationRecord),
             serializer: mk_serializer.call,
           )
-        expect(repository.instance_variable_get(:@event_klass).ancestors).to include(CustomApplicationRecord)
-        expect(repository.instance_variable_get(:@stream_klass).ancestors).to include(CustomApplicationRecord)
+        expect(repository.send(:event_klass).ancestors).to include(CustomApplicationRecord)
+        expect(repository.send(:stream_klass).ancestors).to include(CustomApplicationRecord)
       end
 
       specify "reading/writting works with custom base class" do
