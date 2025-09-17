@@ -7,39 +7,14 @@ module RubyEventStore
 
       def initialize(model_factory: WithDefaultModels.new, serializer:)
         @serializer = serializer
-        @event_klass, @stream_klass = model_factory.call
-        if serializer == NULL && json_data_type?
-          warn <<~MSG
-            The data or metadata column is of a JSON/B type and expects a JSON string. 
-
-            Yet the repository serializer is configured as #{serializer} and it would not 
-            produce the expected JSON string. 
-
-            In ActiveRecord there's an implicit serialization to JSON for JSON/B column types 
-            that made it work so far. This behaviour is unfortunately also a source of undesired 
-            double serialization — first in the EventRepository, second in the ActiveRecord.
-            
-            In the past we've advised workarounds that introduced configuration incosistency 
-            with other data types and serialization formats, i.e. explicitly passing NULL serializer 
-            just for the JSON/B data types.
-
-            As of now this special ActiveRecord behaviour is disabled. You should be using JSON 
-            serializer back again:
-
-            RubyEventStore::ActiveRecord::EventRepository.new(serializer: JSON)
-          MSG
-        else
-          @event_klass.include(SkipJsonSerialization)
-        end
-        @repo_reader = EventRepositoryReader.new(@event_klass, @stream_klass, serializer)
-        @index_violation_detector = IndexViolationDetector.new(@event_klass.table_name, @stream_klass.table_name)
+        @model_factory = model_factory
       end
 
       def rescue_from_double_json_serialization!
-        if @serializer == JSON && json_data_type?
-          @repo_reader.instance_eval { alias __record__ record }
+        if @serializer == JSON && json_data_type?(event_klass)
+          repo_reader.instance_eval { alias __record__ record }
 
-          @repo_reader.define_singleton_method :unwrap do |column_name, payload|
+          repo_reader.define_singleton_method :unwrap do |column_name, payload|
             if String === payload && payload.start_with?("\{")
               warn "Double serialization of #{column_name} column detected"
               @serializer.load(payload)
@@ -48,7 +23,7 @@ module RubyEventStore
             end
           end
 
-          @repo_reader.define_singleton_method :record do |record|
+          repo_reader.define_singleton_method :record do |record|
             r = __record__(record)
 
             Record.new(
@@ -76,23 +51,23 @@ module RubyEventStore
       end
 
       def delete_stream(stream)
-        @stream_klass.where(stream: stream.name).delete_all
+        stream_klass.where(stream: stream.name).delete_all
       end
 
       def has_event?(event_id)
-        @repo_reader.has_event?(event_id)
+        repo_reader.has_event?(event_id)
       end
 
       def last_stream_event(stream)
-        @repo_reader.last_stream_event(stream)
+        repo_reader.last_stream_event(stream)
       end
 
       def read(specification)
-        @repo_reader.read(specification)
+        repo_reader.read(specification)
       end
 
       def count(specification)
-        @repo_reader.count(specification)
+        repo_reader.count(specification)
       end
 
       def update_messages(records)
@@ -100,7 +75,7 @@ module RubyEventStore
         for_update = records.map(&:event_id)
         start_transaction do
           existing =
-            @event_klass
+            event_klass
               .where(event_id: for_update)
               .pluck(:event_id, :id, :created_at)
               .reduce({}) { |acc, (event_id, id, created_at)| acc.merge(event_id => [id, created_at]) }
@@ -109,31 +84,31 @@ module RubyEventStore
             h[:id] = existing.fetch(h.fetch(:event_id)).at(0)
             h[:created_at] = existing.fetch(h.fetch(:event_id)).at(1)
           end
-          @event_klass.upsert_all(hashes)
+          event_klass.upsert_all(hashes)
         end
       end
 
       def streams_of(event_id)
-        @repo_reader.streams_of(event_id)
+        repo_reader.streams_of(event_id)
       end
 
       def position_in_stream(event_id, stream)
-        @repo_reader.position_in_stream(event_id, stream)
+        repo_reader.position_in_stream(event_id, stream)
       end
 
       def global_position(event_id)
-        @repo_reader.global_position(event_id)
+        repo_reader.global_position(event_id)
       end
 
       def event_in_stream?(event_id, stream)
-        @repo_reader.event_in_stream?(event_id, stream)
+        repo_reader.event_in_stream?(event_id, stream)
       end
 
       private
 
       def add_to_stream(event_ids, stream, expected_version)
         last_stream_version = ->(stream_) do
-          @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position)
+          stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position)
         end
         resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
@@ -148,7 +123,7 @@ module RubyEventStore
                 created_at: Time.now.utc,
               }
             end
-          @stream_klass.insert_all!(in_stream) unless stream.global?
+          stream_klass.insert_all!(in_stream) unless stream.global?
         end
         self
       rescue ::ActiveRecord::RecordNotUnique => e
@@ -165,7 +140,7 @@ module RubyEventStore
       end
 
       def detect_index_violated(message)
-        @index_violation_detector.detect(message)
+        index_violation_detector.detect(message)
       end
 
       def insert_hash(record, serialized_record)
@@ -194,11 +169,11 @@ module RubyEventStore
       end
 
       def start_transaction(&block)
-        @event_klass.transaction(requires_new: true, &block)
+        event_klass.transaction(requires_new: true, &block)
       end
 
       def link_to_stream_(event_ids, stream, expected_version)
-        (event_ids - @event_klass.where(event_id: event_ids).pluck(:event_id)).each { |id| raise EventNotFound.new(id) }
+        (event_ids - event_klass.where(event_id: event_ids).pluck(:event_id)).each { |id| raise EventNotFound.new(id) }
         add_to_stream(event_ids, stream, expected_version)
       end
 
@@ -209,11 +184,50 @@ module RubyEventStore
           hashes << insert_hash(record, record.serialize(@serializer))
           event_ids << record.event_id
         end
-        add_to_stream(event_ids, stream, expected_version) { @event_klass.insert_all!(hashes) }
+        add_to_stream(event_ids, stream, expected_version) { event_klass.insert_all!(hashes) }
       end
 
-      def json_data_type?
-        %i[data metadata].any? { |attr| @event_klass.column_for_attribute(attr).type.start_with?("json") }
+      def model_klasses
+        @model_klasses ||= @model_factory.call.tap do |event_klass, stream_klass|
+          if @serializer == NULL && json_data_type?(event_klass)
+            warn <<~MSG
+              The data or metadata column is of a JSON/B type and expects a JSON string.
+
+              Yet the repository serializer is configured as #{@serializer} and it would not
+              produce the expected JSON string.
+
+              In ActiveRecord there's an implicit serialization to JSON for JSON/B column types
+              that made it work so far. This behaviour is unfortunately also a source of undesired
+              double serialization — first in the EventRepository, second in the ActiveRecord.
+
+              In the past we've advised workarounds that introduced configuration incosistency
+              with other data types and serialization formats, i.e. explicitly passing NULL serializer
+              just for the JSON/B data types.
+
+              As of now this special ActiveRecord behaviour is disabled. You should be using JSON
+              serializer back again:
+
+              RubyEventStore::ActiveRecord::EventRepository.new(serializer: JSON)
+            MSG
+          else
+            event_klass.include(SkipJsonSerialization)
+          end
+        end
+      end
+
+      def event_klass = model_klasses.first
+      def stream_klass = model_klasses.last
+
+      def repo_reader
+        @repo_reader ||= EventRepositoryReader.new(event_klass, stream_klass, @serializer)
+      end
+
+      def index_violation_detector
+        @index_violation_detector ||= IndexViolationDetector.new(event_klass.table_name, stream_klass.table_name)
+      end
+
+      def json_data_type?(klass)
+        %i[data metadata].any? { |attr| klass.column_for_attribute(attr).type.start_with?("json") }
       end
     end
   end
