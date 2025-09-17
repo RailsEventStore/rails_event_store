@@ -188,8 +188,8 @@ module RubyEventStore
       end
 
       def model_klasses
-        @model_klasses ||= @model_factory.call.tap do |event_klass, stream_klass|
-          if @serializer == NULL && json_data_type?(event_klass)
+        @model_klasses ||= @model_factory.call.tap do |event_model, stream_model|
+          if @serializer == NULL && json_data_type?(event_model)
             warn <<~MSG
               The data or metadata column is of a JSON/B type and expects a JSON string.
 
@@ -210,7 +210,7 @@ module RubyEventStore
               RubyEventStore::ActiveRecord::EventRepository.new(serializer: JSON)
             MSG
           else
-            event_klass.include(SkipJsonSerialization)
+            event_model.include(SkipJsonSerialization)
           end
         end
       end
