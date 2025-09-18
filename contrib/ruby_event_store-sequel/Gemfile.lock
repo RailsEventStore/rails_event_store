@@ -9,7 +9,7 @@ PATH
   specs:
     ruby_event_store-sequel (0.1.0)
       ruby_event_store (>= 2.0.0, < 3.0.0)
-      sequel (>= 5.11.0)
+      sequel (~> 5.11)
 
 GEM
   remote: https://rubygems.org/
