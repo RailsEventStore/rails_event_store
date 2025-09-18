@@ -32,7 +32,7 @@ matcher:
     - RubyEventStore::ActiveRecord::Event.hook_attribute_type
     - RubyEventStore::ActiveRecord::DoubleSerializationDetector
     - RubyEventStore::ActiveRecord::EventRepositoryReader#initialize
-    - RubyEventStore::ActiveRecord::EventRepository#initialize
+    - RubyEventStore::ActiveRecord::EventRepository#model_klasses
     - RubyEventStore::ActiveRecord::EventRepository#json_data_type?
     - RubyEventStore::ActiveRecord::EventRepository#rescue_from_double_json_serialization!
     - RubyEventStore::ActiveRecord::SkipJsonSerialization
