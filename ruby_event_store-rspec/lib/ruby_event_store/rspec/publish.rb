@@ -3,6 +3,8 @@
 module RubyEventStore
   module RSpec
     class Publish
+      include ::RSpec::Matchers::Composable
+
       def initialize(*expected, failure_message_formatter:)
         @expected = ExpectedCollection.new(expected)
         @failure_message_formatter = failure_message_formatter
