@@ -188,7 +188,7 @@ module RubyEventStore
     def limit(count)
       raise InvalidPageSize unless count && count > 0
 
-      Specification.new(reader, result.with(limit: count || Float::INFINITY))
+      Specification.new(reader, result.with(limit: count))
     end
 
     # Executes the query based on the specification built up to this point.
