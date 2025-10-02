@@ -20,31 +20,12 @@ module RubyEventStore
         :with_ids,
         :with_types,
       ) do
-        def initialize(
-          direction: :forward,
-          start: nil,
-          stop: nil,
-          older_than: nil,
-          older_than_or_equal: nil,
-          newer_than: nil,
-          newer_than_or_equal: nil,
-          time_sort_by: nil,
-          limit: nil,
-          stream: Stream.new(GLOBAL_STREAM),
-          read_as: :all,
-          batch_size: Specification::DEFAULT_BATCH_SIZE,
-          with_ids: nil,
-          with_types: nil
-        )
-          super
-        end
-
         def limit? = !to_h[:limit].nil?
         def limit = to_h[:limit] || Float::INFINITY
-        def forward? = direction.equal?(:forward)
-        def backward? = direction.equal?(:backward)
         def with_ids? = !with_ids.nil?
         def with_types? = !(with_types || []).empty?
+        def forward? = direction.equal?(:forward)
+        def backward? = direction.equal?(:backward)
         def batched? = read_as.equal?(:batch)
         def first? = read_as.equal?(:first)
         def last? = read_as.equal?(:last)
@@ -57,7 +38,25 @@ module RubyEventStore
 
     # @api private
     # @private
-    def initialize(reader, result = SpecificationResult.new)
+    def initialize(
+      reader,
+      result = SpecificationResult.new(
+        direction: :forward,
+        start: nil,
+        stop: nil,
+        older_than: nil,
+        older_than_or_equal: nil,
+        newer_than: nil,
+        newer_than_or_equal: nil,
+        time_sort_by: nil,
+        limit: nil,
+        stream: Stream.new(GLOBAL_STREAM),
+        read_as: :all,
+        batch_size: DEFAULT_BATCH_SIZE,
+        with_ids: nil,
+        with_types: nil,
+      )
+    )
       @reader = reader
       @result = result
     end
