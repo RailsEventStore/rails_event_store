@@ -22,7 +22,7 @@ module RubyEventStore
       ) do
         def limit? = !limit.infinite?
         def with_ids? = !with_ids.nil?
-        def with_types? = !with_types.nil?
+        def with_types? = !with_types.empty?
         def forward? = direction.equal?(:forward)
         def backward? = direction.equal?(:backward)
         def batched? = read_as.equal?(:batch)
@@ -53,7 +53,7 @@ module RubyEventStore
         read_as: :all,
         batch_size: DEFAULT_BATCH_SIZE,
         with_ids: nil,
-        with_types: nil,
+        with_types: [],
       )
     )
       @reader = reader
@@ -313,8 +313,7 @@ module RubyEventStore
     # @types [Class, Array(Class)] types of event to look for.
     # @return [Specification]
     def of_type(*types)
-      types_ = types.flatten.map(&:to_s) unless types.empty?
-      Specification.new(reader, result.with(with_types: types_))
+      Specification.new(reader, result.with(with_types: types.flatten.map(&:to_s)))
     end
     alias of_types of_type
 

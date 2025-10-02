@@ -67,8 +67,8 @@ module RubyEventStore
     specify { expect(specification.with_id([event_id]).result.with_ids?).to be(true) }
     specify { expect(specification.with_id([]).result.with_ids?).to be(true) }
 
-    specify { expect(specification.result.with_types).to be_nil }
-    specify { expect(specification.of_type.result.with_types).to be_nil }
+    specify { expect(specification.result.with_types).to eq([]) }
+    specify { expect(specification.of_type.result.with_types).to eq([]) }
     specify { expect(specification.of_type([TestEvent]).result.with_types).to eq(["TestEvent"]) }
     specify { expect(specification.result.with_types?).to be(false) }
     specify { expect(specification.of_type([TestEvent]).result.with_types?).to be(true) }
