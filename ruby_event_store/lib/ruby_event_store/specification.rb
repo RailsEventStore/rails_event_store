@@ -18,7 +18,7 @@ module RubyEventStore
     # @param stream_name [String] name of the stream to get events from
     # @return [Specification]
     def stream(stream_name)
-      Specification.new(reader, result.dup { |r| r.stream = Stream.new(stream_name) })
+      Specification.new(reader, result.with(stream: Stream.new(stream_name)))
     end
 
     # Limits the query to events before or after another event.
@@ -28,7 +28,8 @@ module RubyEventStore
     # @return [Specification]
     def from(start)
       raise InvalidPageStart if start.nil? || start.empty?
-      Specification.new(reader, result.dup { |r| r.start = start })
+
+      Specification.new(reader, result.with(start: start))
     end
 
     # Limits the query to events before or after another event.
@@ -38,7 +39,8 @@ module RubyEventStore
     # @return [Specification]
     def to(stop)
       raise InvalidPageStop if stop.nil? || stop.empty?
-      Specification.new(reader, result.dup { |r| r.stop = stop })
+
+      Specification.new(reader, result.with(stop: stop))
     end
 
     # Limits the query to events that occurred before given time.
@@ -48,13 +50,8 @@ module RubyEventStore
     # @return [Specification]
     def older_than(time)
       raise ArgumentError unless time.respond_to?(:to_time)
-      Specification.new(
-        reader,
-        result.dup do |r|
-          r.older_than = time
-          r.older_than_or_equal = nil
-        end,
-      )
+
+      Specification.new(reader, result.with(older_than: time, older_than_or_equal: nil))
     end
 
     # Limits the query to events that occurred on or before given time.
@@ -64,13 +61,8 @@ module RubyEventStore
     # @return [Specification]
     def older_than_or_equal(time)
       raise ArgumentError unless time.respond_to?(:to_time)
-      Specification.new(
-        reader,
-        result.dup do |r|
-          r.older_than = nil
-          r.older_than_or_equal = time
-        end,
-      )
+
+      Specification.new(reader, result.with(older_than: nil, older_than_or_equal: time))
     end
 
     # Limits the query to events that occurred after given time.
@@ -80,13 +72,8 @@ module RubyEventStore
     # @return [Specification]
     def newer_than(time)
       raise ArgumentError unless time.respond_to?(:to_time)
-      Specification.new(
-        reader,
-        result.dup do |r|
-          r.newer_than_or_equal = nil
-          r.newer_than = time
-        end,
-      )
+
+      Specification.new(reader, result.with(newer_than: time, newer_than_or_equal: nil))
     end
 
     # Limits the query to events that occurred on or after given time.
@@ -96,13 +83,8 @@ module RubyEventStore
     # @return [Specification]
     def newer_than_or_equal(time)
       raise ArgumentError unless time.respond_to?(:to_time)
-      Specification.new(
-        reader,
-        result.dup do |r|
-          r.newer_than_or_equal = time
-          r.newer_than = nil
-        end,
-      )
+
+      Specification.new(reader, result.with(newer_than: nil, newer_than_or_equal: time))
     end
 
     # Limits the query to events within given time range.
@@ -123,7 +105,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def as_at
-      Specification.new(reader, result.dup { |r| r.time_sort_by = :as_at })
+      Specification.new(reader, result.with(time_sort_by: :as_at))
     end
 
     # Sets the order of time sorting using validity time
@@ -131,7 +113,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def as_of
-      Specification.new(reader, result.dup { |r| r.time_sort_by = :as_of })
+      Specification.new(reader, result.with(time_sort_by: :as_of))
     end
 
     # Sets the order of reading events to ascending (forward from the start).
@@ -139,7 +121,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def forward
-      Specification.new(reader, result.dup { |r| r.direction = :forward })
+      Specification.new(reader, result.with(direction: :forward))
     end
 
     # Sets the order of reading events to descending (backward from the start).
@@ -147,7 +129,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def backward
-      Specification.new(reader, result.dup { |r| r.direction = :backward })
+      Specification.new(reader, result.with(direction: :backward))
     end
 
     # Limits the query to specified number of events.
@@ -157,7 +139,8 @@ module RubyEventStore
     # @return [Specification]
     def limit(count)
       raise InvalidPageSize unless count && count > 0
-      Specification.new(reader, result.dup { |r| r.count = count })
+
+      Specification.new(reader, result.with(limit: count))
     end
 
     # Executes the query based on the specification built up to this point.
@@ -166,10 +149,10 @@ module RubyEventStore
     #
     # @yield [Array<Event>] batch of events
     # @return [Enumerator, nil] Enumerator is returned when block not given
-    def each_batch
+    def each_batch(&block)
       return to_enum(:each_batch) unless block_given?
 
-      reader.each(in_batches(result.batch_size).result) { |batch| yield batch }
+      reader.each(in_batches(result.batch_size).result, &block)
     end
 
     # Executes the query based on the specification built up to this point.
@@ -178,10 +161,10 @@ module RubyEventStore
     #
     # @yield [Event] event
     # @return [Enumerator, nil] Enumerator is returned when block not given
-    def each
+    def each(&block)
       return to_enum unless block_given?
 
-      each_batch { |batch| batch.each { |event| yield event } }
+      each_batch { |batch| batch.each(&block) }
     end
 
     # Executes the query based on the specification built up to this point
@@ -191,6 +174,7 @@ module RubyEventStore
     # @return [Array] of mapped result
     def map(&block)
       raise ArgumentError.new("Block must be given") unless block_given?
+
       each.map(&block)
     end
 
@@ -202,6 +186,7 @@ module RubyEventStore
     # @return reduce result as defined by block given
     def reduce(accumulator = nil, &block)
       raise ArgumentError.new("Block must be given") unless block_given?
+
       each.reduce(accumulator, &block)
     end
 
@@ -236,13 +221,7 @@ module RubyEventStore
     # @param batch_size [Integer] number of events to read in a single batch
     # @return [Specification]
     def in_batches(batch_size = DEFAULT_BATCH_SIZE)
-      Specification.new(
-        reader,
-        result.dup do |r|
-          r.read_as = :batch
-          r.batch_size = batch_size
-        end,
-      )
+      Specification.new(reader, result.with(read_as: :batch, batch_size: batch_size))
     end
     alias in_batches_of in_batches
 
@@ -251,7 +230,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def read_first
-      Specification.new(reader, result.dup { |r| r.read_as = :first })
+      Specification.new(reader, result.with(read_as: :first))
     end
 
     # Specifies that only last event should be read.
@@ -259,7 +238,7 @@ module RubyEventStore
     #
     # @return [Specification]
     def read_last
-      Specification.new(reader, result.dup { |r| r.read_as = :last })
+      Specification.new(reader, result.with(read_as: :last))
     end
 
     # Executes the query based on the specification built up to this point.
@@ -286,9 +265,9 @@ module RubyEventStore
     # @types [Class, Array(Class)] types of event to look for.
     # @return [Specification]
     def of_type(*types)
-      Specification.new(reader, result.dup { |r| r.with_types = types.flatten })
+      Specification.new(reader, result.with(with_types: types.flatten.map(&:to_s)))
     end
-    alias_method :of_types, :of_type
+    alias of_types of_type
 
     # Limits the query to certain events by given even ids.
     # {http://railseventstore.org/docs/read/ Find out more}.
@@ -296,7 +275,7 @@ module RubyEventStore
     # @param event_ids [Array(String)] ids of event to look for.
     # @return [Specification]
     def with_id(event_ids)
-      Specification.new(reader, result.dup { |r| r.with_ids = event_ids })
+      Specification.new(reader, result.with(with_ids: event_ids))
     end
 
     # Reads single event from repository.
