@@ -20,8 +20,7 @@ module RubyEventStore
         :with_ids,
         :with_types,
       ) do
-        def limit? = !to_h[:limit].nil?
-        def limit = to_h[:limit] || Float::INFINITY
+        def limit? = !limit.infinite?
         def with_ids? = !with_ids.nil?
         def with_types? = !(with_types || []).empty?
         def forward? = direction.equal?(:forward)
@@ -49,7 +48,7 @@ module RubyEventStore
         newer_than: nil,
         newer_than_or_equal: nil,
         time_sort_by: nil,
-        limit: nil,
+        limit: Float::INFINITY,
         stream: Stream.new(GLOBAL_STREAM),
         read_as: :all,
         batch_size: DEFAULT_BATCH_SIZE,
@@ -189,7 +188,7 @@ module RubyEventStore
     def limit(count)
       raise InvalidPageSize unless count && count > 0
 
-      Specification.new(reader, result.with(limit: count))
+      Specification.new(reader, result.with(limit: count || Float::INFINITY))
     end
 
     # Executes the query based on the specification built up to this point.
