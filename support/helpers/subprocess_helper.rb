@@ -12,7 +12,7 @@ module SubprocessHelper
     process.io.stderr = $stderr
     process.start
     begin
-      process.poll_for_exit(10)
+      process.poll_for_exit(30)
     rescue ChildProcess::TimeoutError
       process.stop
     end
