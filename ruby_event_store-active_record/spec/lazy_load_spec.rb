@@ -15,7 +15,7 @@ module RubyEventStore
           gemfile do
             source 'https://rubygems.org'
 
-            gem 'rails'
+            gem 'rails', '#{::ActiveRecord.version}'
             gem 'ruby_event_store-active_record', path: '.'
           end
 
