@@ -11,3 +11,5 @@ gem "ruby_event_store", path: ".."
 gem "childprocess"
 gem "activerecord", "~> 7.2.2.1"
 gem "sqlite3", ">= 1.7.3"
+
+gem "rails", require: false
