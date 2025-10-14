@@ -19,7 +19,7 @@ module SubprocessHelper
     expect(process.exit_code).to eq(0)
   end
 
-  def run_in_subprocess(code, cwd: Dir.pwd, env: {}, stdout: $stdout, stderr: $stderr)
+  def run_in_subprocess(code, cwd: Dir.pwd, env: {}, stdout: $stdout, stderr: nil)
     Tempfile.open do |script|
       script.write(code)
       script.close
