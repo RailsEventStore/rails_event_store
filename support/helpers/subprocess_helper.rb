@@ -23,7 +23,7 @@ module SubprocessHelper
     Tempfile.open do |script|
       script.write(code)
       script.close
-      Bundler.with_unbundled_env { run_subprocess(script.path, cwd, env) }
+      run_subprocess(script.path, cwd, env) 
     end
   end
 end
