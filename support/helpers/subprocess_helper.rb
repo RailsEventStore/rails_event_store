@@ -4,12 +4,12 @@ require "childprocess"
 require "tempfile"
 
 module SubprocessHelper
-  def run_subprocess(script, cwd, env)
+  def run_subprocess(script, cwd, env, stdout:, stderr:)
     process = ChildProcess.build("ruby", script)
     env.each { |k, v| process.environment[k] = v }
     process.cwd = cwd
-    process.io.stdout = $stdout
-    process.io.stderr = $stderr
+    process.io.stdout = stdout if stdout
+    process.io.stderr = stderr if stderr
     process.start
     begin
       process.poll_for_exit(10)
@@ -19,11 +19,11 @@ module SubprocessHelper
     expect(process.exit_code).to eq(0)
   end
 
-  def run_in_subprocess(code, cwd: Dir.pwd, env: {})
+  def run_in_subprocess(code, cwd: Dir.pwd, env: {}, stdout: $stdout, stderr: $stderr)
     Tempfile.open do |script|
       script.write(code)
       script.close
-      run_subprocess(script.path, cwd, env) 
+      run_subprocess(script.path, cwd, env, stdout:, stderr:) 
     end
   end
 end
