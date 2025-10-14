@@ -70,6 +70,6 @@ module GeneratorHelper
   end
 
   def system_run_generator(genetator_args)
-    system("cd #{destination_root}; bin/rails g rails_event_store:bounded_context #{genetator_args.join(" ")} -q")
+    system("cd #{destination_root}; bin/rails g rails_event_store:bounded_context #{genetator_args.join(" ")} -q 2>/dev/null")
   end
 end
