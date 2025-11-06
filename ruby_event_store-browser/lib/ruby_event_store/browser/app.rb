@@ -105,7 +105,7 @@ module RubyEventStore
                )
         end
 
-        %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
+        %w[/ /events/:event_id /streams/:stream_name /types].each do |starting_route|
           router.add_route("GET", starting_route) do |_, urls|
             erb bootstrap_html,
                 browser_js_src: urls.browser_js_url,
