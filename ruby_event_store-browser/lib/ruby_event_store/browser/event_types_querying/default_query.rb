@@ -15,7 +15,7 @@ module RubyEventStore
             event_classes << klass if klass < RubyEventStore::Event && !klass.name.nil?
           end
 
-          event_classes.sort_by(&:name).map do |klass|
+          event_classes.sort_by(&:name).uniq(&:name).map do |klass|
             EventType.new(event_type: klass.name, stream_name: "$by_type_#{klass.name}")
           end
         end
