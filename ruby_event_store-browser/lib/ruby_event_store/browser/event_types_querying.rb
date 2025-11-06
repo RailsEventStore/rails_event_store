@@ -8,3 +8,4 @@ module RubyEventStore
 end
 
 require_relative "event_types_querying/event_type"
+require_relative "event_types_querying/default_query"
