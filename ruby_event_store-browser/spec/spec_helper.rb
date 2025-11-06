@@ -7,6 +7,7 @@ require "support/web_client"
 require "support/api_client"
 require "support/csp_app"
 require "support/integration_helpers"
+require "support/shared_examples/event_types_query"
 require_relative "../../support/helpers/rspec_defaults"
 require_relative "../../support/helpers/time_enrichment"
 
