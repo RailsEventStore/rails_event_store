@@ -50,8 +50,8 @@ module RubyEventStore
         specify "returns empty array when no event classes are defined" do
           event_store = RubyEventStore::Client.new
 
-          # Remove all test event classes from ObjectSpace
-          allow(ObjectSpace).to receive(:each_object).with(Class).and_return([])
+          # Stub subclasses to return empty array
+          allow(RubyEventStore::Event).to receive(:subclasses).and_return([])
 
           query = DefaultQuery.new(event_store)
           result = query.call
@@ -117,10 +117,15 @@ module RubyEventStore
           event_class = Class.new(RubyEventStore::Event)
           stub_const("DuplicateEvent", event_class)
 
-          # Simulate ObjectSpace returning duplicates by stubbing
-          classes_to_return = [event_class, event_class, String, Integer]
+          # Create a subclass with the same name (edge case)
+          # This simulates the rare case where class reloading might cause duplicates
+          duplicate_class = Class.new(RubyEventStore::Event)
+          allow(duplicate_class).to receive(:name).and_return("DuplicateEvent")
+          allow(duplicate_class).to receive(:subclasses).and_return([])
 
-          allow(ObjectSpace).to receive(:each_object).with(Class).and_yield(event_class).and_yield(event_class).and_yield(String).and_yield(Integer)
+          # Stub to return the duplicate
+          allow(RubyEventStore::Event).to receive(:subclasses).and_return([event_class, duplicate_class])
+          allow(event_class).to receive(:subclasses).and_return([])
 
           query = DefaultQuery.new(event_store)
           result = query.call

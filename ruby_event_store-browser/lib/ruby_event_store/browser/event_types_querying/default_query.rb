@@ -9,20 +9,20 @@ module RubyEventStore
         end
 
         def call
-          event_classes = []
-
-          ObjectSpace.each_object(Class) do |klass|
-            event_classes << klass if klass < RubyEventStore::Event && !klass.name.nil?
-          end
-
-          event_classes.sort_by(&:name).uniq(&:name).map do |klass|
-            EventType.new(event_type: klass.name, stream_name: "$by_type_#{klass.name}")
-          end
+          all_event_subclasses(RubyEventStore::Event)
+            .select { |klass| !klass.name.nil? }
+            .sort_by(&:name)
+            .uniq(&:name)
+            .map { |klass| EventType.new(event_type: klass.name, stream_name: "$by_type_#{klass.name}") }
         end
 
         private
 
         attr_reader :event_store
+
+        def all_event_subclasses(klass)
+          klass.subclasses + klass.subclasses.flat_map { |subclass| all_event_subclasses(subclass) }
+        end
       end
     end
   end
