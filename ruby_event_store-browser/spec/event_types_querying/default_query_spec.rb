@@ -6,7 +6,16 @@ module RubyEventStore
   module Browser
     module EventTypesQuerying
       ::RSpec.describe DefaultQuery do
-        it_behaves_like :event_types_query, DefaultQuery
+        before do
+          # Define test event classes for shared examples
+          test_event_1 = Class.new(RubyEventStore::Event)
+          stub_const("SharedExampleEvent1", test_event_1)
+
+          test_event_2 = Class.new(RubyEventStore::Event)
+          stub_const("SharedExampleEvent2", test_event_2)
+        end
+
+        it_behaves_like :event_types_query, -> { DefaultQuery.new(RubyEventStore::Client.new) }.call
 
         specify "finds all classes inheriting from RubyEventStore::Event" do
           event_store = RubyEventStore::Client.new

@@ -97,5 +97,34 @@ module RubyEventStore
         ],
       )
     end
+
+    specify "passes event_store to query factory" do
+      received_event_store = nil
+      custom_query =
+        lambda do |es|
+          received_event_store = es
+          query = Object.new
+          def query.call
+            [
+              RubyEventStore::Browser::EventTypesQuerying::EventType.new(
+                event_type: "TestEvent",
+                stream_name: "$by_type_TestEvent",
+              ),
+            ]
+          end
+          query
+        end
+
+      app =
+        Browser::App.for(
+          event_store_locator: -> { event_store },
+          experimental_event_types_query: custom_query,
+        )
+
+      custom_api_client = ApiClient.new(app, "www.example.com")
+      custom_api_client.get "/api/event_types"
+
+      expect(received_event_store).to eq(event_store)
+    end
   end
 end
