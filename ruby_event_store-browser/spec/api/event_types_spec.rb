@@ -6,7 +6,20 @@ module RubyEventStore
   ::RSpec.describe Browser do
     include Browser::IntegrationHelpers
 
-    specify "returns list of event types" do
+    specify "returns 422 when feature not enabled" do
+      api_client.get "/api/event_types"
+
+      expect(api_client.last_response.status).to eq(422)
+    end
+
+    specify "returns list of event types when feature enabled" do
+      app =
+        Browser::App.for(
+          event_store_locator: -> { event_store },
+          experimental_event_types_query: ->(es) { Browser::EventTypesQuerying::DefaultQuery.new(es) },
+        )
+
+      enabled_api_client = ApiClient.new(app, "www.example.com")
       # Define some test event classes
       test_event_1 = Class.new(RubyEventStore::Event)
       stub_const("OrderPlaced", test_event_1)
@@ -14,12 +27,12 @@ module RubyEventStore
       test_event_2 = Class.new(RubyEventStore::Event)
       stub_const("OrderCancelled", test_event_2)
 
-      api_client.get "/api/event_types"
+      enabled_api_client.get "/api/event_types"
 
-      expect(api_client.last_response).to be_ok
-      expect(api_client.parsed_body["data"]).to be_an(Array)
+      expect(enabled_api_client.last_response).to be_ok
+      expect(enabled_api_client.parsed_body["data"]).to be_an(Array)
 
-      event_types = api_client.parsed_body["data"]
+      event_types = enabled_api_client.parsed_body["data"]
       order_placed = event_types.find { |et| et["attributes"]["event_type"] == "OrderPlaced" }
       order_cancelled = event_types.find { |et| et["attributes"]["event_type"] == "OrderCancelled" }
 

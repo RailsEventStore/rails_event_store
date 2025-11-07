@@ -5,7 +5,6 @@ module RubyEventStore
     PAGE_SIZE = 20
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
     DEFAULT_RELATED_STREAMS_QUERY = ->(stream_name) { [] }
-    DEFAULT_EXPERIMENTAL_EVENT_TYPES_QUERY = ->(event_store) { EventTypesQuerying::DefaultQuery.new(event_store) }
   end
 end
 

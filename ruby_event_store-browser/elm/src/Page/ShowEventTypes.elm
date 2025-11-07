@@ -22,6 +22,7 @@ type alias Model =
 
 type Problem
     = ServerError String
+    | FeatureNotEnabled
 
 
 initModel : Flags -> Model
@@ -50,12 +51,17 @@ update msg model =
         EventTypesFetched (Ok result) ->
             ( { model | eventTypes = result }, Cmd.none )
 
-        EventTypesFetched (Err _) ->
+        EventTypesFetched (Err error) ->
             let
-                serverErrors =
-                    [ ServerError "Server error, please check backend logs for details" ]
+                problem =
+                    case error of
+                        Http.BadStatus 422 ->
+                            FeatureNotEnabled
+
+                        _ ->
+                            ServerError "Server error, please check backend logs for details"
             in
-            ( { model | problems = serverErrors }, Cmd.none )
+            ( { model | problems = [ problem ] }, Cmd.none )
 
 
 -- VIEW
@@ -86,6 +92,15 @@ view { eventTypes, problems, flags } _ =
                                 case problem of
                                     ServerError error ->
                                         li [] [ text error ]
+
+                                    FeatureNotEnabled ->
+                                        li [ class "text-gray-700" ]
+                                            [ p [ class "font-semibold mb-2" ] [ text "Event Types feature is not enabled" ]
+                                            , p [ class "text-sm" ]
+                                                [ text "This experimental feature must be explicitly enabled when configuring the Browser. "
+                                                , text "Please check the documentation for configuration details."
+                                                ]
+                                            ]
                             )
                             problems
                         )

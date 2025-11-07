@@ -15,7 +15,7 @@ module RubyEventStore
         api_url: nil,
         environment: nil,
         related_streams_query: DEFAULT_RELATED_STREAMS_QUERY,
-        experimental_event_types_query: DEFAULT_EXPERIMENTAL_EVENT_TYPES_QUERY
+        experimental_event_types_query: nil
       )
         warn(<<~WARN) if environment
         Passing :environment to RubyEventStore::Browser::App.for is deprecated. 
@@ -99,10 +99,14 @@ module RubyEventStore
                )
         end
         router.add_route("GET", "/api/event_types") do
-          json GetEventTypes.new(
-                 event_store: event_store,
-                 event_types_query: experimental_event_types_query,
-               )
+          if experimental_event_types_query.nil?
+            feature_not_enabled
+          else
+            json GetEventTypes.new(
+                   event_store: event_store,
+                   event_types_query: experimental_event_types_query,
+                 )
+          end
         end
 
         %w[/ /events/:event_id /streams/:stream_name /types].each do |starting_route|
@@ -157,6 +161,10 @@ module RubyEventStore
 
       def not_found
         [404, {}, []]
+      end
+
+      def feature_not_enabled
+        [422, {}, []]
       end
 
       def json(body)
