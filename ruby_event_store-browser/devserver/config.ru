@@ -99,6 +99,7 @@ browser_app =
   RubyEventStore::Browser::App.for(
     event_store_locator: -> { event_store },
     related_streams_query: RELATED_STREAMS_QUERY,
+    experimental_event_types_query: ->(es) { RubyEventStore::Browser::EventTypesQuerying::DefaultQuery.new(es) },
   )
 mount_point = "/"
 
