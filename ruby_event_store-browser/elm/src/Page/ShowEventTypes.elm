@@ -125,12 +125,12 @@ viewEventTypes rootUrl header eventTypes =
 viewEventType : Url.Url -> Api.EventType -> Html Msg
 viewEventType rootUrl eventType =
     li [ class "border-b border-gray-200 py-2" ]
-        [ a
+        [ span [ class "font-medium" ] [ text eventType.eventType ]
+        , span [ class "text-gray-500 text-sm mx-2" ] [ text "→" ]
+        , a
             [ href (Route.streamUrl rootUrl eventType.streamName)
-            , class "text-blue-600 hover:text-blue-800 font-medium"
+            , class "text-blue-600 hover:text-blue-800 text-sm"
             , title ("View " ++ eventType.eventType ++ " events")
             ]
-            [ text eventType.eventType ]
-        , span [ class "text-gray-500 text-sm ml-2" ]
-            [ text ("→ " ++ eventType.streamName) ]
+            [ text eventType.streamName ]
         ]
