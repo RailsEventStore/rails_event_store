@@ -58,6 +58,76 @@ module RubyEventStore
 
           expect(result).to eq([])
         end
+
+        specify "filters out classes without names" do
+          event_store = RubyEventStore::Client.new
+
+          # Create an anonymous event class (no name)
+          anonymous_event_class = Class.new(RubyEventStore::Event)
+
+          # Create a named event class
+          named_event_class = Class.new(RubyEventStore::Event)
+          stub_const("NamedEvent", named_event_class)
+
+          query = DefaultQuery.new(event_store)
+          result = query.call
+
+          event_types = result.map(&:event_type)
+          expect(event_types).to include("NamedEvent")
+          expect(event_types).not_to include(nil)
+        end
+
+        specify "filters out non-Event classes" do
+          event_store = RubyEventStore::Client.new
+
+          # Define event classes
+          event_class = Class.new(RubyEventStore::Event)
+          stub_const("MyEvent", event_class)
+
+          # Define non-event class
+          non_event_class = Class.new
+          stub_const("NonEvent", non_event_class)
+
+          query = DefaultQuery.new(event_store)
+          result = query.call
+
+          event_types = result.map(&:event_type)
+          expect(event_types).to include("MyEvent")
+          expect(event_types).not_to include("NonEvent")
+        end
+
+        specify "stream name uses class name, not class object" do
+          event_store = RubyEventStore::Client.new
+
+          event_class = Class.new(RubyEventStore::Event)
+          stub_const("TestEventClass", event_class)
+
+          query = DefaultQuery.new(event_store)
+          result = query.call
+
+          test_event_type = result.find { |et| et.event_type == "TestEventClass" }
+          expect(test_event_type.stream_name).to eq("$by_type_TestEventClass")
+          expect(test_event_type.stream_name).not_to match(/Class:0x/)
+        end
+
+        specify "deduplicates classes with same name" do
+          event_store = RubyEventStore::Client.new
+
+          # Create event class
+          event_class = Class.new(RubyEventStore::Event)
+          stub_const("DuplicateEvent", event_class)
+
+          # Simulate ObjectSpace returning duplicates by stubbing
+          classes_to_return = [event_class, event_class, String, Integer]
+
+          allow(ObjectSpace).to receive(:each_object).with(Class).and_yield(event_class).and_yield(event_class).and_yield(String).and_yield(Integer)
+
+          query = DefaultQuery.new(event_store)
+          result = query.call
+
+          duplicate_events = result.select { |et| et.event_type == "DuplicateEvent" }
+          expect(duplicate_events.count).to eq(1)
+        end
       end
     end
   end
