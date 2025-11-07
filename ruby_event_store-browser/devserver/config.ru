@@ -53,6 +53,7 @@ module Banking
 end
 
 # Reporting namespace intentionally not defined - these will use event_type metadata for testing
+# the events which don't have the event classes available in the namespace
 
 sample_event_class =
   lambda do
@@ -91,7 +92,7 @@ event_store.publish(other_event, stream_name: "OtherStream$91")
 end
 
 RELATED_STREAMS_QUERY = ->(stream_name) do
-  stream_name.start_with?("$by_type_#{sample_event_class.call.name}") ? %w[all $by_type_#{sample_event_class.call.name}] : []
+  stream_name.start_with?("$by_type_") ? %w[all] : []
 end
 
 browser_app =
