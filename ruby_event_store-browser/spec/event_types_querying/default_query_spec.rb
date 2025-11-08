@@ -133,6 +133,51 @@ module RubyEventStore
           duplicate_events = result.select { |et| et.event_type == "DuplicateEvent" }
           expect(duplicate_events.count).to eq(1)
         end
+
+        specify "finds nested subclasses recursively" do
+          event_store = RubyEventStore::Client.new
+
+          # Create a base event class
+          base_event = Class.new(RubyEventStore::Event)
+          stub_const("BaseEvent", base_event)
+
+          # Create a nested subclass
+          nested_event = Class.new(base_event)
+          stub_const("NestedEvent", nested_event)
+
+          # Create a deeply nested subclass
+          deep_nested_event = Class.new(nested_event)
+          stub_const("DeepNestedEvent", deep_nested_event)
+
+          query = DefaultQuery.new(event_store)
+          result = query.call
+
+          event_types = result.map(&:event_type)
+          expect(event_types).to include("BaseEvent", "NestedEvent", "DeepNestedEvent")
+        end
+
+        specify "returns event types sorted alphabetically by name" do
+          event_store = RubyEventStore::Client.new
+
+          # Create events in non-alphabetical order
+          zebra_event = Class.new(RubyEventStore::Event)
+          stub_const("ZebraEvent", zebra_event)
+
+          apple_event = Class.new(RubyEventStore::Event)
+          stub_const("AppleEvent", apple_event)
+
+          middle_event = Class.new(RubyEventStore::Event)
+          stub_const("MiddleEvent", middle_event)
+
+          query = DefaultQuery.new(event_store)
+          result = query.call
+
+          # Extract just the test events we care about
+          test_event_names =
+            result.map(&:event_type).select { |name| %w[ZebraEvent AppleEvent MiddleEvent].include?(name) }
+
+          expect(test_event_names).to eq(%w[AppleEvent MiddleEvent ZebraEvent])
+        end
       end
     end
   end

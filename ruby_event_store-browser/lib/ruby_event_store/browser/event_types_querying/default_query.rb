@@ -4,9 +4,7 @@ module RubyEventStore
   module Browser
     module EventTypesQuerying
       class DefaultQuery
-        def initialize(event_store)
-          @event_store = event_store
-        end
+        def initialize(event_store); end
 
         def call
           all_event_subclasses(RubyEventStore::Event)
@@ -17,8 +15,6 @@ module RubyEventStore
         end
 
         private
-
-        attr_reader :event_store
 
         def all_event_subclasses(klass)
           klass.subclasses + klass.subclasses.flat_map { |subclass| all_event_subclasses(subclass) }
