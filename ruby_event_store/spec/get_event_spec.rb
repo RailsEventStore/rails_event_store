@@ -187,6 +187,49 @@ module RubyEventStore
       expect(event.event_type).to eq("Doh")
     end
 
+    specify "pattern matching" do
+      test_created = Test::TestCreated.new(
+        event_id: "foo",
+        data: { foo: "foo", bar: "bar" },
+        metadata: { user_id: 42, correlation_id: "coid", causation_id: "caid" }
+      )
+
+      # match by class
+      expect(test_created).to satisfy { |event| event in Test::TestCreated }
+      expect(test_created).to satisfy { |event| event in {} }
+      expect(test_created).to_not satisfy { |event| event in Test::TestDeleted }
+
+      # match by event id
+      expect(test_created).to satisfy { |event| event in Test::TestCreated(event_id: "foo") }
+      expect(test_created).to satisfy { |event| event in { event_id: "foo" } }
+      expect(test_created).to_not satisfy { |event| event in Test::TestCreated(event_id: "bar") }
+
+      # match by event type
+      expect(test_created).to satisfy { |event| event in Test::TestCreated(event_type: "Test::TestCreated") }
+      expect(test_created).to satisfy { |event| event in { event_type: "Test::TestCreated" } }
+      expect(test_created).to_not satisfy { |event| event in { event_type: "Test::TestDeleted" } }
+
+      # match by causation id
+      expect(test_created).to satisfy { |event| event in Test::TestCreated(causation_id: "caid") }
+      expect(test_created).to satisfy { |event| event in { causation_id: "caid"} }
+      expect(test_created).to_not satisfy { |event| event in { causation_id: "foo"} }
+
+      # match by correlation id
+      expect(test_created).to satisfy { |event| event in Test::TestCreated(correlation_id: "coid") }
+      expect(test_created).to satisfy { |event| event in { correlation_id: "coid"} }
+      expect(test_created).to_not satisfy { |event| event in { correlation_id: "foo"} }
+
+      # match by data
+      expect(test_created).to satisfy { |event| event in Test::TestCreated(data: { foo: "foo" }) }
+      expect(test_created).to satisfy { |event| event in { data: { foo: "foo" } } }
+      expect(test_created).to_not satisfy { |event| event in Test::TestCreated(data: { foo: "bar" }) }
+
+      # match by metadata
+      expect(test_created).to satisfy { |event| event in Test::TestCreated(metadata: { user_id: 42 }) }
+      expect(test_created).to satisfy { |event| event in { metadata: { user_id: 42 } } }
+      expect(test_created).to_not satisfy { |event| event in Test::TestCreated(metedata: { user_id: 41 }) }
+    end
+
     specify do
       event_id = SecureRandom.uuid
       one = Event.new(event_id: event_id, data: { yes: :no }, metadata: { event_type: "one" })
