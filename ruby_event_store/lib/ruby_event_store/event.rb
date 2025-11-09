@@ -123,6 +123,21 @@ module RubyEventStore
       self
     end
 
+    # Returns a hash of the name/value pairs for the given event attributes.
+    #
+    # @param attributes [Array] attributes to deconstruct
+    # @return [Hash] deconstructed event
+    def deconstruct_keys(attributes)
+      {
+        causation_id: causation_id,
+        correlation_id: correlation_id,
+        data: data,
+        event_id: event_id,
+        event_type: event_type,
+        metadata: metadata.to_h
+      }.slice(*attributes)
+    end
+
     alias_method :eql?, :==
   end
 end
