@@ -46,6 +46,24 @@ module RubyEventStore
         end
       end
 
+      specify "#cleaner_inspect" do
+        mapper = BatchMapper.new
+        instrumented_mapper = InstrumentedBatchMapper.new(mapper, ActiveSupport::Notifications)
+        expect(instrumented_mapper.cleaner_inspect).to eq(<<~EOS.chomp)
+          #<#{instrumented_mapper.class.name}:0x#{instrumented_mapper.object_id.to_s(16)}>
+            - mapper: #{mapper.cleaner_inspect(indent: 2)}
+        EOS
+      end
+
+      specify "#cleaner_inspect with indent" do
+        mapper = BatchMapper.new
+        instrumented_mapper = InstrumentedBatchMapper.new(mapper, ActiveSupport::Notifications)
+        expect(instrumented_mapper.cleaner_inspect(indent: 4)).to eq(<<~EOS.chomp)
+          #{' ' * 4}#<#{instrumented_mapper.class.name}:0x#{instrumented_mapper.object_id.to_s(16)}>
+          #{' ' * 4}  - mapper: #{mapper.cleaner_inspect(indent: 6)}
+        EOS
+      end
+
       def subscribe_to(name)
         received_payloads = []
         callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }

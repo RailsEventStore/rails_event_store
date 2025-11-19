@@ -20,6 +20,13 @@ module RubyEventStore
         end
       end
 
+      def cleaner_inspect(indent: 0)
+        <<~EOS.chomp
+          #{' ' * indent}#<#{self.class}:0x#{__id__.to_s(16)}>
+          #{' ' * indent}  - mapper: #{mapper.respond_to?(:cleaner_inspect) ? mapper.cleaner_inspect(indent: indent + 2) : mapper.inspect}
+        EOS
+      end
+
       private
 
       attr_reader :instrumentation, :mapper

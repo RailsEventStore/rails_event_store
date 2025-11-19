@@ -22,6 +22,22 @@ module RubyEventStore
         mapper = BatchMapper.new(item_mapper)
         expect(mapper.records_to_events(records)).to eq(records.map(&:event_id))
       end
+
+      specify "#cleaner_inspect" do
+        mapper = BatchMapper.new
+        expect(mapper.cleaner_inspect).to eq(<<~EOS.chomp)
+          #<#{mapper.class.name}:0x#{mapper.object_id.to_s(16)}>
+            - mapper: #{mapper.instance_variable_get(:@mapper).cleaner_inspect(indent: 2)}
+        EOS
+      end
+
+      specify "#cleaner_inspect with indent" do
+        mapper = BatchMapper.new
+        expect(mapper.cleaner_inspect(indent: 4)).to eq(<<~EOS.chomp)
+          #{' ' * 4}#<#{mapper.class.name}:0x#{mapper.object_id.to_s(16)}>
+          #{' ' * 4}  - mapper: #{mapper.instance_variable_get(:@mapper).cleaner_inspect(indent: 6)}
+        EOS
+      end
     end
   end
 end

@@ -194,6 +194,24 @@ module RubyEventStore
       )
     end
 
+    specify "#cleaner_inspect" do
+      repository = InMemoryRepository.new
+      instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
+      expect(instrumented_repository.cleaner_inspect).to eq(<<~EOS.chomp)
+        #<#{instrumented_repository.class.name}:0x#{instrumented_repository.object_id.to_s(16)}>
+          - repository: #{repository.cleaner_inspect(indent: 2)}
+      EOS
+    end
+
+    specify "#cleaner_inspect with indent" do
+      repository = InMemoryRepository.new
+      instrumented_repository = InstrumentedRepository.new(repository, ActiveSupport::Notifications)
+      expect(instrumented_repository.cleaner_inspect(indent: 4)).to eq(<<~EOS.chomp)
+        #{' ' * 4}#<#{instrumented_repository.class.name}:0x#{instrumented_repository.object_id.to_s(16)}>
+        #{' ' * 4}  - repository: #{repository.cleaner_inspect(indent: 6)}
+      EOS
+    end
+
     def subscribe_to(name)
       received_payloads = []
       callback = ->(_name, _start, _finish, _id, payload) { received_payloads << payload }
