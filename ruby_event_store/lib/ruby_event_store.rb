@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "ruby_event_store/configuration"
 require_relative "ruby_event_store/dispatcher"
 require_relative "ruby_event_store/subscriptions"
 require_relative "ruby_event_store/broker"
