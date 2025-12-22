@@ -20,6 +20,8 @@ module RubyEventStore
 
       before { allow(Time).to receive(:now).and_return(Time.new(2016, 8, 9, 22, 22, 22)) }
 
+      before { SpecHelper.new.establish_database_connection }
+
       subject do
         RubyEventStore::ActiveRecord::RailsMigrationGenerator.start([], destination_root: @dir)
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
@@ -27,6 +29,17 @@ module RubyEventStore
 
       it "uses particular migration version" do
         expect(subject).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
+      end
+
+      context "when unsupported adapter" do
+        before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "kakadudu")) }
+
+        it "raises an error" do
+          expect {
+            RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: nil)
+          }.to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+                      'Unsupported adapter: "kakadudu"'
+        end
       end
 
       context "when postgresql adapter is used and data_type option is specified" do
