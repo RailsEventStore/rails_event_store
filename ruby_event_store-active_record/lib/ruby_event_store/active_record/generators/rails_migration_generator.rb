@@ -27,7 +27,7 @@ module RubyEventStore
 
         @database_adapter = DatabaseAdapter.from_string(adapter_name, data_type)
       rescue UnsupportedAdapter => e
-        raise Error, e.message
+        raise Error, e
       rescue InvalidDataTypeForAdapter
         raise Error,
               "Invalid value for --data-type option. Supported for options are: #{DatabaseAdapter.from_string(adapter_name).supported_data_types.join(", ")}."
