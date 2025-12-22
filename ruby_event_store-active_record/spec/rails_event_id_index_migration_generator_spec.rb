@@ -7,6 +7,8 @@ require_relative "../../support/helpers/silence_stdout"
 module RubyEventStore
   module ActiveRecord
     ::RSpec.describe RailsEventIdIndexMigrationGenerator do
+      helper = SpecHelper.new
+
       around { |example| SilenceStdout.silence_stdout { example.run } }
 
       around do |example|
@@ -26,6 +28,8 @@ module RubyEventStore
       end
 
       it "uses particular migration version" do
+        helper.establish_database_connection
+
         expect(subject).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
       end
     end
