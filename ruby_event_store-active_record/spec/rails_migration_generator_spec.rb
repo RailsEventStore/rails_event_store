@@ -33,16 +33,16 @@ module RubyEventStore
       end
 
       context "when unsupported adapter" do
-        before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "kakadudu")) }
-
         it "raises an error" do
+          with_stubbed_adapter("kakadudu")
+
           expect { RailsMigrationGenerator.new([], data_type: nil) }.to raise_error RailsMigrationGenerator::Error,
                       'Unsupported adapter: "kakadudu"'
         end
       end
 
       context "when postgresql adapter is used and data_type option is specified" do
-        before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "postgresql")) }
+        before { with_stubbed_adapter("postgresql") }
 
         subject do
           RailsMigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
@@ -72,7 +72,7 @@ module RubyEventStore
       end
 
       context "when mysql adapter is used and data_type option is specified" do
-        before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "Mysql2")) }
+        before { with_stubbed_adapter("Mysql2") }
 
         subject do
           RailsMigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
@@ -106,7 +106,7 @@ module RubyEventStore
       end
 
       context "when sqlite adapter is used and data_type option is specified" do
-        before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "sqlite")) }
+        before { with_stubbed_adapter("sqlite") }
 
         subject do
           RailsMigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
@@ -152,6 +152,12 @@ module RubyEventStore
             )
           end
         end
+      end
+
+      private
+
+      def with_stubbed_adapter(name)
+        allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: name))
       end
     end
   end
