@@ -23,7 +23,7 @@ module RubyEventStore
       before { SpecHelper.new.establish_database_connection }
 
       subject do
-        RubyEventStore::ActiveRecord::RailsMigrationGenerator.start([], destination_root: @dir)
+        RailsMigrationGenerator.start([], destination_root: @dir)
         File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
       end
 
@@ -35,9 +35,7 @@ module RubyEventStore
         before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "kakadudu")) }
 
         it "raises an error" do
-          expect {
-            RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: nil)
-          }.to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+          expect { RailsMigrationGenerator.new([], data_type: nil) }.to raise_error RailsMigrationGenerator::Error,
                       'Unsupported adapter: "kakadudu"'
         end
       end
@@ -46,10 +44,7 @@ module RubyEventStore
         before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "postgresql")) }
 
         subject do
-          RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
-            ["--data-type=#{data_type}"],
-            destination_root: @dir,
-          )
+          RailsMigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
           File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
         end
 
@@ -79,10 +74,7 @@ module RubyEventStore
         before { allow(::ActiveRecord::Base).to receive(:connection).and_return(double(adapter_name: "Mysql2")) }
 
         subject do
-          RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
-            ["--data-type=#{data_type}"],
-            destination_root: @dir,
-          )
+          RailsMigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
           File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
         end
 
@@ -105,8 +97,8 @@ module RubyEventStore
 
           it "raises an error" do
             expect {
-              RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type)
-            }.to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+              RailsMigrationGenerator.new([], data_type: data_type)
+            }.to raise_error RailsMigrationGenerator::Error,
                         "Invalid value for --data-type option. Supported for options are: binary, json."
           end
         end
@@ -114,10 +106,7 @@ module RubyEventStore
 
       context "when sqlite adapter is used and data_type option is specified" do
         subject do
-          RubyEventStore::ActiveRecord::RailsMigrationGenerator.start(
-            ["--data-type=#{data_type}"],
-            destination_root: @dir,
-          )
+          RailsMigrationGenerator.start(["--data-type=#{data_type}"], destination_root: @dir)
           File.read("#{@dir}/db/migrate/20160809222222_create_event_store_events.rb")
         end
 
@@ -133,8 +122,8 @@ module RubyEventStore
 
           it "raises an error" do
             expect {
-              RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type)
-            }.to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+              RailsMigrationGenerator.new([], data_type: data_type)
+            }.to raise_error RailsMigrationGenerator::Error,
                         "Invalid value for --data-type option. Supported for options are: binary."
           end
         end
@@ -144,8 +133,8 @@ module RubyEventStore
 
           it "raises an error" do
             expect {
-              RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type)
-            }.to raise_error RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+              RailsMigrationGenerator.new([], data_type: data_type)
+            }.to raise_error RailsMigrationGenerator::Error,
                         "Invalid value for --data-type option. Supported for options are: binary."
           end
         end
@@ -154,10 +143,8 @@ module RubyEventStore
           let(:data_type) { "invalid" }
 
           it "raises an error" do
-            expect {
-              RubyEventStore::ActiveRecord::RailsMigrationGenerator.new([], data_type: data_type)
-            }.to raise_error(
-              RubyEventStore::ActiveRecord::RailsMigrationGenerator::Error,
+            expect { RailsMigrationGenerator.new([], data_type: data_type) }.to raise_error(
+              RailsMigrationGenerator::Error,
               "Invalid value for --data-type option. Supported for options are: binary.",
             )
           end
