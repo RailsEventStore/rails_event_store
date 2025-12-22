@@ -93,7 +93,7 @@ module RubyEventStore
           it { is_expected.to match(/t.json\s+:data/) }
         end
 
-        context "jsonb type is not used when adapter is not postgres" do
+        context "when jsonb type is provided" do
           let(:data_type) { "jsonb" }
 
           it "raises an error" do
@@ -120,7 +120,7 @@ module RubyEventStore
           it { is_expected.to match(/t.binary\s+:data/) }
         end
 
-        context "json type is not used when adapter is not postgres" do
+        context "when json type is provided" do
           let(:data_type) { "json" }
 
           it "raises an error" do
@@ -131,7 +131,7 @@ module RubyEventStore
           end
         end
 
-        context "jsonb type is not used when adapter is not postgres" do
+        context "when jsonb type is provided" do
           let(:data_type) { "jsonb" }
 
           it "raises an error" do
