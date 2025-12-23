@@ -1,0 +1,76 @@
+{
+  "sidebar": [
+    {
+      "type": "category",
+      "label": "Getting Started",
+      "collapsible": true,
+      "collapsed": false,
+      "items": [
+        "getting-started/introduction",
+        "getting-started/install",
+        "getting-started/api"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Core Concepts",
+      "collapsible": true,
+      "collapsed": false,
+      "items": [
+        "core-concepts/publish",
+        "core-concepts/subscribe",
+        "core-concepts/read",
+        "core-concepts/link",
+        "core-concepts/delete",
+        "core-concepts/pubsub",
+        "core-concepts/event-sourcing",
+        "core-concepts/expected-version",
+        "core-concepts/projections",
+        "core-concepts/request-metadata",
+        "core-concepts/correlation-causation",
+        "core-concepts/rspec",
+        "core-concepts/browser",
+        "core-concepts/client-errors",
+        "core-concepts/internals"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Advanced Topics",
+      "collapsible": true,
+      "collapsed": false,
+      "items": [
+        "advanced-topics/transactions",
+        "advanced-topics/bi-temporal",
+        "advanced-topics/event-serialization-formats",
+        "advanced-topics/mappers",
+        "advanced-topics/custom-repository",
+        "advanced-topics/instrumentation",
+        "advanced-topics/command-bus",
+        "advanced-topics/mapping-handlers-to-events",
+        "advanced-topics/gdpr",
+        "advanced-topics/migrating-existing-events",
+        "advanced-topics/without-rails",
+        "advanced-topics/protobuf.html"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Common Usage Patterns",
+      "collapsible": true,
+      "collapsed": false,
+      "items": [
+        "common-usage-patterns/publishing_unique_events"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Contributing",
+      "collapsible": true,
+      "collapsed": false,
+      "items": [
+        "contributing/maintenance_policy"
+      ]
+    }
+  ]
+}
