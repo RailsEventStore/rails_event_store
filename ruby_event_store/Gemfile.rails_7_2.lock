@@ -95,8 +95,9 @@ GEM
       parser (>= 3.3.0)
 
 PLATFORMS
-  ruby
-  x86_64-darwin-24
+  arm64-darwin
+  x86_64-darwin
+  x86_64-linux
 
 DEPENDENCIES
   activesupport (~> 7.2.0)

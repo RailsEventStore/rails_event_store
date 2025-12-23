@@ -252,6 +252,8 @@ GEM
 
 PLATFORMS
   arm64-darwin
+  x86_64-darwin
+  x86_64-linux
 
 DEPENDENCIES
   activerecord (~> 7.1.5)
