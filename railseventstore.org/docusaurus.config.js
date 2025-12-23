@@ -46,7 +46,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          lastVersion: "2.17.0",
+          lastVersion: "2.18.0",
           versions: {
             current: {
               label: "Master",
@@ -102,7 +102,7 @@ const config = {
             label: "Support",
           },
           {
-            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.17.1",
+            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.18.0",
             label: "Changelog",
             position: "right",
           },
@@ -126,7 +126,7 @@ const config = {
               },
               {
                 label: "Changelog",
-                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.17.1",
+                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v2.18.0",
               },
               {
                 label: "GitHub",

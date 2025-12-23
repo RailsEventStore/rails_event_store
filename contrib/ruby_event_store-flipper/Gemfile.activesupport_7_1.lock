@@ -1,9 +1,9 @@
 PATH
   remote: ../..
   specs:
-    ruby_event_store (2.17.1)
+    ruby_event_store (2.18.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
-    ruby_event_store-rspec (2.17.1)
+    ruby_event_store-rspec (2.18.0)
       rspec (~> 3.0)
 
 PATH

@@ -8,15 +8,15 @@ PATH
 PATH
   remote: ..
   specs:
-    aggregate_root (2.17.1)
-      ruby_event_store (= 2.17.1)
-    ruby_event_store (2.17.1)
+    aggregate_root (2.18.0)
+      ruby_event_store (= 2.18.0)
+    ruby_event_store (2.18.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    ruby_event_store-rspec (2.17.1)
+    ruby_event_store-rspec (2.18.0)
       rspec (~> 3.0)
 
 GEM
