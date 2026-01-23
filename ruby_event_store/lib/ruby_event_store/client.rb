@@ -54,7 +54,7 @@ module RubyEventStore
     #
     # @param events [Array<Event>, Event] event(s)
     # @param stream_name [String] name of the stream for persisting events.
-    # @param expected_version [:any, :auto, :none, Integer] controls optimistic locking strategy. {http://railseventstore.org/docs/expected_version/ Read more}
+    # @param expected_version [:any, :auto, :none, Integer] controls optimistic locking strategy. {https://railseventstore.org/docs/core-concepts/expected-version Read more}
     # @return [self]
     def publish(events, topic: nil, stream_name: GLOBAL_STREAM, expected_version: :any)
       enriched_events = enrich_events_metadata(events)
@@ -114,7 +114,7 @@ module RubyEventStore
     end
 
     # Starts building a query specification for reading events.
-    # {http://railseventstore.org/docs/read/ More info.}
+    # {https://railseventstore.org/docs/core-concepts/read More info.}
     #
     # @return [Specification]
     def read
@@ -222,7 +222,7 @@ module RubyEventStore
       # will be called for all published events.
       # The subscription is active only during the invocation
       # of the block of code provided to {Client#within}.
-      # {http://railseventstore.org/docs/subscribe/#temporary-subscriptions Read more.}
+      # {https://railseventstore.org/docs/core-concepts/subscribe#temporary-subscriptions Read more.}
       #
       # @param handlers [Object, Class] handlers passed as objects or classes
       # @param handler2 [Proc] handler passed as proc
@@ -237,7 +237,7 @@ module RubyEventStore
       # will be called for published events of provided type.
       # The subscription is active only during the invocation
       # of the block of code provided to {Client#within}.
-      # {http://railseventstore.org/docs/subscribe/#temporary-subscriptions Read more.}
+      # {https://railseventstore.org/docs/core-concepts/subscribe#temporary-subscriptions Read more.}
       #
       # @overload subscribe(handler, to:)
       #   @param handler [Object, Class] handler passed as objects or classes
@@ -255,7 +255,7 @@ module RubyEventStore
 
       # Invokes the block of code provided to {Client#within}
       # and then unsubscribes temporary handlers.
-      # {http://railseventstore.org/docs/subscribe/#temporary-subscriptions Read more.}
+      # {https://railseventstore.org/docs/core-concepts/subscribe#temporary-subscriptions Read more.}
       #
       # @return [Object] value returned by the invoked block of code
       def call
@@ -280,7 +280,7 @@ module RubyEventStore
     end
 
     # Use for starting temporary subscriptions.
-    # {http://railseventstore.org/docs/subscribe/#temporary-subscriptions Read more}
+    # {https://railseventstore.org/docs/core-concepts/subscribe#temporary-subscriptions Read more}
     #
     # @param block [Proc] block of code during which the temporary subscriptions will be active
     # @return [Within] builder object which collects temporary subscriptions
@@ -290,7 +290,7 @@ module RubyEventStore
     end
 
     # Set additional metadata for all events published within the provided block
-    # {http://railseventstore.org/docs/request_metadata#passing-your-own-metadata-using-with_metadata-method Read more}
+    # {https://railseventstore.org/docs/core-concepts/request-metadata#passing-your-own-metadata-using-with_metadata Read more}
     #
     # @param metadata [Hash] metadata to set for events
     # @param block [Proc] block of code during which the metadata will be added
@@ -304,7 +304,7 @@ module RubyEventStore
     end
 
     # Deserialize event which was serialized for async event handlers
-    # {http://railseventstore.org/docs/subscribe/#async-handlers Read more}
+    # {https://railseventstore.org/docs/core-concepts/subscribe#async-handlers Read more}
     #
     # @return [Event] deserialized event
     def deserialize(serializer:, event_type:, event_id:, data:, metadata:, timestamp: nil, valid_at: nil)
@@ -325,7 +325,7 @@ module RubyEventStore
     end
 
     # Read additional metadata which will be added for published events
-    # {http://railseventstore.org/docs/request_metadata#passing-your-own-metadata-using-with_metadata-method Read more}
+    # {https://railseventstore.org/docs/core-concepts/request-metadata#passing-your-own-metadata-using-with_metadata Read more}
     #
     # @return [Hash]
     def metadata
@@ -337,7 +337,7 @@ module RubyEventStore
     # Does not notify any subscribed handlers.
     # Does not enrich with additional current metadata.
     # Does not allow changing which streams these events are in.
-    # {http://railseventstore.org/docs/migrating_messages Read more}
+    # {https://railseventstore.org/docs/advanced-topics/migrating-existing-events Read more}
     #
     # @example Add data and metadata to existing events
     #

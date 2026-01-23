@@ -8,7 +8,7 @@ module RubyEventStore
         Mixing expected version :any and specific position (or :auto) is unsupported.
 
         Read more about expected versions here:
-        https://railseventstore.org/docs/v2/expected_version/
+        https://railseventstore.org/docs/core-concepts/expected-version
         EOS
       end
     end

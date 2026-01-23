@@ -196,7 +196,7 @@ browserFooter { flags, time } =
             [ class "text-gray-500 text-sm" ]
             [ text ("RubyEventStore v" ++ flags.resVersion)
             , spacer
-            , link "Documentation" "https://railseventstore.org/docs/install/"
+            , link "Documentation" "https://railseventstore.org/docs/getting-started/install"
             , spacer
             , link "Support" "https://railseventstore.org/support/"
             ]

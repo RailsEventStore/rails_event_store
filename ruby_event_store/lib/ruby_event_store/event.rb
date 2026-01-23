@@ -78,7 +78,7 @@ module RubyEventStore
     end
 
     # Reads correlation_id from metadata.
-    # {http://railseventstore.org/docs/correlation_causation/ Find out more}
+    # {https://railseventstore.org/docs/core-concepts/correlation-causation Find out more}
     #
     # @return [String, nil]
     def correlation_id
@@ -86,7 +86,7 @@ module RubyEventStore
     end
 
     # Sets correlation_id in metadata.
-    # {http://railseventstore.org/docs/correlation_causation/ Find out more}
+    # {https://railseventstore.org/docs/core-concepts/correlation-causation Find out more}
     #
     # @param val [String]
     # @return [String]
@@ -95,7 +95,7 @@ module RubyEventStore
     end
 
     # Reads causation_id from metadata.
-    # {http://railseventstore.org/docs/correlation_causation/ Find out more}
+    # {https://railseventstore.org/docs/core-concepts/correlation-causation Find out more}
     #
     # @return [String, nil]
     def causation_id
@@ -103,7 +103,7 @@ module RubyEventStore
     end
 
     # Sets causation_id= in metadata.
-    # {http://railseventstore.org/docs/correlation_causation/ Find out more}
+    # {https://railseventstore.org/docs/core-concepts/correlation-causation Find out more}
     #
     # @param val [String]
     # @return [String]
@@ -113,7 +113,7 @@ module RubyEventStore
 
     # Sets correlation_id and causation_id in metadata based
     # on correlation_id and message_id of the provided message.
-    # {http://railseventstore.org/docs/correlation_causation/ Find out more}
+    # {https://railseventstore.org/docs/core-concepts/correlation-causation Find out more}
     #
     # @param other_message [Event, command] message to correlate with. Most likely an event or a command. Must respond to correlation_id and message_id.
     # @return [String] set causation_id
