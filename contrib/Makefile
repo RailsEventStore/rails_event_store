@@ -2,6 +2,7 @@ GEMS = minitest-ruby_event_store \
        ruby_event_store-flipper \
        ruby_event_store-newrelic \
        ruby_event_store-outbox \
+       ruby_event_store-process_manager \
        ruby_event_store-profiler \
        ruby_event_store-protobuf \
        ruby_event_store-rom \
