@@ -3,7 +3,11 @@
 require "spec_helper"
 
 RSpec.describe RubyEventStore::ProcessManager do
-  specify "placeholder" do
-    expect(true).to eq(true)
+  class TestProcess
+    include RubyEventStore::ProcessManager
+  end
+
+  specify "can be included in a class" do
+    expect(TestProcess.ancestors).to include(RubyEventStore::ProcessManager)
   end
 end
