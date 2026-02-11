@@ -1,0 +1,25 @@
+# https://github.com/mbj/mutant/blob/master/docs/configuration.md
+
+usage: opensource
+requires:
+  - ruby_event_store/process_manager
+includes:
+  - lib
+integration:
+  name: rspec
+mutation:
+  operators: light
+coverage_criteria:
+  process_abort: true
+matcher:
+  subjects:
+    - RubyEventStore::ProcessManager*
+  ignore:
+    - RubyEventStore::ProcessManager.with_state
+    - RubyEventStore::ProcessManager::ProcessMethods#initialize
+    - RubyEventStore::ProcessManager::ProcessMethods#call
+    - RubyEventStore::ProcessManager::ProcessMethods#build_state
+    - RubyEventStore::ProcessManager::ProcessMethods#stream_name
+    - RubyEventStore::ProcessManager::Subscriptions.extended
+    - RubyEventStore::ProcessManager::Subscriptions#subscribes_to
+    - RubyEventStore::ProcessManager::Retry#with_retry
