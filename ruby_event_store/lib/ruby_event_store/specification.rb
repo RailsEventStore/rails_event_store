@@ -244,7 +244,15 @@ module RubyEventStore
         end,
       )
     end
-    alias in_batches_of in_batches
+
+    def in_batches_of(batch_size = DEFAULT_BATCH_SIZE)
+      warn <<~EOW
+        RubyEventStore::Specification#in_batches_of is deprecated and will be removed in the next major release.
+
+        Use #in_batches instead.
+      EOW
+      in_batches(batch_size)
+    end
 
     # Specifies that only first event should be read.
     # {https://railseventstore.org/docs/core-concepts/read Find out more}.
