@@ -296,7 +296,15 @@ module RubyEventStore
     def of_type(*types)
       Specification.new(reader, result.dup { |r| r.with_types = types.flatten })
     end
-    alias_method :of_types, :of_type
+
+    def of_types(*types)
+      warn <<~EOW
+        RubyEventStore::Specification#of_types is deprecated and will be removed in the next major release.
+
+        Use #of_type instead.
+      EOW
+      of_type(*types)
+    end
 
     # Limits the query to certain events by given even ids.
     # {https://railseventstore.org/docs/core-concepts/read Find out more}.

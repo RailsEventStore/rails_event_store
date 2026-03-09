@@ -809,6 +809,11 @@ module RubyEventStore
       repository.append_to_stream([test_record(event_type: ProductAdded)], Stream.new("Dummy"), ExpectedVersion.any)
       expect(specification.of_type(TestEvent).count).to eq(1)
       expect(specification.of_type([TestEvent]).count).to eq(1)
+      expect { specification.of_types(TestEvent) }.to output(<<~EOW).to_stderr
+        RubyEventStore::Specification#of_types is deprecated and will be removed in the next major release.
+
+        Use #of_type instead.
+      EOW
       expect(specification.of_types(TestEvent).count).to eq(1)
       expect(specification.of_types([TestEvent]).count).to eq(1)
 
