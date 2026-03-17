@@ -35,3 +35,4 @@ matcher:
     - RubyEventStore::Mappers::JSONMapper#initialize
     - RubyEventStore::Serializers::YAML.load
     - RubyEventStore::Mappers::EncryptionMapper#initialize
+    - RubyEventStore::Specification#of_types
