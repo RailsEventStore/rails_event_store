@@ -21,6 +21,14 @@ module RubyEventStore
 
         specify "instruments" do
           instrumented_mapper = InstrumentedBatchMapper.new(spy, ActiveSupport::Notifications)
+          subscribe_to("events_to_records.mapper.ruby_event_store") do |notification_calls|
+            instrumented_mapper.events_to_records(events)
+            expect(notification_calls).to eq([{ domain_events: events }])
+          end
+        end
+
+        specify "instruments with legacy event name" do
+          instrumented_mapper = InstrumentedBatchMapper.new(spy, ActiveSupport::Notifications)
           subscribe_to("events_to_records.mapper.rails_event_store") do |notification_calls|
             instrumented_mapper.events_to_records(events)
             expect(notification_calls).to eq([{ domain_events: events }])
@@ -38,6 +46,14 @@ module RubyEventStore
         end
 
         specify "instruments" do
+          instrumented_mapper = InstrumentedBatchMapper.new(spy, ActiveSupport::Notifications)
+          subscribe_to("records_to_events.mapper.ruby_event_store") do |notification_calls|
+            instrumented_mapper.records_to_events(records)
+            expect(notification_calls).to eq([{ records: records }])
+          end
+        end
+
+        specify "instruments with legacy event name" do
           instrumented_mapper = InstrumentedBatchMapper.new(spy, ActiveSupport::Notifications)
           subscribe_to("records_to_events.mapper.rails_event_store") do |notification_calls|
             instrumented_mapper.records_to_events(records)

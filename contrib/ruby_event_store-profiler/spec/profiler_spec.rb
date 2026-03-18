@@ -70,7 +70,7 @@ module RubyEventStore
         $stdout = STDOUT
       end
 
-      [/rails_event_store/, /aggregate_root/, "total"].each do |pattern|
+      [/ruby_event_store/, /aggregate_root/, "total"].each do |pattern|
         expect(instrumenter.notifier.listening?(pattern)).to be(false)
       end
     end
