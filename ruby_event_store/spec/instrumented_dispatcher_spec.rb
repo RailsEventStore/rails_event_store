@@ -37,7 +37,8 @@ module RubyEventStore
       end
 
       specify "instruments with legacy event name" do
-        instrumented_dispatcher = InstrumentedDispatcher.new(spy, ActiveSupport::Notifications)
+        some_dispatcher = spy
+        instrumented_dispatcher = InstrumentedDispatcher.new(some_dispatcher, ActiveSupport::Notifications)
         subscribe_to("call.dispatcher.rails_event_store") do |notification_calls|
           event = Object.new
           record = Object.new
@@ -46,6 +47,41 @@ module RubyEventStore
           instrumented_dispatcher.call(subscriber, event, record)
 
           expect(notification_calls).to eq([{ event: event, subscriber: subscriber }])
+          expect(some_dispatcher).to have_received(:call).with(subscriber, event, record)
+        end
+      end
+
+      specify "warns about deprecated event names" do
+        instrumented_dispatcher = InstrumentedDispatcher.new(spy, ActiveSupport::Notifications)
+        event = Object.new
+        record = Object.new
+        subscriber = -> {}
+        subscribe_to("call.dispatcher.rails_event_store") do |_|
+          expect { instrumented_dispatcher.call(subscriber, event, record) }.to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
+        end
+      end
+
+      specify "does not warn when nobody subscribes to legacy event name" do
+        instrumented_dispatcher = InstrumentedDispatcher.new(spy, ActiveSupport::Notifications)
+        event = Object.new
+        record = Object.new
+        subscriber = -> {}
+        expect { instrumented_dispatcher.call(subscriber, event, record) }.not_to output(
+          /Instrumentation event names \*\.rails_event_store are deprecated/
+        ).to_stderr
+      end
+
+      specify "does not warn when subscriber also matches new event name" do
+        instrumented_dispatcher = InstrumentedDispatcher.new(spy, ActiveSupport::Notifications)
+        event = Object.new
+        record = Object.new
+        subscriber = -> {}
+        subscribe_to(/event_store/) do |_|
+          expect { instrumented_dispatcher.call(subscriber, event, record) }.not_to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
         end
       end
     end
