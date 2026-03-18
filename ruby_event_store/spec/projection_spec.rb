@@ -258,19 +258,227 @@ module RubyEventStore
 
       balance =
         Projection
-          .from_all_streams
-          .init(-> { { total: 0 } })
-          .when(MoneyLost, ->(state, event) { state[:total] -= event.data[:amount] })
-          .run(event_store)
-      expect(balance).to eq(total: 0)
+          .new(0)
+          .on(MoneyLost) { |state, event| state - event.data[:amount] }
+          .call(event_store.read)
+      expect(balance).to eq(0)
 
       balance =
         Projection
+          .new(0)
+          .on(MoneyLost, MoneyInvested) { |state, event| state - event.data[:amount] }
+          .call(event_store.read)
+      expect(balance).to eq(-1)
+    end
+
+    describe "deprecated API" do
+      specify ".from_stream warns" do
+        expect { Projection.from_stream(stream_name) }.to output(
+          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+        ).to_stderr
+      end
+
+      specify ".from_stream raises when no streams given" do
+        expect { Projection.from_stream([]) }.to raise_error(ArgumentError, "At least one stream must be given")
+        expect { Projection.from_stream(nil) }.to raise_error(ArgumentError, "At least one stream must be given")
+      end
+
+      specify ".from_all_streams warns" do
+        expect { Projection.from_all_streams }.to output(
+          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+        ).to_stderr
+      end
+
+      specify "#init warns" do
+        expect { Projection.new.init(-> { 0 }) }.to output(
+          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+        ).to_stderr
+      end
+
+      specify "#when warns" do
+        expect { Projection.new.when(MoneyDeposited, ->(_s, _e) {}) }.to output(
+          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+        ).to_stderr
+      end
+
+      specify "#run returns initial state when no handlers defined" do
+        state = Projection.new({ total: 0 }).run(event_store)
+        expect(state).to eq(total: 0)
+      end
+
+      specify "#run warns" do
+        expect { Projection.new.run(event_store) }.to output(
+          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+        ).to_stderr
+      end
+
+      specify "#run from stream produces correct result" do
+        event_store.append(
+          [MoneyDeposited.new(data: { amount: 10 }), MoneyWithdrawn.new(data: { amount: 3 })],
+          stream_name: stream_name,
+        )
+
+        balance =
+          Projection
+            .from_stream(stream_name)
+            .init(-> { { total: 0 } })
+            .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+            .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+            .run(event_store)
+        expect(balance).to eq(total: 7)
+      end
+
+      specify "#run from all streams produces correct result" do
+        event_store.append(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$1")
+        event_store.append(MoneyWithdrawn.new(data: { amount: 3 }), stream_name: "Customer$2")
+
+        balance =
+          Projection
+            .from_all_streams
+            .init(-> { { total: 0 } })
+            .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+            .when(MoneyWithdrawn, ->(state, event) { state[:total] -= event.data[:amount] })
+            .run(event_store)
+        expect(balance).to eq(total: 7)
+      end
+
+      specify "#run with count paginates correctly" do
+        event_store.append(
+          [
+            MoneyDeposited.new(data: { amount: 10 }),
+            MoneyDeposited.new(data: { amount: 20 }),
+            MoneyDeposited.new(data: { amount: 30 }),
+          ],
+          stream_name: stream_name,
+        )
+
+        balance =
+          Projection
+            .from_stream(stream_name)
+            .init(-> { { total: 0 } })
+            .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+            .run(event_store, count: 2)
+        expect(balance).to eq(total: 60)
+      end
+
+      specify "#run from stream with start reads from given event" do
+        starting = nil
+        event_store.append(
+          [
+            starting = MoneyDeposited.new(data: { amount: 10 }),
+            MoneyDeposited.new(data: { amount: 20 }),
+            MoneyDeposited.new(data: { amount: 30 }),
+          ],
+          stream_name: stream_name,
+        )
+
+        balance =
+          Projection
+            .from_stream(stream_name)
+            .init(-> { { total: 0 } })
+            .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+            .run(event_store, start: [starting.event_id])
+        expect(balance).to eq(total: 50)
+      end
+
+      specify "#run from stream uses count for batch size" do
+        specification = Specification.new(SpecificationReader.new(repository, mapper))
+        expected = specification.stream(stream_name).in_batches(2).of_type([MoneyDeposited]).result
+        expect(repository).to receive(:read).with(expected).and_return([])
+
+        Projection
+          .from_stream(stream_name)
+          .init(-> { { total: 0 } })
+          .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+          .run(event_store, count: 2)
+      end
+
+      specify "#run from all streams uses count for batch size" do
+        specification = Specification.new(SpecificationReader.new(repository, mapper))
+        expected = specification.in_batches(2).of_type([MoneyDeposited]).result
+        expect(repository).to receive(:read).with(expected).and_return([])
+
+        Projection
           .from_all_streams
           .init(-> { { total: 0 } })
-          .when([MoneyLost, MoneyInvested], ->(state, event) { state[:total] -= event.data[:amount] })
-          .run(event_store)
-      expect(balance).to eq(total: -1)
+          .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+          .run(event_store, count: 2)
+      end
+
+      specify "#run from all streams with start reads from given event" do
+        starting = nil
+        event_store.append(starting = MoneyDeposited.new(data: { amount: 10 }), stream_name: stream_name)
+        event_store.append(MoneyDeposited.new(data: { amount: 20 }), stream_name: stream_name)
+        event_store.append(MoneyDeposited.new(data: { amount: 30 }), stream_name: stream_name)
+
+        balance =
+          Projection
+            .from_all_streams
+            .init(-> { { total: 0 } })
+            .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+            .run(event_store, start: starting.event_id)
+        expect(balance).to eq(total: 50)
+      end
+
+      specify "#run from stream raises on invalid start" do
+        projection =
+          Projection
+            .from_stream(stream_name)
+            .when(MoneyDeposited, ->(state, _event) { state })
+        expect { projection.run(event_store, start: :last) }.to raise_error(
+          ArgumentError,
+          "Start must be an array with event ids",
+        )
+        expect { projection.run(event_store, start: [SecureRandom.uuid, SecureRandom.uuid]) }.to raise_error(
+          ArgumentError,
+          "Start must be an array with event ids",
+        )
+        expect { projection.run(event_store, start: { event_id: SecureRandom.uuid }) }.to raise_error(
+          ArgumentError,
+          "Start must be an array with event ids",
+        )
+      end
+
+      specify "#run from all streams raises on invalid start" do
+        projection =
+          Projection
+            .from_all_streams
+            .when(MoneyDeposited, ->(state, _event) { state })
+        expect { projection.run(event_store, start: :last) }.to raise_error(
+          ArgumentError,
+          "Start must be valid event id",
+        )
+      end
+
+      specify "#when accepts array of event classes" do
+        event_store.append(
+          [MoneyDeposited.new(data: { amount: 10 }), MoneyWithdrawn.new(data: { amount: 5 })],
+          stream_name: stream_name,
+        )
+
+        cashflow =
+          Projection
+            .from_stream(stream_name)
+            .init(-> { { total: 0 } })
+            .when([MoneyDeposited, MoneyWithdrawn], ->(state, event) { state[:total] += event.data[:amount] })
+            .run(event_store)
+        expect(cashflow).to eq(total: 15)
+      end
+
+      specify "#when handler mutating state still works" do
+        event_store.append(
+          [MoneyDeposited.new(data: { amount: 10 }), MoneyDeposited.new(data: { amount: 5 })],
+          stream_name: stream_name,
+        )
+
+        balance =
+          Projection
+            .from_stream(stream_name)
+            .init(-> { { total: 0 } })
+            .when(MoneyDeposited, ->(state, event) { state[:total] += event.data[:amount] })
+            .run(event_store)
+        expect(balance).to eq(total: 15)
+      end
     end
   end
 end
