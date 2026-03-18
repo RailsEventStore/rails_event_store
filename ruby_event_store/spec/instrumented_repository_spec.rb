@@ -3,6 +3,7 @@
 require "spec_helper"
 require "ruby_event_store/spec/event_repository_lint"
 require "active_support/core_ext/object/try"
+require "active_support/isolated_execution_state"
 require "active_support/notifications"
 
 module RubyEventStore
@@ -31,11 +32,38 @@ module RubyEventStore
       end
 
       specify "instruments with legacy event name" do
-        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        some_repository = spy
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
         subscribe_to("append_to_stream.repository.rails_event_store") do |notification_calls|
           instrumented_repository.append_to_stream([record], stream, expected_version)
 
           expect(notification_calls).to eq([{ events: [record], stream: stream }])
+          expect(some_repository).to have_received(:append_to_stream).with([record], stream, expected_version)
+        end
+      end
+
+      specify "warns about deprecated event names" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("append_to_stream.repository.rails_event_store") do |_|
+          expect { instrumented_repository.append_to_stream([record], stream, expected_version) }.to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
+        end
+      end
+
+      specify "does not warn when nobody subscribes to legacy event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        expect { instrumented_repository.append_to_stream([record], stream, expected_version) }.not_to output(
+          /Instrumentation event names \*\.rails_event_store are deprecated/
+        ).to_stderr
+      end
+
+      specify "does not warn when subscriber also matches new event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to(/event_store/) do |_|
+          expect { instrumented_repository.append_to_stream([record], stream, expected_version) }.not_to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
         end
       end
     end
@@ -66,6 +94,15 @@ module RubyEventStore
           expect(notification_calls).to eq([{ event_ids: [event_id], stream: stream }])
         end
       end
+
+      specify "warns about deprecated event names" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("link_to_stream.repository.rails_event_store") do |_|
+          expect { instrumented_repository.link_to_stream([event_id], stream, expected_version) }.to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
+        end
+      end
     end
 
     describe "#delete_stream" do
@@ -92,6 +129,15 @@ module RubyEventStore
           instrumented_repository.delete_stream("SomeStream")
 
           expect(notification_calls).to eq([{ stream: "SomeStream" }])
+        end
+      end
+
+      specify "warns about deprecated event names" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("delete_stream.repository.rails_event_store") do |_|
+          expect { instrumented_repository.delete_stream("SomeStream") }.to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
         end
       end
     end
@@ -145,6 +191,15 @@ module RubyEventStore
           expect(notification_calls).to eq([{ specification: specification }])
         end
       end
+
+      specify "warns about deprecated event names" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("read.repository.rails_event_store") do |_|
+          expect { instrumented_repository.read(double) }.to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
+        end
+      end
     end
 
     describe "#count" do
@@ -176,6 +231,15 @@ module RubyEventStore
           expect(notification_calls).to eq([{ specification: specification }])
         end
       end
+
+      specify "warns about deprecated event names" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("count.repository.rails_event_store") do |_|
+          expect { instrumented_repository.count(double) }.to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
+        end
+      end
     end
 
     describe "#update_messages" do
@@ -202,6 +266,15 @@ module RubyEventStore
           instrumented_repository.update_messages([record])
 
           expect(notification_calls).to eq([{ messages: [record] }])
+        end
+      end
+
+      specify "warns about deprecated event names" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("update_messages.repository.rails_event_store") do |_|
+          expect { instrumented_repository.update_messages([record]) }.to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
         end
       end
     end
@@ -233,6 +306,15 @@ module RubyEventStore
           instrumented_repository.streams_of(uuid)
 
           expect(notification_calls).to eq([{ event_id: uuid }])
+        end
+      end
+
+      specify "warns about deprecated event names" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("streams_of.repository.rails_event_store") do |_|
+          expect { instrumented_repository.streams_of(SecureRandom.uuid) }.to output(
+            /Instrumentation event names \*\.rails_event_store are deprecated/
+          ).to_stderr
         end
       end
     end
