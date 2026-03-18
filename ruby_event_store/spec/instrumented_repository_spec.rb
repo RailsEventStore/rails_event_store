@@ -29,6 +29,15 @@ module RubyEventStore
           expect(notification_calls).to eq([{ events: [record], stream: stream }])
         end
       end
+
+      specify "instruments with legacy event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("append_to_stream.repository.rails_event_store") do |notification_calls|
+          instrumented_repository.append_to_stream([record], stream, expected_version)
+
+          expect(notification_calls).to eq([{ events: [record], stream: stream }])
+        end
+      end
     end
 
     describe "#link_to_stream" do
@@ -48,6 +57,15 @@ module RubyEventStore
           expect(notification_calls).to eq([{ event_ids: [event_id], stream: stream }])
         end
       end
+
+      specify "instruments with legacy event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("link_to_stream.repository.rails_event_store") do |notification_calls|
+          instrumented_repository.link_to_stream([event_id], stream, expected_version)
+
+          expect(notification_calls).to eq([{ event_ids: [event_id], stream: stream }])
+        end
+      end
     end
 
     describe "#delete_stream" do
@@ -62,6 +80,15 @@ module RubyEventStore
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("delete_stream.repository.ruby_event_store") do |notification_calls|
+          instrumented_repository.delete_stream("SomeStream")
+
+          expect(notification_calls).to eq([{ stream: "SomeStream" }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("delete_stream.repository.rails_event_store") do |notification_calls|
           instrumented_repository.delete_stream("SomeStream")
 
           expect(notification_calls).to eq([{ stream: "SomeStream" }])
@@ -108,6 +135,16 @@ module RubyEventStore
           expect(notification_calls).to eq([{ specification: specification }])
         end
       end
+
+      specify "instruments with legacy event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("read.repository.rails_event_store") do |notification_calls|
+          specification = double
+          instrumented_repository.read(specification)
+
+          expect(notification_calls).to eq([{ specification: specification }])
+        end
+      end
     end
 
     describe "#count" do
@@ -123,6 +160,16 @@ module RubyEventStore
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("count.repository.ruby_event_store") do |notification_calls|
+          specification = double
+          instrumented_repository.count(specification)
+
+          expect(notification_calls).to eq([{ specification: specification }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("count.repository.rails_event_store") do |notification_calls|
           specification = double
           instrumented_repository.count(specification)
 
@@ -148,6 +195,15 @@ module RubyEventStore
           expect(notification_calls).to eq([{ messages: [record] }])
         end
       end
+
+      specify "instruments with legacy event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("update_messages.repository.rails_event_store") do |notification_calls|
+          instrumented_repository.update_messages([record])
+
+          expect(notification_calls).to eq([{ messages: [record] }])
+        end
+      end
     end
 
     describe "#streams_of" do
@@ -163,6 +219,16 @@ module RubyEventStore
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("streams_of.repository.ruby_event_store") do |notification_calls|
+          uuid = SecureRandom.uuid
+          instrumented_repository.streams_of(uuid)
+
+          expect(notification_calls).to eq([{ event_id: uuid }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
+        instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
+        subscribe_to("streams_of.repository.rails_event_store") do |notification_calls|
           uuid = SecureRandom.uuid
           instrumented_repository.streams_of(uuid)
 

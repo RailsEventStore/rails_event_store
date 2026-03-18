@@ -40,6 +40,20 @@ module RubyEventStore
       specify "instruments" do
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
+        subscribe_to("call.broker.ruby_event_store") do |notification_calls|
+          event = Object.new
+          record = Object.new
+
+          expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
+          instrumented_broker.call("topic", event, record)
+
+          expect(notification_calls).to eq([{ topic: "topic", event: event, record: record }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
+        some_broker = spy
+        instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
         subscribe_to("call.broker.rails_event_store") do |notification_calls|
           event = Object.new
           record = Object.new
@@ -66,6 +80,18 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
+        subscribe_to("add_subscription.broker.ruby_event_store") do |notification_calls|
+          subscriber = -> {}
+          topics = []
+
+          instrumented_broker.add_subscription(subscriber, topics)
+
+          expect(notification_calls).to eq([{ subscriber: subscriber, topics: topics }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
+        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_subscription.broker.rails_event_store") do |notification_calls|
           subscriber = -> {}
           topics = []
@@ -89,6 +115,17 @@ module RubyEventStore
       end
 
       specify "instruments" do
+        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
+        subscribe_to("add_global_subscription.broker.ruby_event_store") do |notification_calls|
+          subscriber = -> {}
+
+          instrumented_broker.add_global_subscription(subscriber)
+
+          expect(notification_calls).to eq([{ subscriber: subscriber }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_global_subscription.broker.rails_event_store") do |notification_calls|
           subscriber = -> {}
@@ -114,6 +151,18 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
+        subscribe_to("add_thread_subscription.broker.ruby_event_store") do |notification_calls|
+          subscriber = -> {}
+          topics = []
+
+          instrumented_broker.add_thread_subscription(subscriber, topics)
+
+          expect(notification_calls).to eq([{ subscriber: subscriber, topics: topics }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
+        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_thread_subscription.broker.rails_event_store") do |notification_calls|
           subscriber = -> {}
           topics = []
@@ -138,6 +187,17 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
+        subscribe_to("add_thread_global_subscription.broker.ruby_event_store") do |notification_calls|
+          subscriber = -> {}
+
+          instrumented_broker.add_thread_global_subscription(subscriber)
+
+          expect(notification_calls).to eq([{ subscriber: subscriber }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
+        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("add_thread_global_subscription.broker.rails_event_store") do |notification_calls|
           subscriber = -> {}
 
@@ -160,6 +220,17 @@ module RubyEventStore
       end
 
       specify "instruments" do
+        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
+        subscribe_to("all_subscriptions_for.broker.ruby_event_store") do |notification_calls|
+          topic = String.new
+
+          instrumented_broker.all_subscriptions_for(topic)
+
+          expect(notification_calls).to eq([{ topic: topic }])
+        end
+      end
+
+      specify "instruments with legacy event name" do
         instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
         subscribe_to("all_subscriptions_for.broker.rails_event_store") do |notification_calls|
           topic = String.new
