@@ -51,7 +51,7 @@ module RubyEventStore
     specify "warns when multiple scopes passed to call" do
       expect do
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .call(event_store.read.stream("Customer$1"), event_store.read.stream("Customer$2"))
       end.to output(<<~EOW).to_stderr
@@ -63,10 +63,29 @@ module RubyEventStore
     specify "does not warn when single scope passed to call" do
       expect do
         Projection
-          .new(0)
+          .init(0)
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .call(event_store.read.stream("Customer$1"))
       end.not_to output.to_stderr
+    end
+
+    specify "warns when Projection.new is used instead of Projection.init" do
+      expect do
+        Projection.new(0)
+      end.to output(<<~EOW).to_stderr
+        RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
+        Use Projection.init(initial_state) instead.
+      EOW
+    end
+
+    specify "Projection.init passes initial state" do
+      state = Projection.init(42).call(event_store.read)
+      expect(state).to eq(42)
+    end
+
+    specify "Projection.init defaults initial state to nil" do
+      state = Projection.init.call(event_store.read)
+      expect(state).to eq(nil)
     end
 
     specify "take events from all streams" do
@@ -299,6 +318,12 @@ module RubyEventStore
         ).to_stderr
       end
 
+      specify ".from_stream does not warn about Projection.new being deprecated" do
+        expect { Projection.from_stream(stream_name) }.not_to output(
+          /Projection\.new is deprecated/
+        ).to_stderr
+      end
+
       specify ".from_stream raises when no streams given" do
         expect { Projection.from_stream([]) }.to raise_error(ArgumentError, "At least one stream must be given")
         expect { Projection.from_stream(nil) }.to raise_error(ArgumentError, "At least one stream must be given")
@@ -307,6 +332,12 @@ module RubyEventStore
       specify ".from_all_streams warns" do
         expect { Projection.from_all_streams }.to output(
           /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+        ).to_stderr
+      end
+
+      specify ".from_all_streams does not warn about Projection.new being deprecated" do
+        expect { Projection.from_all_streams }.not_to output(
+          /Projection\.new is deprecated/
         ).to_stderr
       end
 
