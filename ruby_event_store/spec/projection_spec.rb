@@ -48,6 +48,27 @@ module RubyEventStore
       expect(account_balance).to eq(5)
     end
 
+    specify "warns when multiple scopes passed to call" do
+      expect do
+        Projection
+          .new(0)
+          .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
+          .call(event_store.read.stream("Customer$1"), event_store.read.stream("Customer$2"))
+      end.to output(<<~EOW).to_stderr
+        Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
+        Use a single scope instead, e.g. call(event_store.read.stream("stream_name")).
+      EOW
+    end
+
+    specify "does not warn when single scope passed to call" do
+      expect do
+        Projection
+          .new(0)
+          .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
+          .call(event_store.read.stream("Customer$1"))
+      end.not_to output.to_stderr
+    end
+
     specify "take events from all streams" do
       event_store.append(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$1")
       event_store.append(MoneyDeposited.new(data: { amount: 1 }), stream_name: "Customer$2")
