@@ -4,6 +4,17 @@ module AggregateRoot
   MissingHandler = Class.new(StandardError)
 
   class DefaultApplyStrategy
+    DEPRECATION_MESSAGE = <<~EOW
+      Handling events via apply_* method naming convention is deprecated and will be removed in the next major release.
+
+      Use the on DSL instead:
+
+        on %s do |event|
+          # your code
+        end
+    EOW
+    private_constant :DEPRECATION_MESSAGE
+
     def initialize(strict: true)
       @strict = strict
     end
@@ -20,15 +31,19 @@ module AggregateRoot
     private
 
     def handler_name(aggregate, event)
-      on_dsl_handler_name(aggregate, event.event_type) || apply_handler_name(event.event_type)
+      on_dsl_handler_name(aggregate, event.event_type) || apply_handler_name(aggregate, event.event_type)
     end
 
     def on_dsl_handler_name(aggregate, event_type)
       aggregate.class.on_methods[event_type] if aggregate.class.respond_to?(:on_methods)
     end
 
-    def apply_handler_name(event_type)
-      "apply_#{Transform.to_snake_case(event_type(event_type))}"
+    def apply_handler_name(aggregate, event_type)
+      name = "apply_#{Transform.to_snake_case(event_type(event_type))}"
+      if aggregate.respond_to?(name, true)
+        warn DEPRECATION_MESSAGE % event_type
+      end
+      name
     end
 
     def event_type(event_type)
