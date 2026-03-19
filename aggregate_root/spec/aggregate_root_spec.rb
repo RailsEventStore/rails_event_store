@@ -58,6 +58,21 @@ require "spec_helper"
     expect(order.status).to eq :created
   end
 
+  it "warns when using apply_* method naming convention" do
+    order = order_klass.new(uuid)
+    order_created = Orders::Events::OrderCreated.new
+
+    expect { order.apply(order_created) }.to output(<<~EOW).to_stderr
+      Handling events via apply_* method naming convention is deprecated and will be removed in the next major release.
+
+      Use the on DSL instead:
+
+        on #{Orders::Events::OrderCreated} do |event|
+          # your code
+        end
+    EOW
+  end
+
   it "raises error for missing apply method based on a default apply strategy" do
     order = order_klass.new(uuid)
     spanish_inquisition = Orders::Events::SpanishInquisition.new
@@ -65,6 +80,12 @@ require "spec_helper"
       AggregateRoot::MissingHandler,
       "Missing handler method apply_spanish_inquisition on aggregate #{order_klass}",
     )
+  end
+
+  it "does not warn when apply_* method is missing" do
+    order = order_klass.new(uuid)
+    spanish_inquisition = Orders::Events::SpanishInquisition.new
+    expect { order.apply(spanish_inquisition) rescue nil }.not_to output.to_stderr
   end
 
   it "raises error for missing apply method based on a default apply strategy (explicity stated)" do
