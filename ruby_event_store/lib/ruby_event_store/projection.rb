@@ -11,12 +11,21 @@ module RubyEventStore
       Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
       Use a single scope instead, e.g. call(event_store.read.stream("stream_name")).
     EOW
-    private_constant :ANONYMOUS_CLASS, :DEPRECATION_MESSAGE, :MULTI_SCOPE_DEPRECATION_MESSAGE
+    NEW_CONSTRUCTOR_DEPRECATION_MESSAGE = <<~EOW
+      RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
+      Use Projection.init(initial_state) instead.
+    EOW
+    private_constant :ANONYMOUS_CLASS, :DEPRECATION_MESSAGE, :MULTI_SCOPE_DEPRECATION_MESSAGE, :NEW_CONSTRUCTOR_DEPRECATION_MESSAGE
 
-    def initialize(initial_state = nil)
+    def initialize(initial_state = nil, _internal: false)
+      warn NEW_CONSTRUCTOR_DEPRECATION_MESSAGE unless _internal
       @handlers = {}
       @init = -> { initial_state }
       @streams = []
+    end
+
+    def self.init(initial_state = nil)
+      new(initial_state, _internal: true)
     end
 
     def on(*event_klasses, &block)
@@ -45,14 +54,14 @@ module RubyEventStore
       warn DEPRECATION_MESSAGE
       streams = Array(stream_or_streams)
       raise(ArgumentError, "At least one stream must be given") if streams.empty?
-      projection = new
+      projection = new(_internal: true)
       projection.instance_variable_set(:@streams, streams)
       projection
     end
 
     def self.from_all_streams
       warn DEPRECATION_MESSAGE
-      new
+      new(_internal: true)
     end
 
     def init(handler)
