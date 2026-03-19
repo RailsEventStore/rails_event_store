@@ -7,7 +7,11 @@ module RubyEventStore
       RubyEventStore::Projection from_stream/from_all_streams/init/when/run API is deprecated and will be removed in the next major release.
       Use Projection.new(initial_state).on(EventClass) { |state, event| new_state }.call(scope) instead.
     EOW
-    private_constant :ANONYMOUS_CLASS, :DEPRECATION_MESSAGE
+    MULTI_SCOPE_DEPRECATION_MESSAGE = <<~EOW
+      Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
+      Use a single scope instead, e.g. call(event_store.read.stream("stream_name")).
+    EOW
+    private_constant :ANONYMOUS_CLASS, :DEPRECATION_MESSAGE, :MULTI_SCOPE_DEPRECATION_MESSAGE
 
     def initialize(initial_state = nil)
       @handlers = {}
@@ -30,8 +34,10 @@ module RubyEventStore
     def call(*scopes)
       return initial_state if handled_events.empty?
 
+      warn MULTI_SCOPE_DEPRECATION_MESSAGE if scopes.size > 1
+
       scopes.reduce(initial_state) do |state, scope|
-        scope.of_types(handled_events).reduce(state, &method(:transition))
+        scope.of_type(handled_events).reduce(state, &method(:transition))
       end
     end
 
