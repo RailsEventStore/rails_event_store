@@ -5,7 +5,7 @@ module RubyEventStore
     ANONYMOUS_CLASS = "#<Class:".freeze
     DEPRECATION_MESSAGE = <<~EOW
       RubyEventStore::Projection from_stream/from_all_streams/init/when/run API is deprecated and will be removed in the next major release.
-      Use Projection.new(initial_state).on(EventClass) { |state, event| new_state }.call(scope) instead.
+      Use Projection.init(initial_state).on(EventClass) { |state, event| new_state }.call(scope) instead.
     EOW
     MULTI_SCOPE_DEPRECATION_MESSAGE = <<~EOW
       Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
