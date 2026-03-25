@@ -45,6 +45,18 @@ module RubyEventStore
             expect(event_store.read.stream("target").to_a).to be_empty
           end
 
+          it "only links events from source stream when --source-stream given" do
+            event_in_source = BackfillEvent.new
+            event_outside   = BackfillEvent.new
+            event_store.publish(event_in_source, stream_name: "source")
+            event_store.publish(event_outside, stream_name: "other")
+
+            command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: false, source_stream: "source")
+
+            linked_ids = event_store.read.stream("target").to_a.map(&:event_id)
+            expect(linked_ids).to eq([event_in_source.event_id])
+          end
+
           it "prints friendly error for unknown event type" do
             expect {
               begin

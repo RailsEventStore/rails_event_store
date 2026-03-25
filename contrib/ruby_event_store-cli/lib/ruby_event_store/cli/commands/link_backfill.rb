@@ -11,15 +11,17 @@ module RubyEventStore
 
         option :type, required: true, desc: "Event type (class name)"
         option :stream, required: true, desc: "Target stream name"
+        option :source_stream, desc: "Read from this stream instead of global stream"
         option :dry_run, type: :boolean, default: false, desc: "Print count without linking"
 
-        def call(type:, stream:, dry_run:, **)
+        def call(type:, stream:, dry_run:, source_stream: nil, **)
           event_store = EventStoreResolver.resolve
           klass = resolve_type(type)
           linked = 0
           skipped = 0
 
-          event_store.read.of_type(klass).each do |event|
+          reader = source_stream ? event_store.read.stream(source_stream) : event_store.read
+          reader.of_type(klass).each do |event|
             if dry_run
               linked += 1
             else
