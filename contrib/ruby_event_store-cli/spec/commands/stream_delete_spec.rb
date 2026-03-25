@@ -64,6 +64,55 @@ module RubyEventStore
 
             expect(event_store.read.stream("to-delete").count).to eq(1)
           end
+
+          context "with --prefix" do
+            before do
+              allow(command).to receive(:fetch_streams_with_prefix).with("test-") .and_return(["test-1", "test-2"])
+              allow(command).to receive(:fetch_streams_with_prefix).with("empty-").and_return([])
+            end
+
+            it "deletes all matching streams with --force" do
+              event_store.publish(RubyEventStore::Event.new, stream_name: "test-1")
+              event_store.publish(RubyEventStore::Event.new, stream_name: "test-2")
+
+              command.call(prefix: "test-", dry_run: false, force: true)
+
+              expect(event_store.read.stream("test-1").count).to eq(0)
+              expect(event_store.read.stream("test-2").count).to eq(0)
+            end
+
+            it "shows what would be deleted in dry-run mode" do
+              expect { command.call(prefix: "test-", dry_run: true, force: false) }
+                .to output(/Would delete 2 stream\(s\)/).to_stdout
+            end
+
+            it "requires --force for bulk deletion" do
+              expect {
+                begin
+                  command.call(prefix: "test-", dry_run: false, force: false)
+                rescue SystemExit
+                end
+              }.to output(/--force is required/).to_stderr
+            end
+
+            it "rejects empty prefix" do
+              expect {
+                begin
+                  command.call(prefix: "", dry_run: false, force: true)
+                rescue SystemExit
+                end
+              }.to output(/Prefix cannot be empty/).to_stderr
+            end
+
+            it "prints error when no streams match prefix" do
+              expect {
+                begin
+                  command.call(prefix: "empty-", dry_run: false, force: true)
+                rescue SystemExit
+                end
+              }.to output(/No streams found/).to_stderr
+            end
+          end
         end
       end
     end
