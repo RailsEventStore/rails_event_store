@@ -5,6 +5,7 @@ require_relative "commands/stream_events"
 require_relative "commands/streams_list"
 require_relative "commands/stream_show"
 require_relative "commands/event_show"
+require_relative "commands/event_streams"
 require_relative "commands/link"
 require_relative "commands/link_backfill"
 
@@ -17,6 +18,7 @@ module RubyEventStore
       register "stream show", StreamShow
       register "streams list", StreamsList
       register "event show", EventShow
+      register "event streams", EventStreams
       register "link", Link
       register "link backfill", LinkBackfill
     end
