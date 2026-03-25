@@ -2,6 +2,7 @@
 
 require "dry/cli"
 require_relative "commands/stream_events"
+require_relative "commands/streams_list"
 require_relative "commands/link"
 require_relative "commands/link_backfill"
 
@@ -11,6 +12,7 @@ module RubyEventStore
       extend Dry::CLI::Registry
 
       register "stream events", StreamEvents
+      register "streams list", StreamsList
       register "link", Link
       register "link backfill", LinkBackfill
     end
