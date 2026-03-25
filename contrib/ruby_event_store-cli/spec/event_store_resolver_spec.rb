@@ -14,6 +14,49 @@ module RubyEventStore
           expect(EventStoreResolver).not_to receive(:require)
           expect(EventStoreResolver.resolve).to eq(fake_store)
         end
+
+        context "when event_store is not set" do
+          before { allow(EventStoreResolver).to receive(:require) }
+
+          it "requires config/environment.rb" do
+            allow(EventStoreResolver).to receive(:find_event_store).and_return(RubyEventStore::Client.new)
+
+            EventStoreResolver.resolve
+
+            expect(EventStoreResolver).to have_received(:require).with(
+              File.expand_path(EventStoreResolver::DEFAULT_REQUIRE_PATH)
+            )
+          end
+
+          it "returns the event store found after loading environment" do
+            store = RubyEventStore::Client.new
+            allow(EventStoreResolver).to receive(:find_event_store).and_return(store)
+
+            expect(EventStoreResolver.resolve).to eq(store)
+          end
+
+          it "aborts with message listing candidate constants when no store found" do
+            allow(EventStoreResolver).to receive(:find_event_store).and_return(nil)
+
+            expect {
+              begin
+                EventStoreResolver.resolve
+              rescue SystemExit
+              end
+            }.to output(/#{EventStoreResolver::CANDIDATE_CONSTS.join(", ")}/).to_stderr
+          end
+
+          it "aborts with message mentioning the require path" do
+            allow(EventStoreResolver).to receive(:find_event_store).and_return(nil)
+
+            expect {
+              begin
+                EventStoreResolver.resolve
+              rescue SystemExit
+              end
+            }.to output(/#{EventStoreResolver::DEFAULT_REQUIRE_PATH}/).to_stderr
+          end
+        end
       end
 
       describe ".find_event_store" do
