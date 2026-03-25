@@ -41,6 +41,15 @@ module RubyEventStore
               .to output(/no events/).to_stdout
           end
 
+          it "prints friendly error for unknown event type" do
+            expect {
+              begin
+                command.call(stream_name: "test-stream", limit: 50, format: "table", type: "NonExistent")
+              rescue SystemExit
+              end
+            }.to output(/Unknown event type: NonExistent/).to_stderr
+          end
+
           it "filters by event type" do
             event_store.publish(RubyEventStore::Event.new, stream_name: "test-stream")
             event_store.publish(OtherEvent.new, stream_name: "test-stream")
