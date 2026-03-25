@@ -19,9 +19,14 @@ module RubyEventStore
     module Commands
       extend Dry::CLI::Registry
 
+      register "stream", Class.new(Dry::CLI::Command) { desc "Inspect and manage a stream" }
       register "stream events", StreamEvents
       register "stream show", StreamShow
+
+      register "streams", Class.new(Dry::CLI::Command) { desc "List and manage streams" }
       register "streams list", StreamsList
+
+      register "event", Class.new(Dry::CLI::Command) { desc "Inspect an event" }
       register "event show", EventShow
       register "event streams", EventStreams
       register "trace", Trace
