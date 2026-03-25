@@ -115,6 +115,14 @@ GEM
     rspec-support (3.13.7)
     securerandom (0.4.1)
     sorbet-runtime (0.6.13055)
+    sqlite3 (2.9.2-aarch64-linux-gnu)
+    sqlite3 (2.9.2-aarch64-linux-musl)
+    sqlite3 (2.9.2-arm-linux-gnu)
+    sqlite3 (2.9.2-arm-linux-musl)
+    sqlite3 (2.9.2-arm64-darwin)
+    sqlite3 (2.9.2-x86_64-darwin)
+    sqlite3 (2.9.2-x86_64-linux-gnu)
+    sqlite3 (2.9.2-x86_64-linux-musl)
     stringio (3.2.0)
     timeout (0.6.1)
     tsort (0.2.0)
@@ -146,6 +154,7 @@ DEPENDENCIES
   rspec
   ruby_event_store!
   ruby_event_store-cli!
+  sqlite3 (>= 2.1)
 
 BUNDLED WITH
    2.7.1

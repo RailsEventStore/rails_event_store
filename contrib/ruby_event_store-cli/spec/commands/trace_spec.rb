@@ -13,56 +13,138 @@ module RubyEventStore
 
         before { EventStoreResolver.event_store = event_store }
 
-        def publish_correlated(event, causation_id: nil)
-          event_store.publish(
-            event,
-            stream_name: "$by_correlation_id_#{correlation_id}"
-          )
-          event_store.with_metadata(
-            correlation_id: correlation_id,
-            causation_id: causation_id
-          ) { event_store.publish(event, stream_name: "test") } if false
-          event
-        end
-
         def correlated_event(causation_id: nil)
           meta = { correlation_id: correlation_id }
           meta[:causation_id] = causation_id if causation_id
           RubyEventStore::Event.new(metadata: meta)
         end
 
+        def publish_to_correlation_stream(event)
+          event_store.publish(event, stream_name: "$by_correlation_id_#{correlation_id}")
+        end
+
         describe "#call" do
           it "shows events for a correlation id" do
             root = correlated_event
-            event_store.publish(root, stream_name: "$by_correlation_id_#{correlation_id}")
+            publish_to_correlation_stream(root)
 
-            expect { command.call(correlation_id: correlation_id) }
-              .to output(/#{root.event_id}/).to_stdout
+            expect {
+              begin
+                command.call(correlation_id: correlation_id)
+              rescue SystemExit
+              end
+            }.to output(/#{root.event_id}/).to_stdout
           end
 
           it "shows total event count" do
-            2.times do
-              event_store.publish(correlated_event, stream_name: "$by_correlation_id_#{correlation_id}")
-            end
+            2.times { publish_to_correlation_stream(correlated_event) }
 
-            expect { command.call(correlation_id: correlation_id) }
-              .to output(/2 event\(s\)/).to_stdout
+            expect {
+              begin
+                command.call(correlation_id: correlation_id)
+              rescue SystemExit
+              end
+            }.to output(/2 event\(s\)/).to_stdout
+          end
+
+          it "shows the correlation id in header" do
+            publish_to_correlation_stream(correlated_event)
+
+            expect {
+              begin
+                command.call(correlation_id: correlation_id)
+              rescue SystemExit
+              end
+            }.to output(/Trace: #{correlation_id}/).to_stdout
+          end
+
+          it "shows event type in tree" do
+            event = correlated_event
+            publish_to_correlation_stream(event)
+
+            expect {
+              begin
+                command.call(correlation_id: correlation_id)
+              rescue SystemExit
+              end
+            }.to output(/RubyEventStore::Event/).to_stdout
           end
 
           it "shows causal tree with children indented" do
             root  = correlated_event
             child = correlated_event(causation_id: root.event_id)
-            event_store.publish(root,  stream_name: "$by_correlation_id_#{correlation_id}")
-            event_store.publish(child, stream_name: "$by_correlation_id_#{correlation_id}")
+            publish_to_correlation_stream(root)
+            publish_to_correlation_stream(child)
 
-            expect { command.call(correlation_id: correlation_id) }
-              .to output(/└─/).to_stdout
+            expect {
+              begin
+                command.call(correlation_id: correlation_id)
+              rescue SystemExit
+              end
+            }.to output(/└─/).to_stdout
+          end
+
+          it "shows grandchild at deeper indent" do
+            root       = correlated_event
+            child      = correlated_event(causation_id: root.event_id)
+            grandchild = correlated_event(causation_id: child.event_id)
+            publish_to_correlation_stream(root)
+            publish_to_correlation_stream(child)
+            publish_to_correlation_stream(grandchild)
+
+            expect {
+              begin
+                command.call(correlation_id: correlation_id)
+              rescue SystemExit
+              end
+            }.to output(/#{grandchild.event_id}/).to_stdout
+          end
+
+          it "shows root event without indent" do
+            root = correlated_event
+            publish_to_correlation_stream(root)
+
+            output = capture_stdout {
+              begin
+                command.call(correlation_id: correlation_id)
+              rescue SystemExit
+              end
+            }
+            expect(output).to match(/^RubyEventStore::Event/)
+          end
+
+          it "shows child event with indent marker" do
+            root  = correlated_event
+            child = correlated_event(causation_id: root.event_id)
+            publish_to_correlation_stream(root)
+            publish_to_correlation_stream(child)
+
+            output = capture_stdout {
+              begin
+                command.call(correlation_id: correlation_id)
+              rescue SystemExit
+              end
+            }
+            expect(output).to match(/^└─ RubyEventStore::Event/)
           end
 
           it "prints message when correlation stream is empty" do
-            expect { command.call(correlation_id: SecureRandom.uuid) }
-              .to output(/no events/).to_stdout
+            expect {
+              begin
+                command.call(correlation_id: SecureRandom.uuid)
+              rescue SystemExit
+              end
+            }.to output(/no events/).to_stdout
           end
+        end
+
+        def capture_stdout
+          old = $stdout
+          $stdout = StringIO.new
+          yield
+          $stdout.string
+        ensure
+          $stdout = old
         end
       end
     end

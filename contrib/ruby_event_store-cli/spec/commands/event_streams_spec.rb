@@ -13,30 +13,55 @@ module RubyEventStore
         before { EventStoreResolver.event_store = event_store }
 
         describe "#call" do
-          it "lists streams containing the event" do
+          it "lists stream names containing the event" do
             event = RubyEventStore::Event.new
             event_store.publish(event, stream_name: "Orders")
             event_store.link(event.event_id, stream_name: "Reporting")
 
-            expect { command.call(event_id: event.event_id) }
-              .to output(/Orders/).to_stdout
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/Orders/).to_stdout
           end
 
-          it "lists all linked streams" do
+          it "lists all linked stream names" do
             event = RubyEventStore::Event.new
             event_store.publish(event, stream_name: "Orders")
             event_store.link(event.event_id, stream_name: "Reporting")
 
-            expect { command.call(event_id: event.event_id) }
-              .to output(/2 stream\(s\)/).to_stdout
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/Reporting/).to_stdout
+          end
+
+          it "lists all linked streams count" do
+            event = RubyEventStore::Event.new
+            event_store.publish(event, stream_name: "Orders")
+            event_store.link(event.event_id, stream_name: "Reporting")
+
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/2 stream\(s\)/).to_stdout
           end
 
           it "excludes global stream" do
             event = RubyEventStore::Event.new
             event_store.publish(event, stream_name: "Orders")
 
-            expect { command.call(event_id: event.event_id) }
-              .to output(/1 stream\(s\)/).to_stdout
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/1 stream\(s\)/).to_stdout
           end
 
           it "prints error for unknown event id" do

@@ -13,28 +13,76 @@ module RubyEventStore
         before { EventStoreResolver.event_store = event_store }
 
         describe "#call" do
-          it "shows event id, type and timestamp" do
+          it "shows event id" do
             event = RubyEventStore::Event.new
             event_store.publish(event, stream_name: "test-stream")
 
-            expect { command.call(event_id: event.event_id) }
-              .to output(/#{event.event_id}/).to_stdout
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/Event ID:.*#{event.event_id}/m).to_stdout
+          end
+
+          it "shows event type" do
+            event = RubyEventStore::Event.new
+            event_store.publish(event, stream_name: "test-stream")
+
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/Type:.*RubyEventStore::Event/m).to_stdout
+          end
+
+          it "shows timestamp" do
+            event = RubyEventStore::Event.new
+            event_store.publish(event, stream_name: "test-stream")
+
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/Timestamp:.*#{event.timestamp.iso8601(3)}/m).to_stdout
           end
 
           it "shows event data as JSON" do
             event = RubyEventStore::Event.new(data: { order_id: "123" })
             event_store.publish(event, stream_name: "test-stream")
 
-            expect { command.call(event_id: event.event_id) }
-              .to output(/order_id/).to_stdout
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/order_id/).to_stdout
           end
 
           it "shows event metadata as JSON" do
             event = RubyEventStore::Event.new(metadata: { correlation_id: "abc" })
             event_store.publish(event, stream_name: "test-stream")
 
-            expect { command.call(event_id: event.event_id) }
-              .to output(/correlation_id/).to_stdout
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.to output(/correlation_id/).to_stdout
+          end
+
+          it "does not show valid_at when same as timestamp" do
+            event = RubyEventStore::Event.new
+            event_store.publish(event, stream_name: "test-stream")
+
+            expect {
+              begin
+                command.call(event_id: event.event_id)
+              rescue SystemExit
+              end
+            }.not_to output(/Valid at:/).to_stdout
           end
 
           it "prints friendly error for unknown event id" do
