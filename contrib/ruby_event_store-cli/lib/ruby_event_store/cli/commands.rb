@@ -8,6 +8,7 @@ require_relative "commands/event_show"
 require_relative "commands/event_streams"
 require_relative "commands/trace"
 require_relative "commands/search"
+require_relative "commands/stats"
 require_relative "commands/link"
 require_relative "commands/link_backfill"
 
@@ -23,6 +24,7 @@ module RubyEventStore
       register "event streams", EventStreams
       register "trace", Trace
       register "search", Search
+      register "stats", Stats
       register "link", Link
       register "link backfill", LinkBackfill
     end
