@@ -10,6 +10,7 @@ require_relative "commands/trace"
 require_relative "commands/search"
 require_relative "commands/stats"
 require_relative "commands/stream_delete"
+require_relative "commands/replay"
 require_relative "commands/link"
 require_relative "commands/link_backfill"
 
@@ -27,6 +28,7 @@ module RubyEventStore
       register "search", Search
       register "stats", Stats
       register "stream delete", StreamDelete
+      register "replay", Replay
       register "link", Link
       register "link backfill", LinkBackfill
     end
