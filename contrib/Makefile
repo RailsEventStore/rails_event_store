@@ -1,4 +1,5 @@
 GEMS = minitest-ruby_event_store \
+       ruby_event_store-cli \
        ruby_event_store-flipper \
        ruby_event_store-newrelic \
        ruby_event_store-outbox \
