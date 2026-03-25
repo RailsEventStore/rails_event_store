@@ -34,7 +34,10 @@ module RubyEventStore
           it "calls handler for each event in the stream" do
             3.times { event_store.publish(RubyEventStore::Event.new, stream_name: "test-stream") }
 
-            command.call(stream: "test-stream", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: false)
+            begin
+              command.call(stream: "test-stream", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: false)
+            rescue SystemExit
+            end
 
             expect(FakeHandler.calls.size).to eq(3)
           end
@@ -42,22 +45,56 @@ module RubyEventStore
           it "prints confirmation after replay" do
             event_store.publish(RubyEventStore::Event.new, stream_name: "test-stream")
 
-            expect { command.call(stream: "test-stream", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: false) }
-              .to output(/Replayed 1 event\(s\)/).to_stdout
+            expect {
+              begin
+                command.call(stream: "test-stream", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: false)
+              rescue SystemExit
+              end
+            }.to output(/Replayed 1 event\(s\)/).to_stdout
+          end
+
+          it "includes handler name in confirmation" do
+            event_store.publish(RubyEventStore::Event.new, stream_name: "test-stream")
+
+            expect {
+              begin
+                command.call(stream: "test-stream", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: false)
+              rescue SystemExit
+              end
+            }.to output(/RubyEventStore::CLI::Commands::FakeHandler/).to_stdout
           end
 
           it "shows count in dry-run without calling handler" do
             3.times { event_store.publish(RubyEventStore::Event.new, stream_name: "test-stream") }
 
-            expect { command.call(stream: "test-stream", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: true) }
-              .to output(/Would replay 3 event\(s\)/).to_stdout
+            expect {
+              begin
+                command.call(stream: "test-stream", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: true)
+              rescue SystemExit
+              end
+            }.to output(/Would replay 3 event\(s\)/).to_stdout
+
+            expect(FakeHandler.calls).to be_empty
+          end
+
+          it "does not call handler in dry-run" do
+            3.times { event_store.publish(RubyEventStore::Event.new, stream_name: "test-stream") }
+
+            begin
+              command.call(stream: "test-stream", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: true)
+            rescue SystemExit
+            end
 
             expect(FakeHandler.calls).to be_empty
           end
 
           it "prints message for empty stream" do
-            expect { command.call(stream: "empty", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: false) }
-              .to output(/no events/).to_stdout
+            expect {
+              begin
+                command.call(stream: "empty", handler: "RubyEventStore::CLI::Commands::FakeHandler", dry_run: false)
+              rescue SystemExit
+              end
+            }.to output(/no events/).to_stdout
           end
 
           it "prints friendly error for unknown handler" do

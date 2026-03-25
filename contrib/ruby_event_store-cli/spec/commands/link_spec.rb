@@ -17,7 +17,10 @@ module RubyEventStore
             event = RubyEventStore::Event.new
             event_store.publish(event, stream_name: "source-stream")
 
-            command.call(event_id: event.event_id, stream: "target-stream")
+            begin
+              command.call(event_id: event.event_id, stream: "target-stream")
+            rescue SystemExit
+            end
 
             events = event_store.read.stream("target-stream").to_a
             expect(events.map(&:event_id)).to include(event.event_id)
@@ -27,8 +30,12 @@ module RubyEventStore
             event = RubyEventStore::Event.new
             event_store.publish(event, stream_name: "source-stream")
 
-            expect { command.call(event_id: event.event_id, stream: "target-stream") }
-              .to output(/Linked #{event.event_id} to target-stream/).to_stdout
+            expect {
+              begin
+                command.call(event_id: event.event_id, stream: "target-stream")
+              rescue SystemExit
+              end
+            }.to output(/Linked #{event.event_id} to target-stream/).to_stdout
           end
 
           it "prints error for unknown event id" do

@@ -20,11 +20,25 @@ module RubyEventStore
             3.times { event_store.publish(BackfillEvent.new, stream_name: "source") }
             event_store.publish(OtherBackfillEvent.new, stream_name: "source")
 
-            command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: false)
+            begin
+              command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: false)
+            rescue SystemExit
+            end
 
             events = event_store.read.stream("target").to_a
             expect(events.size).to eq(3)
             expect(events.map(&:event_type).uniq).to eq(["RubyEventStore::CLI::Commands::BackfillEvent"])
+          end
+
+          it "prints linked count" do
+            3.times { event_store.publish(BackfillEvent.new, stream_name: "source") }
+
+            expect {
+              begin
+                command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: false)
+              rescue SystemExit
+              end
+            }.to output(/Linked 3 event\(s\)/).to_stdout
           end
 
           it "skips already linked events" do
@@ -32,15 +46,34 @@ module RubyEventStore
             event_store.publish(event, stream_name: "source")
             event_store.link(event.event_id, stream_name: "target")
 
-            expect { command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: false) }
-              .to output(/skipped 1 \(already linked\)/).to_stdout
+            expect {
+              begin
+                command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: false)
+              rescue SystemExit
+              end
+            }.to output(/skipped 1 \(already linked\)/).to_stdout
           end
 
           it "reports count in dry-run mode without linking" do
             3.times { event_store.publish(BackfillEvent.new, stream_name: "source") }
 
-            expect { command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: true) }
-              .to output(/Would link 3 event\(s\)/).to_stdout
+            expect {
+              begin
+                command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: true)
+              rescue SystemExit
+              end
+            }.to output(/Would link 3 event\(s\)/).to_stdout
+
+            expect(event_store.read.stream("target").to_a).to be_empty
+          end
+
+          it "does not link in dry-run mode" do
+            3.times { event_store.publish(BackfillEvent.new, stream_name: "source") }
+
+            begin
+              command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: true)
+            rescue SystemExit
+            end
 
             expect(event_store.read.stream("target").to_a).to be_empty
           end
@@ -51,7 +84,10 @@ module RubyEventStore
             event_store.publish(event_in_source, stream_name: "source")
             event_store.publish(event_outside, stream_name: "other")
 
-            command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: false, source_stream: "source")
+            begin
+              command.call(type: "RubyEventStore::CLI::Commands::BackfillEvent", stream: "target", dry_run: false, source_stream: "source")
+            rescue SystemExit
+            end
 
             linked_ids = event_store.read.stream("target").to_a.map(&:event_id)
             expect(linked_ids).to eq([event_in_source.event_id])
