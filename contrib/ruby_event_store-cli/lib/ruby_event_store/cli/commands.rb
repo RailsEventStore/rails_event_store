@@ -9,21 +9,16 @@ require_relative "commands/event_streams"
 require_relative "commands/trace"
 require_relative "commands/search"
 require_relative "commands/stats"
-require_relative "commands/stream_delete"
-require_relative "commands/replay"
-require_relative "commands/link"
-require_relative "commands/link_backfill"
-
 module RubyEventStore
   module CLI
     module Commands
       extend Dry::CLI::Registry
 
-      register "stream", Class.new(Dry::CLI::Command) { desc "Inspect and manage a stream" }
+      register "stream", Class.new(Dry::CLI::Command) { desc "Inspect a stream" }
       register "stream events", StreamEvents
       register "stream show", StreamShow
 
-      register "streams", Class.new(Dry::CLI::Command) { desc "List and manage streams" }
+      register "streams", Class.new(Dry::CLI::Command) { desc "List streams" }
       register "streams list", StreamsList
 
       register "event", Class.new(Dry::CLI::Command) { desc "Inspect an event" }
@@ -32,10 +27,6 @@ module RubyEventStore
       register "trace", Trace
       register "search", Search
       register "stats", Stats
-      register "stream delete", StreamDelete
-      register "replay", Replay
-      register "link", Link
-      register "link backfill", LinkBackfill
     end
   end
 end
