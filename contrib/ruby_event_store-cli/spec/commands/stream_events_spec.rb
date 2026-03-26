@@ -115,6 +115,50 @@ module RubyEventStore
               end
             }.to output(/2 event\(s\)/).to_stdout
           end
+          context "--follow" do
+            it "prints existing events before watching" do
+              event_store.publish(RubyEventStore::Event.new, stream_name: "test-stream")
+              allow(command).to receive(:sleep) { raise StopIteration }
+
+              expect {
+                begin
+                  command.call(stream_name: "test-stream", limit: 50, format: "table", follow: true)
+                rescue SystemExit
+                end
+              }.to output(/RubyEventStore::Event/).to_stdout
+            end
+
+            it "prints new events published after initial read" do
+              e1 = RubyEventStore::Event.new
+              e2 = RubyEventStore::Event.new
+              event_store.publish(e1, stream_name: "test-stream")
+              call_count = 0
+              allow(command).to receive(:sleep) do
+                call_count += 1
+                event_store.publish(e2, stream_name: "test-stream") if call_count == 1
+                raise StopIteration if call_count >= 2
+              end
+
+              output = StringIO.new
+              $stdout = output
+              begin
+                command.call(stream_name: "test-stream", limit: 50, format: "table", follow: true)
+              rescue SystemExit
+              end
+              $stdout = STDOUT
+
+              expect(output.string).to include(e1.event_id)
+              expect(output.string).to include(e2.event_id)
+            end
+
+            it "exits cleanly on Interrupt" do
+              allow(command).to receive(:sleep) { raise Interrupt }
+
+              expect {
+                command.call(stream_name: "test-stream", limit: 50, format: "table", follow: true)
+              }.to raise_error(SystemExit) { |e| expect(e.status).to eq(0) }
+            end
+          end
         end
       end
     end
