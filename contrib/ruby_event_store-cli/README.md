@@ -1,6 +1,6 @@
 # ruby_event_store-cli
 
-Command-line interface for inspecting and managing a RailsEventStore event store without needing `rails console`.
+Command-line interface for inspecting a RailsEventStore event store without needing `rails console`.
 
 ## Installation
 
@@ -24,32 +24,28 @@ bundle exec res streams list
 bundle exec res streams list --prefix Order-
 
 # Show stream summary (count, first/last event)
-bundle exec res stream show --name Orders
+bundle exec res stream show MyStream
 
 # List events in a stream
-bundle exec res stream events Orders
-bundle exec res stream events Orders --limit 20
-bundle exec res stream events Orders --format json
-bundle exec res stream events Orders --type OrderPlaced
-bundle exec res stream events Orders --after 2024-01-01
+bundle exec res stream events MyStream
+bundle exec res stream events MyStream --limit 20
+bundle exec res stream events MyStream --format json
+bundle exec res stream events MyStream --type OrderPlaced
+bundle exec res stream events MyStream --after 2024-01-01
 
-# Delete a stream
-bundle exec res stream delete --stream-name Orders --dry-run
-bundle exec res stream delete --stream-name Orders --force
-
-# Bulk delete streams by prefix
-bundle exec res stream delete --prefix Order- --dry-run
-bundle exec res stream delete --prefix Order- --force
+# Watch for new events in a stream (Ctrl+C to stop)
+bundle exec res stream events MyStream --follow
+bundle exec res stream events MyStream -f
 ```
 
 ### Events
 
 ```bash
 # Show a single event by ID
-bundle exec res event show --event-id <uuid>
+bundle exec res event show <uuid>
 
 # Show all streams an event belongs to
-bundle exec res event streams --event-id <uuid>
+bundle exec res event streams <uuid>
 ```
 
 ### Search
@@ -69,32 +65,10 @@ bundle exec res search --type OrderPlaced --stream Orders
 Follow all events sharing the same correlation ID (e.g. everything triggered by a single request):
 
 ```bash
-bundle exec res trace --correlation-id <uuid>
+bundle exec res trace <correlation_id>
 ```
 
 Output shows the causation tree — which event caused which.
-
-### Replay
-
-Replay events from a stream through a handler class:
-
-```bash
-# Dry run — shows count without calling handler
-bundle exec res replay --stream Orders --handler OrderSummaryHandler --dry-run
-
-# Run replay
-bundle exec res replay --stream Orders --handler OrderSummaryHandler
-```
-
-The handler must be a class with a `.call(event)` class method:
-
-```ruby
-class OrderSummaryHandler
-  def self.call(event)
-    # process event
-  end
-end
-```
 
 ### Stats
 
@@ -106,19 +80,36 @@ bundle exec res stats
 bundle exec res stats --stream Orders
 ```
 
-### Linking
+### Map
+
+Derive your bounded context architecture from stream naming conventions — no code analysis needed:
 
 ```bash
-# Link a single event to a stream
-bundle exec res link --event-id <uuid> --stream target-stream
-
-# Backfill: link all events of a type into a stream
-bundle exec res link backfill --type OrderPlaced --stream $by_type_OrderPlaced --dry-run
-bundle exec res link backfill --type OrderPlaced --stream $by_type_OrderPlaced
-
-# Backfill from a specific source stream
-bundle exec res link backfill --type OrderPlaced --stream archive --source-stream Orders
+bundle exec res map
 ```
+
+Output shows bounded contexts, aggregates, process managers and read models inferred from stream names.
+
+### Events (live view)
+
+Watch new events as they arrive, grouped by bounded context:
+
+```bash
+# Watch all new events (default: follow mode)
+bundle exec res events
+
+# Filter by namespace
+bundle exec res events --namespace Ordering
+bundle exec res events --namespace Ordering,Payments
+
+# One-shot dump (no follow)
+bundle exec res events --no-follow
+
+# Adjust refresh interval and events shown per namespace
+bundle exec res events --interval 2 --limit 10
+```
+
+Press Ctrl+C to exit.
 
 ## Configuration
 
