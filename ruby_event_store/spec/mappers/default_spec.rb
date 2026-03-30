@@ -57,6 +57,16 @@ module RubyEventStore
         expect(event_.metadata[:valid_at]).to eq(time)
       end
 
+      it "warns when events_class_remapping is provided" do
+        expect {
+          Default.new(events_class_remapping: { "EventNameBeforeRefactor" => "SomethingHappened" })
+        }.to output(/events_class_remapping.*deprecated.*Upcast/m).to_stderr
+      end
+
+      it "does not warn when no events_class_remapping is provided" do
+        expect { Default.new }.not_to output.to_stderr
+      end
+
       specify "#record_to_event its using events class remapping" do
         subject = Default.new(events_class_remapping: { "EventNameBeforeRefactor" => "SomethingHappened" })
         record =
@@ -74,6 +84,21 @@ module RubyEventStore
           )
         event_ = subject.record_to_event(record)
         expect(event_).to eq(event)
+      end
+
+      specify "metadata keys are symbolized when using events_class_remapping" do
+        mapper = Default.new(events_class_remapping: { "EventNameBeforeRefactor" => SomethingHappened.name })
+        record =
+          Record.new(
+            event_id: event.event_id,
+            data: { some_attribute: 5 },
+            metadata: stringify({ some_meta: 1 }),
+            event_type: "EventNameBeforeRefactor",
+            timestamp: time,
+            valid_at: time,
+          )
+        event_ = mapper.record_to_event(record)
+        expect(event_.metadata[:some_meta]).to eq(1)
       end
 
       specify "metadata keys are symbolized" do
