@@ -12,6 +12,12 @@ module RailsEventStore
       after_commit -> { raise DummyError }
     end
 
+    it "warns when instantiated" do
+      expect {
+        AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
+      }.to output(/RailsEventStore::AfterCommitAsyncDispatcher.*deprecated.*AfterCommitDispatcher/m).to_stderr
+    end
+
     it_behaves_like "dispatcher",
                     AfterCommitAsyncDispatcher.new(
                       scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
