@@ -23,7 +23,7 @@ class CustomDispatcher
 end
 
 class LegacyBroker
-  def initialize(subscriptions: RubyEventStore::Subscriptions.new, dispatcher: RubyEventStore::Dispatcher.new)
+  def initialize(subscriptions: RubyEventStore::Subscriptions.new, dispatcher: RubyEventStore::SyncScheduler.new)
     @subscriptions = subscriptions
     @dispatcher = dispatcher
   end

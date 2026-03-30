@@ -41,10 +41,10 @@ module RailsEventStore
                   RubyEventStore::InstrumentedDispatcher.new(
                     dispatcher ||
                       RubyEventStore::ComposedDispatcher.new(
-                        RailsEventStore::AfterCommitAsyncDispatcher.new(
+                        RailsEventStore::AfterCommitDispatcher.new(
                           scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
                         ),
-                        RubyEventStore::Dispatcher.new,
+                        RubyEventStore::SyncScheduler.new,
                       ),
                     ActiveSupport::Notifications,
                   ),
@@ -64,10 +64,10 @@ module RailsEventStore
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
               dispatcher: RubyEventStore::ComposedDispatcher.new(
-                RailsEventStore::AfterCommitAsyncDispatcher.new(
+                RailsEventStore::AfterCommitDispatcher.new(
                   scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
                 ),
-                RubyEventStore::Dispatcher.new
+                RubyEventStore::SyncScheduler.new
               )
             )
           )

@@ -62,6 +62,23 @@ module RailsEventStore
       specify { expect(dispatcher.verify(MyActiveJobAsyncHandler2)).to be(true) }
     end
 
+    describe "AsyncRecord" do
+      let(:schedule_proc) { -> {} }
+      let(:async_record) { AfterCommitDispatcher::AsyncRecord.new(schedule_proc) }
+
+      specify "#rolledback! does nothing" do
+        expect { async_record.rolledback! }.not_to raise_error
+      end
+
+      specify "#before_committed! does nothing" do
+        expect { async_record.before_committed! }.not_to raise_error
+      end
+
+      specify "#trigger_transactional_callbacks? returns nil" do
+        expect(async_record.trigger_transactional_callbacks?).to be_nil
+      end
+    end
+
     def expect_no_enqueued_job(job)
       raise unless block_given?
       yield
