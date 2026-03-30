@@ -26,6 +26,10 @@ module RubyEventStore
         let(:changed_record) { record(event_type: "SomethingHappened") }
         let(:class_map) { { "EventNameBeforeRefactor" => "SomethingHappened" } }
 
+        it "warns when instantiated" do
+          expect { EventClassRemapper.new(class_map) }.to output(/EventClassRemapper.*deprecated.*Upcast/m).to_stderr
+        end
+
         specify "#dump" do
           expect(EventClassRemapper.new(class_map).dump(record)).to eq(record)
           expect(EventClassRemapper.new(class_map).dump(record)).to eq(record)
