@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "ruby_event_store/spec/mapper_lint"
+require "stringio"
 
 module RubyEventStore
   module Mappers
@@ -18,7 +19,21 @@ module RubyEventStore
         )
       end
 
-      it_behaves_like "mapper", NullMapper.new, TimeEnrichment.with(TestEvent.new)
+      null_mapper_instance =
+        begin
+          old, $stderr = $stderr, ::StringIO.new
+          NullMapper.new
+        ensure
+          $stderr = old
+        end
+      it_behaves_like "mapper", null_mapper_instance, TimeEnrichment.with(TestEvent.new)
+
+      specify "warns on initialization" do
+        expect { NullMapper.new }.to output(<<~EOS).to_stderr
+          DEPRECATION WARNING: `RubyEventStore::Mappers::NullMapper` is deprecated and will be removed in the next major release.
+          Use `RubyEventStore::Mappers::Default.new` instead.
+        EOS
+      end
 
       specify "#event_to_record" do
         record = subject.event_to_record(event)
