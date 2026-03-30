@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
 module RubyEventStore
-  class ImmediateAsyncDispatcher
+  class ImmediateAsyncDispatcher < ImmediateDispatcher
     def initialize(scheduler:)
-      @scheduler = scheduler
-    end
-
-    def call(subscriber, _, record)
-      @scheduler.call(subscriber, record)
-    end
-
-    def verify(subscriber)
-      @scheduler.verify(subscriber)
+      warn <<~EOW
+        DEPRECATION WARNING: `RubyEventStore::ImmediateAsyncDispatcher` is deprecated and will be removed in the next major release.
+        Use `RubyEventStore::ImmediateDispatcher` instead.
+      EOW
+      super
     end
   end
 end
