@@ -18,7 +18,7 @@ module RubyEventStore
       @mapper = batch_mapper?(mapper) ? mapper : Mappers::BatchMapper.new(mapper)
       @broker =
         message_broker ||
-          Broker.new(subscriptions: subscriptions || Subscriptions.new, dispatcher: dispatcher || Dispatcher.new)
+          Broker.new(subscriptions: subscriptions || Subscriptions.new, dispatcher: dispatcher || SyncScheduler.new)
       @clock = clock
       @metadata = Concurrent::ThreadLocalVar.new
       @correlation_id_generator = correlation_id_generator
@@ -33,7 +33,7 @@ module RubyEventStore
           event_store = RubyEventStore::Client.new(
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new
+              dispatcher: RubyEventStore::SyncScheduler.new
             )
           )
         EOW

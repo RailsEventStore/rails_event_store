@@ -8,7 +8,7 @@ module RubyEventStore
           message_broker:
             RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new,
+              dispatcher: RubyEventStore::SyncScheduler.new,
             ),
         )
       }.not_to output(<<~EOS).to_stderr
@@ -19,7 +19,7 @@ module RubyEventStore
           event_store = RubyEventStore::Client.new(
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new
+              dispatcher: RubyEventStore::SyncScheduler.new
             )
           )
       EOS
@@ -31,7 +31,7 @@ module RubyEventStore
           message_broker:
             RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new,
+              dispatcher: RubyEventStore::SyncScheduler.new,
             ),
         )
       }.to output(<<~EOS).to_stderr
@@ -42,7 +42,7 @@ module RubyEventStore
           event_store = RubyEventStore::Client.new(
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new
+              dispatcher: RubyEventStore::SyncScheduler.new
             )
           )
 
@@ -61,7 +61,7 @@ module RubyEventStore
           event_store = RubyEventStore::Client.new(
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new
+              dispatcher: RubyEventStore::SyncScheduler.new
             )
           )
       EOS
@@ -69,7 +69,7 @@ module RubyEventStore
     end
 
     specify do
-      expect { RubyEventStore::Client.new(dispatcher: RubyEventStore::Dispatcher.new) }.to output(<<~EOS).to_stderr
+      expect { RubyEventStore::Client.new(dispatcher: RubyEventStore::SyncScheduler.new) }.to output(<<~EOS).to_stderr
           Passing subscriptions and dispatcher to RubyEventStore::Client has been deprecated.
 
           Pass it using message_broker argument. For example:
@@ -77,7 +77,7 @@ module RubyEventStore
           event_store = RubyEventStore::Client.new(
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new
+              dispatcher: RubyEventStore::SyncScheduler.new
             )
           )
       EOS

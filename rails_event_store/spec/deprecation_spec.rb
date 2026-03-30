@@ -26,7 +26,7 @@ module RailsEventStore
           message_broker:
             RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new,
+              dispatcher: RubyEventStore::SyncScheduler.new,
             ),
         )
       }.not_to output(<<~EOS).to_stderr
@@ -38,10 +38,10 @@ module RailsEventStore
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
               dispatcher: RubyEventStore::ComposedDispatcher.new(
-                RailsEventStore::AfterCommitAsyncDispatcher.new(
+                RailsEventStore::AfterCommitDispatcher.new(
                   scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
                 ),
-                RubyEventStore::Dispatcher.new
+                RubyEventStore::SyncScheduler.new
               )
             )
           )
@@ -54,7 +54,7 @@ module RailsEventStore
           message_broker:
             RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
-              dispatcher: RubyEventStore::Dispatcher.new,
+              dispatcher: RubyEventStore::SyncScheduler.new,
             ),
         )
       }.to output(<<~EOS).to_stderr
@@ -66,10 +66,10 @@ module RailsEventStore
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
               dispatcher: RubyEventStore::ComposedDispatcher.new(
-                RailsEventStore::AfterCommitAsyncDispatcher.new(
+                RailsEventStore::AfterCommitDispatcher.new(
                   scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
                 ),
-                RubyEventStore::Dispatcher.new
+                RubyEventStore::SyncScheduler.new
               )
             )
           )
@@ -90,10 +90,10 @@ module RailsEventStore
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
               dispatcher: RubyEventStore::ComposedDispatcher.new(
-                RailsEventStore::AfterCommitAsyncDispatcher.new(
+                RailsEventStore::AfterCommitDispatcher.new(
                   scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
                 ),
-                RubyEventStore::Dispatcher.new
+                RubyEventStore::SyncScheduler.new
               )
             )
           )
@@ -102,7 +102,7 @@ module RailsEventStore
     end
 
     specify do
-      expect { RailsEventStore::Client.new(dispatcher: RubyEventStore::Dispatcher.new) }.to output(<<~EOS).to_stderr
+      expect { RailsEventStore::Client.new(dispatcher: RubyEventStore::SyncScheduler.new) }.to output(<<~EOS).to_stderr
           Passing subscriptions and dispatcher to RailsEventStore::Client has been deprecated.
 
           Pass it using message_broker argument. For example:
@@ -111,10 +111,10 @@ module RailsEventStore
             message_broker: RubyEventStore::Broker.new(
               subscriptions: RubyEventStore::Subscriptions.new,
               dispatcher: RubyEventStore::ComposedDispatcher.new(
-                RailsEventStore::AfterCommitAsyncDispatcher.new(
+                RailsEventStore::AfterCommitDispatcher.new(
                   scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
                 ),
-                RubyEventStore::Dispatcher.new
+                RubyEventStore::SyncScheduler.new
               )
             )
           )
