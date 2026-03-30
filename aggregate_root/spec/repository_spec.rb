@@ -60,6 +60,18 @@ module AggregateRoot
         end
       end
 
+      it "warns when no event_store argument provided" do
+        with_default_event_store(event_store) do
+          expect { AggregateRoot::Repository.new }.to output(/AggregateRoot::Repository.new.*without an event store argument/).to_stderr
+        end
+      end
+
+      it "warns when AggregateRoot.configure is used" do
+        expect {
+          AggregateRoot.configure { |config| config.default_event_store = event_store }
+        }.to output(/AggregateRoot.configure.*deprecated/).to_stderr
+      end
+
       it "prefers provided event_store client" do
         with_default_event_store(double(:event_store)) do
           repository = AggregateRoot::Repository.new(event_store)
