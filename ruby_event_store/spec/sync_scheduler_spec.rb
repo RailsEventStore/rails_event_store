@@ -38,16 +38,39 @@ module RubyEventStore
       SyncScheduler.new.call(handler, event, record)
     end
 
-    specify "calls subscribed class" do
+    specify "calls subscribed class with deprecation warning" do
       expect(HandlerClass).to receive(:new).and_return(handler)
       expect(handler).to receive(:call).with(event)
-      SyncScheduler.new.call(HandlerClass, event, record)
+      expect { SyncScheduler.new.call(HandlerClass, event, record) }.to output(/Passing a class as a subscriber is deprecated/).to_stderr
     end
 
-    specify "allows callable classes and instances" do
-      expect(SyncScheduler.new.verify(HandlerClass)).to be(true)
+    specify "allows callable instances and lambdas" do
       expect(SyncScheduler.new.verify(HandlerClass.new)).to be(true)
       expect(SyncScheduler.new.verify(Proc.new { "yo" })).to be(true)
+    end
+
+    specify "allows callable class with deprecation warning" do
+      expect(SyncScheduler.new.verify(HandlerClass)).to be(true)
+    end
+
+    specify "warns when class passed to verify" do
+      expect { SyncScheduler.new.verify(HandlerClass) }.to output(/Passing a class as a subscriber is deprecated/).to_stderr
+    end
+
+    specify "rejects class whose constructor requires arguments" do
+      klass = Class.new do
+        def initialize(something)
+          @something = something
+        end
+        def call; end
+      end
+      expect(SyncScheduler.new.verify(klass)).to be(false)
+    end
+
+    specify "warns when class passed to call" do
+      allow(HandlerClass).to receive(:new).and_return(handler)
+      allow(handler).to receive(:call)
+      expect { SyncScheduler.new.call(HandlerClass, event, record) }.to output(/Passing a class as a subscriber is deprecated/).to_stderr
     end
 
     private
