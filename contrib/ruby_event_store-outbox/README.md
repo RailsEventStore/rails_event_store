@@ -2,8 +2,6 @@
 
 ![Ruby Event Store Outbox](https://github.com/RailsEventStore/rails_event_store/actions/workflows/ruby_event_store-outbox_test.yml/badge.svg)
 
-**Experimental feature of RES ecosystem.**
-
 This repository includes a process and a Rails Event Store scheduler, which can be used to transactionally enqueue background jobs into your background jobs tool of choice. The scheduler included in this repo adds the jobs into the RDBMS into specific table instead of redis inside your transaction, and the process is enqueuing the jobs from that table to the background jobs tool.
 
 ## Installation (app)
