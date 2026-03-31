@@ -58,6 +58,22 @@ res_outbox \
 
 It is possible to run as many instances as you prefer, but it does not make sense to run more instances than there are different split keys (sidekiq queues), as one process is operating at one moment only one split key.
 
+### Options
+
+| Option              | Required | Default  | Description                                                                                               |
+| ------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| `--database-url`    | yes      | —        | Database where the outbox table is stored                                                                 |
+| `--redis-url`       | yes      | —        | URL to the Redis database                                                                                 |
+| `--split-keys`      | no       | all      | Comma-separated list of split keys (Sidekiq queues) to handle                                            |
+| `--batch-size`      | no       | 100      | Number of records fetched per iteration. Larger values increase the risk of duplicates on network failure |
+| `--sleep-on-empty`  | no       | 0.5      | Seconds to sleep before next check when there was nothing to process                                      |
+| `--[no-]lock`       | no       | enabled  | Use distributed locking per split key. Disable with `--no-lock` to use `SKIP LOCKED` instead             |
+| `--cleanup`         | no       | none     | Strategy for removing old enqueued records. Use ISO 8601 duration (e.g. `P7D` for 7 days) or `none`      |
+| `--cleanup-limit`   | no       | all      | Number of records removed per cleanup run, or `all`                                                       |
+| `--log-level`       | no       | warn     | One of: `fatal`, `error`, `warn`, `info`, `debug`                                                         |
+| `--message-format`  | no       | sidekiq5 | Message format. Currently only `sidekiq5` is supported                                                    |
+| `--metrics-url`     | no       | —        | URI to InfluxDB metrics collector                                                                         |
+
 ### Metrics
 
 It is possible for the outbox process to send metrics to InfluxDB (this requires influxdb gem in version at least 0.8.1). In order to do that, specify a `--metrics-url` parameter, for example:
