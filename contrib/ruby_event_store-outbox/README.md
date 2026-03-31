@@ -32,8 +32,14 @@ Additionally, your handler's `through_outbox?` method should return `true`, for 
 
 ```ruby
 class SomeHandler
+  include Sidekiq::Worker
+
   def self.through_outbox?
     true
+  end
+
+  def perform(payload)
+    # handle the event
   end
 end
 ```
