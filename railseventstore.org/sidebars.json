@@ -51,6 +51,7 @@
         "advanced-topics/gdpr",
         "advanced-topics/migrating-existing-events",
         "advanced-topics/without-rails",
+        "advanced-topics/outbox",
         "advanced-topics/protobuf.html"
       ]
     },
