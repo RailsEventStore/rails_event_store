@@ -58,6 +58,12 @@ res_outbox \
 
 It is possible to run as many instances as you prefer, but it does not make sense to run more instances than there are different split keys (sidekiq queues), as one process is operating at one moment only one split key.
 
+### Split keys
+
+A split key is the Sidekiq queue name. Each outbox record is stored with the queue name of the target worker as its split key. The `res_outbox` process picks up records matching the split keys it is configured to handle.
+
+When `--split-keys` is omitted, the process handles all queues. When running multiple instances, assign a distinct subset of queues to each instance — there is no benefit to having more instances than queues, since one process handles only one split key at a time.
+
 ### Options
 
 | Option              | Required | Default  | Description                                                                                               |
