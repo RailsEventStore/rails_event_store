@@ -1,6 +1,6 @@
 # Ruby Event Store Outbox
 
-![Ruby Event Store Outbox](https://github.com/RailsEventStore/rails_event_store/workflows/ruby_event_store-outbox/badge.svg)
+![Ruby Event Store Outbox](https://github.com/RailsEventStore/rails_event_store/actions/workflows/ruby_event_store-outbox_test.yml/badge.svg)
 
 **Experimental feature of RES ecosystem.**
 
