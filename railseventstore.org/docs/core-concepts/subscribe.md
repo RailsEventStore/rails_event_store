@@ -413,6 +413,10 @@ end
 
 It means that when your `ActiveJob` adapter (such as sidekiq or resque) is using non-SQL store your handler might get called before the whole transaction is committed or when the transaction was rolled-back.
 
+### Transactional outbox
+
+Both `AfterCommitDispatcher` and `ImmediateDispatcher` enqueue jobs directly to Redis. If the network call to Redis fails after the database transaction commits, the job is lost. To guarantee that jobs are never lost, use the [transactional outbox](../advanced-topics/outbox) pattern: jobs are written to the same database within the same transaction, and a separate process drains them to Redis.
+
 ## Removing subscriptions
 
 When you define a new subscription by `subscribe` method execution it will return a lambda that allows to remove defined subscription.
