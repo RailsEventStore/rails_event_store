@@ -14,8 +14,8 @@ module RubyEventStore
     end
 
     def append_to_stream(records, stream, expected_version)
-      instrumentation.instrument("append_to_stream.repository.ruby_event_store", events: records, stream: stream) do
-        deprecated_instrument("append_to_stream.repository.rails_event_store", events: records, stream: stream) do
+      instrumentation.instrument("append_to_stream.repository.ruby_event_store", records: records, events: records, stream: stream) do
+        deprecated_instrument("append_to_stream.repository.rails_event_store", { records: records, events: records, stream: stream }) do
           repository.append_to_stream(records, stream, expected_version)
         end
       end
@@ -53,10 +53,10 @@ module RubyEventStore
       end
     end
 
-    def update_messages(messages)
-      instrumentation.instrument("update_messages.repository.ruby_event_store", messages: messages) do
-        deprecated_instrument("update_messages.repository.rails_event_store", messages: messages) do
-          repository.update_messages(messages)
+    def update_messages(records)
+      instrumentation.instrument("update_messages.repository.ruby_event_store", records: records, messages: records) do
+        deprecated_instrument("update_messages.repository.rails_event_store", { records: records, messages: records }) do
+          repository.update_messages(records)
         end
       end
     end
