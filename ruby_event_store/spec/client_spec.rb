@@ -15,6 +15,52 @@ module RubyEventStore
       expect(client.publish(TestEvent.new)).to eq(client)
     end
 
+    specify "publish warns when nil passed as events" do
+      expect { client.publish(nil, stream_name: stream) }.to output(
+        /Passing `nil` to publish\/append is deprecated and will raise ArgumentError in RubyEventStore 3\.0\./
+      ).to_stderr
+    end
+
+    specify "publish warns when nil passed inside events array" do
+      expect { client.publish([nil], stream_name: stream) rescue nil }.to output(
+        /Passing `nil` to publish\/append is deprecated and will raise ArgumentError in RubyEventStore 3\.0\./
+      ).to_stderr
+    end
+
+    specify "publish warns when nil mixed with valid events in array" do
+      expect { client.publish([TestEvent.new, nil], stream_name: stream) rescue nil }.to output(
+        /Passing `nil` to publish\/append is deprecated and will raise ArgumentError in RubyEventStore 3\.0\./
+      ).to_stderr
+    end
+
+    specify "link warns when nil passed as event_ids" do
+      expect { client.link(nil, stream_name: stream) }.to output(
+        /Passing `nil` to link is deprecated and will raise ArgumentError in RubyEventStore 3\.0\./
+      ).to_stderr
+    end
+
+    specify "link warns when nil passed inside event_ids array" do
+      expect { client.link([nil], stream_name: stream) rescue nil }.to output(
+        /Passing `nil` to link is deprecated and will raise ArgumentError in RubyEventStore 3\.0\./
+      ).to_stderr
+    end
+
+    specify "link warns when nil mixed with valid event_ids in array" do
+      event = TestEvent.new
+      client.append(event)
+      expect { client.link([event.event_id, nil], stream_name: stream) rescue nil }.to output(
+        /Passing `nil` to link is deprecated and will raise ArgumentError in RubyEventStore 3\.0\./
+      ).to_stderr
+    end
+
+    specify "link does not warn when valid event_ids passed" do
+      event = TestEvent.new
+      client.append(event)
+      expect { client.link(event.event_id, stream_name: stream) }.not_to output(
+        /Passing `nil` to link is deprecated/
+      ).to_stderr
+    end
+
     specify "append returns client when success" do
       expect(client.append(TestEvent.new, stream_name: stream)).to eq(client)
     end
