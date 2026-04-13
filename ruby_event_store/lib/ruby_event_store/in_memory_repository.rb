@@ -234,12 +234,18 @@ module RubyEventStore
     end
 
     def ensure_supported_any_usage(resolved_version, stream)
-      if @ensure_supported_any_usage
-        stream_positions = streams.fetch(stream.name, Array.new).map(&:position)
-        if resolved_version.nil?
-          raise UnsupportedVersionAnyUsage if !stream_positions.compact.empty?
+      stream_positions = streams.fetch(stream.name, Array.new).map(&:position)
+      violation =
+        (resolved_version.nil? && !stream_positions.compact.empty?) ||
+        (!resolved_version.nil? && stream_positions.include?(nil))
+
+      if violation
+        if @ensure_supported_any_usage
+          raise UnsupportedVersionAnyUsage
         else
-          raise UnsupportedVersionAnyUsage if stream_positions.include?(nil)
+          warn <<~EOW
+            Mixing expected version :any and specific position (or :auto) is deprecated and will raise UnsupportedVersionAnyUsage in RubyEventStore 3.0.
+          EOW
         end
       end
     end
