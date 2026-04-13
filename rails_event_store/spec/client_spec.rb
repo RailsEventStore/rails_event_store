@@ -69,7 +69,7 @@ module RailsEventStore
         end
 
       received_notifications = 0
-      ActiveSupport::Notifications.subscribe("serialize.mapper.ruby_event_store") { received_notifications += 1 }
+      ActiveSupport::Notifications.subscribe("event_to_record.mapper.ruby_event_store") { received_notifications += 1 }
 
       client.publish(TestEvent.new)
 
