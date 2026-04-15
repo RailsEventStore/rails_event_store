@@ -102,6 +102,20 @@ module RubyEventStore
         expect(read_migration(@dir)).to match(/t.jsonb\s+:metadata/)
       end
 
+      specify "creates migration with COALESCE index for PostgreSQL adapter" do
+        migration_generator(@dir, "binary", "PostgreSQL")
+
+        expect(read_migration(@dir)).to include(
+          'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
+        )
+      end
+
+      specify "does not create migration with COALESCE index for non-PostgreSQL adapter" do
+        migration_generator(@dir, "binary", "MySQL2")
+
+        expect(read_migration(@dir)).not_to include("COALESCE")
+      end
+
       specify "raises error when data type is not supported" do
         expect { migration_generator(@dir, "invalid") }.to raise_error(
           InvalidDataTypeForAdapter,

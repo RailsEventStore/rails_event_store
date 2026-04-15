@@ -11,6 +11,8 @@ class CreateEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
       t.datetime    :valid_at,    null: true, type: :timestamp, precision: 6, index: true
     end
 
+    add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"
+
     create_table(:event_store_events_in_streams, id: :bigserial, force: false) do |t|
       t.string      :stream,      null: false
       t.integer     :position,    null: true

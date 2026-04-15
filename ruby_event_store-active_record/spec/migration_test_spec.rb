@@ -37,6 +37,7 @@ module RubyEventStore
            valid_at   | timestamp(6) without time zone |           |          |
           Indexes:
               "event_store_events_pkey" PRIMARY KEY, btree (id)
+              "index_event_store_events_on_as_of" btree (COALESCE(valid_at, created_at))
               "index_event_store_events_on_created_at" btree (created_at)
               "index_event_store_events_on_event_id" UNIQUE, btree (event_id)
               "index_event_store_events_on_event_type" btree (event_type)
