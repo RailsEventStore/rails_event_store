@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+class AddValidAtIndexToEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
+  def change
+    return if index_exists?(:event_store_events, nil, name: "index_event_store_events_on_as_of")
+
+    add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"
+  end
+end
