@@ -23,6 +23,16 @@ task "db:migrations:fix_missing_event_id_index" do
   puts "Migration file created #{path}"
 end
 
+desc "Generate migration for adding valid_at index on event_store_events"
+task "db:migrations:add_valid_at_index" do
+  task = MigrationTask.new("db:migrations:add_valid_at_index")
+  task.establish_connection
+
+  path = RubyEventStore::ActiveRecord::ValidAtIndexMigrationGenerator.new.call(task.migration_path)
+
+  puts "Migration file created #{path}"
+end
+
 desc "Generate migration for adding foreign key on event_store_events_in_streams.event_id"
 task "db:migrations:add_foreign_key_on_event_id" do
   task = MigrationTask.new("db:migrations:add_foreign_key_on_event_id")
