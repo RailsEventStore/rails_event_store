@@ -38,7 +38,7 @@ Serialization is needed not only when writing to and reading from storage, but a
 Rails.configuration.event_store = RailsEventStore::Client.new(
   message_broker: RubyEventStore::Broker.new( 
     dispatcher: RubyEventStore::ComposedDispatcher.new(
-      RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: Marshal)),
+      RailsEventStore::AfterCommitDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: Marshal)),
       RubyEventStore::Dispatcher.new
     )
   )

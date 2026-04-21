@@ -23,7 +23,7 @@ In your event store configuration, as a dispatcher use `RubyEventStore::Immediat
 ```ruby
 
 RailsEventStore::Client.new(
-  dispatcher: RailsEventStore::ImmediateAsyncDispatcher.new(scheduler: RubyEventStore::Outbox::SidekiqScheduler.new),
+  dispatcher: RubyEventStore::ImmediateDispatcher.new(scheduler: RubyEventStore::Outbox::SidekiqScheduler.new),
   ...
 )
 ```

@@ -7,7 +7,7 @@ sequenceDiagram
     participant b as RubyEventStore::Broker
     participant s as RubyEventStore::Subscriptions
     participant d as RubyEventStore::ComposedDispatcher
-    participant acd as RailsEventStore::AfterCommitAsyncDispatcher
+    participant acd as RailsEventStore::AfterCommitDispatcher
     participant ddp as RubyEventStore::Dispatcher
     participant ajs as RailsEventStore::ActiveJobScheduler
   end

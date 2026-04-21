@@ -62,7 +62,7 @@ The `RailsEventStore::Client` default setup uses composed dispatchers, allowing 
 of delivering events to subscribers. The defined dispatchers are processed in order, 
 and the first capable of handling delivery is used. This enables a mix of synchronous 
 and asynchronous delivery of domain events.
-Asynchrounus delivery is handled by `RailsEventStore::AfterCommitAsyncDispatcher`, 
+Asynchrounus delivery is handled by `RailsEventStore::AfterCommitDispatcher`, 
 which ensures that domain events are scheduled in the asynchronous queue only after being stored in the database.
 By default, it uses `RailsEventStore::ActiveJobScheduler` to schedule processing via `ActiveJob`, but 
 other solutions have also been implemented (like `Sidekiq` using [`ruby_event_store-sidekiq_scheduler` gem](https://rubygems.org/search?query=ruby_event_store-sidekiq_scheduler)).
