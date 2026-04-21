@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    ruby_event_store (2.18.0)
+    ruby_event_store (2.19.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
@@ -97,16 +97,9 @@ GEM
     sequel (5.99.0)
       bigdecimal
     sorbet-runtime (0.5.12443)
-    sqlite3 (2.8.1-aarch64-linux-gnu)
-    sqlite3 (2.8.1-aarch64-linux-musl)
-    sqlite3 (2.8.1-arm-linux-gnu)
-    sqlite3 (2.8.1-arm-linux-musl)
     sqlite3 (2.8.1-arm64-darwin)
-    sqlite3 (2.8.1-x86-linux-gnu)
-    sqlite3 (2.8.1-x86-linux-musl)
     sqlite3 (2.8.1-x86_64-darwin)
     sqlite3 (2.8.1-x86_64-linux-gnu)
-    sqlite3 (2.8.1-x86_64-linux-musl)
     stringio (3.2.0)
     tsort (0.2.0)
     tzinfo (2.0.6)

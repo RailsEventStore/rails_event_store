@@ -1,15 +1,15 @@
 PATH
   remote: ..
   specs:
-    ruby_event_store (2.18.0)
+    ruby_event_store (2.19.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
 
 PATH
   remote: .
   specs:
-    ruby_event_store-active_record (2.18.0)
+    ruby_event_store-active_record (2.19.0)
       activerecord (>= 6.0)
-      ruby_event_store (= 2.18.0)
+      ruby_event_store (= 2.19.0)
 
 GEM
   remote: https://rubygems.org/
@@ -160,6 +160,10 @@ GEM
     nio4r (2.7.5)
     nokogiri (1.18.10-arm64-darwin)
       racc (~> 1.4)
+    nokogiri (1.18.10-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.18.10-x86_64-linux-gnu)
+      racc (~> 1.4)
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
@@ -235,6 +239,8 @@ GEM
     sorbet-runtime (0.5.12443)
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
+    sqlite3 (1.7.3-x86_64-darwin)
+    sqlite3 (1.7.3-x86_64-linux)
     stringio (3.2.0)
     thor (1.4.0)
     timeout (0.6.0)
