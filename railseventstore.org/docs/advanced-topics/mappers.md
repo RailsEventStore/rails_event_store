@@ -21,8 +21,7 @@ the table below.
 
 - Default mapper for `RubyEventStore::Client` and `RailsEventStore::Client`
 - Transforms an event into a record (and back). Additionally it symbolizes metadata keys
-- Provide `events_class_remapping` optional constructor parameter, which is a hash, to map old event names to new ones
-  after you refactored your codebase
+- Deprecated: `events_class_remapping` — use [upcasting](../advanced-topics/migrating-existing-events) instead
 
 ### [RubyEventStore::Mappers::Protobuf](https://github.com/RailsEventStore/rails_event_store/blob/master/contrib/ruby_event_store-protobuf/lib/ruby_event_store/protobuf/mappers/protobuf.rb)
 
@@ -30,7 +29,7 @@ the table below.
 
 ### [RubyEventStore::Mappers::NullMapper](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/null_mapper.rb)
 
-- Performs no transformations. It's useful in tests
+- Deprecated: use `RubyEventStore::Mappers::Default.new` instead
 
 ### [RubyEventStore::Mappers::EncryptionMapper](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/encryption_mapper.rb)
 

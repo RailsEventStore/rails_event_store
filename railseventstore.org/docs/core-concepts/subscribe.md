@@ -330,7 +330,7 @@ Then you have to initialize `RailsEventStore::Client` using asynchronous dispatc
 event_store =
   RailsEventStore::Client.new(
     message_broker: RubyEventStore::Broker.new(
-      dispatcher: RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new),
+      dispatcher: RailsEventStore::AfterCommitDispatcher.new(scheduler: CustomScheduler.new),
     ),
   )
 ```
@@ -343,15 +343,15 @@ event_store =
     message_broker: RubyEventStore::Broker.new(
       dispatcher:
         RubyEventStore::ComposedDispatcher.new(
-          RailsEventStore::AfterCommitAsyncDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
-          RubyEventStore::Dispatcher.new, # regular synchronous dispatcher
+          RailsEventStore::AfterCommitDispatcher.new(scheduler: CustomScheduler.new), # our asynchronous dispatcher, which expects that subscriber respond to `perform_async` method
+          RubyEventStore::SyncScheduler.new, # regular synchronous dispatcher
         ),
     ),
   )
 ```
 ### When are async handlers scheduled?
 
-The default behaviour and examples above use `RubyEventStore::AfterCommitAsyncDispatcher`, which schedule handlers after the transaction is committed.
+The default behaviour and examples above use `RailsEventStore::AfterCommitDispatcher`, which schedule handlers after the transaction is committed.
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
@@ -380,7 +380,7 @@ end
 
 ### Scheduling async handlers immediately
 
-You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateAsyncDispatcher` instead of `RailsEventStore::AfterCommitAsyncDispatcher`.
+You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateDispatcher` instead of `RailsEventStore::AfterCommitDispatcher`.
 
 ```ruby
 class SendOrderEmail < ActiveJob::Base
@@ -393,8 +393,8 @@ end
 event_store = RailsEventStore::Client.new(
   message_broker: RubyEventStore::Broker.new(
     dispatcher: RubyEventStore::ComposedDispatcher.new(
-      RailsEventStore::ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
-      RubyEventStore::Dispatcher.new
+      RailsEventStore::ImmediateDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
+      RubyEventStore::SyncScheduler.new
     )
   )
 )
