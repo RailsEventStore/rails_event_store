@@ -36,3 +36,5 @@ matcher:
     - RubyEventStore::ActiveRecord::EventRepository#json_data_type?
     - RubyEventStore::ActiveRecord::EventRepository#rescue_from_double_json_serialization!
     - RubyEventStore::ActiveRecord::SkipJsonSerialization
+    - RubyEventStore::ActiveRecord::RailsForeignKeyOnEventIdMigrationGenerator#initialize
+    - RubyEventStore::ActiveRecord::RailsForeignKeyOnEventIdMigrationGenerator#create_migration
