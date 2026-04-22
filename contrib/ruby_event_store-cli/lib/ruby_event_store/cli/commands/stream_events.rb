@@ -20,7 +20,7 @@ module RubyEventStore
         def call(stream_name:, limit:, format:, type: nil, after: nil, before: nil, from: nil, **)
           event_store = EventStoreResolver.resolve
           reader = event_store.read.stream(stream_name)
-          reader = reader.of_type(Object.const_get(type)) if type
+          reader = reader.of_type(resolve_type(type)) if type
           reader = reader.newer_than(Time.parse(after)) if after
           reader = reader.older_than(Time.parse(before)) if before
           reader = reader.from(from) if from
@@ -32,6 +32,12 @@ module RubyEventStore
         end
 
         private
+
+        def resolve_type(name)
+          Object.const_get(name)
+        rescue NameError
+          raise "Unknown event type: #{name}"
+        end
 
         def render(events, format:)
           case format
