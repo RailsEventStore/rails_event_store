@@ -13,14 +13,15 @@ module RubyEventStore
 
         def call(stream: nil, **)
           event_store = EventStoreResolver.resolve
+          reader = stream ? event_store.read.stream(stream) : event_store.read
 
-          if stream
-            count = event_store.read.stream(stream).count
-            puts "Stream:  #{stream}"
-            puts "Events:  #{count}"
-          else
-            count = event_store.read.count
-            puts "Events:  #{count}"
+          puts "Stream:  #{stream}" if stream
+          puts "Events:  #{reader.count}"
+
+          types = reader.map(&:event_type).uniq.sort
+          unless types.empty?
+            puts "\nEvent types:"
+            types.each { |t| puts "  #{t}" }
           end
         rescue => e
           warn e.message
