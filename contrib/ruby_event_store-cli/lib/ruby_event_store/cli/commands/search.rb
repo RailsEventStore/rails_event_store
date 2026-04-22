@@ -10,7 +10,7 @@ module RubyEventStore
       class Search < Dry::CLI::Command
         include EventRenderer
 
-        desc "Search events by type, time, or stream"
+        desc "Search events across all streams by type, time range, or stream name"
 
         option :type, desc: "Filter by event type (class name)"
         option :after, desc: "Filter events newer than timestamp (ISO8601)"

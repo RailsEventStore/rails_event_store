@@ -7,7 +7,7 @@ module RubyEventStore
   module CLI
     module Commands
       class Trace < Dry::CLI::Command
-        desc "Show causal tree for a correlation ID"
+        desc "Print the causation tree for all events sharing a correlation ID"
 
         argument :correlation_id, required: true, desc: "Correlation ID (UUID)"
 

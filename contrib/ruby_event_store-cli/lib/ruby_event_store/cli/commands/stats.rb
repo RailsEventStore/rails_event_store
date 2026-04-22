@@ -7,7 +7,7 @@ module RubyEventStore
   module CLI
     module Commands
       class Stats < Dry::CLI::Command
-        desc "Show event store statistics"
+        desc "Show total event count and unique event types. Use --stream for per-stream stats."
 
         option :stream, desc: "Show stats for a specific stream"
 

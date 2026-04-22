@@ -7,7 +7,7 @@ module RubyEventStore
   module CLI
     module Commands
       class StreamShow < Dry::CLI::Command
-        desc "Show stream details"
+        desc "Show event count, version, and first/last event for a stream"
 
         argument :stream_name, required: true, desc: "Stream name"
 
