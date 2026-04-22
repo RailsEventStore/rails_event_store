@@ -5,6 +5,7 @@ require_relative "commands/stream_events"
 require_relative "commands/stream_show"
 require_relative "commands/event_show"
 require_relative "commands/event_streams"
+require_relative "commands/trace"
 
 module RubyEventStore
   module CLI
@@ -15,6 +16,7 @@ module RubyEventStore
       register "stream show", StreamShow
       register "event show", EventShow
       register "event streams", EventStreams
+      register "trace", Trace
     end
   end
 end
