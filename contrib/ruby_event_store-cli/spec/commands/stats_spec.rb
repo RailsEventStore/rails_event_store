@@ -44,8 +44,38 @@ module RubyEventStore
             expect { command.call }
               .not_to output(/Stream/).to_stdout
           end
+
+          it "lists unique event types" do
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+
+            expect { command.call }
+              .to output(/RubyEventStore::Event/).to_stdout
+          end
+
+          it "shows each type only once" do
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+
+            output = capture_stdout { command.call }
+            expect(output.scan("RubyEventStore::Event").size).to eq(1)
+          end
+
+          it "shows no event types section when store is empty" do
+            expect { command.call }
+              .not_to output(/Event types/).to_stdout
+          end
         end
       end
     end
   end
+end
+
+def capture_stdout
+  out = StringIO.new
+  $stdout = out
+  yield
+  out.string
+ensure
+  $stdout = STDOUT
 end
