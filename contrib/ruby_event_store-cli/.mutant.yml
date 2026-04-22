@@ -1,0 +1,16 @@
+# https://github.com/mbj/mutant/blob/master/docs/configuration.md
+
+usage: opensource
+requires:
+  - ruby_event_store/cli
+includes:
+  - lib
+integration:
+  name: rspec
+mutation:
+  operators: light
+coverage_criteria:
+  process_abort: true
+matcher:
+  subjects:
+    - RubyEventStore::CLI*
