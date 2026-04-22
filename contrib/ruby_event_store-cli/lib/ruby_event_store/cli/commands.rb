@@ -7,6 +7,7 @@ require_relative "commands/event_show"
 require_relative "commands/event_streams"
 require_relative "commands/trace"
 require_relative "commands/search"
+require_relative "commands/stats"
 
 module RubyEventStore
   module CLI
@@ -19,6 +20,7 @@ module RubyEventStore
       register "event streams", EventStreams
       register "trace", Trace
       register "search", Search
+      register "stats", Stats
     end
   end
 end
