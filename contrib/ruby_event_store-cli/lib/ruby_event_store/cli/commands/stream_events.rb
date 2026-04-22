@@ -9,7 +9,7 @@ module RubyEventStore
     module Commands
       class StreamEvents < Dry::CLI::Command
         include EventRenderer
-        desc "List events in a stream"
+        desc "Print events from a stream. Supports filtering by type, time, and position. Use --follow/-f to tail live."
 
         argument :stream_name, required: true, desc: "Stream name"
         option :limit, type: :integer, default: 50, desc: "Max number of events (default: 50)"

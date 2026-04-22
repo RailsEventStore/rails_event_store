@@ -8,7 +8,7 @@ module RubyEventStore
   module CLI
     module Commands
       class EventShow < Dry::CLI::Command
-        desc "Show event details"
+        desc "Print full event details including data, metadata, and timestamps"
 
         argument :event_id, required: true, desc: "Event ID (UUID)"
 

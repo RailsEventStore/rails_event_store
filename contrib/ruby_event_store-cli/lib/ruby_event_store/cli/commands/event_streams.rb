@@ -7,7 +7,7 @@ module RubyEventStore
   module CLI
     module Commands
       class EventStreams < Dry::CLI::Command
-        desc "List streams containing an event"
+        desc "List all streams the event has been published or linked to"
 
         argument :event_id, required: true, desc: "Event ID (UUID)"
 
