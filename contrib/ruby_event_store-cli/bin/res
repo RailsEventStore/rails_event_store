@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "dry/cli"
+require_relative "../lib/ruby_event_store/cli"
+require_relative "../lib/ruby_event_store/cli/commands"
+
+Dry::CLI.new(RubyEventStore::CLI::Commands).call
