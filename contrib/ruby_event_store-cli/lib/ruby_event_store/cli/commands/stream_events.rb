@@ -16,8 +16,9 @@ module RubyEventStore
         option :after, desc: "Filter events newer than timestamp (ISO8601)"
         option :before, desc: "Filter events older than timestamp (ISO8601)"
         option :from, desc: "Start reading from event ID (exclusive)"
+        option :follow, type: :boolean, default: false, aliases: ["-f"], desc: "Watch for new events (Ctrl+C to stop)"
 
-        def call(stream_name:, limit:, format:, type: nil, after: nil, before: nil, from: nil, **)
+        def call(stream_name:, limit:, format:, type: nil, after: nil, before: nil, from: nil, follow: false, **)
           event_store = EventStoreResolver.resolve
           reader = event_store.read.stream(stream_name)
           reader = reader.of_type(resolve_type(type)) if type
@@ -26,6 +27,22 @@ module RubyEventStore
           reader = reader.from(from) if from
           events = reader.limit(limit.to_i).to_a
           render(events, format: format)
+
+          if follow
+            last_id = events.last&.event_id
+            loop do
+              sleep 1
+              new_reader = event_store.read.stream(stream_name)
+              new_reader = new_reader.of_type(resolve_type(type)) if type
+              new_reader = new_reader.from(last_id) if last_id
+              new_events = new_reader.to_a
+              next if new_events.empty?
+              render(new_events, format: format)
+              last_id = new_events.last.event_id
+            end
+          end
+        rescue Interrupt
+          exit 0
         rescue => e
           warn e.message
           exit 1
