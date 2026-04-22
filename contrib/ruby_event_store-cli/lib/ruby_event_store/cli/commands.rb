@@ -2,6 +2,7 @@
 
 require "dry/cli"
 require_relative "commands/stream_events"
+require_relative "commands/stream_show"
 
 module RubyEventStore
   module CLI
@@ -9,6 +10,7 @@ module RubyEventStore
       extend Dry::CLI::Registry
 
       register "stream events", StreamEvents
+      register "stream show", StreamShow
     end
   end
 end
