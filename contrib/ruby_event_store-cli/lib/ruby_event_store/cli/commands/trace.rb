@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require "dry/cli"
+require_relative "base"
 
 module RubyEventStore
   module CLI
     module Commands
-      class Trace < Dry::CLI::Command
+      class Trace < Base
         desc "Print the causation tree for all events sharing a correlation ID"
 
         argument :correlation_id, required: true, desc: "Correlation ID (UUID)"
 
         def call(correlation_id:, **)
-          event_store = RubyEventStore::CLI::EVENT_STORE
           stream_name = "$by_correlation_id_#{correlation_id}"
           events = event_store.read.stream(stream_name).to_a
 

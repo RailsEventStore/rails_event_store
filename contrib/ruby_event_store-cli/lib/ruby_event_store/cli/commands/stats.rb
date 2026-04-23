@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require "dry/cli"
+require_relative "base"
 
 module RubyEventStore
   module CLI
     module Commands
-      class Stats < Dry::CLI::Command
+      class Stats < Base
         desc "Show total event count and unique event types. Use --stream for per-stream stats."
 
         option :stream, desc: "Show stats for a specific stream"
 
         def call(stream: nil, **)
-          event_store = RubyEventStore::CLI::EVENT_STORE
           reader = stream ? event_store.read.stream(stream) : event_store.read
 
           puts "Stream:  #{stream}" if stream

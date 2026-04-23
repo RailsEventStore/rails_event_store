@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require "dry/cli"
+require_relative "base"
 require_relative "../event_renderer"
 
 module RubyEventStore
   module CLI
     module Commands
-      class StreamEvents < Dry::CLI::Command
+      class StreamEvents < Base
         include EventRenderer
         desc "Print events from a stream. Supports filtering by type, time, and position. Use --follow/-f to tail live."
 
@@ -20,7 +21,6 @@ module RubyEventStore
         option :follow, type: :boolean, default: false, aliases: ["-f"], desc: "Watch for new events (Ctrl+C to stop)"
 
         def call(stream_name:, limit:, format:, type: nil, after: nil, before: nil, from: nil, follow: false, **)
-          event_store = RubyEventStore::CLI::EVENT_STORE
           reader = event_store.read.stream(stream_name)
           reader = reader.of_type(resolve_type(type)) if type
           reader = reader.newer_than(Time.parse(after)) if after

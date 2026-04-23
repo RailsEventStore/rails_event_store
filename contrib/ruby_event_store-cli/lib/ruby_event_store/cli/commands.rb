@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "dry/cli"
+require_relative "commands/base"
 require_relative "commands/stream_events"
 require_relative "commands/stream_show"
 require_relative "commands/event_show"

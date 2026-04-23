@@ -2,17 +2,17 @@
 
 require "dry/cli"
 require "json"
+require_relative "base"
 
 module RubyEventStore
   module CLI
     module Commands
-      class EventShow < Dry::CLI::Command
+      class EventShow < Base
         desc "Print full event details including data, metadata, and timestamps"
 
         argument :event_id, required: true, desc: "Event ID (UUID)"
 
         def call(event_id:, **)
-          event_store = RubyEventStore::CLI::EVENT_STORE
           event = event_store.read.event!(event_id)
 
           puts "Event ID:   #{event.event_id}"

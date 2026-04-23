@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require "dry/cli"
+require_relative "base"
 
 module RubyEventStore
   module CLI
     module Commands
-      class EventStreams < Dry::CLI::Command
+      class EventStreams < Base
         desc "List all streams the event has been published or linked to"
 
         argument :event_id, required: true, desc: "Event ID (UUID)"
 
         def call(event_id:, **)
-          event_store = RubyEventStore::CLI::EVENT_STORE
           streams = event_store.streams_of(event_id)
 
           if streams.empty?
