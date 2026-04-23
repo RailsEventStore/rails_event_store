@@ -8,5 +8,11 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
-
+  config.include(Module.new do
+    def stub_event_store(event_store)
+      config = FakeConfiguration.new
+      config.event_store = event_store
+      stub_const("Rails", double("Rails", configuration: config))
+    end
+  end)
 end

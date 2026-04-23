@@ -16,7 +16,7 @@ module RubyEventStore
         let(:past) { (Time.now - 3600).iso8601(3) }
         let(:since) { Time.now - 3600 }
 
-        before { stub_const("RubyEventStore::CLI::EVENT_STORE", event_store) }
+        before { stub_event_store(event_store) }
 
         def call_once(**opts)
           allow(command).to receive(:sleep) { raise StopIteration }

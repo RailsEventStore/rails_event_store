@@ -12,7 +12,7 @@ module RubyEventStore
         let(:event_store) { RubyEventStore::Client.new }
         let(:command) { Search.new }
 
-        before { stub_const("RubyEventStore::CLI::EVENT_STORE", event_store) }
+        before { stub_event_store(event_store) }
 
         describe "#call" do
           it "searches all events when no filters given" do

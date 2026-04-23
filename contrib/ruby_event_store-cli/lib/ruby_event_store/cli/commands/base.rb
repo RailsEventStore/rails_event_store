@@ -9,7 +9,7 @@ module RubyEventStore
         private
 
         def event_store
-          CLI::EVENT_STORE
+          Rails.configuration.event_store
         end
       end
     end
