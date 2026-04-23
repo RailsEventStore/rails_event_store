@@ -26,12 +26,12 @@ module RubyEventStore
           end
         end
 
-        describe "prepare" do
+        describe "grouped_events" do
           it "returns events grouped by namespace" do
             event_store.publish(WatchOrdering.new, stream_name: "test")
             event_store.publish(WatchPayment.new, stream_name: "test")
 
-            grouped = command.send(:prepare, since: since, namespaces: nil)
+            grouped = command.send(:grouped_events, since: since, namespaces: nil)
             expect(grouped.map(&:first)).to eq(["RubyEventStore"])
             expect(grouped.first[1].size).to eq(2)
           end
@@ -40,12 +40,12 @@ module RubyEventStore
             event_store.publish(WatchOrdering.new, stream_name: "test")
             event_store.publish(WatchPayment.new, stream_name: "test")
 
-            grouped = command.send(:prepare, since: since, namespaces: ["Other"])
+            grouped = command.send(:grouped_events, since: since, namespaces: ["Other"])
             expect(grouped).to be_empty
           end
 
           it "returns empty when no events" do
-            grouped = command.send(:prepare, since: since, namespaces: nil)
+            grouped = command.send(:grouped_events, since: since, namespaces: nil)
             expect(grouped).to be_empty
           end
 
@@ -53,7 +53,7 @@ module RubyEventStore
             event_store.publish(WatchOrdering.new, stream_name: "test")
             future = Time.now + 3600
 
-            grouped = command.send(:prepare, since: future, namespaces: nil)
+            grouped = command.send(:grouped_events, since: future, namespaces: nil)
             expect(grouped).to be_empty
           end
         end
