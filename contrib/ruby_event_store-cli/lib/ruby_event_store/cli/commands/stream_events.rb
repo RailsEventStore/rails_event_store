@@ -3,6 +3,7 @@
 require "dry/cli"
 require_relative "base"
 require_relative "../event_renderer"
+require_relative "../read_events"
 
 module RubyEventStore
   module CLI
@@ -21,7 +22,8 @@ module RubyEventStore
         option :follow, type: :boolean, default: false, aliases: ["-f"], desc: "Watch for new events (Ctrl+C to stop)"
 
         def call(stream_name:, limit:, format:, type: nil, after: nil, before: nil, from: nil, follow: false, **)
-          events = build_reader(stream_name, type: type, after: after, before: before, from: from, limit: limit).to_a
+          specification = event_store.read.stream(stream_name)
+          events = ReadEvents.of(specification, type: type, after: after, before: before, from: from, limit: limit)
           render(events, format: format)
           tail(stream_name, last_id: events.last&.event_id, type: type, format: format) if follow
         rescue Interrupt
@@ -33,34 +35,18 @@ module RubyEventStore
 
         private
 
-        def build_reader(stream_name, type:, after:, before:, from:, limit:)
-          reader = event_store.read.stream(stream_name)
-          reader = reader.of_type(resolve_type(type))    if type
-          reader = reader.newer_than(Time.parse(after))  if after
-          reader = reader.older_than(Time.parse(before)) if before
-          reader = reader.from(from)                     if from
-          reader.limit(limit.to_i)
-        end
-
         def tail(stream_name, last_id:, type:, format:)
           loop do
             sleep 1
-            reader = event_store.read.stream(stream_name)
-            reader = reader.of_type(resolve_type(type)) if type
-            reader = reader.from(last_id)               if last_id
-            events = reader.to_a
+            specification = event_store.read.stream(stream_name)
+            specification = specification.of_type(ReadEvents.resolve_type(type)) if type
+            specification = specification.from(last_id)                                 if last_id
+            events = specification.to_a
             next if events.empty?
             render(events, format: format)
             last_id = events.last.event_id
           end
         end
-
-        def resolve_type(name)
-          Object.const_get(name)
-        rescue NameError
-          raise "Unknown event type: #{name}"
-        end
-
       end
     end
   end

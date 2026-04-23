@@ -3,6 +3,7 @@
 require "dry/cli"
 require_relative "base"
 require_relative "../event_renderer"
+require_relative "../read_events"
 
 module RubyEventStore
   module CLI
@@ -20,23 +21,12 @@ module RubyEventStore
         option :format, default: "table", values: %w[table json], desc: "Output format"
 
         def call(limit:, format:, type: nil, after: nil, before: nil, stream: nil, **)
-          reader = stream ? event_store.read.stream(stream) : event_store.read
-          reader = reader.of_type(resolve_type(type)) if type
-          reader = reader.newer_than(Time.parse(after)) if after
-          reader = reader.older_than(Time.parse(before)) if before
-          events = reader.limit(limit.to_i).to_a
+          specification = stream ? event_store.read.stream(stream) : event_store.read
+          events = ReadEvents.of(specification, type: type, after: after, before: before, limit: limit)
           render(events, format: format)
         rescue => e
           warn e.message
           exit 1
-        end
-
-        private
-
-        def resolve_type(name)
-          Object.const_get(name)
-        rescue NameError
-          raise "Unknown event type: #{name}"
         end
       end
     end
