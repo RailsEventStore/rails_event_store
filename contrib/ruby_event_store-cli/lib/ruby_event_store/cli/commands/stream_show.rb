@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "dry/cli"
-require_relative "../event_store_resolver"
 
 module RubyEventStore
   module CLI
@@ -12,7 +11,7 @@ module RubyEventStore
         argument :stream_name, required: true, desc: "Stream name"
 
         def call(stream_name:, **)
-          event_store = EventStoreResolver.resolve
+          event_store = RubyEventStore::CLI::EVENT_STORE
           reader = event_store.read.stream(stream_name)
           count = reader.count
 

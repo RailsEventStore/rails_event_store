@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "dry/cli"
-require_relative "../event_store_resolver"
 require_relative "../event_renderer"
 
 module RubyEventStore
@@ -20,7 +19,7 @@ module RubyEventStore
         option :format, default: "table", values: %w[table json], desc: "Output format"
 
         def call(limit:, format:, type: nil, after: nil, before: nil, stream: nil, **)
-          event_store = EventStoreResolver.resolve
+          event_store = RubyEventStore::CLI::EVENT_STORE
           reader = stream ? event_store.read.stream(stream) : event_store.read
           reader = reader.of_type(resolve_type(type)) if type
           reader = reader.newer_than(Time.parse(after)) if after

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "dry/cli"
-require_relative "../event_store_resolver"
 
 module RubyEventStore
   module CLI
@@ -12,7 +11,7 @@ module RubyEventStore
         argument :event_id, required: true, desc: "Event ID (UUID)"
 
         def call(event_id:, **)
-          event_store = EventStoreResolver.resolve
+          event_store = RubyEventStore::CLI::EVENT_STORE
           streams = event_store.streams_of(event_id)
 
           if streams.empty?
