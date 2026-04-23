@@ -6,7 +6,7 @@ require "ruby_event_store/cli/commands/stream_events"
 module RubyEventStore
   module CLI
     module Commands
-      class OtherEvent < RubyEventStore::Event; end
+      class OrderShipped < RubyEventStore::Event; end
 
       RSpec.describe StreamEvents do
         let(:event_store) { RubyEventStore::Client.new }
@@ -43,9 +43,9 @@ module RubyEventStore
 
           it "filters by event type" do
             event_store.publish(RubyEventStore::Event.new, stream_name: "test-stream")
-            event_store.publish(OtherEvent.new, stream_name: "test-stream")
+            event_store.publish(OrderShipped.new, stream_name: "test-stream")
 
-            expect { command.call(stream_name: "test-stream", limit: 50, format: "table", type: "RubyEventStore::CLI::Commands::OtherEvent") }
+            expect { command.call(stream_name: "test-stream", limit: 50, format: "table", type: "RubyEventStore::CLI::Commands::OrderShipped") }
               .to output(/1 event\(s\)/).to_stdout
           end
 
