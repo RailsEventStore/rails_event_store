@@ -17,13 +17,7 @@ module RubyEventStore
         def call(namespace: nil, since: nil, limit:, interval:, **)
           started_at = since ? Time.parse(since) : Time.now
           namespaces = namespace&.split(",")&.map(&:strip)
-
-          hide_cursor
-          loop do
-            grouped = grouped_events(since: started_at, namespaces: namespaces)
-            render(grouped, limit: limit.to_i, since: started_at)
-            sleep interval.to_i
-          end
+          watch(since: started_at, namespaces: namespaces, limit: limit.to_i, interval: interval.to_i)
         rescue Interrupt
           show_cursor
           exit 0
@@ -34,6 +28,15 @@ module RubyEventStore
         end
 
         private
+
+        def watch(since:, namespaces:, limit:, interval:)
+          hide_cursor
+          loop do
+            events = grouped_events(since: since, namespaces: namespaces)
+            render(events, limit: limit, since: since)
+            sleep interval
+          end
+        end
 
         def grouped_events(since:, namespaces:)
           events = events_since(since)
