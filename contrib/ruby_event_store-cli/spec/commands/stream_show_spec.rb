@@ -6,8 +6,8 @@ require "ruby_event_store/cli/commands/stream_show"
 module RubyEventStore
   module CLI
     module Commands
-      class FirstType < RubyEventStore::Event; end
-      class LastType < RubyEventStore::Event; end
+      class OrderCreated < RubyEventStore::Event; end
+      class OrderShipped < RubyEventStore::Event; end
 
       RSpec.describe StreamShow do
         let(:event_store) { RubyEventStore::Client.new }
@@ -33,12 +33,12 @@ module RubyEventStore
           end
 
           it "shows first and last event type" do
-            event_store.publish(FirstType.new, stream_name: "test-stream")
-            event_store.publish(LastType.new, stream_name: "test-stream")
+            event_store.publish(OrderCreated.new, stream_name: "test-stream")
+            event_store.publish(OrderShipped.new, stream_name: "test-stream")
 
             output = capture_stdout { command.call(stream_name: "test-stream") }
-            expect(output).to match(/First:.*FirstType/)
-            expect(output).to match(/Last:.*LastType/)
+            expect(output).to match(/First:.*OrderCreated/)
+            expect(output).to match(/Last:.*OrderShipped/)
           end
 
           it "shows zero events for empty stream" do

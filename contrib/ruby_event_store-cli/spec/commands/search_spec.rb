@@ -6,7 +6,7 @@ require "ruby_event_store/cli/commands/search"
 module RubyEventStore
   module CLI
     module Commands
-      class SearchTestEvent < RubyEventStore::Event; end
+      class OrderPlaced < RubyEventStore::Event; end
 
       RSpec.describe Search do
         let(:event_store) { RubyEventStore::Client.new }
@@ -24,9 +24,9 @@ module RubyEventStore
 
           it "filters by event type" do
             event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
-            event_store.publish(SearchTestEvent.new, stream_name: "orders")
+            event_store.publish(OrderPlaced.new, stream_name: "orders")
 
-            expect { command.call(limit: 50, format: "table", type: "RubyEventStore::CLI::Commands::SearchTestEvent") }
+            expect { command.call(limit: 50, format: "table", type: "RubyEventStore::CLI::Commands::OrderPlaced") }
               .to output(/1 event\(s\)/).to_stdout
           end
 

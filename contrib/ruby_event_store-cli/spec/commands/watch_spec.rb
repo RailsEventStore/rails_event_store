@@ -6,9 +6,9 @@ require "ruby_event_store/cli/commands/watch"
 module RubyEventStore
   module CLI
     module Commands
-      class WatchOrdering < RubyEventStore::Event; end
-      class WatchOrderConfirmed < RubyEventStore::Event; end
-      class WatchPayment < RubyEventStore::Event; end
+      class OrderReceived < RubyEventStore::Event; end
+      class OrderConfirmed < RubyEventStore::Event; end
+      class PaymentProcessed < RubyEventStore::Event; end
 
       RSpec.describe Watch do
         let(:event_store) { RubyEventStore::Client.new }
@@ -28,8 +28,8 @@ module RubyEventStore
 
         describe "grouped_events" do
           it "returns events grouped by namespace" do
-            event_store.publish(WatchOrdering.new, stream_name: "test")
-            event_store.publish(WatchPayment.new, stream_name: "test")
+            event_store.publish(OrderReceived.new, stream_name: "test")
+            event_store.publish(PaymentProcessed.new, stream_name: "test")
 
             grouped = command.send(:grouped_events, since: since, namespaces: nil)
             expect(grouped.map(&:first)).to eq(["RubyEventStore"])
@@ -37,8 +37,8 @@ module RubyEventStore
           end
 
           it "filters by namespaces" do
-            event_store.publish(WatchOrdering.new, stream_name: "test")
-            event_store.publish(WatchPayment.new, stream_name: "test")
+            event_store.publish(OrderReceived.new, stream_name: "test")
+            event_store.publish(PaymentProcessed.new, stream_name: "test")
 
             grouped = command.send(:grouped_events, since: since, namespaces: ["Other"])
             expect(grouped).to be_empty
@@ -50,7 +50,7 @@ module RubyEventStore
           end
 
           it "excludes events older than since" do
-            event_store.publish(WatchOrdering.new, stream_name: "test")
+            event_store.publish(OrderReceived.new, stream_name: "test")
             future = Time.now + 3600
 
             grouped = command.send(:grouped_events, since: future, namespaces: nil)
@@ -107,9 +107,9 @@ module RubyEventStore
           end
 
           it "renders grouped events from event store" do
-            event_store.publish(WatchOrdering.new, stream_name: "test")
+            event_store.publish(OrderReceived.new, stream_name: "test")
 
-            expect { call_once }.to output(/WatchOrdering/).to_stdout
+            expect { call_once }.to output(/OrderReceived/).to_stdout
           end
         end
 
