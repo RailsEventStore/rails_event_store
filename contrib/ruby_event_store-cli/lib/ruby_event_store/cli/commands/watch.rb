@@ -60,22 +60,32 @@ module RubyEventStore
         end
 
         def render(grouped, limit:, since:)
-          lines = []
-          if grouped.empty?
-            lines << dim("No events yet — waiting since #{since.strftime("%H:%M:%S")}")
-          else
-            grouped.each do |ns, ns_events|
-              lines << bold("#{ns} (#{ns_events.size} events)")
-              ns_events.last(limit).each do |e|
-                lines << "  #{pad(short_type(e[:type]), 30)} #{e[:timestamp].strftime("%H:%M:%S")}  #{e[:event_id]}"
-              end
-              lines << ""
-            end
-          end
-          lines << dim("Watching since #{since.strftime("%H:%M:%S")} — Press Ctrl+C to exit")
-
+          lines = grouped.empty? ? [empty_message(since)] : event_lines(grouped, limit)
+          lines << footer(since)
           clear_screen
           puts lines.join("\n")
+        end
+
+        def event_lines(grouped, limit)
+          grouped.flat_map do |ns, ns_events|
+            [
+              bold("#{ns} (#{ns_events.size} events)"),
+              *ns_events.last(limit).map { |e| format_event(e) },
+              ""
+            ]
+          end
+        end
+
+        def format_event(e)
+          "  #{pad(short_type(e[:type]), 30)} #{e[:timestamp].strftime("%H:%M:%S")}  #{e[:event_id]}"
+        end
+
+        def empty_message(since)
+          dim("No events yet — waiting since #{since.strftime("%H:%M:%S")}")
+        end
+
+        def footer(since)
+          dim("Watching since #{since.strftime("%H:%M:%S")} — Press Ctrl+C to exit")
         end
 
         def namespace(type)
