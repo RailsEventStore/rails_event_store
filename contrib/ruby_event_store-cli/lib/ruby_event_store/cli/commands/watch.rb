@@ -20,7 +20,7 @@ module RubyEventStore
 
           hide_cursor
           loop do
-            grouped = prepare(since: started_at, namespaces: namespaces)
+            grouped = grouped_events(since: started_at, namespaces: namespaces)
             render(grouped, limit: limit.to_i, since: started_at)
             sleep interval.to_i
           end
@@ -35,11 +35,24 @@ module RubyEventStore
 
         private
 
-        def prepare(since:, namespaces:)
-          events = event_store.read.newer_than(since).map do |e|
+        def grouped_events(since:, namespaces:)
+          events = events_since(since)
+          events = filter_by_namespaces(events, namespaces)
+          group_by_namespace(events)
+        end
+
+        def events_since(since)
+          event_store.read.newer_than(since).map do |e|
             { event_id: e.event_id, type: e.event_type, timestamp: e.timestamp }
           end
-          events = events.select { |e| namespaces.include?(namespace(e[:type])) } if namespaces
+        end
+
+        def filter_by_namespaces(events, namespaces)
+          return events unless namespaces
+          events.select { |e| namespaces.include?(namespace(e[:type])) }
+        end
+
+        def group_by_namespace(events)
           events.group_by { |e| namespace(e[:type]) }.sort
         end
 
