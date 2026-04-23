@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require "dry/cli"
+require_relative "base"
 
 module RubyEventStore
   module CLI
     module Commands
-      class Watch < Dry::CLI::Command
+      class Watch < Base
         desc "Watch new events live, grouped by bounded context"
 
         option :namespace, desc: "Filter by namespace(s), comma-separated (e.g. Ordering,Payments)"
@@ -14,13 +15,12 @@ module RubyEventStore
         option :interval, type: :integer, default: 1, desc: "Refresh interval in seconds (default: 1)"
 
         def call(namespace: nil, since: nil, limit:, interval:, **)
-          event_store = RubyEventStore::CLI::EVENT_STORE
           started_at = since ? Time.parse(since) : Time.now
           namespaces = namespace&.split(",")&.map(&:strip)
 
           hide_cursor
           loop do
-            grouped = prepare(event_store, since: started_at, namespaces: namespaces)
+            grouped = prepare(since: started_at, namespaces: namespaces)
             render(grouped, limit: limit.to_i, since: started_at)
             sleep interval.to_i
           end
@@ -35,7 +35,7 @@ module RubyEventStore
 
         private
 
-        def prepare(event_store, since:, namespaces:)
+        def prepare(since:, namespaces:)
           events = event_store.read.newer_than(since).map do |e|
             { event_id: e.event_id, type: e.event_type, timestamp: e.timestamp }
           end

@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require "dry/cli"
+require_relative "base"
 require_relative "../event_renderer"
 
 module RubyEventStore
   module CLI
     module Commands
-      class Search < Dry::CLI::Command
+      class Search < Base
         include EventRenderer
 
         desc "Search events across all streams by type, time range, or stream name"
@@ -19,7 +20,6 @@ module RubyEventStore
         option :format, default: "table", values: %w[table json], desc: "Output format"
 
         def call(limit:, format:, type: nil, after: nil, before: nil, stream: nil, **)
-          event_store = RubyEventStore::CLI::EVENT_STORE
           reader = stream ? event_store.read.stream(stream) : event_store.read
           reader = reader.of_type(resolve_type(type)) if type
           reader = reader.newer_than(Time.parse(after)) if after

@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require "dry/cli"
+require_relative "base"
 
 module RubyEventStore
   module CLI
     module Commands
-      class Follow < Dry::CLI::Command
+      class Follow < Base
         desc "Watch new events live, grouped by bounded context"
 
         option :namespace, desc: "Filter by namespace(s), comma-separated (e.g. Ordering,Payments)"
@@ -15,18 +16,17 @@ module RubyEventStore
         option :follow, type: :boolean, default: true, desc: "Watch for new events (default: true, use --no-follow for one-shot)"
 
         def call(namespace: nil, since: nil, limit:, interval:, follow:, **)
-          event_store = RubyEventStore::CLI::EVENT_STORE
           started_at = since ? Time.parse(since) : Time.now
           namespaces = namespace&.split(",")&.map(&:strip)
 
           if follow
             hide_cursor
             loop do
-              render(event_store, limit: limit.to_i, since: started_at, namespaces: namespaces, follow: true)
+              render(limit: limit.to_i, since: started_at, namespaces: namespaces, follow: true)
               sleep interval.to_i
             end
           else
-            render(event_store, limit: limit.to_i, since: started_at, namespaces: namespaces, follow: false)
+            render(limit: limit.to_i, since: started_at, namespaces: namespaces, follow: false)
           end
         rescue Interrupt
           show_cursor
@@ -39,7 +39,7 @@ module RubyEventStore
 
         private
 
-        def render(event_store, limit:, since:, namespaces:, follow:)
+        def render(limit:, since:, namespaces:, follow:)
           events = event_store.read.newer_than(since).map do |e|
             { event_id: e.event_id, type: e.event_type, timestamp: e.timestamp }
           end
