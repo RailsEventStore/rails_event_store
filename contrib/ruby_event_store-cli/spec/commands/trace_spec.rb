@@ -11,7 +11,7 @@ module RubyEventStore
         let(:command) { Trace.new }
         let(:correlation_id) { SecureRandom.uuid }
 
-        before { EventStoreResolver.event_store = event_store }
+        before { stub_const("RubyEventStore::CLI::EVENT_STORE", event_store) }
 
         def publish_correlated(event, causation_id: nil)
           meta = { correlation_id: correlation_id }

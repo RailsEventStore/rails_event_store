@@ -2,7 +2,6 @@
 
 require "dry/cli"
 require "json"
-require_relative "../event_store_resolver"
 
 module RubyEventStore
   module CLI
@@ -13,7 +12,7 @@ module RubyEventStore
         argument :event_id, required: true, desc: "Event ID (UUID)"
 
         def call(event_id:, **)
-          event_store = EventStoreResolver.resolve
+          event_store = RubyEventStore::CLI::EVENT_STORE
           event = event_store.read.event!(event_id)
 
           puts "Event ID:   #{event.event_id}"

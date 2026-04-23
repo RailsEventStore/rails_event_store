@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "dry/cli"
-require_relative "../event_store_resolver"
 
 module RubyEventStore
   module CLI
@@ -15,7 +14,7 @@ module RubyEventStore
         option :interval, type: :integer, default: 1, desc: "Refresh interval in seconds (default: 1)"
 
         def call(namespace: nil, since: nil, limit:, interval:, **)
-          event_store = EventStoreResolver.resolve
+          event_store = RubyEventStore::CLI::EVENT_STORE
           started_at = since ? Time.parse(since) : Time.now
           namespaces = namespace&.split(",")&.map(&:strip)
 

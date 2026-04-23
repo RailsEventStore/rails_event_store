@@ -16,7 +16,7 @@ module RubyEventStore
         let(:command) { Follow.new }
         let(:past) { (Time.now - 3600).iso8601(3) }
 
-        before { EventStoreResolver.event_store = event_store }
+        before { stub_const("RubyEventStore::CLI::EVENT_STORE", event_store) }
 
         def call_once(**opts)
           begin

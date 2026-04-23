@@ -5,4 +5,14 @@ require "dry/cli"
 require_relative "../lib/ruby_event_store/cli"
 require_relative "../lib/ruby_event_store/cli/commands"
 
+require File.expand_path("config/environment")
+
+abort <<~MSG unless defined?(Rails) && Rails.configuration.respond_to?(:event_store)
+  Could not find event store instance after loading config/environment.rb.
+
+  Expected Rails.configuration.event_store to be set (standard RES setup).
+MSG
+
+RubyEventStore::CLI::EVENT_STORE = Rails.configuration.event_store
+
 Dry::CLI.new(RubyEventStore::CLI::Commands).call

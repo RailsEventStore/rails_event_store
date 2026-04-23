@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "dry/cli"
-require_relative "../event_store_resolver"
 
 module RubyEventStore
   module CLI
@@ -16,7 +15,7 @@ module RubyEventStore
         option :follow, type: :boolean, default: true, desc: "Watch for new events (default: true, use --no-follow for one-shot)"
 
         def call(namespace: nil, since: nil, limit:, interval:, follow:, **)
-          event_store = EventStoreResolver.resolve
+          event_store = RubyEventStore::CLI::EVENT_STORE
           started_at = since ? Time.parse(since) : Time.now
           namespaces = namespace&.split(",")&.map(&:strip)
 
