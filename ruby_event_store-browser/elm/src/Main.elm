@@ -9,6 +9,7 @@ import Html exposing (..)
 import Layout
 import LinkedTimezones exposing (mapLinkedTimeZone)
 import Page.ShowEvent
+import Page.ShowEventTypes
 import Page.ShowStream
 import Route
 import Task
@@ -47,6 +48,7 @@ type Msg
     | ClickedLink Browser.UrlRequest
     | GotLayoutMsg Layout.Msg
     | GotShowEventMsg Page.ShowEvent.Msg
+    | GotShowEventTypesMsg Page.ShowEventTypes.Msg
     | GotShowStreamMsg Page.ShowStream.Msg
     | ReceiveTimeZone (Result String Time.ZoneName)
 
@@ -54,6 +56,7 @@ type Msg
 type Page
     = NotFound
     | ShowEvent Page.ShowEvent.Model
+    | ShowEventTypes Page.ShowEventTypes.Model
     | ShowStream Page.ShowStream.Model
 
 
@@ -126,6 +129,15 @@ update msg model =
             in
             ( { model | page = ShowEvent subModel }
             , Cmd.map GotShowEventMsg subCmd
+            )
+
+        ( GotShowEventTypesMsg showEventTypesUIMsg, ShowEventTypes showEventTypesModel ) ->
+            let
+                ( subModel, subCmd ) =
+                    Page.ShowEventTypes.update showEventTypesUIMsg showEventTypesModel
+            in
+            ( { model | page = ShowEventTypes subModel }
+            , Cmd.map GotShowEventTypesMsg subCmd
             )
 
         ( GotLayoutMsg layoutMsg, _ ) ->
@@ -212,6 +224,11 @@ navigate model location =
                         Nothing ->
                             ( { model | page = NotFound }, Cmd.none )
 
+                Just Route.ShowEventTypes ->
+                    ( { model | page = ShowEventTypes (Page.ShowEventTypes.initModel flags) }
+                    , Cmd.map GotShowEventTypesMsg (Page.ShowEventTypes.initCmd flags)
+                    )
+
                 Nothing ->
                     ( { model | page = NotFound }, Cmd.none )
 
@@ -263,6 +280,13 @@ viewPage page selectedTime =
                     Page.ShowEvent.view pageModel selectedTime
             in
             ( Just title, Html.map GotShowEventMsg content )
+
+        ShowEventTypes pageModel ->
+            let
+                ( title, content ) =
+                    Page.ShowEventTypes.view pageModel selectedTime
+            in
+            ( Just title, Html.map GotShowEventTypesMsg content )
 
         NotFound ->
             ( Nothing, Layout.viewNotFound )

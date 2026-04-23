@@ -14,7 +14,8 @@ module RubyEventStore
         path: nil,
         api_url: nil,
         environment: nil,
-        related_streams_query: DEFAULT_RELATED_STREAMS_QUERY
+        related_streams_query: DEFAULT_RELATED_STREAMS_QUERY,
+        experimental_event_types_query: nil
       )
         warn(<<~WARN) if environment
         Passing :environment to RubyEventStore::Browser::App.for is deprecated. 
@@ -62,6 +63,7 @@ module RubyEventStore
           run App.new(
                 event_store_locator: event_store_locator,
                 related_streams_query: related_streams_query,
+                experimental_event_types_query: experimental_event_types_query,
                 host: host,
                 root_path: path,
                 api_url: api_url,
@@ -69,9 +71,10 @@ module RubyEventStore
         end
       end
 
-      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, api_url:)
+      def initialize(event_store_locator:, related_streams_query:, experimental_event_types_query:, host:, root_path:, api_url:)
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
+        @experimental_event_types_query = experimental_event_types_query
         @routing = Urls.from_configuration(host, root_path, api_url)
       end
 
@@ -95,8 +98,18 @@ module RubyEventStore
                  page: params["page"],
                )
         end
+        router.add_route("GET", "/api/event_types") do
+          if experimental_event_types_query.nil?
+            feature_not_enabled
+          else
+            json GetEventTypes.new(
+                   event_store: event_store,
+                   event_types_query: experimental_event_types_query,
+                 )
+          end
+        end
 
-        %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
+        %w[/ /events/:event_id /streams/:stream_name /types].each do |starting_route|
           router.add_route("GET", starting_route) do |_, urls|
             erb bootstrap_html,
                 browser_js_src: urls.browser_js_url,
@@ -116,7 +129,7 @@ module RubyEventStore
 
       private
 
-      attr_reader :event_store_locator, :related_streams_query, :routing
+      attr_reader :event_store_locator, :related_streams_query, :experimental_event_types_query, :routing
 
       def event_store
         event_store_locator.call
@@ -148,6 +161,10 @@ module RubyEventStore
 
       def not_found
         [404, {}, []]
+      end
+
+      def feature_not_enabled
+        [422, {}, []]
       end
 
       def json(body)

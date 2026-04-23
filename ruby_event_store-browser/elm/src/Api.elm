@@ -1,4 +1,4 @@
-module Api exposing (Event, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEvents, getStream)
+module Api exposing (Event, EventType, PaginatedList, PaginationLink, PaginationLinks, RemoteResource(..), Stream, emptyPaginatedList, eventDecoder, eventsDecoder, getEvent, getEventTypes, getEvents, getStream)
 
 import Flags exposing (Flags)
 import Http
@@ -65,6 +65,12 @@ type alias Stream =
     }
 
 
+type alias EventType =
+    { eventType : String
+    , streamName : String
+    }
+
+
 buildUrl : String -> String -> String
 buildUrl baseUrl id =
     baseUrl ++ "/" ++ Url.percentEncode id
@@ -84,6 +90,10 @@ streamUrl : Flags -> String -> String
 streamUrl flags streamId =
     buildUrl (Url.toString flags.apiUrl ++ "/streams") streamId
 
+
+eventTypesUrl : Flags -> String
+eventTypesUrl flags =
+    Url.toString flags.apiUrl ++ "/event_types"
 
 
 getEvent : (Result Http.Error Event -> msg) -> Flags -> String -> Cmd msg
@@ -140,6 +150,26 @@ streamDecoder_ =
     succeed Stream
         |> requiredAt [ "relationships", "events", "links", "self" ] string
         |> optionalAt [ "attributes", "related_streams" ] (maybe (list string)) Nothing
+
+
+getEventTypes : (Result Http.Error (List EventType) -> msg) -> Flags -> Cmd msg
+getEventTypes msgBuilder flags =
+    Http.get
+        { url = eventTypesUrl flags
+        , expect = Http.expectJson msgBuilder eventTypesDecoder
+        }
+
+
+eventTypesDecoder : Decoder (List EventType)
+eventTypesDecoder =
+    field "data" (list eventTypeDecoder_)
+
+
+eventTypeDecoder_ : Decoder EventType
+eventTypeDecoder_ =
+    succeed EventType
+        |> requiredAt [ "attributes", "event_type" ] string
+        |> requiredAt [ "attributes", "stream_name" ] string
 
 
 getEvents : (Result Http.Error (PaginatedList Event) -> msg) -> Flags -> String -> Pagination.Specification -> Cmd msg
