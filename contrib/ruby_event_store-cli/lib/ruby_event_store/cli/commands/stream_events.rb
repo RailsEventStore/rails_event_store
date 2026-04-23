@@ -38,10 +38,7 @@ module RubyEventStore
         def tail(stream_name, last_id:, type:, format:)
           loop do
             sleep 1
-            specification = event_store.read.stream(stream_name)
-            specification = specification.of_type(ReadEvents.resolve_type(type)) if type
-            specification = specification.from(last_id)                                 if last_id
-            events = specification.to_a
+            events = ReadEvents.of(event_store.read.stream(stream_name), type: type, from: last_id)
             next if events.empty?
             render(events, format: format)
             last_id = events.last.event_id
