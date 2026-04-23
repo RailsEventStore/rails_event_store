@@ -12,19 +12,26 @@ module RubyEventStore
         option :stream, desc: "Show stats for a specific stream"
 
         def call(stream: nil, **)
-          reader = stream ? event_store.read.stream(stream) : event_store.read
-
-          puts "Stream:  #{stream}" if stream
-          puts "Events:  #{reader.count}"
-
-          types = reader.map(&:event_type).uniq.sort
-          unless types.empty?
-            puts "\nEvent types:"
-            types.each { |t| puts "  #{t}" }
-          end
+          specification = stream ? event_store.read.stream(stream) : event_store.read
+          print_stats(specification, stream: stream)
         rescue => e
           warn e.message
           exit 1
+        end
+
+        private
+
+        def print_stats(specification, stream:)
+          puts "Stream:  #{stream}" if stream
+          puts "Events:  #{specification.count}"
+          print_event_types(specification)
+        end
+
+        def print_event_types(specification)
+          types = specification.map(&:event_type).uniq.sort
+          return if types.empty?
+          puts "\nEvent types:"
+          types.each { |t| puts "  #{t}" }
         end
       end
     end
