@@ -9,6 +9,7 @@ GEMS = minitest-ruby_event_store \
        ruby_event_store-sequel \
        ruby_event_store-sidekiq_scheduler \
        ruby_event_store-transformations \
+       ruby_event_store-mcp \
 			 dres_rails \
 			 dres_client
 
