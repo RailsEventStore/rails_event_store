@@ -25,7 +25,7 @@ module RubyEventStore
         end
 
         def call(event_store, args)
-          event = event_store.read.event!(args["event_id"])
+          event = event_store.read.event!(args.fetch("event_id"))
           format_event(event)
         end
 
