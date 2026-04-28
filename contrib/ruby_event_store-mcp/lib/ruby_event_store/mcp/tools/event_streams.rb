@@ -23,7 +23,7 @@ module RubyEventStore
         end
 
         def call(event_store, args)
-          streams = event_store.streams_of(args["event_id"])
+          streams = event_store.streams_of(args.fetch("event_id"))
           return "(no streams — event not found or not linked to any stream)" if streams.empty?
           format_streams(streams)
         end
