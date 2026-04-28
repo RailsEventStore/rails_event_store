@@ -43,13 +43,13 @@ module RubyEventStore
         end
 
         def root_events(events)
-          event_ids = events.map(&:event_id).to_set
+          event_ids = events.map(&:event_id)
           events.reject { |e| event_ids.include?(e.metadata[:causation_id]) }
         end
 
         def render_node(event, by_causation, prefix, root, last, lines)
           connector = root ? "" : (last ? "└── " : "├── ")
-          lines << "#{prefix}#{connector}#{event.event_type} [#{event.event_id}]"
+          lines << "#{prefix + connector}#{event.event_type} [#{event.event_id}]"
           children = by_causation[event.event_id] || []
           child_prefix = root ? prefix : prefix + (last ? "    " : "│   ")
           children.each_with_index do |child, i|
