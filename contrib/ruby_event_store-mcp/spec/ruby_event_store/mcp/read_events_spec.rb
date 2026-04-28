@@ -95,7 +95,7 @@ module RubyEventStore
 
         it "raises for unknown event type" do
           expect { ReadEvents.of(event_store.read, type: "NonExistentClass") }
-            .to raise_error(/Unknown event type/)
+            .to raise_error(RuntimeError, /NonExistentClass/)
         end
       end
     end
