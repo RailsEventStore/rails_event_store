@@ -28,7 +28,7 @@ module RubyEventStore
         end
 
         def call(event_store, args)
-          specification = args["stream"] ? event_store.read.stream(args["stream"]) : event_store.read
+          specification = args.key?("stream") ? event_store.read.stream(args.fetch("stream")) : event_store.read
           events = ReadEvents.of(
             specification,
             type: args["type"],
