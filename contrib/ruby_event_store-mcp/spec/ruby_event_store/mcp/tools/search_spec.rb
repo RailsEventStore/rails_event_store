@@ -55,6 +55,12 @@ module RubyEventStore
             expect(result).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z  \S.*OrderCreated.*\[.{36}\]/)
           end
 
+          it "includes full event type name with double-space separator" do
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            result = tool.call(event_store, {})
+            expect(result).to include("  RubyEventStore::MCP::Tools::OrderCreated  [")
+          end
+
           it "filters by event type" do
             event_store.publish(OrderCreated.new, stream_name: "Order$1")
             event_store.publish(OrderShipped.new, stream_name: "Order$1")

@@ -122,6 +122,37 @@ module RubyEventStore
             expect(result).to include("└──")
           end
 
+          it "treats event with external causation_id as root" do
+            correlation_id = SecureRandom.uuid
+            root = OrderCreated.new(metadata: {
+              correlation_id: correlation_id,
+              causation_id: SecureRandom.uuid
+            })
+            event_store.publish(root, stream_name: "Order$1")
+            event_store.link(root.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+
+            result = tool.call(event_store, "correlation_id" => correlation_id)
+            expect(result).to include("OrderCreated")
+          end
+
+          it "preserves accumulated prefix for deeply nested nodes" do
+            correlation_id = SecureRandom.uuid
+            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
+            child1 = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
+            child2 = EmailSent.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
+            grandchild = OrderCreated.new(metadata: { correlation_id: correlation_id, causation_id: child1.event_id })
+            great_grandchild = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: grandchild.event_id })
+
+            [root, child1, child2, grandchild, great_grandchild].each do |e|
+              event_store.publish(e, stream_name: "Order$1")
+              event_store.link(e.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+            end
+
+            result = tool.call(event_store, "correlation_id" => correlation_id)
+            lines = result.lines.map(&:chomp)
+            expect(lines[3]).to start_with("│")
+          end
+
           it "shows pipe prefix for children under non-last branch" do
             correlation_id = SecureRandom.uuid
             root = OrderCreated.new(metadata: { correlation_id: correlation_id })
