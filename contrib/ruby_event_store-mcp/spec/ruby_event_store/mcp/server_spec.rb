@@ -206,6 +206,16 @@ module RubyEventStore
           s = Server.new(event_store: event_store)
           expect(s.version).to eq(MCP::VERSION)
         end
+
+        it "stores given event_store" do
+          s = Server.new(event_store: event_store)
+          expect(s.event_store).to equal(event_store)
+        end
+
+        it "starts with empty tools list" do
+          s = Server.new(event_store: event_store)
+          expect(s.tools).to eq([])
+        end
       end
 
       describe "#jsonrpc_result" do
@@ -411,6 +421,42 @@ module RubyEventStore
           result = call_tool(1, { "name" => "event_show", "arguments" => { "event_id" => SecureRandom.uuid } })
           text = result[:result][:content].first[:text]
           expect(text).to match(/Error: .+/)
+        end
+
+        it "passes arguments to tool" do
+          event_store.publish(RubyEventStore::Event.new, stream_name: "test")
+          server.register(Tools::StreamShow.new)
+          result = call_tool(1, { "name" => "stream_show", "arguments" => { "stream_name" => "test" } })
+          expect(result[:result][:content].first[:text]).to include("Stream:")
+        end
+
+        it "returns correct id for successful call" do
+          server.register(Tools::Stats.new)
+          result = call_tool(55, { "name" => "stats" })
+          expect(result[:id]).to eq(55)
+        end
+
+        it "success content type is text" do
+          server.register(Tools::Stats.new)
+          result = call_tool(1, { "name" => "stats" })
+          expect(result[:result][:content].first[:type]).to eq("text")
+        end
+
+        it "finds non-last tool by name" do
+          server.register(Tools::Stats.new)
+          server.register(Tools::StreamShow.new)
+          result = call_tool(1, { "name" => "stats" })
+          expect(result[:result][:content].first[:text]).to include("Events:")
+        end
+
+        it "returns correct id for unknown tool" do
+          result = call_tool(55, { "name" => "nonexistent" })
+          expect(result[:id]).to eq(55)
+        end
+
+        it "unknown tool content type is text" do
+          result = call_tool(1, { "name" => "nonexistent" })
+          expect(result[:result][:content].first[:type]).to eq("text")
         end
       end
 
