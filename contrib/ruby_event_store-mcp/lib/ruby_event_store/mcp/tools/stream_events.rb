@@ -31,7 +31,7 @@ module RubyEventStore
 
         def call(event_store, args)
           events = ReadEvents.of(
-            event_store.read.stream(args["stream_name"]),
+            event_store.read.stream(args.fetch("stream_name")),
             type: args["type"],
             after: args["after"],
             before: args["before"],
