@@ -15,8 +15,16 @@ module RubyEventStore
         end
 
         describe "#schema" do
-          it "requires event_id" do
-            expect(tool.schema[:inputSchema][:required]).to include("event_id")
+          it "has expected structure" do
+            expect(tool.schema).to eq(
+              name: "event_streams",
+              description: "List all streams the event has been published or linked to",
+              inputSchema: {
+                type: "object",
+                properties: { event_id: { type: "string", description: "Event ID (UUID)" } },
+                required: ["event_id"]
+              }
+            )
           end
         end
 
@@ -35,6 +43,17 @@ module RubyEventStore
 
             expect(result).to include("Order$1")
             expect(result).to include("Shipping$1")
+          end
+
+          it "separates stream names with newlines" do
+            event = RubyEventStore::Event.new
+            event_store.publish(event, stream_name: "Order$1")
+            event_store.link(event.event_id, stream_name: "Shipping$1")
+
+            result = tool.call(event_store, "event_id" => event.event_id)
+            lines = result.lines.map(&:chomp)
+            expect(lines).to include("Order$1")
+            expect(lines).to include("Shipping$1")
           end
         end
       end

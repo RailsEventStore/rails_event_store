@@ -19,8 +19,18 @@ module RubyEventStore
         end
 
         describe "#schema" do
-          it "requires correlation_id" do
-            expect(tool.schema[:inputSchema][:required]).to include("correlation_id")
+          it "has expected structure" do
+            expect(tool.schema).to eq(
+              name: "trace",
+              description: "Show the causation tree for all events sharing a correlation ID",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  correlation_id: { type: "string", description: "Correlation ID (UUID)" }
+                },
+                required: ["correlation_id"]
+              }
+            )
           end
         end
 
@@ -28,6 +38,12 @@ module RubyEventStore
           it "returns no events message for unknown correlation id" do
             result = tool.call(event_store, "correlation_id" => SecureRandom.uuid)
             expect(result).to include("no events found")
+          end
+
+          it "includes the correlation id in the no events message" do
+            correlation_id = SecureRandom.uuid
+            result = tool.call(event_store, "correlation_id" => correlation_id)
+            expect(result).to include("correlation ID #{correlation_id}")
           end
 
           it "shows root event" do
@@ -39,6 +55,31 @@ module RubyEventStore
             result = tool.call(event_store, "correlation_id" => correlation_id)
             expect(result).to include("OrderCreated")
             expect(result).to include(root.event_id)
+          end
+
+          it "shows root event without connector prefix" do
+            correlation_id = SecureRandom.uuid
+            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
+            event_store.publish(root, stream_name: "Order$1")
+            event_store.link(root.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+
+            result = tool.call(event_store, "correlation_id" => correlation_id)
+            first_line = result.lines.first.chomp
+            expect(first_line).not_to include("└──")
+            expect(first_line).not_to include("├──")
+          end
+
+          it "only includes events from the given correlation id stream" do
+            correlation_id = SecureRandom.uuid
+            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
+            unrelated = PaymentCharged.new
+            event_store.publish(root, stream_name: "Order$1")
+            event_store.publish(unrelated, stream_name: "Payment$1")
+            event_store.link(root.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+
+            result = tool.call(event_store, "correlation_id" => correlation_id)
+            expect(result).to include("OrderCreated")
+            expect(result).not_to include("PaymentCharged")
           end
 
           it "shows causation tree with children" do
@@ -57,9 +98,44 @@ module RubyEventStore
             result = tool.call(event_store, "correlation_id" => correlation_id)
             lines = result.lines.map(&:chomp)
 
-            expect(lines[0]).to match(/OrderCreated \[/)
-            expect(lines[1]).to match(/└──.*PaymentCharged \[/)
-            expect(lines[2]).to match(/    └──.*EmailSent \[/)
+            expect(lines.count).to eq(3)
+            expect(lines[0]).to match(/\A\S.*OrderCreated \[/)
+            expect(lines[1]).to match(/\A└──.*PaymentCharged \[/)
+            expect(lines[2]).to match(/\A    └──.*EmailSent \[/)
+          end
+
+          it "shows branch connector for non-last children" do
+            correlation_id = SecureRandom.uuid
+            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
+            child1 = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
+            child2 = EmailSent.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
+
+            event_store.publish(root, stream_name: "Order$1")
+            event_store.publish(child1, stream_name: "Payment$1")
+            event_store.publish(child2, stream_name: "Email$1")
+            [root, child1, child2].each do |e|
+              event_store.link(e.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+            end
+
+            result = tool.call(event_store, "correlation_id" => correlation_id)
+            expect(result).to include("├──")
+            expect(result).to include("└──")
+          end
+
+          it "shows pipe prefix for children under non-last branch" do
+            correlation_id = SecureRandom.uuid
+            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
+            child1 = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
+            child2 = EmailSent.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
+            grandchild = OrderCreated.new(metadata: { correlation_id: correlation_id, causation_id: child1.event_id })
+
+            [root, child1, child2, grandchild].each { |e| event_store.publish(e, stream_name: "Order$1") }
+            [root, child1, child2, grandchild].each do |e|
+              event_store.link(e.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+            end
+
+            result = tool.call(event_store, "correlation_id" => correlation_id)
+            expect(result).to include("│")
           end
         end
       end
