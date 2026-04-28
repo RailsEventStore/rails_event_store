@@ -18,8 +18,23 @@ module RubyEventStore
         end
 
         describe "#schema" do
-          it "requires stream_name" do
-            expect(tool.schema[:inputSchema][:required]).to include("stream_name")
+          it "has expected structure" do
+            expect(tool.schema).to eq(
+              name: "stream_events",
+              description: "List events in a stream with optional filters",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  stream_name: { type: "string", description: "Stream name" },
+                  limit: { type: "integer", description: "Max number of events (default: 20)" },
+                  type: { type: "string", description: "Filter by event type class name" },
+                  after: { type: "string", description: "Filter events newer than timestamp (ISO8601)" },
+                  before: { type: "string", description: "Filter events older than timestamp (ISO8601)" },
+                  from: { type: "string", description: "Start reading from event ID (exclusive)" }
+                },
+                required: ["stream_name"]
+              }
+            )
           end
         end
 
@@ -28,11 +43,10 @@ module RubyEventStore
             expect(tool.call(event_store, "stream_name" => "empty")).to eq("(no events)")
           end
 
-          it "lists events with timestamp, type and id" do
+          it "formats events with iso8601 timestamp, type and id in brackets" do
             event_store.publish(OrderCreated.new, stream_name: "Order$1")
             result = tool.call(event_store, "stream_name" => "Order$1")
-            expect(result).to match(/OrderCreated/)
-            expect(result).to match(/\[.{36}\]/)
+            expect(result).to match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z  \S.*OrderCreated.*\[.{36}\]/)
           end
 
           it "filters by event type" do
@@ -49,9 +63,48 @@ module RubyEventStore
             expect(result.lines.count).to eq(2)
           end
 
+          it "filters by after timestamp" do
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            future = (Time.now + 3600).iso8601
+            event_store.publish(OrderShipped.new, stream_name: "Order$1")
+            result = tool.call(event_store, "stream_name" => "Order$1", "after" => future)
+            expect(result).to include("(no events)")
+          end
+
+          it "filters by before timestamp" do
+            past = (Time.now - 3600).iso8601
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            result = tool.call(event_store, "stream_name" => "Order$1", "before" => past)
+            expect(result).to include("(no events)")
+          end
+
+          it "reads from a given event id" do
+            first = OrderCreated.new
+            second = OrderShipped.new
+            event_store.publish(first, stream_name: "Order$1")
+            event_store.publish(second, stream_name: "Order$1")
+            result = tool.call(event_store, "stream_name" => "Order$1", "from" => first.event_id)
+            expect(result).to include("OrderShipped")
+            expect(result).not_to include("OrderCreated")
+          end
+
           it "raises for unknown event type" do
             expect { tool.call(event_store, "stream_name" => "Order$1", "type" => "NonExistentType") }
               .to raise_error(/Unknown event type/)
+          end
+
+          it "only returns events from the specified stream" do
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            event_store.publish(OrderShipped.new, stream_name: "Other$1")
+            result = tool.call(event_store, "stream_name" => "Order$1")
+            expect(result).to include("OrderCreated")
+            expect(result).not_to include("OrderShipped")
+          end
+
+          it "defaults to limit 20" do
+            21.times { event_store.publish(RubyEventStore::Event.new, stream_name: "Order$1") }
+            result = tool.call(event_store, "stream_name" => "Order$1")
+            expect(result.lines.count).to eq(20)
           end
         end
       end

@@ -17,21 +17,50 @@ module RubyEventStore
         end
 
         describe "#schema" do
-          it "requires event_id" do
-            expect(tool.schema[:inputSchema][:required]).to include("event_id")
+          it "has expected structure" do
+            expect(tool.schema).to eq(
+              name: "event_show",
+              description: "Show full event details including data, metadata, and timestamps",
+              inputSchema: {
+                type: "object",
+                properties: { event_id: { type: "string", description: "Event ID (UUID)" } },
+                required: ["event_id"]
+              }
+            )
           end
         end
 
         describe "#call" do
-          it "shows event details" do
-            event = OrderCreated.new(data: { order_id: 42 })
-            event_store.publish(event, stream_name: "Order$42")
+          let(:event) { OrderCreated.new(data: { order_id: 42 }, metadata: { user_id: 1 }) }
+          let(:result) { event_store.publish(event, stream_name: "Order$42"); tool.call(event_store, "event_id" => event.event_id) }
 
-            result = tool.call(event_store, "event_id" => event.event_id)
-
+          it "shows event id" do
             expect(result).to include("Event ID:   #{event.event_id}")
+          end
+
+          it "shows event type" do
             expect(result).to include("Type:       RubyEventStore::MCP::Tools::OrderCreated")
-            expect(result).to include("order_id")
+          end
+
+          it "shows timestamp in iso8601 with exactly 3 decimal places" do
+            expect(result).to match(/Timestamp:  \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/)
+          end
+
+          it "shows valid_at in iso8601 with exactly 3 decimal places" do
+            expect(result).to match(/Valid at:   \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/)
+          end
+
+          it "shows data as formatted json" do
+            expect(result).to include('"order_id": 42')
+          end
+
+          it "shows metadata as formatted json" do
+            expect(result).to include('"user_id": 1')
+          end
+
+          it "separates fields with newlines between each field" do
+            expect(result.lines.first.chomp).to eq("Event ID:   #{event.event_id}")
+            expect(result.lines[1].chomp).to start_with("Type:")
           end
 
           it "raises for unknown event" do
