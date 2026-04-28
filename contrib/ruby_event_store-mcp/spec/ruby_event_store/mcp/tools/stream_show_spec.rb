@@ -18,8 +18,18 @@ module RubyEventStore
         end
 
         describe "#schema" do
-          it "includes required stream_name property" do
-            expect(tool.schema[:inputSchema][:required]).to include("stream_name")
+          it "has expected structure" do
+            expect(tool.schema).to eq(
+              name: "stream_show",
+              description: "Show event count, version, and first/last event for a stream",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  stream_name: { type: "string", description: "Stream name" }
+                },
+                required: ["stream_name"]
+              }
+            )
           end
         end
 
@@ -32,18 +42,43 @@ module RubyEventStore
           end
 
           it "shows version as count minus one" do
-            event_store.publish(RubyEventStore::Event.new, stream_name: "Order$1")
-            event_store.publish(RubyEventStore::Event.new, stream_name: "Order$1")
+            3.times { event_store.publish(RubyEventStore::Event.new, stream_name: "Order$1") }
             result = tool.call(event_store, "stream_name" => "Order$1")
-            expect(result).to include("Version: 1")
+            expect(result).to include("Version: 2")
           end
 
-          it "shows first and last event types" do
+          it "shows first and last event types with iso8601 timestamps" do
             event_store.publish(OrderCreated.new, stream_name: "Order$1")
             event_store.publish(OrderShipped.new, stream_name: "Order$1")
             result = tool.call(event_store, "stream_name" => "Order$1")
-            expect(result).to match(/First:.*OrderCreated/)
-            expect(result).to match(/Last:.*OrderShipped/)
+            expect(result).to match(/First:   \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z.*OrderCreated/)
+            expect(result).to match(/Last:    \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z.*OrderShipped/)
+          end
+
+          it "shows first event type as class name" do
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            result = tool.call(event_store, "stream_name" => "Order$1")
+            expect(result).to match(/First:   .* \(RubyEventStore::/)
+          end
+
+          it "shows last event type as class name" do
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            result = tool.call(event_store, "stream_name" => "Order$1")
+            expect(result).to match(/Last:    .* \(RubyEventStore::/)
+          end
+
+          it "places each field on its own line" do
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            result = tool.call(event_store, "stream_name" => "Order$1")
+            expect(result.lines.first.chomp).to eq("Stream:  Order$1")
+            expect(result.lines[1].chomp).to eq("Events:  1")
+          end
+
+          it "only counts events from the specified stream" do
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            event_store.publish(OrderShipped.new, stream_name: "Other$1")
+            result = tool.call(event_store, "stream_name" => "Order$1")
+            expect(result).to include("Events:  1")
           end
 
           it "omits version and timestamps for empty stream" do
