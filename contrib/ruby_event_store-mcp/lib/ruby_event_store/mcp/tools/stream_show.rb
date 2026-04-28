@@ -23,8 +23,9 @@ module RubyEventStore
         end
 
         def call(event_store, args)
-          specification = event_store.read.stream(args["stream_name"])
-          format_stream(args["stream_name"], specification)
+          stream_name = args.fetch("stream_name")
+          specification = event_store.read.stream(stream_name)
+          format_stream(stream_name, specification)
         end
 
         private
