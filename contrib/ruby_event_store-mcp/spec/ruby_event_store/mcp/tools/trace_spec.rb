@@ -7,12 +7,32 @@ module RubyEventStore
   module MCP
     module Tools
       ::RSpec.describe Trace do
+        class OrderPlaced < RubyEventStore::Event; end
+        class PaymentProcessed < RubyEventStore::Event; end
+        class OrderShipped < RubyEventStore::Event; end
+        class UserRegistered < RubyEventStore::Event; end
+        class FraudCheckPassed < RubyEventStore::Event; end
+        class InventoryReserved < RubyEventStore::Event; end
+        class InventoryReleased < RubyEventStore::Event; end
+        class WarehouseNotified < RubyEventStore::Event; end
+        class InvoiceGenerated < RubyEventStore::Event; end
+        class LoyaltyPointsAwarded < RubyEventStore::Event; end
+        class EmailSent < RubyEventStore::Event; end
+
         let(:event_store) { RubyEventStore::Client.new }
         let(:tool) { Trace.new }
 
-        class OrderCreated < RubyEventStore::Event; end
-        class PaymentCharged < RubyEventStore::Event; end
-        class EmailSent < RubyEventStore::Event; end
+        def pub(event, stream)
+          event_store.publish(event, stream_name: stream)
+          event_store.link(event.event_id, stream_name: "$by_correlation_id_#{event.metadata[:correlation_id]}")
+          event
+        end
+
+        def tree_shape(cid)
+          tool.call(event_store, "correlation_id" => cid)
+            .lines.map(&:chomp)
+            .map { |l| l.sub(/(?:\w+::)+(\w+) \[/, '\1 [').sub(/\[.*?\]/, "[id]") }
+        end
 
         describe "#name" do
           it { expect(tool.name).to eq("trace") }
@@ -41,132 +61,110 @@ module RubyEventStore
           end
 
           it "includes the correlation id in the no events message" do
-            correlation_id = SecureRandom.uuid
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            expect(result).to include("correlation ID #{correlation_id}")
+            cid = SecureRandom.uuid
+            expect(tool.call(event_store, "correlation_id" => cid)).to include("correlation ID #{cid}")
           end
 
-          it "shows root event" do
-            correlation_id = SecureRandom.uuid
-            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
-            event_store.publish(root, stream_name: "Order$1")
-            event_store.link(root.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+          context "chain: OrderPlaced → PaymentProcessed → OrderShipped" do
+            let(:cid) { SecureRandom.uuid }
+            let!(:order)   { pub(OrderPlaced.new(metadata: { correlation_id: cid }), "Order$1") }
+            let!(:payment) { pub(PaymentProcessed.new(metadata: { correlation_id: cid, causation_id: order.event_id }), "Payment$1") }
+            let!(:shipped) { pub(OrderShipped.new(metadata: { correlation_id: cid, causation_id: payment.event_id }), "Order$1") }
 
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            expect(result).to include("OrderCreated")
-            expect(result).to include(root.event_id)
-          end
-
-          it "shows root event without connector prefix" do
-            correlation_id = SecureRandom.uuid
-            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
-            event_store.publish(root, stream_name: "Order$1")
-            event_store.link(root.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
-
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            first_line = result.lines.first.chomp
-            expect(first_line).not_to include("└──")
-            expect(first_line).not_to include("├──")
-          end
-
-          it "only includes events from the given correlation id stream" do
-            correlation_id = SecureRandom.uuid
-            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
-            unrelated = PaymentCharged.new
-            event_store.publish(root, stream_name: "Order$1")
-            event_store.publish(unrelated, stream_name: "Payment$1")
-            event_store.link(root.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
-
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            expect(result).to include("OrderCreated")
-            expect(result).not_to include("PaymentCharged")
-          end
-
-          it "shows causation tree with children" do
-            correlation_id = SecureRandom.uuid
-            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
-            child = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
-            grandchild = EmailSent.new(metadata: { correlation_id: correlation_id, causation_id: child.event_id })
-
-            event_store.publish(root, stream_name: "Order$1")
-            event_store.publish(child, stream_name: "Payment$1")
-            event_store.publish(grandchild, stream_name: "Email$1")
-            [root, child, grandchild].each do |e|
-              event_store.link(e.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+            it "renders the causation chain" do
+              expect(tree_shape(cid)).to eq([
+                "OrderPlaced [id]",
+                "└── PaymentProcessed [id]",
+                "    └── OrderShipped [id]"
+              ])
             end
 
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            lines = result.lines.map(&:chomp)
-
-            expect(lines.count).to eq(3)
-            expect(lines[0]).to match(/\A\S.*OrderCreated \[/)
-            expect(lines[1]).to match(/\A└──.*PaymentCharged \[/)
-            expect(lines[2]).to match(/\A    └──.*EmailSent \[/)
-          end
-
-          it "shows branch connector for non-last children" do
-            correlation_id = SecureRandom.uuid
-            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
-            child1 = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
-            child2 = EmailSent.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
-
-            event_store.publish(root, stream_name: "Order$1")
-            event_store.publish(child1, stream_name: "Payment$1")
-            event_store.publish(child2, stream_name: "Email$1")
-            [root, child1, child2].each do |e|
-              event_store.link(e.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+            it "root and last-child lines include the actual event_id" do
+              lines = tool.call(event_store, "correlation_id" => cid).lines.map(&:chomp)
+              expect(lines[0]).to match(/OrderPlaced \[#{order.event_id}\]/)
+              expect(lines[1]).to match(/└── .*PaymentProcessed \[#{payment.event_id}\]/)
             end
 
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            expect(result).to include("├──")
-            expect(result).to include("└──")
+            it "only includes events from the given correlation id stream" do
+              pub(OrderPlaced.new(metadata: { correlation_id: SecureRandom.uuid }), "Other$1")
+              expect(tool.call(event_store, "correlation_id" => cid).lines.count).to eq(3)
+            end
           end
 
-          it "treats event with external causation_id as root" do
-            correlation_id = SecureRandom.uuid
-            root = OrderCreated.new(metadata: {
-              correlation_id: correlation_id,
-              causation_id: SecureRandom.uuid
-            })
-            event_store.publish(root, stream_name: "Order$1")
-            event_store.link(root.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+          context "branching: OrderPlaced → [PaymentProcessed → OrderShipped, UserRegistered]" do
+            let(:cid) { SecureRandom.uuid }
+            let!(:order)      { pub(OrderPlaced.new(metadata: { correlation_id: cid }), "Order$2") }
+            let!(:payment)    { pub(PaymentProcessed.new(metadata: { correlation_id: cid, causation_id: order.event_id }), "Payment$2") }
+            let!(:registered) { pub(UserRegistered.new(metadata: { correlation_id: cid, causation_id: order.event_id }), "User$2") }
+            let!(:shipped)    { pub(OrderShipped.new(metadata: { correlation_id: cid, causation_id: payment.event_id }), "Order$2") }
 
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            expect(result).to include("OrderCreated")
-          end
-
-          it "preserves accumulated prefix for deeply nested nodes" do
-            correlation_id = SecureRandom.uuid
-            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
-            child1 = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
-            child2 = EmailSent.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
-            grandchild = OrderCreated.new(metadata: { correlation_id: correlation_id, causation_id: child1.event_id })
-            great_grandchild = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: grandchild.event_id })
-
-            [root, child1, child2, grandchild, great_grandchild].each do |e|
-              event_store.publish(e, stream_name: "Order$1")
-              event_store.link(e.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+            it "renders the branching tree" do
+              expect(tree_shape(cid)).to eq([
+                "OrderPlaced [id]",
+                "├── PaymentProcessed [id]",
+                "│   └── OrderShipped [id]",
+                "└── UserRegistered [id]"
+              ])
             end
 
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            lines = result.lines.map(&:chomp)
-            expect(lines[3]).to start_with("│")
+            it "non-last branch line contains event_type and event_id" do
+              lines = tool.call(event_store, "correlation_id" => cid).lines.map(&:chomp)
+              non_last_line = lines.find { |l| l.include?("├──") }
+              expect(non_last_line).to match(/├── .*PaymentProcessed \[#{payment.event_id}\]/)
+            end
           end
 
-          it "shows pipe prefix for children under non-last branch" do
-            correlation_id = SecureRandom.uuid
-            root = OrderCreated.new(metadata: { correlation_id: correlation_id })
-            child1 = PaymentCharged.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
-            child2 = EmailSent.new(metadata: { correlation_id: correlation_id, causation_id: root.event_id })
-            grandchild = OrderCreated.new(metadata: { correlation_id: correlation_id, causation_id: child1.event_id })
+          context "full order flow with deep branching" do
+            let(:cid) { SecureRandom.uuid }
+            let!(:order)         { pub(OrderPlaced.new(metadata: { correlation_id: cid }), "Order$3") }
+            let!(:fraud)         { pub(FraudCheckPassed.new(metadata: { correlation_id: cid, causation_id: order.event_id }), "Fraud$3") }
+            let!(:inv_reserved)  { pub(InventoryReserved.new(metadata: { correlation_id: cid, causation_id: order.event_id }), "Inventory$3") }
+            let!(:payment)       { pub(PaymentProcessed.new(metadata: { correlation_id: cid, causation_id: fraud.event_id }), "Payment$3") }
+            let!(:invoice)       { pub(InvoiceGenerated.new(metadata: { correlation_id: cid, causation_id: payment.event_id }), "Invoice$3") }
+            let!(:loyalty)       { pub(LoyaltyPointsAwarded.new(metadata: { correlation_id: cid, causation_id: payment.event_id }), "Loyalty$3") }
+            let!(:warehouse)     { pub(WarehouseNotified.new(metadata: { correlation_id: cid, causation_id: payment.event_id }), "Warehouse$3") }
+            let!(:shipped)       { pub(OrderShipped.new(metadata: { correlation_id: cid, causation_id: warehouse.event_id }), "Order$3") }
+            let!(:email_confirm) { pub(EmailSent.new(metadata: { correlation_id: cid, causation_id: warehouse.event_id }), "Email$3") }
+            let!(:inv_released)  { pub(InventoryReleased.new(metadata: { correlation_id: cid, causation_id: shipped.event_id }), "Inventory$3") }
+            let!(:email_delivery){ pub(EmailSent.new(metadata: { correlation_id: cid, causation_id: shipped.event_id }), "Email$3") }
 
-            [root, child1, child2, grandchild].each { |e| event_store.publish(e, stream_name: "Order$1") }
-            [root, child1, child2, grandchild].each do |e|
-              event_store.link(e.event_id, stream_name: "$by_correlation_id_#{correlation_id}")
+            it "renders the full order flow tree" do
+              expect(tree_shape(cid)).to eq([
+                "OrderPlaced [id]",
+                "├── FraudCheckPassed [id]",
+                "│   └── PaymentProcessed [id]",
+                "│       ├── InvoiceGenerated [id]",
+                "│       ├── LoyaltyPointsAwarded [id]",
+                "│       └── WarehouseNotified [id]",
+                "│           ├── OrderShipped [id]",
+                "│           │   ├── InventoryReleased [id]",
+                "│           │   └── EmailSent [id]",
+                "│           └── EmailSent [id]",
+                "└── InventoryReserved [id]"
+              ])
             end
 
-            result = tool.call(event_store, "correlation_id" => correlation_id)
-            expect(result).to include("│")
+            it "accumulates prefix across deeply nested non-last nodes" do
+              lines = tool.call(event_store, "correlation_id" => cid).lines.map(&:chomp)
+              inv_released_line = lines.find { |l| l.include?(inv_released.event_id) }
+              expect(inv_released_line).to start_with("│           │   ├──")
+            end
+          end
+
+          it "treats event with external causation_id as a root" do
+            cid = SecureRandom.uuid
+            pub(OrderPlaced.new(metadata: { correlation_id: cid, causation_id: SecureRandom.uuid }), "Order$4")
+            expect(tree_shape(cid)).to eq(["OrderPlaced [id]"])
+          end
+
+          it "shows multiple root events each without connector prefix" do
+            cid = SecureRandom.uuid
+            pub(OrderPlaced.new(metadata: { correlation_id: cid }), "Order$5")
+            pub(PaymentProcessed.new(metadata: { correlation_id: cid }), "Payment$5")
+
+            lines = tool.call(event_store, "correlation_id" => cid).lines.map(&:chomp)
+            expect(lines.count).to eq(2)
+            lines.each { |l| expect(l).not_to match(/[├└]/) }
           end
         end
       end
