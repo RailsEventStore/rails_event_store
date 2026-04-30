@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "dry/cli"
+require_relative "../lib/ruby_event_store/cli"
+require_relative "../lib/ruby_event_store/cli/commands"
+
+env_file = File.expand_path("config/environment.rb")
+
+abort "Could not find config/environment.rb. Run `res` from the root of your Rails application." unless File.exist?(env_file)
+
+require env_file
+
+abort <<~MSG unless defined?(Rails) && Rails.configuration.respond_to?(:event_store)
+  Could not find event store instance after loading config/environment.rb.
+
+  Expected Rails.configuration.event_store to be set (standard RES setup).
+MSG
+
+Dry::CLI.new(RubyEventStore::CLI::Commands).call
