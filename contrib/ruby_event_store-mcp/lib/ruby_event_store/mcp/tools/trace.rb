@@ -51,20 +51,25 @@ module RubyEventStore
         end
 
         def render_node(event, by_causation, prefix, lines)
-          lines << "#{prefix}├── #{event.event_type} [#{event.event_id}]"
-          render_children(event, by_causation, prefix + "│   ", lines)
+          lines << event_line(event, prefix, "├── ")
+          child_prefix = prefix + "│   "
+          render_children(event, by_causation, child_prefix, lines)
         end
 
         def render_last_node(event, by_causation, prefix, lines)
-          lines << "#{prefix}└── #{event.event_type} [#{event.event_id}]"
-          render_children(event, by_causation, prefix + "    ", lines)
+          lines << event_line(event, prefix, "└── ")
+          child_prefix = prefix + "    "
+          render_children(event, by_causation, child_prefix, lines)
+        end
+
+        def event_line(event, prefix, connector)
+          "#{prefix}#{connector}#{event.event_type} [#{event.event_id}]"
         end
 
         def render_children(event, by_causation, prefix, lines)
-          children = by_causation[event.event_id] || []
-          return if children.empty?
-          *rest, last = children
-          rest.each { |child| render_node(child, by_causation, prefix, lines) }
+          *non_last, last = by_causation[event.event_id]
+          return if last.nil?
+          non_last.each { |child| render_node(child, by_causation, prefix, lines) }
           render_last_node(last, by_causation, prefix, lines)
         end
       end
