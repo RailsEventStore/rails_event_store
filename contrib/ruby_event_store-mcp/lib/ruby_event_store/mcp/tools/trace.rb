@@ -23,8 +23,8 @@ module RubyEventStore
         end
 
         def call(event_store, args)
-          events = events_for(event_store, args["correlation_id"])
-          return "(no events found for correlation ID #{args["correlation_id"]})" if events.empty?
+          events = events_for(event_store, args.fetch("correlation_id"))
+          return "(no events found for correlation ID #{args.fetch("correlation_id")})" if events.empty?
           build_tree(events)
         end
 
@@ -38,7 +38,10 @@ module RubyEventStore
           by_causation = events.group_by { |e| e.metadata[:causation_id] }
           roots = root_events(events)
           lines = []
-          roots.each { |e| render_node(e, by_causation, "", true, roots.last == e, lines) }
+          roots.each do |e|
+            lines << "#{e.event_type} [#{e.event_id}]"
+            render_children(e, by_causation, "", lines)
+          end
           lines.join("\n")
         end
 
@@ -47,14 +50,22 @@ module RubyEventStore
           events.reject { |e| event_ids.include?(e.metadata[:causation_id]) }
         end
 
-        def render_node(event, by_causation, prefix, root, last, lines)
-          connector = root ? "" : (last ? "└── " : "├── ")
-          lines << "#{prefix + connector}#{event.event_type} [#{event.event_id}]"
+        def render_node(event, by_causation, prefix, lines)
+          lines << "#{prefix}├── #{event.event_type} [#{event.event_id}]"
+          render_children(event, by_causation, prefix + "│   ", lines)
+        end
+
+        def render_last_node(event, by_causation, prefix, lines)
+          lines << "#{prefix}└── #{event.event_type} [#{event.event_id}]"
+          render_children(event, by_causation, prefix + "    ", lines)
+        end
+
+        def render_children(event, by_causation, prefix, lines)
           children = by_causation[event.event_id] || []
-          child_prefix = root ? prefix : prefix + (last ? "    " : "│   ")
-          children.each_with_index do |child, i|
-            render_node(child, by_causation, child_prefix, false, i == children.size - 1, lines)
-          end
+          return if children.empty?
+          *rest, last = children
+          rest.each { |child| render_node(child, by_causation, prefix, lines) }
+          render_last_node(last, by_causation, prefix, lines)
         end
       end
     end
