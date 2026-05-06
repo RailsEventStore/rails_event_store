@@ -153,6 +153,13 @@ module RubyEventStore
       end
 
       describe "#start" do
+        it "sets output to sync mode" do
+          output = StringIO.new
+          expect(output).to receive(:sync=).with(true)
+          input = StringIO.new(JSON.generate({ jsonrpc: "2.0", id: 1, method: "ping" }) + "\n")
+          server.start(input: input, output: output)
+        end
+
         it "handles multiple requests in sequence" do
           input = StringIO.new(
             JSON.generate({ jsonrpc: "2.0", id: 1, method: "ping" }) + "\n" +
@@ -264,6 +271,13 @@ module RubyEventStore
           def call(_, _) = "ok"
         end
 
+        it "returns nil id in rescue response when request has no id field" do
+          server.register(BrokenSchemaTool.new)
+          response = server.send(:handle, { "method" => "tools/list" })
+          expect(response[:id]).to be_nil
+          expect(response[:error][:code]).to eq(-32603)
+        end
+
         it "returns -32603 error when an internal exception is raised" do
           server.register(BrokenSchemaTool.new)
           responses = call(server, { jsonrpc: "2.0", id: 7, method: "tools/list" })
@@ -348,11 +362,25 @@ module RubyEventStore
           expect(response[:id]).to eq(99)
           expect(response[:error][:message]).to include("broken_schema_error")
         end
+
+        it "returns -32601 when method key is absent" do
+          response = handle({ "id" => 1 })
+          expect(response[:error][:code]).to eq(-32601)
+        end
       end
 
       describe "#start strip" do
-        it "strips whitespace from lines before parsing" do
-          input = StringIO.new("  " + JSON.generate({ jsonrpc: "2.0", id: 1, method: "ping" }) + "  \n")
+        it "strips leading whitespace from lines before parsing" do
+          input = StringIO.new("  " + JSON.generate({ jsonrpc: "2.0", id: 1, method: "ping" }) + "\n")
+          output = StringIO.new
+          server.start(input: input, output: output)
+          output.rewind
+          responses = output.read.split("\n").map { |l| JSON.parse(l) }
+          expect(responses.first["id"]).to eq(1)
+        end
+
+        it "strips trailing whitespace from lines before parsing" do
+          input = StringIO.new(JSON.generate({ jsonrpc: "2.0", id: 1, method: "ping" }) + "  \n")
           output = StringIO.new
           server.start(input: input, output: output)
           output.rewind
@@ -382,8 +410,31 @@ module RubyEventStore
       end
 
       describe "#call_tool (direct)" do
+        class ErrorWithDistinctToS < StandardError
+          def to_s = "to_s_value"
+          def message = "message_value"
+        end
+
+        class ToSOverridingTool
+          def name = "tos_tool"
+          def schema = { name: "tos_tool", description: "test", inputSchema: { type: "object", properties: {}, required: [] } }
+          def call(_, _) = raise ErrorWithDistinctToS
+        end
+
         def call_tool(id, params)
           server.send(:call_tool, id, params)
+        end
+
+        it "uses exception message (not to_s) in error text" do
+          server.register(ToSOverridingTool.new)
+          result = call_tool(1, { "name" => "tos_tool" })
+          expect(result[:result][:content].first[:text]).to eq("Error: message_value")
+        end
+
+        it "returns unknown tool error when name key is absent" do
+          result = call_tool(1, { "arguments" => {} })
+          expect(result[:result][:content].first[:text]).to include("Unknown tool")
+          expect(result[:result][:isError]).to be(true)
         end
 
         it "returns isError for unknown tool" do
@@ -497,6 +548,12 @@ module RubyEventStore
         it "returns unknown method error with correct id" do
           response = handle({ "id" => 99, "method" => "some/unknown" })
           expect(response[:id]).to eq(99)
+        end
+
+        it "returns result (not jsonrpc error) when params key is absent from tools/call" do
+          response = handle({ "id" => 1, "method" => "tools/call" })
+          expect(response).to have_key(:result)
+          expect(response).not_to have_key(:error)
         end
       end
     end
