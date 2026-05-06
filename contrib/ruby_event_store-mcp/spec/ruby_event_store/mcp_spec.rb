@@ -18,10 +18,10 @@ module RubyEventStore
         expect(server.event_store).to eq(event_store)
       end
 
-      it "registers exactly the 7 standard tools" do
+      it "registers exactly the 8 standard tools" do
         expect(server.tools.map(&:name)).to contain_exactly(
           "stream_show", "stream_events", "event_show",
-          "event_streams", "search", "stats", "trace"
+          "event_streams", "search", "stats", "trace", "aggregate_history"
         )
       end
 

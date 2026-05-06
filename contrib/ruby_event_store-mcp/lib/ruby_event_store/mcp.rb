@@ -10,6 +10,7 @@ require_relative "mcp/tools/event_streams"
 require_relative "mcp/tools/search"
 require_relative "mcp/tools/stats"
 require_relative "mcp/tools/trace"
+require_relative "mcp/tools/aggregate_history"
 
 module RubyEventStore
   module MCP
@@ -23,6 +24,7 @@ module RubyEventStore
         .register(Tools::Search.new)
         .register(Tools::Stats.new)
         .register(Tools::Trace.new)
+        .register(Tools::AggregateHistory.new)
     end
   end
 end
