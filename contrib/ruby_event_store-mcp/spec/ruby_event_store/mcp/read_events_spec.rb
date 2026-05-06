@@ -34,6 +34,18 @@ module RubyEventStore
           expect(result.size).to eq(2)
         end
 
+        it "accepts string limit by converting via to_i" do
+          3.times { event_store.publish(TestEvent.new, stream_name: "test") }
+          result = ReadEvents.of(event_store.read, limit: "2")
+          expect(result.size).to eq(2)
+        end
+
+        it "extracts leading digits from partial numeric string limit via to_i" do
+          3.times { event_store.publish(TestEvent.new, stream_name: "test") }
+          result = ReadEvents.of(event_store.read, limit: "2abc")
+          expect(result.size).to eq(2)
+        end
+
         it "returns all events when no limit given" do
           3.times { event_store.publish(TestEvent.new, stream_name: "test") }
           result = ReadEvents.of(event_store.read)
@@ -96,6 +108,12 @@ module RubyEventStore
         it "raises for unknown event type" do
           expect { ReadEvents.of(event_store.read, type: "NonExistentClass") }
             .to raise_error(RuntimeError, /NonExistentClass/)
+        end
+
+        it "does not resolve unqualified names from ReadEvents namespace" do
+          stub_const("RubyEventStore::MCP::ReadEvents::LocalEvent", Class.new(RubyEventStore::Event))
+          expect { ReadEvents.of(event_store.read, type: "LocalEvent") }
+            .to raise_error(RuntimeError, /Unknown event type/)
         end
       end
     end
