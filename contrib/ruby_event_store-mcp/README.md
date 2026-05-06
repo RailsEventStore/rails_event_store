@@ -32,6 +32,16 @@ The server communicates over stdio using the MCP protocol. Configure it in Claud
 }
 ```
 
+**Claude Code config file locations:**
+
+- `~/.claude/settings.json` — global, works for all projects
+- `.claude/settings.json` — project-local, committed with your app
+
+**Claude Desktop config file locations:**
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
 ## Requirements
 
 - Ruby >= 3.0
