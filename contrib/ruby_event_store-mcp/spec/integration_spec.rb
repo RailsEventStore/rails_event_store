@@ -28,12 +28,12 @@ module RubyEventStore
         expect(responses.first["result"]["protocolVersion"]).to eq(Server::PROTOCOL_VERSION)
       end
 
-      it "lists all 7 tools" do
+      it "lists all 8 tools" do
         responses = call(server, { jsonrpc: "2.0", id: 1, method: "tools/list" })
         names = responses.first["result"]["tools"].map { |t| t["name"] }
         expect(names).to contain_exactly(
           "stream_show", "stream_events", "event_show",
-          "event_streams", "search", "stats", "trace"
+          "event_streams", "search", "stats", "trace", "aggregate_history"
         )
       end
 
