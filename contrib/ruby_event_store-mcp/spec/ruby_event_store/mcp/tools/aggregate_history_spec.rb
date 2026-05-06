@@ -68,6 +68,13 @@ module RubyEventStore
             expect(result.lines[2].chomp).to eq("")
           end
 
+          it "puts each event on its own line" do
+            event_store.publish(OrderCreated.new, stream_name: "Order$1")
+            event_store.publish(OrderShipped.new, stream_name: "Order$1")
+            result = tool.call(event_store, "aggregate_type" => "Order", "aggregate_id" => "1")
+            expect(result.lines.count).to eq(5)
+          end
+
           it "formats event type as plain class name without object notation" do
             event_store.publish(OrderCreated.new, stream_name: "Order$1")
             result = tool.call(event_store, "aggregate_type" => "Order", "aggregate_id" => "1")

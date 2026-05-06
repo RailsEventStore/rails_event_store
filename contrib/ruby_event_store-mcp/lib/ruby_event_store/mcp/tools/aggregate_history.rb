@@ -38,12 +38,9 @@ module RubyEventStore
         end
 
         def render(stream_name, events)
-          lines = ["Aggregate: #{stream_name}", "Events:    #{events.size}"]
-          unless events.empty?
-            lines << ""
-            lines.concat(events.map { |e| "#{e.timestamp.iso8601(3)}  #{e.event_type}  [#{e.event_id}]" })
-          end
-          lines.join("\n")
+          header = "Aggregate: #{stream_name}\nEvents:    #{events.size}"
+          return header if events.empty?
+          "#{header}\n\n#{events.map { |e| "#{e.timestamp.iso8601(3)}  #{e.event_type}  [#{e.event_id}]" }.join("\n")}"
         end
       end
     end
