@@ -66,11 +66,13 @@ GEM
       mutant (= 0.13.1)
       rspec-core (>= 3.8.0, < 4.0.0)
     mutex_m (0.3.0)
-    nokogiri (1.18.10-arm64-darwin)
+    nokogiri (1.19.3-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.10-x86_64-darwin)
+    nokogiri (1.19.3-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.18.10-x86_64-linux-gnu)
+    nokogiri (1.19.3-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.19.3-x86_64-linux-gnu)
       racc (~> 1.4)
     parser (3.3.10.0)
       ast (~> 2.4.1)
@@ -124,6 +126,7 @@ GEM
       nokogiri (~> 1.8)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin
   x86_64-darwin
   x86_64-linux

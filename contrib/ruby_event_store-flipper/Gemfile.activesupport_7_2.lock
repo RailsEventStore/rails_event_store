@@ -105,6 +105,7 @@ GEM
       parser (>= 3.3.0)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin
   x86_64-darwin
   x86_64-linux
