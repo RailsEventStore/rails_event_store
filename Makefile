@@ -62,6 +62,9 @@ git-rebase-from-upstream:
 	@git rebase upstream/master
 	@git push origin master
 
+release-docs:
+	@make -C railseventstore.org release VERSION=$(RES_VERSION)
+
 set-version: git-check-clean git-check-committed
 	@echo $(RES_VERSION) > RES_VERSION
 	@find . -path ./contrib -prune -o -name version.rb -exec sed $(SED_OPTS) "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
@@ -72,13 +75,12 @@ set-version: git-check-clean git-check-committed
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-browser\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-rspec\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@sed $(SED_OPTS) "s/\(gem \"rails_event_store\", \"~>\)\(.*\)/\1 $(RES_VERSION)\"/" APP_TEMPLATE
-	@sed $(SED_OPTS) "s/[0-9]\.[0-9]*\.[0-9]/$(RES_VERSION)/" railseventstore.org/docusaurus.config.js
-	@sed $(SED_OPTS) "s/\[/[\n  \"$(RES_VERSION)\"/" railseventstore.org/versions.json
 	@sed $(SED_OPTS) "s/compare\/v.*\.\.\.master/compare\/v$(RES_VERSION)...master/" RELEASE.md
 	@sed $(SED_OPTS) "s/rails_event_store\/v.*\/APP_TEMPLATE/rails_event_store\/v$(RES_VERSION)\/APP_TEMPLATE/" netlify.toml
 	@make -j8 install-all
 	@make -j8 -C contrib install-all
-	@git add $(shell find . -name Gemfile*.lock -not -path "*/.ruby-lsp/*" -print) **/*.gemspec **/version.rb railseventstore.org/docusaurus.config.js RES_VERSION APP_TEMPLATE RELEASE.md netlify.toml
+	@make release-docs 
+	@git add $(shell find . -name Gemfile*.lock -not -path "*/.ruby-lsp/*" -print) **/*.gemspec **/version.rb railseventstore.org/docusaurus.config.js  railseventstore.org/versions.json railseventstore.org/versioned_docs/version-$(RES_VERSION) railseventstore.org/versioned_sidebars/version-$(RES_VERSION)-sidebars.json   RES_VERSION APP_TEMPLATE RELEASE.md netlify.toml
 	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
