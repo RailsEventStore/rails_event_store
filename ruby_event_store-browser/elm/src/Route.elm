@@ -12,6 +12,7 @@ import Url.Parser.Query as Query
 type Route
     = BrowseEvents String Pagination.Specification
     | ShowEvent String
+    | ShowEventTypes
 
 
 decodeLocation : Url.Url -> Url.Url -> Maybe Route
@@ -25,6 +26,7 @@ routeParser =
         [ Url.Parser.map (BrowseEvents "all" Pagination.empty) Url.Parser.top
         , Url.Parser.map browseEvents (Url.Parser.s "streams" </> Url.Parser.string <?> Query.string "page[position]" <?> Query.string "page[direction]" <?> Query.string "page[count]")
         , Url.Parser.map ShowEvent (Url.Parser.s "events" </> Url.Parser.string)
+        , Url.Parser.map ShowEventTypes (Url.Parser.s "types")
         ]
 
 
