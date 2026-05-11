@@ -31,30 +31,22 @@ jobs:
       DATABASE_URL: "${{ matrix.database_url }}"
       DATA_TYPE: "${{ matrix.data_type }}"
     services:
-      postgres_13:
-        image: postgres:13
+      postgres_14:
+        image: postgres:14
         env:
           POSTGRES_DB: rails_event_store
           POSTGRES_PASSWORD: secret
         ports:
-        - 10013:5432
+        - 10014:5432
         options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
-      postgres_17:
-        image: postgres:17
+      postgres_18:
+        image: postgres:18
         env:
           POSTGRES_DB: rails_event_store
           POSTGRES_PASSWORD: secret
         ports:
-        - 10017:5432
+        - 10018:5432
         options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
-      mysql_8:
-        image: mysql:8.0
-        env:
-          MYSQL_DATABASE: rails_event_store
-          MYSQL_ROOT_PASSWORD: secret
-        ports:
-        - 10080:3306
-        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
       mysql_8_4:
         image: mysql:8.4
         env:
@@ -62,6 +54,14 @@ jobs:
           MYSQL_ROOT_PASSWORD: secret
         ports:
         - 10084:3306
+        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
+      mysql_9_7:
+        image: mysql:9.7
+        env:
+          MYSQL_DATABASE: rails_event_store
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+        - 10097:3306
         options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
@@ -81,27 +81,27 @@ jobs:
           data_type: text
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10018/rails_event_store
           data_type: text
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10013/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10014/rails_event_store
           data_type: text
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10018/rails_event_store
           data_type: json
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
-          database_url: postgres://postgres:secret@localhost:10017/rails_event_store
+          database_url: postgres://postgres:secret@localhost:10018/rails_event_store
           data_type: jsonb
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
-          database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
+          database_url: mysql2://root:secret@127.0.0.1:10097/rails_event_store
           data_type: text
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
-          database_url: mysql2://root:secret@127.0.0.1:10080/rails_event_store
+          database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
           data_type: text
     steps:
     - uses: actions/checkout@v4
