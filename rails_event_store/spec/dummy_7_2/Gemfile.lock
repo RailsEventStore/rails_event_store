@@ -119,7 +119,7 @@ GEM
       concurrent-ruby
     base64 (0.3.0)
     benchmark (0.5.0)
-    bigdecimal (4.0.1)
+    bigdecimal (4.1.2)
     builder (3.3.0)
     cgi (0.5.1)
     concurrent-ruby (1.3.6)
@@ -127,19 +127,20 @@ GEM
     crass (1.0.6)
     date (3.5.1)
     drb (2.2.3)
-    erb (6.0.1)
+    erb (6.0.4)
     erubi (1.13.1)
     globalid (1.3.0)
       activesupport (>= 6.1)
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     io-console (0.8.2)
-    irb (1.16.0)
+    irb (1.18.0)
       pp (>= 0.6.0)
+      prism (>= 1.3.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     logger (1.7.0)
-    loofah (2.25.0)
+    loofah (2.25.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     mail (2.9.0)
@@ -150,9 +151,10 @@ GEM
       net-smtp
     marcel (1.1.0)
     mini_mime (1.1.5)
-    minitest (6.0.0)
+    minitest (6.0.6)
+      drb (~> 2.0)
       prism (~> 1.5)
-    net-imap (0.6.2)
+    net-imap (0.6.4)
       date
       net-protocol
     net-pop (0.1.2)
@@ -173,13 +175,13 @@ GEM
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
-    prism (1.7.0)
+    prism (1.9.0)
     psych (5.3.1)
       date
       stringio
     racc (1.8.1)
-    rack (3.2.4)
-    rack-session (2.1.1)
+    rack (3.2.6)
+    rack-session (2.1.2)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
     rack-test (2.2.0)
@@ -204,8 +206,8 @@ GEM
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.6.2)
-      loofah (~> 2.21)
+    rails-html-sanitizer (1.7.0)
+      loofah (~> 2.25)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
     railties (7.2.3)
       actionpack (= 7.2.3)
@@ -217,8 +219,8 @@ GEM
       thor (~> 1.0, >= 1.2.2)
       tsort (>= 0.2)
       zeitwerk (~> 2.6)
-    rake (13.3.1)
-    rdoc (7.0.2)
+    rake (13.4.2)
+    rdoc (7.2.0)
       erb
       psych (>= 4.0.0)
       tsort
@@ -226,8 +228,8 @@ GEM
       io-console (~> 0.5)
     securerandom (0.4.1)
     stringio (3.2.0)
-    thor (1.4.0)
-    timeout (0.6.0)
+    thor (1.5.0)
+    timeout (0.6.1)
     tsort (0.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -236,7 +238,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.7.4)
+    zeitwerk (2.7.5)
 
 PLATFORMS
   aarch64-linux
