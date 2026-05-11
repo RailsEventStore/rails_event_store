@@ -8,4 +8,4 @@ install-all: ## Install gem dependencies from all Gemfiles
 
 update-all: ## Update gem dependencies in all Gemfiles
 	@echo "Updating gem dependencies"
-	@find . -name Gemfile\* -a ! -name \*.lock -not -path "*/.ruby-lsp/*" -exec bundle update --gemfile {} \;
+	@find . -name Gemfile\* -a ! -name \*.lock -not -path "*/.ruby-lsp/*" -exec bundle update --all --gemfile {} \;
