@@ -35,5 +35,10 @@ module RubyEventStore
       expect(a).to eql(b)
       expect(a.hash).to eql(b.hash)
     end
+
+    specify "hash uses XOR of name hash and class hash" do
+      stream = Stream.new("some_stream")
+      expect(stream.hash).to eq(stream.name.hash ^ stream.class.hash)
+    end
   end
 end

@@ -56,7 +56,7 @@ module RubyEventStore
 
         specify "does not warn when subscriber also matches new event name" do
           instrumented_mapper = InstrumentedBatchMapper.new(spy, ActiveSupport::Notifications)
-          subscribe_to(/event_store/) do |_|
+          subscribe_to(/\Aevents_to_records\.mapper\.(rails|ruby)_event_store\z/) do |_|
             expect { instrumented_mapper.events_to_records(events) }.not_to output(
               /Instrumentation event names \*\.rails_event_store are deprecated/
             ).to_stderr

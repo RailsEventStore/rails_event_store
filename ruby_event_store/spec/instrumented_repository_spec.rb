@@ -60,7 +60,7 @@ module RubyEventStore
 
       specify "does not warn when subscriber also matches new event name" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
-        subscribe_to(/event_store/) do |_|
+        subscribe_to(/\Aappend_to_stream\.repository\.(rails|ruby)_event_store\z/) do |_|
           expect { instrumented_repository.append_to_stream([record], stream, expected_version) }.not_to output(
             /Instrumentation event names \*\.rails_event_store are deprecated/
           ).to_stderr

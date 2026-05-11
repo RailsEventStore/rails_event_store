@@ -80,9 +80,18 @@ module RubyEventStore
 
         specify "does not warn when subscriber also matches new event name" do
           instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
-          subscribe_to(/event_store/) do |_|
+          subscribe_to(/\Aserialize\.mapper\.(rails|ruby)_event_store\z/) do |_|
             expect { instrumented_mapper.event_to_record(event) }.not_to output(
               /Instrumentation event names \*\.rails_event_store are deprecated/
+            ).to_stderr
+          end
+        end
+
+        specify "does not warn about rename when subscriber matches canonical event name" do
+          instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
+          subscribe_to(/\A(serialize|event_to_record)\.mapper\.ruby_event_store\z/) do |_|
+            expect { instrumented_mapper.event_to_record(event) }.not_to output(
+              /serialize\.mapper\.ruby_event_store.*deprecated/m
             ).to_stderr
           end
         end
@@ -135,6 +144,24 @@ module RubyEventStore
           subscribe_to("deserialize.mapper.rails_event_store") do |_|
             expect { instrumented_mapper.record_to_event(record) }.to output(
               /Instrumentation event names \*\.rails_event_store are deprecated/
+            ).to_stderr
+          end
+        end
+
+        specify "does not warn when subscriber also matches new event name" do
+          instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
+          subscribe_to(/\Adeserialize\.mapper\.(rails|ruby)_event_store\z/) do |_|
+            expect { instrumented_mapper.record_to_event(record) }.not_to output(
+              /Instrumentation event names \*\.rails_event_store are deprecated/
+            ).to_stderr
+          end
+        end
+
+        specify "does not warn about rename when subscriber matches canonical event name" do
+          instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
+          subscribe_to(/\A(deserialize|record_to_event)\.mapper\.ruby_event_store\z/) do |_|
+            expect { instrumented_mapper.record_to_event(record) }.not_to output(
+              /deserialize\.mapper\.ruby_event_store.*deprecated/m
             ).to_stderr
           end
         end

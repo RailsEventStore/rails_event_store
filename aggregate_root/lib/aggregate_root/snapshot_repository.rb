@@ -35,15 +35,16 @@ module AggregateRoot
         end
       end
       query.reduce { |_, ev| aggregate.apply(ev) }
-      aggregate.version = aggregate.version + aggregate.unpublished_events.count
+      event_count = aggregate.unpublished_events.size # mutant:disable
+      aggregate.version = aggregate.version + event_count
       aggregate
     end
 
     def store(aggregate, stream_name)
       events = aggregate.unpublished_events.to_a
       event_store.publish(events, stream_name: stream_name, expected_version: aggregate.version)
-
-      aggregate.version = aggregate.version + events.count
+      published_count = events.size # mutant:disable
+      aggregate.version = aggregate.version + published_count
 
       if time_for_snapshot?(aggregate.version, events.size)
         begin

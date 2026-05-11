@@ -86,5 +86,10 @@ module RubyEventStore
       expect(a).to eql(b)
       expect(a.hash).to eql(b.hash)
     end
+
+    specify "hash uses XOR of version hash and class hash" do
+      ev = ExpectedVersion.new(:any)
+      expect(ev.hash).to eq(ev.version.hash ^ ev.class.hash)
+    end
   end
 end

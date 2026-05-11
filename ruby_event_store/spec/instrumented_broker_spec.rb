@@ -87,7 +87,7 @@ module RubyEventStore
       specify "does not warn when subscriber also matches new event name" do
         some_broker = spy
         instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        subscribe_to(/event_store/) do |_|
+        subscribe_to(/\Acall\.broker\.(rails|ruby)_event_store\z/) do |_|
           expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
           expect { instrumented_broker.call("topic", Object.new, Object.new) }.not_to output(
             /Instrumentation event names \*\.rails_event_store are deprecated/

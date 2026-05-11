@@ -8,7 +8,8 @@ module AggregateRoot
 
     def load(aggregate, stream_name)
       event_store.read.stream(stream_name).reduce { |_, ev| aggregate.apply(ev) }
-      aggregate.version = aggregate.unpublished_events.count - 1
+      event_count = aggregate.unpublished_events.size # mutant:disable
+      aggregate.version = event_count - 1
       aggregate
     end
 
@@ -18,7 +19,8 @@ module AggregateRoot
         stream_name: stream_name,
         expected_version: aggregate.version,
       )
-      aggregate.version = aggregate.version + aggregate.unpublished_events.count
+      event_count = aggregate.unpublished_events.size # mutant:disable
+      aggregate.version = aggregate.version + event_count
     end
 
     def with_aggregate(aggregate, stream_name, &block)

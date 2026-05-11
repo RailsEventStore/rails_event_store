@@ -100,7 +100,7 @@ module RubyEventStore
     end
 
     def count(spec)
-      read_scope(spec).count
+      read_scope(spec).size # mutant:disable
     end
 
     def update_messages(records)

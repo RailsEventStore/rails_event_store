@@ -78,7 +78,7 @@ module RubyEventStore
         event = Object.new
         record = Object.new
         subscriber = -> {}
-        subscribe_to(/event_store/) do |_|
+        subscribe_to(/\Acall\.dispatcher\.(rails|ruby)_event_store\z/) do |_|
           expect { instrumented_dispatcher.call(subscriber, event, record) }.not_to output(
             /Instrumentation event names \*\.rails_event_store are deprecated/
           ).to_stderr
