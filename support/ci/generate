@@ -11,9 +11,7 @@ gemfile do
 end
 
 class CI
-  RUBY_VERSIONS = [
-    MRI_RUBY = [RUBY_4_0 = "ruby-4.0", RUBY_3_5 = "ruby-3.5", RUBY_3_4 = "ruby-3.4", RUBY_3_3 = "ruby-3.3"],
-  ].flatten
+  RUBY_VERSIONS = [MRI_RUBY = [RUBY_4_0 = "ruby-4.0", RUBY_3_4 = "ruby-3.4", RUBY_3_3 = "ruby-3.3"]].flatten
 
   DATA_TYPES = [DATA_TEXT = "text", DATA_BINARY = "binary", DATA_JSON = "json", DATA_JSONB = "jsonb"]
 
@@ -67,7 +65,7 @@ class CI
           join(
             generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
             generate(ruby_version(RUBY_4_0), bundle_gemfile(RAILS_GEMFILES.take(1))),
-            generate(ruby_version(RUBY_3_5), bundle_gemfile(RAILS_GEMFILES.drop(1))),
+            generate(ruby_version(RUBY_3_4), bundle_gemfile(RAILS_GEMFILES.drop(1))),
           ),
       ),
       release_mutate("rails_event_store"),
@@ -94,7 +92,7 @@ class CI
               ),
             ),
             generate(
-              generate(ruby_version(RUBY_3_5), bundle_gemfile(AR_GEMFILES.drop(1))),
+              generate(ruby_version(RUBY_3_4), bundle_gemfile(AR_GEMFILES.drop(1))),
               join(
                 generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
                 generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
@@ -111,7 +109,7 @@ class CI
           join(
             generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
             generate(ruby_version(RUBY_4_0), bundle_gemfile(AS_GEMFILES.take(1))),
-            generate(ruby_version(RUBY_3_5), bundle_gemfile(AS_GEMFILES.drop(1))),
+            generate(ruby_version(RUBY_3_4), bundle_gemfile(AS_GEMFILES.drop(1))),
           ),
       ),
       contrib_mutate("ruby_event_store-flipper"),
@@ -135,7 +133,7 @@ class CI
               database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
             ),
             generate(
-              ruby_version(RUBY_3_5),
+              ruby_version(RUBY_3_4),
               bundle_gemfile(RAILS_GEMFILES.drop(1)),
               database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
             ),

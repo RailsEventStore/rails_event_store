@@ -71,10 +71,6 @@ jobs:
           bundle_gemfile: Gemfile
           database_url: sqlite:db.sqlite3
           data_type: text
-        - ruby_version: ruby-3.5
-          bundle_gemfile: Gemfile
-          database_url: sqlite:db.sqlite3
-          data_type: text
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: sqlite:db.sqlite3

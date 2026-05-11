@@ -35,8 +35,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - ruby_version: ruby-3.5
-          bundle_gemfile: Gemfile
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
         - ruby_version: ruby-3.3
