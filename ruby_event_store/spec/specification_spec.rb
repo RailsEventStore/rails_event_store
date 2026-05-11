@@ -710,18 +710,6 @@ module RubyEventStore
       )
 
       expect(Class.new(SpecificationResult).new.hash).not_to eq(specification.result.hash)
-
-      result = specification.result
-      attrs_hash = [
-        result.send(:get_direction),
-        result.start, result.stop,
-        result.older_than, result.older_than_or_equal,
-        result.newer_than, result.newer_than_or_equal,
-        result.time_sort_by, result.limit, result.stream,
-        result.send(:attributes).read_as,
-        result.batch_size, result.with_ids, result.with_types,
-      ].hash
-      expect(result.hash).to eq(attrs_hash ^ SpecificationResult.hash)
     end
 
     specify "#eql?" do

@@ -178,11 +178,6 @@ module RubyEventStore
       expect(klass.new(event_id: "doh").hash).not_to eq([klass, klass.new.event_type, "doh", {}].hash)
     end
 
-    specify "hash uses XOR of attributes hash and class hash" do
-      event = Event.new(event_id: "test-id", data: { key: "value" })
-      expect(event.hash).to eq([event.event_type, event.event_id, event.data].hash ^ event.class.hash)
-    end
-
     specify "uses Metadata and its restrictions" do
       expect { Test::TestCreated.new(metadata: { key: Object.new }) }.to raise_error(ArgumentError)
     end

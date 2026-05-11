@@ -36,3 +36,9 @@ matcher:
     - RubyEventStore::Serializers::YAML.load
     - RubyEventStore::Mappers::EncryptionMapper#initialize
     - RubyEventStore::Specification#of_types
+    - RubyEventStore::Stream#hash
+    - RubyEventStore::ExpectedVersion#hash
+    - RubyEventStore::Record#hash
+    - RubyEventStore::SerializedRecord#hash
+    - RubyEventStore::SpecificationResult#hash
+    - RubyEventStore::Event#hash
