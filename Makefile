@@ -80,7 +80,7 @@ set-version: git-check-clean git-check-committed
 	@make -j8 install-all
 	@make -j8 -C contrib install-all
 	@make release-docs 
-	@git add $(shell find . -name Gemfile*.lock -not -path "*/.ruby-lsp/*" -print) **/*.gemspec **/version.rb railseventstore.org/docusaurus.config.js  railseventstore.org/versions.json railseventstore.org/versioned_docs/version-$(RES_VERSION) railseventstore.org/versioned_sidebars/version-$(RES_VERSION)-sidebars.json   RES_VERSION APP_TEMPLATE RELEASE.md netlify.toml
+	@git add $(shell find . -name Gemfile*.lock -not -path "*/.ruby-lsp/*" -not -path "*/support/bundler/*" -print) **/*.gemspec **/version.rb railseventstore.org/docusaurus.config.js  railseventstore.org/versions.json railseventstore.org/versioned_docs/version-$(RES_VERSION) railseventstore.org/versioned_sidebars/version-$(RES_VERSION)-sidebars.json   RES_VERSION APP_TEMPLATE RELEASE.md netlify.toml
 	@git commit -m "Version v$(RES_VERSION)"
 
 install: $(addprefix install-, $(GEMS)) ## Install all dependencies
