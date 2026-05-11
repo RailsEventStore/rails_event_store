@@ -12,5 +12,5 @@ gem "ruby_event_store-active_record", path: "../.."
 gem "rails_event_store_active_record", path: "../.."
 gem "ruby_event_store-browser", path: "../.."
 
-gem "rails", "~> 8.0.0"
+gem "rails", "~> 8.1.0"
 gem "zeitwerk", "~> 2.6.0"
