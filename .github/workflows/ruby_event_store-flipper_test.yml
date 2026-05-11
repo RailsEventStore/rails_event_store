@@ -40,7 +40,7 @@ jobs:
           bundle_gemfile: Gemfile
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile.activesupport_8_0
-        - ruby_version: ruby-3.4
+        - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile.activesupport_7_2
     steps:
     - uses: actions/checkout@v4

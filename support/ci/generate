@@ -64,8 +64,7 @@ class CI
         matrix:
           join(
             generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-            generate(ruby_version(RUBY_4_0), bundle_gemfile(RAILS_GEMFILES.take(1))),
-            generate(ruby_version(RUBY_3_4), bundle_gemfile(RAILS_GEMFILES.drop(1))),
+            generate(ruby_version(RUBY_4_0), bundle_gemfile(RAILS_GEMFILES.take(2))),
           ),
       ),
       release_mutate("rails_event_store"),
@@ -108,8 +107,7 @@ class CI
         matrix:
           join(
             generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-            generate(ruby_version(RUBY_4_0), bundle_gemfile(AS_GEMFILES.take(1))),
-            generate(ruby_version(RUBY_3_4), bundle_gemfile(AS_GEMFILES.drop(1))),
+            generate(ruby_version(RUBY_4_0), bundle_gemfile(AS_GEMFILES.take(2))),
           ),
       ),
       contrib_mutate("ruby_event_store-flipper"),
