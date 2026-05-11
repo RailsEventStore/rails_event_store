@@ -39,7 +39,7 @@ class CI
 
   AR_GEMFILES = [GEMFILE_AR_8_0 = "Gemfile.activerecord_8_0", GEMFILE_AR_7_2 = "Gemfile.activerecord_7_2"]
 
-  SIDEKIQ_GEMFILES = [GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5"]
+  SIDEKIQ_GEMFILES = [GEMFILE_SIDEKIQ_7 = "Gemfile.sidekiq_7"]
 
   def workflows
     [

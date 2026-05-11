@@ -239,12 +239,12 @@ GEM
       rspec-support (~> 3.13.0)
     rspec-support (3.13.7)
     securerandom (0.4.1)
-    sidekiq (7.3.9)
-      base64
-      connection_pool (>= 2.3.0)
-      logger
-      rack (>= 2.2.4)
-      redis-client (>= 0.22.2)
+    sidekiq (8.1.4)
+      connection_pool (>= 3.0.0)
+      json (>= 2.16.0)
+      logger (>= 1.7.0)
+      rack (>= 3.2.0)
+      redis-client (>= 0.26.0)
     sorbet-runtime (0.6.13210)
     sqlite3 (2.9.4-aarch64-linux-gnu)
     sqlite3 (2.9.4-arm64-darwin)
@@ -288,7 +288,7 @@ DEPENDENCIES
   rspec
   ruby_event_store!
   ruby_event_store-outbox!
-  sidekiq (~> 7.2)
+  sidekiq (~> 8.0)
   sqlite3 (>= 2.1)
   zeitwerk (~> 2.6.0)
 

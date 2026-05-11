@@ -30,12 +30,7 @@ module RubyEventStore
       attr_reader :repository
 
       def sidekiq_client
-        @sidekiq_client ||=
-          if Gem::Version.new(Sidekiq::VERSION) < Gem::Version.new("7.0.0")
-            Sidekiq::Client.new(Sidekiq.redis_pool)
-          else
-            Sidekiq::Client.new(pool: Sidekiq.redis_pool)
-          end
+        @sidekiq_client ||= Sidekiq::Client.new(pool: Sidekiq.redis_pool)
       end
     end
   end
