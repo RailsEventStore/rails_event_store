@@ -34,8 +34,7 @@ module RubyEventStore
       end
 
       def count(spec)
-        scope_size = read_scope(spec).count # mutant:disable
-        scope_size
+        read_scope(spec).count # mutant:disable
       end
 
       def streams_of(event_id)

@@ -85,6 +85,11 @@ Expected: #{{ "foo" => "foo" }}
     assert_triggered(message) { assert_published(@event_store, DummyEvent, with_data: { "foo" => "foo" }) }
   end
 
+  def test_assert_published_with_matching_metadata
+    @event_store.with_metadata(correlation_id: "abc-123") { @event_store.publish(DummyEvent.new) }
+    assert_published(@event_store, DummyEvent, with_metadata: { "correlation_id" => "abc-123" })
+  end
+
   def test_assert_published_failure_based_on_metadata_mismatch
     @event_store.with_metadata(foo: "bar") { @event_store.publish(DummyEvent.new) }
 
