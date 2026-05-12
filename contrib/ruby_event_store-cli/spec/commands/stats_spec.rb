@@ -1,0 +1,81 @@
+# frozen_string_literal: true
+
+require_relative "../spec_helper"
+require "ruby_event_store/cli/commands/stats"
+
+module RubyEventStore
+  module CLI
+    module Commands
+      RSpec.describe Stats do
+        let(:event_store) { RubyEventStore::Client.new }
+        let(:command) { Stats.new }
+
+        before { stub_event_store(event_store) }
+
+        describe "#call" do
+          it "shows total event count" do
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+            event_store.publish(RubyEventStore::Event.new, stream_name: "payments")
+
+            expect { command.call }
+              .to output(/Events:\s+2/).to_stdout
+          end
+
+          it "shows zero when no events" do
+            expect { command.call }
+              .to output(/Events:\s+0/).to_stdout
+          end
+
+          it "shows count for a specific stream" do
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+            event_store.publish(RubyEventStore::Event.new, stream_name: "payments")
+
+            expect { command.call(stream: "orders") }
+              .to output(/Events:\s+2/).to_stdout
+          end
+
+          it "shows stream name when --stream given" do
+            expect { command.call(stream: "orders") }
+              .to output(/Stream:\s+orders/).to_stdout
+          end
+
+          it "does not show stream name for global stats" do
+            expect { command.call }
+              .not_to output(/Stream/).to_stdout
+          end
+
+          it "lists unique event types" do
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+
+            expect { command.call }
+              .to output(/RubyEventStore::Event/).to_stdout
+          end
+
+          it "shows each type only once" do
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+            event_store.publish(RubyEventStore::Event.new, stream_name: "orders")
+
+            output = capture_stdout { command.call }
+            expect(output.scan("RubyEventStore::Event").size).to eq(1)
+          end
+
+          it "shows no event types section when store is empty" do
+            expect { command.call }
+              .not_to output(/Event types/).to_stdout
+          end
+        end
+      end
+    end
+  end
+end
+
+def capture_stdout
+  out = StringIO.new
+  $stdout = out
+  yield
+  out.string
+ensure
+  $stdout = STDOUT
+end
