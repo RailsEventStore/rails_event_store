@@ -1,9 +1,9 @@
 PATH
   remote: ../..
   specs:
-    ruby_event_store (2.18.0)
+    ruby_event_store (2.19.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
-    ruby_event_store-rspec (2.18.0)
+    ruby_event_store-rspec (2.19.0)
       rspec (~> 3.0)
 
 PATH
@@ -170,9 +170,9 @@ CHECKSUMS
   rspec-expectations (3.13.5) sha256=33a4d3a1d95060aea4c94e9f237030a8f9eae5615e9bd85718fe3a09e4b58836
   rspec-mocks (3.13.8) sha256=086ad3d3d17533f4237643de0b5c42f04b66348c28bf6b9c2d3f4a3b01af1d47
   rspec-support (3.13.7) sha256=0640e5570872aafefd79867901deeeeb40b0c9875a36b983d85f54fb7381c47c
-  ruby_event_store (2.18.0)
+  ruby_event_store (2.19.0)
   ruby_event_store-flipper (0.2.1)
-  ruby_event_store-rspec (2.18.0)
+  ruby_event_store-rspec (2.19.0)
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   sorbet-runtime (0.6.13210) sha256=06e5b332842c3f66afa8fbb29769ede5678d7da69f56114da504be8b656678e0
   stringio (3.2.0) sha256=c37cb2e58b4ffbd33fe5cd948c05934af997b36e0b6ca6fdf43afa234cf222e1
