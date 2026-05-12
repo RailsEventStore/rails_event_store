@@ -14,7 +14,10 @@ module RubyEventStore
           example.call
         ensure
           FileUtils.rm_r(@dir)
-          FileUtils.rm_f(["./20221130213700_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb"])
+          FileUtils.rm_f([
+            "./20221130213700_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb",
+            "./20221130213701_validate_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb",
+          ])
         end
       end
 
