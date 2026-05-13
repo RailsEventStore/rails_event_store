@@ -34,41 +34,6 @@ module RubyEventStore
       expect(account_balance).to eq(25)
     end
 
-    specify "reduce events from many streams" do
-      event_store.append(MoneyDeposited.new(data: { amount: 10 }), stream_name: "Customer$1")
-      event_store.append(MoneyDeposited.new(data: { amount: 20 }), stream_name: "Customer$2")
-      event_store.append(MoneyWithdrawn.new(data: { amount: 5 }), stream_name: "Customer$3")
-
-      account_balance =
-        Projection
-          .init(0)
-          .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
-          .on(MoneyWithdrawn) { |state, event| state -= event.data[:amount] }
-          .call(event_store.read.stream("Customer$1"), event_store.read.stream("Customer$3"))
-      expect(account_balance).to eq(5)
-    end
-
-    specify "warns when multiple scopes passed to call" do
-      expect do
-        Projection
-          .init(0)
-          .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
-          .call(event_store.read.stream("Customer$1"), event_store.read.stream("Customer$2"))
-      end.to output(<<~EOW).to_stderr
-        Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
-        Use a single scope instead, e.g. call(event_store.read.stream("stream_name")).
-      EOW
-    end
-
-    specify "does not warn when single scope passed to call" do
-      expect do
-        Projection
-          .init(0)
-          .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
-          .call(event_store.read.stream("Customer$1"))
-      end.not_to output.to_stderr
-    end
-
     specify "warns when Projection.new is used instead of Projection.init" do
       expect do
         Projection.new
@@ -76,6 +41,10 @@ module RubyEventStore
         RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
         Use Projection.init(initial_state) instead.
       EOW
+    end
+
+    specify "Projection.init does not warn" do
+      expect { Projection.init(0) }.not_to output.to_stderr
     end
 
     specify "Projection.init passes initial state" do

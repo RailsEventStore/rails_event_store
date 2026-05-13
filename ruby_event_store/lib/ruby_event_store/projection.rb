@@ -3,15 +3,11 @@
 module RubyEventStore
   class Projection
     ANONYMOUS_CLASS = "#<Class:".freeze
-    MULTI_SCOPE_DEPRECATION_MESSAGE = <<~EOW
-      Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
-      Use a single scope instead, e.g. call(event_store.read.stream("stream_name")).
-    EOW
     NEW_CONSTRUCTOR_DEPRECATION_MESSAGE = <<~EOW
       RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
       Use Projection.init(initial_state) instead.
     EOW
-    private_constant :ANONYMOUS_CLASS, :MULTI_SCOPE_DEPRECATION_MESSAGE, :NEW_CONSTRUCTOR_DEPRECATION_MESSAGE
+    private_constant :ANONYMOUS_CLASS, :NEW_CONSTRUCTOR_DEPRECATION_MESSAGE
 
     def initialize(initial_state = nil, _internal: false)
       warn NEW_CONSTRUCTOR_DEPRECATION_MESSAGE unless _internal
@@ -35,14 +31,10 @@ module RubyEventStore
       self
     end
 
-    def call(*scopes)
+    def call(scope)
       return initial_state if handled_events.empty?
 
-      warn MULTI_SCOPE_DEPRECATION_MESSAGE if scopes.size > 1
-
-      scopes.reduce(initial_state) do |state, scope|
-        scope.of_type(handled_events).reduce(state, &method(:transition))
-      end
+      scope.of_type(handled_events).reduce(initial_state, &method(:transition))
     end
 
     private
