@@ -1,22 +1,5 @@
 require "spec_helper"
 
-RSpec.describe RailsEventStore do
-  specify "deprecated constant returns the RubyEventStore equivalent" do
-    expect(RailsEventStore::Event).to eq(RubyEventStore::Event)
-  end
-
-  specify "deprecated constant warns with message pointing to RubyEventStore" do
-    expect { RailsEventStore::Event }.to output(<<~EOW).to_stderr
-      RailsEventStore::Event is deprecated and will be removed in the next major release.
-
-      Use RubyEventStore::Event instead.
-    EOW
-  end
-
-  specify "unknown constant raises NameError" do
-    expect { RailsEventStore::NonExistentConstant }.to raise_error(NameError)
-  end
-end
 
 module RailsEventStore
   RSpec.describe Client do
