@@ -3,20 +3,17 @@
 module RubyEventStore
   class Projection
     ANONYMOUS_CLASS = "#<Class:".freeze
-    NEW_CONSTRUCTOR_DEPRECATION_MESSAGE = <<~EOW
-      RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
-      Use Projection.init(initial_state) instead.
-    EOW
-    private_constant :ANONYMOUS_CLASS, :NEW_CONSTRUCTOR_DEPRECATION_MESSAGE
+    private_constant :ANONYMOUS_CLASS
 
-    def initialize(initial_state = nil, _internal: false)
-      warn NEW_CONSTRUCTOR_DEPRECATION_MESSAGE unless _internal
-      @handlers = {}
-      @init = -> { initial_state }
-    end
+    private_class_method :new
 
     def self.init(initial_state = nil)
-      new(initial_state, _internal: true)
+      new(initial_state)
+    end
+
+    def initialize(initial_state)
+      @handlers = {}
+      @init = -> { initial_state }
     end
 
     def on(*event_klasses, &block)
