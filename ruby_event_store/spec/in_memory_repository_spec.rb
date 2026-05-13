@@ -56,7 +56,7 @@ module RubyEventStore
     end
 
     it "publishing with any position to stream with specific position raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
 
       expect do
@@ -65,7 +65,7 @@ module RubyEventStore
     end
 
     it "publishing with any position to stream with any position does not raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
 
       expect do
@@ -74,7 +74,7 @@ module RubyEventStore
     end
 
     it "publishing with specific position to stream with any position raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
 
       expect do
@@ -83,7 +83,7 @@ module RubyEventStore
     end
 
     it "linking with any position to stream with specific position raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
       repository.append_to_stream([event1 = SRecord.new], Stream.new("other"), ExpectedVersion.auto)
 
@@ -93,7 +93,7 @@ module RubyEventStore
     end
 
     it "linking with any position to stream with any position does not raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
       repository.append_to_stream([event1 = SRecord.new], Stream.new("other"), ExpectedVersion.auto)
 
@@ -103,7 +103,7 @@ module RubyEventStore
     end
 
     it "linking with specific position to stream with any position raise an error" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: true)
+      repository = InMemoryRepository.new
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
       repository.append_to_stream([event1 = SRecord.new], Stream.new("other"), ExpectedVersion.auto)
 
@@ -121,57 +121,5 @@ module RubyEventStore
       EOS
     end
 
-    it "warns when publishing with :any to stream with specific positions" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: false)
-      repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-      end.to output(
-        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m
-      ).to_stderr
-    end
-
-    it "warns when publishing with specific position to stream with :any positions" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: false)
-      repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-      end.to output(
-        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m
-      ).to_stderr
-    end
-
-    it "does not warn when publishing :any to empty stream" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: false)
-
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-      end.not_to output(
-        /Mixing expected version :any/
-      ).to_stderr
-    end
-
-    it "does not warn when consistently using :auto" do
-      repository = InMemoryRepository.new(ensure_supported_any_usage: false)
-      repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-      end.not_to output(
-        /Mixing expected version :any/
-      ).to_stderr
-    end
-
-    it "warns by default when mixing :any and :auto" do
-      repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-      end.to output(
-        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m
-      ).to_stderr
-    end
   end
 end
