@@ -560,16 +560,6 @@ module RubyEventStore
     end
 
     specify do
-      expect { specification.in_batches_of }.to output(<<~EOW).to_stderr
-        RubyEventStore::Specification#in_batches_of is deprecated and will be removed in the next major release.
-
-        Use #in_batches instead.
-      EOW
-      expect(specification.in_batches_of.result).to eq(specification.in_batches.result)
-      expect(specification.in_batches_of(1000).result).to eq(specification.in_batches(1000).result)
-    end
-
-    specify do
       records = 200.times.map { test_record }
       repository.append_to_stream(records, Stream.new("whatever"), ExpectedVersion.none)
 
