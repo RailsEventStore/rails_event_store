@@ -34,17 +34,8 @@ module RubyEventStore
       expect(account_balance).to eq(25)
     end
 
-    specify "warns when Projection.new is used instead of Projection.init" do
-      expect do
-        Projection.new
-      end.to output(<<~EOW).to_stderr
-        RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
-        Use Projection.init(initial_state) instead.
-      EOW
-    end
-
-    specify "Projection.init does not warn" do
-      expect { Projection.init(0) }.not_to output.to_stderr
+    specify "Projection.new is private" do
+      expect { Projection.new }.to raise_error(NoMethodError, /private method/)
     end
 
     specify "Projection.init passes initial state" do
