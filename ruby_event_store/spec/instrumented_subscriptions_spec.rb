@@ -20,7 +20,7 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
+        subscribe_to("add.subscriptions.ruby_event_store") do |notification_calls|
           event_types = ["some_event_type"]
           subscriber = -> {}
 
@@ -44,7 +44,7 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
+        subscribe_to("add.subscriptions.ruby_event_store") do |notification_calls|
           subscriber = -> {}
 
           instrumented_subscriptions.add_global_subscription(subscriber)
@@ -68,7 +68,7 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
+        subscribe_to("add.subscriptions.ruby_event_store") do |notification_calls|
           event_types = ["some_event_type"]
           subscriber = -> {}
 
@@ -92,7 +92,7 @@ module RubyEventStore
 
       specify "instruments" do
         instrumented_subscriptions = InstrumentedSubscriptions.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add.subscriptions.rails_event_store") do |notification_calls|
+        subscribe_to("add.subscriptions.ruby_event_store") do |notification_calls|
           subscriber = -> {}
 
           instrumented_subscriptions.add_thread_global_subscription(subscriber)
@@ -107,7 +107,7 @@ module RubyEventStore
       some_unsubscribe = spy
       instrumented_subscriptions = InstrumentedSubscriptions.new(some_subscriptions, ActiveSupport::Notifications)
       expect(some_subscriptions).to receive(:add_subscription).and_return(some_unsubscribe)
-      subscribe_to("remove.subscriptions.rails_event_store") do |notification_calls|
+      subscribe_to("remove.subscriptions.ruby_event_store") do |notification_calls|
         event_types = ["some_event_type"]
         subscriber = -> {}
 

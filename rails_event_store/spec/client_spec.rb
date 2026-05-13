@@ -53,7 +53,7 @@ module RailsEventStore
         Client.new(repository: RubyEventStore::InMemoryRepository.new, mapper: RubyEventStore::Mappers::BatchMapper.new)
 
       received_notifications = 0
-      ActiveSupport::Notifications.subscribe("events_to_records.mapper.rails_event_store") do
+      ActiveSupport::Notifications.subscribe("events_to_records.mapper.ruby_event_store") do
         received_notifications += 1
       end
 
