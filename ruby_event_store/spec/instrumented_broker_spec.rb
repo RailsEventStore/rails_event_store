@@ -48,52 +48,6 @@ module RubyEventStore
           expect(notification_calls).to eq([{ topic: "topic", event: event, record: record }])
         end
       end
-
-      specify "instruments with legacy event name" do
-        some_broker = spy
-        instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        subscribe_to("call.broker.rails_event_store") do |notification_calls|
-          event = Object.new
-          record = Object.new
-
-          expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
-          instrumented_broker.call("topic", event, record)
-
-          expect(notification_calls).to eq([{ topic: "topic", event: event, record: record }])
-          expect(some_broker).to have_received(:call).with("topic", event, record)
-        end
-      end
-
-      specify "warns about deprecated event names" do
-        some_broker = spy
-        instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        subscribe_to("call.broker.rails_event_store") do |_|
-          expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
-          expect { instrumented_broker.call("topic", Object.new, Object.new) }.to output(
-            /Instrumentation event names \*\.rails_event_store are deprecated/
-          ).to_stderr
-        end
-      end
-
-      specify "does not warn when nobody subscribes to legacy event name" do
-        some_broker = spy
-        instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
-        expect { instrumented_broker.call("topic", Object.new, Object.new) }.not_to output(
-          /Instrumentation event names \*\.rails_event_store are deprecated/
-        ).to_stderr
-      end
-
-      specify "does not warn when subscriber also matches new event name" do
-        some_broker = spy
-        instrumented_broker = InstrumentedBroker.new(some_broker, ActiveSupport::Notifications)
-        subscribe_to(/\Acall\.broker\.(rails|ruby)_event_store\z/) do |_|
-          expect(some_broker).to receive(:public_method).with(:call).and_return(double(arity: 3))
-          expect { instrumented_broker.call("topic", Object.new, Object.new) }.not_to output(
-            /Instrumentation event names \*\.rails_event_store are deprecated/
-          ).to_stderr
-        end
-      end
     end
 
     describe "#add_subscription" do
@@ -119,27 +73,6 @@ module RubyEventStore
           expect(notification_calls).to eq([{ subscriber: subscriber, topics: topics }])
         end
       end
-
-      specify "instruments with legacy event name" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add_subscription.broker.rails_event_store") do |notification_calls|
-          subscriber = -> {}
-          topics = []
-
-          instrumented_broker.add_subscription(subscriber, topics)
-
-          expect(notification_calls).to eq([{ subscriber: subscriber, topics: topics }])
-        end
-      end
-
-      specify "warns about deprecated event names" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add_subscription.broker.rails_event_store") do |_|
-          expect { instrumented_broker.add_subscription(-> {}, []) }.to output(
-            /Instrumentation event names \*\.rails_event_store are deprecated/
-          ).to_stderr
-        end
-      end
     end
 
     describe "#add_global_subscription" do
@@ -161,26 +94,6 @@ module RubyEventStore
           instrumented_broker.add_global_subscription(subscriber)
 
           expect(notification_calls).to eq([{ subscriber: subscriber }])
-        end
-      end
-
-      specify "instruments with legacy event name" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add_global_subscription.broker.rails_event_store") do |notification_calls|
-          subscriber = -> {}
-
-          instrumented_broker.add_global_subscription(subscriber)
-
-          expect(notification_calls).to eq([{ subscriber: subscriber }])
-        end
-      end
-
-      specify "warns about deprecated event names" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add_global_subscription.broker.rails_event_store") do |_|
-          expect { instrumented_broker.add_global_subscription(-> {}) }.to output(
-            /Instrumentation event names \*\.rails_event_store are deprecated/
-          ).to_stderr
         end
       end
     end
@@ -208,27 +121,6 @@ module RubyEventStore
           expect(notification_calls).to eq([{ subscriber: subscriber, topics: topics }])
         end
       end
-
-      specify "instruments with legacy event name" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add_thread_subscription.broker.rails_event_store") do |notification_calls|
-          subscriber = -> {}
-          topics = []
-
-          instrumented_broker.add_thread_subscription(subscriber, topics)
-
-          expect(notification_calls).to eq([{ subscriber: subscriber, topics: topics }])
-        end
-      end
-
-      specify "warns about deprecated event names" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add_thread_subscription.broker.rails_event_store") do |_|
-          expect { instrumented_broker.add_thread_subscription(-> {}, []) }.to output(
-            /Instrumentation event names \*\.rails_event_store are deprecated/
-          ).to_stderr
-        end
-      end
     end
 
     describe "#add_thread_global_subscription" do
@@ -252,26 +144,6 @@ module RubyEventStore
           expect(notification_calls).to eq([{ subscriber: subscriber }])
         end
       end
-
-      specify "instruments with legacy event name" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add_thread_global_subscription.broker.rails_event_store") do |notification_calls|
-          subscriber = -> {}
-
-          instrumented_broker.add_thread_global_subscription(subscriber)
-
-          expect(notification_calls).to eq([{ subscriber: subscriber }])
-        end
-      end
-
-      specify "warns about deprecated event names" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("add_thread_global_subscription.broker.rails_event_store") do |_|
-          expect { instrumented_broker.add_thread_global_subscription(-> {}) }.to output(
-            /Instrumentation event names \*\.rails_event_store are deprecated/
-          ).to_stderr
-        end
-      end
     end
 
     describe "#all_subscriptions_for" do
@@ -293,26 +165,6 @@ module RubyEventStore
           instrumented_broker.all_subscriptions_for(topic)
 
           expect(notification_calls).to eq([{ topic: topic }])
-        end
-      end
-
-      specify "instruments with legacy event name" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("all_subscriptions_for.broker.rails_event_store") do |notification_calls|
-          topic = String.new
-
-          instrumented_broker.all_subscriptions_for(topic)
-
-          expect(notification_calls).to eq([{ topic: topic }])
-        end
-      end
-
-      specify "warns about deprecated event names" do
-        instrumented_broker = InstrumentedBroker.new(spy, ActiveSupport::Notifications)
-        subscribe_to("all_subscriptions_for.broker.rails_event_store") do |_|
-          expect { instrumented_broker.all_subscriptions_for("topic") }.to output(
-            /Instrumentation event names \*\.rails_event_store are deprecated/
-          ).to_stderr
         end
       end
     end
