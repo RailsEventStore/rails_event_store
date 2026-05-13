@@ -198,7 +198,7 @@ module RailsEventStore
         message_broker:
           RubyEventStore::Broker.new(
             dispatcher:
-              RubyEventStore::ImmediateAsyncDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON)),
+              RubyEventStore::ImmediateDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: JSON)),
           ),
       )
     end

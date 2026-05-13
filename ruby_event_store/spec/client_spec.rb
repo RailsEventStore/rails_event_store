@@ -951,7 +951,7 @@ module RubyEventStore
           message_broker:
             Broker.new(
               dispatcher:
-                ImmediateAsyncDispatcher.new(scheduler: ScheduledWithSerialization.new(serializer: serializer)),
+                ImmediateDispatcher.new(scheduler: ScheduledWithSerialization.new(serializer: serializer)),
             ),
         )
       uuid = SecureRandom.uuid
@@ -974,7 +974,7 @@ module RubyEventStore
           message_broker:
             Broker.new(
               dispatcher:
-                ImmediateAsyncDispatcher.new(scheduler: ScheduledWithSerialization.new(serializer: serializer_2)),
+                ImmediateDispatcher.new(scheduler: ScheduledWithSerialization.new(serializer: serializer_2)),
             ),
         )
       uuid = SecureRandom.uuid
