@@ -8,7 +8,7 @@ module RubyEventStore
     end
 
     def append_to_stream(records, stream, expected_version)
-      instrumentation.instrument("append_to_stream.repository.ruby_event_store", records: records, events: records, stream: stream) do
+      instrumentation.instrument("append_to_stream.repository.ruby_event_store", records: records, stream: stream) do
         repository.append_to_stream(records, stream, expected_version)
       end
     end
@@ -38,7 +38,7 @@ module RubyEventStore
     end
 
     def update_messages(records)
-      instrumentation.instrument("update_messages.repository.ruby_event_store", records: records, messages: records) do
+      instrumentation.instrument("update_messages.repository.ruby_event_store", records: records) do
         repository.update_messages(records)
       end
     end
