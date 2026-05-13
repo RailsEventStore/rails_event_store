@@ -65,38 +65,11 @@ require "spec_helper"
     )
   end
 
-  it "raises error for missing apply method based on a default apply strategy (explicity stated)" do
-    klass = silence_warnings { Class.new { include AggregateRoot.with_default_apply_strategy } }
-    order = klass.new
-    spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) }.to raise_error(
-      AggregateRoot::MissingHandler,
-      "Missing handler method for Orders::Events::SpanishInquisition on aggregate #{klass}",
-    )
-  end
-
   it "ignores missing apply method based on a default non-strict apply strategy" do
-    klass =
-      silence_warnings do
-        Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
-      end
+    klass = Class.new { include AggregateRoot.with(strategy: -> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
     order = klass.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.not_to raise_error
-  end
-
-  it "include with_strategy should warn about deprecations" do
-    expect {
-      Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
-    }.to output(<<~EOW).to_stderr
-      Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)
-    EOW
-  end
-
-  it "include with_default_apply_strategy should warn about depracations" do
-    expect { Class.new { include AggregateRoot.with_default_apply_strategy } }.to output(<<~EOW).to_stderr
-      Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot
-    EOW
   end
 
   it "receives a method call based on a custom strategy" do
@@ -109,25 +82,23 @@ require "spec_helper"
       end
     end
     klass =
-      silence_warnings do
-        Class.new do
-          include AggregateRoot.with_strategy(strategy)
+      Class.new do
+        include AggregateRoot.with(strategy: strategy)
 
-          def initialize
-            @status = :draft
-          end
+        def initialize
+          @status = :draft
+        end
 
-          attr_accessor :status
+        attr_accessor :status
 
-          private
+        private
 
-          def custom_created(_event)
-            @status = :created
-          end
+        def custom_created(_event)
+          @status = :created
+        end
 
-          def custom_expired(_event)
-            @status = :expired
-          end
+        def custom_expired(_event)
+          @status = :expired
         end
       end
     order = klass.new
@@ -138,7 +109,7 @@ require "spec_helper"
   end
 
   it "included modules" do
-    klass = silence_warnings { Class.new { include AggregateRoot.with_default_apply_strategy } }
+    klass = Class.new { include AggregateRoot }
 
     expect(klass.included_modules[0]).to eq(AggregateRoot::AggregateMethods)
   end
