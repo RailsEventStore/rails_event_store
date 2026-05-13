@@ -3,13 +3,6 @@
 module RubyEventStore
   module Mappers
     class InstrumentedMapper
-      RENAME_DEPRECATION_MESSAGE = <<~EOW
-        Instrumentation event names serialize.mapper.ruby_event_store and deserialize.mapper.ruby_event_store are deprecated and will be removed in the next major release.
-        Use event_to_record.mapper.ruby_event_store and record_to_event.mapper.ruby_event_store instead.
-        The domain_event: payload key in serialize.mapper.ruby_event_store has been renamed to event: in event_to_record.mapper.ruby_event_store.
-      EOW
-      private_constant :RENAME_DEPRECATION_MESSAGE
-
       def initialize(mapper, instrumentation)
         @mapper = mapper
         @instrumentation = instrumentation
@@ -17,36 +10,19 @@ module RubyEventStore
 
       def event_to_record(event)
         instrumentation.instrument("event_to_record.mapper.ruby_event_store", event: event) do
-          deprecated_instrument("serialize.mapper.ruby_event_store", { domain_event: event },
-                                canonical: "event_to_record.mapper.ruby_event_store") do
-            mapper.event_to_record(event)
-          end
+          mapper.event_to_record(event)
         end
       end
 
       def record_to_event(record)
         instrumentation.instrument("record_to_event.mapper.ruby_event_store", record: record) do
-          deprecated_instrument("deserialize.mapper.ruby_event_store", { record: record },
-                                canonical: "record_to_event.mapper.ruby_event_store") do
-            mapper.record_to_event(record)
-          end
+          mapper.record_to_event(record)
         end
       end
 
       private
 
       attr_reader :instrumentation, :mapper
-
-      def deprecated_instrument(name, payload, canonical:, &block)
-        old_listeners = instrumentation.notifier.all_listeners_for(name)
-        new_listeners = instrumentation.notifier.all_listeners_for(canonical)
-        if (old_listeners - new_listeners).any?
-          warn RENAME_DEPRECATION_MESSAGE
-          instrumentation.instrument(name, payload, &block)
-        else
-          yield
-        end
-      end
     end
   end
 end
