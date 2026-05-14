@@ -18,7 +18,14 @@ module RubyEventStore
 
       specify "it is created within specified directory" do
         ForeignKeyOnEventIdMigrationGenerator.new.call(DatabaseAdapter::SQLite.new, @dir)
-        expect(File.exist?("#{@dir}/20221130213700_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb")).to be true
+        path = "#{@dir}/20221130213700_add_foreign_key_on_event_id_to_event_store_events_in_streams.rb"
+        expect(File.read(path)).to include("ActiveRecord::Migration")
+      end
+
+      specify "generates migrations with consecutive timestamps for postgresql adapter" do
+        migrations = ForeignKeyOnEventIdMigrationGenerator.new.generate(DatabaseAdapter::PostgreSQL.new, @dir)
+        expect(migrations[0].first).to include("20221130213700_")
+        expect(migrations[1].first).to include("20221130213701_")
       end
 
       [DatabaseAdapter::MySQL, DatabaseAdapter::SQLite, DatabaseAdapter::PostgreSQL].each do |adapter_class|

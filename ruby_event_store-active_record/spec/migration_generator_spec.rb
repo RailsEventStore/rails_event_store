@@ -17,8 +17,9 @@ module RubyEventStore
       before { allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00)) }
 
       specify "it is created within specified directory" do
-        MigrationGenerator.new.call(DatabaseAdapter.from_string("sqlite", "binary"), @dir)
-        expect(File.exist?("#{@dir}/20221130213700_create_event_store_events.rb")).to be true
+        path = MigrationGenerator.new.call(DatabaseAdapter.from_string("sqlite", "binary"), @dir)
+        expect(path).to eq("#{@dir}/20221130213700_create_event_store_events.rb")
+        expect(File.read(path)).to include("ActiveRecord::Migration")
       end
 
       specify "returns path to migration file" do
