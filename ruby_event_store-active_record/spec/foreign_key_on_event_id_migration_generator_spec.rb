@@ -29,20 +29,16 @@ module RubyEventStore
         end
       end
 
-      context "when postgresql adapter is used" do
-        specify "should do migration in two steps" do
-          migrations = ForeignKeyOnEventIdMigrationGenerator.new.generate(DatabaseAdapter::PostgreSQL.new, @dir)
-          expect(migrations.length).to eq(2)
-        end
+      specify "does migration in two steps for postgresql adapter" do
+        migrations = ForeignKeyOnEventIdMigrationGenerator.new.generate(DatabaseAdapter::PostgreSQL.new, @dir)
+        expect(migrations.length).to eq(2)
       end
 
       [DatabaseAdapter::MySQL, DatabaseAdapter::SQLite].each do |adapter_class|
         adapter = adapter_class.new
-        context "when #{adapter} adapter is used" do
-          specify "should do migration in single step" do
-            migrations = ForeignKeyOnEventIdMigrationGenerator.new.generate(adapter, @dir)
-            expect(migrations.length).to eq(1)
-          end
+        specify "does migration in single step for #{adapter} adapter" do
+          migrations = ForeignKeyOnEventIdMigrationGenerator.new.generate(adapter, @dir)
+          expect(migrations.length).to eq(1)
         end
       end
     end
