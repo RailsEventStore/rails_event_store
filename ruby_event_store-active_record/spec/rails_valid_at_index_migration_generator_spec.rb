@@ -35,9 +35,16 @@ module RubyEventStore
       it "includes COALESCE index" do
         helper.establish_database_connection
 
-        expect(subject).to include(
-          'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
-        )
+        expect(subject).to include('add_index :event_store_events,')
+        expect(subject).to include('"COALESCE(valid_at, created_at)",')
+        expect(subject).to include('name: "index_event_store_events_on_as_of",')
+        expect(subject).to include("algorithm: :concurrently")
+      end
+
+      it "disables ddl transaction" do
+        helper.establish_database_connection
+
+        expect(subject).to include("disable_ddl_transaction!")
       end
     end
   end

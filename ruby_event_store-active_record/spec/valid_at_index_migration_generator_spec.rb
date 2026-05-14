@@ -42,16 +42,23 @@ module RubyEventStore
       specify "adds COALESCE index" do
         migration_generator(@dir)
 
-        expect(read_migration(@dir)).to include(
-          'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
-        )
+        expect(read_migration(@dir)).to include('add_index :event_store_events,')
+        expect(read_migration(@dir)).to include('"COALESCE(valid_at, created_at)",')
+        expect(read_migration(@dir)).to include('name: "index_event_store_events_on_as_of",')
+        expect(read_migration(@dir)).to include("algorithm: :concurrently")
+      end
+
+      specify "disables ddl transaction" do
+        migration_generator(@dir)
+
+        expect(read_migration(@dir)).to include("disable_ddl_transaction!")
       end
 
       specify "guards against duplicate index" do
         migration_generator(@dir)
 
         expect(read_migration(@dir)).to include(
-          'return if index_exists?(:event_store_events, nil, name: "index_event_store_events_on_as_of")',
+          'unless index_exists?(:event_store_events, "COALESCE(valid_at, created_at)",',
         )
       end
 
