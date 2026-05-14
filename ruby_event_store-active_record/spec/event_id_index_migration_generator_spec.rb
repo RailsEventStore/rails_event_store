@@ -11,6 +11,7 @@ module RubyEventStore
           example.call
         ensure
           FileUtils.rm_r(@dir)
+          FileUtils.rm_f("./20221130213700_add_event_id_index_to_event_store_events_in_streams.rb")
         end
       end
 
