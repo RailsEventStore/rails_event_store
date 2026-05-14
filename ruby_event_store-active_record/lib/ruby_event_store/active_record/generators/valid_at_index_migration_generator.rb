@@ -4,9 +4,13 @@ module RubyEventStore
   module ActiveRecord
     class ValidAtIndexMigrationGenerator
       def call(migration_path)
-        path = build_path(migration_path)
-        write_to_file(path)
+        path, content = generate(migration_path)
+        File.write(path, content)
         path
+      end
+
+      def generate(migration_path)
+        [build_path(migration_path), migration_code]
       end
 
       private
@@ -33,10 +37,6 @@ module RubyEventStore
 
       def timestamp
         Time.now.strftime("%Y%m%d%H%M%S")
-      end
-
-      def write_to_file(path)
-        File.write(path, migration_code)
       end
 
       def build_path(migration_path)

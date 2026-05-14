@@ -14,110 +14,97 @@ module RubyEventStore
           example.call
         ensure
           FileUtils.rm_r(@dir)
-          FileUtils.rm_f(["./20221130213700_create_event_store_events.rb"])
         end
       end
 
       before { allow(Time).to receive(:now).and_return(Time.new(2022, 11, 30, 21, 37, 00)) }
 
       specify "it is created within specified directory" do
-        migration_generator(@dir)
-
-        expect(migration_exists?(@dir)).to be_truthy
+        MigrationGenerator.new.call(DatabaseAdapter.from_string("sqlite", "binary"), @dir)
+        expect(File.exist?("#{@dir}/20221130213700_create_event_store_events.rb")).to be true
       end
 
       specify "returns path to migration file" do
-        path = migration_generator(@dir)
-
-        expected_path = "#{@dir}/20221130213700_create_event_store_events.rb"
-        expect(path).to match(expected_path)
+        path, _ = generate(@dir)
+        expect(path).to eq("#{@dir}/20221130213700_create_event_store_events.rb")
       end
 
       specify "uses particular migration version" do
-        migration_generator(@dir)
-
-        expect(read_migration(@dir)).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
+        _, content = generate(@dir)
+        expect(content).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
       end
 
       specify "creates migration with binary data type for SQLite adapter" do
-        migration_generator(@dir, "binary", "SQLite")
-
-        expect(read_migration(@dir)).to match(/t.binary\s+:data/)
-        expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
+        _, content = generate(@dir, "binary", "SQLite")
+        expect(content).to match(/t.binary\s+:data/)
+        expect(content).to match(/t.binary\s+:metadata/)
       end
 
       specify "throws on attempt to create migration with json data type for SQLite adapter" do
-        expect { migration_generator(@dir, "json", "SQLite") }.to raise_error(
+        expect { generate(@dir, "json", "SQLite") }.to raise_error(
           InvalidDataTypeForAdapter,
           "SQLite doesn't support \"json\". Supported types are: binary.",
         )
       end
 
       specify "throws on attempt to create migration with jsonb data type for SQLite adapter" do
-        expect { migration_generator(@dir, "jsonb", "SQLite") }.to raise_error(
+        expect { generate(@dir, "jsonb", "SQLite") }.to raise_error(
           InvalidDataTypeForAdapter,
           "SQLite doesn't support \"jsonb\". Supported types are: binary.",
         )
       end
 
       specify "throws on attempt to create migration with jsonb data type for MySQL adapter" do
-        expect { migration_generator(@dir, "jsonb", "MySQL2") }.to raise_error(
+        expect { generate(@dir, "jsonb", "MySQL2") }.to raise_error(
           InvalidDataTypeForAdapter,
           "MySQL doesn't support \"jsonb\". Supported types are: binary, json.",
         )
       end
 
       specify "creates migration with binary data type for MySQL adapter" do
-        migration_generator(@dir, "binary", "MySQL2")
-
-        expect(read_migration(@dir)).to match(/t.binary\s+:data/)
-        expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
+        _, content = generate(@dir, "binary", "MySQL2")
+        expect(content).to match(/t.binary\s+:data/)
+        expect(content).to match(/t.binary\s+:metadata/)
       end
 
       specify "creates migration with json data type for MySQL2 adapter" do
-        migration_generator(@dir, "json", "MySQL2")
-
-        expect(read_migration(@dir)).to match(/t.json\s+:data/)
-        expect(read_migration(@dir)).to match(/t.json\s+:metadata/)
+        _, content = generate(@dir, "json", "MySQL2")
+        expect(content).to match(/t.json\s+:data/)
+        expect(content).to match(/t.json\s+:metadata/)
       end
 
       specify "creates migration with binary data type for PostgreSQL adapter" do
-        migration_generator(@dir, "binary", "PostgreSQL")
-
-        expect(read_migration(@dir)).to match(/t.binary\s+:data/)
-        expect(read_migration(@dir)).to match(/t.binary\s+:metadata/)
+        _, content = generate(@dir, "binary", "PostgreSQL")
+        expect(content).to match(/t.binary\s+:data/)
+        expect(content).to match(/t.binary\s+:metadata/)
       end
 
       specify "creates migration with json data type for PostgreSQL adapter" do
-        migration_generator(@dir, "json", "PostgreSQL")
-
-        expect(read_migration(@dir)).to match(/t.json\s+:data/)
-        expect(read_migration(@dir)).to match(/t.json\s+:metadata/)
+        _, content = generate(@dir, "json", "PostgreSQL")
+        expect(content).to match(/t.json\s+:data/)
+        expect(content).to match(/t.json\s+:metadata/)
       end
 
       specify "creates migration with jsonb data type for PostgreSQL adapter" do
-        migration_generator(@dir, "jsonb", "postgresql")
-
-        expect(read_migration(@dir)).to match(/t.jsonb\s+:data/)
-        expect(read_migration(@dir)).to match(/t.jsonb\s+:metadata/)
+        _, content = generate(@dir, "jsonb", "postgresql")
+        expect(content).to match(/t.jsonb\s+:data/)
+        expect(content).to match(/t.jsonb\s+:metadata/)
       end
 
       specify "creates migration with COALESCE index for PostgreSQL adapter" do
-        migration_generator(@dir, "binary", "PostgreSQL")
-
-        expect(read_migration(@dir)).to include(
+        _, content = generate(@dir, "binary", "PostgreSQL")
+        expect(content).to include(
           'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
         )
       end
 
       specify "does not create migration with COALESCE index for non-PostgreSQL adapter" do
-        migration_generator(@dir, "binary", "MySQL2")
-
-        expect(read_migration(@dir)).not_to include("COALESCE")
+        _, content = generate(@dir, "binary", "MySQL2")
+        expect(content).not_to include("COALESCE")
       end
 
       specify "raises error when data type is not supported" do
-        expect { migration_generator(@dir, "invalid") }.to raise_error(
+        expect { generate(@dir, "invalid") }.to raise_error(
           InvalidDataTypeForAdapter,
           "SQLite doesn't support \"invalid\". Supported types are: binary.",
         )
@@ -125,16 +112,8 @@ module RubyEventStore
 
       private
 
-      def migration_generator(dir, data_type = "binary", database_adapter = "sqlite")
-        ActiveRecord::MigrationGenerator.new.call(DatabaseAdapter.from_string(database_adapter, data_type), dir)
-      end
-
-      def migration_exists?(dir)
-        File.exist?("#{dir}/20221130213700_create_event_store_events.rb")
-      end
-
-      def read_migration(dir)
-        File.read("#{dir}/20221130213700_create_event_store_events.rb")
+      def generate(dir, data_type = "binary", database_adapter = "sqlite")
+        MigrationGenerator.new.generate(DatabaseAdapter.from_string(database_adapter, data_type), dir)
       end
     end
   end

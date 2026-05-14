@@ -4,16 +4,24 @@ module RubyEventStore
   module ActiveRecord
     class ForeignKeyOnEventIdMigrationGenerator
       def call(database_adapter, migration_path)
+        generate(database_adapter, migration_path).each do |path, content|
+          File.write(path, content)
+        end
+      end
+
+      def generate(database_adapter, migration_path)
         time = Time.now
-        each_migration(database_adapter) do |migration_name, i|
-          path = build_path(migration_path, migration_name, time + i)
-          write_to_file(path, migration_code(database_adapter, migration_name))
+        migration_names(database_adapter).map.with_index do |migration_name, i|
+          [
+            build_path(migration_path, migration_name, time + i),
+            migration_code(database_adapter, migration_name),
+          ]
         end
       end
 
       private
 
-      def each_migration(database_adapter, &block)
+      def migration_names(database_adapter)
         case database_adapter
         when DatabaseAdapter::PostgreSQL
           %w[
@@ -22,7 +30,7 @@ module RubyEventStore
           ]
         else
           ["add_foreign_key_on_event_id_to_event_store_events_in_streams"]
-        end.each.with_index(&block)
+        end
       end
 
       def absolute_path(path)
@@ -45,10 +53,6 @@ module RubyEventStore
 
       def migration_version
         ::ActiveRecord::Migration.current_version
-      end
-
-      def write_to_file(path, migration_code)
-        File.write(path, migration_code)
       end
 
       def build_path(migration_path, migration_name, time)
