@@ -1,31 +1,31 @@
 PATH
   remote: ..
   specs:
-    aggregate_root (2.19.0)
-      ruby_event_store (= 2.19.0)
-    rails_event_store_active_record (2.19.0)
-      ruby_event_store-active_record (= 2.19.0)
-    ruby_event_store (2.19.0)
+    aggregate_root (2.19.1)
+      ruby_event_store (= 2.19.1)
+    rails_event_store_active_record (2.19.1)
+      ruby_event_store-active_record (= 2.19.1)
+    ruby_event_store (2.19.1)
       concurrent-ruby (~> 1.0, >= 1.1.6)
-    ruby_event_store-active_record (2.19.0)
+    ruby_event_store-active_record (2.19.1)
       activerecord (>= 6.0)
-      ruby_event_store (= 2.19.0)
-    ruby_event_store-browser (2.19.0)
+      ruby_event_store (= 2.19.1)
+    ruby_event_store-browser (2.19.1)
       rack
-      ruby_event_store (= 2.19.0)
+      ruby_event_store (= 2.19.1)
 
 PATH
   remote: .
   specs:
-    rails_event_store (2.19.0)
+    rails_event_store (2.19.1)
       activejob (>= 6.0)
       activemodel (>= 6.0)
       activesupport (>= 6.0)
-      aggregate_root (= 2.19.0)
+      aggregate_root (= 2.19.1)
       arkency-command_bus (>= 0.4)
-      rails_event_store_active_record (= 2.19.0)
-      ruby_event_store (= 2.19.0)
-      ruby_event_store-browser (= 2.19.0)
+      rails_event_store_active_record (= 2.19.1)
+      ruby_event_store (= 2.19.1)
+      ruby_event_store-browser (= 2.19.1)
 
 GEM
   remote: https://rubygems.org/
@@ -323,7 +323,7 @@ CHECKSUMS
   activerecord (8.0.5) sha256=89b261b6cd910c9431cf2475f3f6e5e2f5ce589805043a33ef2b004376a129e6
   activestorage (8.0.5) sha256=25898a3f8f8aced15ea6a8578cb56955acf3a96ad931e000b2e77e9c8db43df3
   activesupport (8.0.5) sha256=37f213ff6a37cf3fadfa1a28c1a9678e2cb73b59bb9ebd0eeeca653cccadcb23
-  aggregate_root (2.19.0)
+  aggregate_root (2.19.1)
   arkency-command_bus (0.4.1) sha256=8acac50774080ecf6828ba2f953f1ae293e80878efd555267dbd61b2ee764bde
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
@@ -379,8 +379,8 @@ CHECKSUMS
   rails (8.0.5) sha256=4cb40f90948be292fa15cc7cb37757b97266585145c6e76957464b40edfd5be6
   rails-dom-testing (2.3.0) sha256=8acc7953a7b911ca44588bf08737bc16719f431a1cc3091a292bca7317925c1d
   rails-html-sanitizer (1.7.0) sha256=28b145cceaf9cc214a9874feaa183c3acba036c9592b19886e0e45efc62b1e89
-  rails_event_store (2.19.0)
-  rails_event_store_active_record (2.19.0)
+  rails_event_store (2.19.1)
+  rails_event_store_active_record (2.19.1)
   railties (8.0.5) sha256=ad98c6e9a096b7e8cf63c70872b60ec6c1d4152be2a4ffa63483ec02a837a9d5
   rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701
   rdoc (7.2.0) sha256=8650f76cd4009c3b54955eb5d7e3a075c60a57276766ebf36f9085e8c9f23192
@@ -391,9 +391,9 @@ CHECKSUMS
   rspec-expectations (3.13.5) sha256=33a4d3a1d95060aea4c94e9f237030a8f9eae5615e9bd85718fe3a09e4b58836
   rspec-mocks (3.13.8) sha256=086ad3d3d17533f4237643de0b5c42f04b66348c28bf6b9c2d3f4a3b01af1d47
   rspec-support (3.13.7) sha256=0640e5570872aafefd79867901deeeeb40b0c9875a36b983d85f54fb7381c47c
-  ruby_event_store (2.19.0)
-  ruby_event_store-active_record (2.19.0)
-  ruby_event_store-browser (2.19.0)
+  ruby_event_store (2.19.1)
+  ruby_event_store-active_record (2.19.1)
+  ruby_event_store-browser (2.19.1)
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   sorbet-runtime (0.6.13210) sha256=06e5b332842c3f66afa8fbb29769ede5678d7da69f56114da504be8b656678e0
   sqlite3 (2.9.4-aarch64-linux-gnu) sha256=ecabed721e6eaad54601d2685f09029d90025efc8d931040dc89cb3f8a2080ec
