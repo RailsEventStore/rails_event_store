@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require_relative "../../support/helpers/silence_stdout"
 
 module RubyEventStore
   module ActiveRecord
     ::RSpec.describe ValidAtIndexMigrationGenerator do
-      around { |example| SilenceStdout.silence_stdout { example.run } }
-
       around do |example|
         begin
           @dir = Dir.mktmpdir(nil, "./")
