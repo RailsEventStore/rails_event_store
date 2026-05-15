@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "aggregate_root/version"
-require_relative "aggregate_root/configuration"
 require_relative "aggregate_root/transform"
 require_relative "aggregate_root/default_apply_strategy"
 require_relative "aggregate_root/repository"
@@ -76,24 +75,6 @@ module AggregateRoot
     def marshal_load(vars)
       vars.each { |attr, value| instance_variable_set(attr, value) unless UNMARSHALED_VARIABLES.include?(attr) }
     end
-  end
-
-  def self.with_default_apply_strategy
-    Module.new do
-      def self.included(host_class)
-        warn <<~EOW
-          Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot
-        EOW
-        host_class.include AggregateRoot
-      end
-    end
-  end
-
-  def self.with_strategy(strategy)
-    warn <<~EOW
-      Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)
-    EOW
-    with(strategy: strategy)
   end
 
   def self.with(strategy: -> { DefaultApplyStrategy.new }, event_type_resolver: ->(value) { value.to_s })

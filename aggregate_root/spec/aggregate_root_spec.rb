@@ -23,13 +23,11 @@ require "spec_helper"
 
       attr_accessor :status
 
-      private
-
-      def apply_order_created(_event)
+      on Orders::Events::OrderCreated do |_event|
         @status = :created
       end
 
-      def apply_order_expired(_event)
+      on Orders::Events::OrderExpired do |_event|
         @status = :expired
       end
     end
@@ -39,7 +37,7 @@ require "spec_helper"
     order = order_klass.new(uuid)
     order_created = Orders::Events::OrderCreated.new
 
-    expect(order).to receive(:"apply_order_created").with(order_created).and_call_original
+    expect(order).to receive(:"on_Orders::Events::OrderCreated").with(order_created).and_call_original
     order.apply(order_created)
     expect(order.status).to eq :created
     expect(order.unpublished_events.to_a).to eq([order_created])
@@ -58,68 +56,20 @@ require "spec_helper"
     expect(order.status).to eq :created
   end
 
-  it "warns when using apply_* method naming convention" do
-    order = order_klass.new(uuid)
-    order_created = Orders::Events::OrderCreated.new
-
-    expect { order.apply(order_created) }.to output(<<~EOW).to_stderr
-      Handling events via apply_* method naming convention is deprecated and will be removed in the next major release.
-
-      Use the on DSL instead:
-
-        on #{Orders::Events::OrderCreated} do |event|
-          # your code
-        end
-    EOW
-  end
-
   it "raises error for missing apply method based on a default apply strategy" do
     order = order_klass.new(uuid)
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.to raise_error(
       AggregateRoot::MissingHandler,
-      "Missing handler method apply_spanish_inquisition on aggregate #{order_klass}",
-    )
-  end
-
-  it "does not warn when apply_* method is missing" do
-    order = order_klass.new(uuid)
-    spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) rescue nil }.not_to output.to_stderr
-  end
-
-  it "raises error for missing apply method based on a default apply strategy (explicity stated)" do
-    klass = silence_warnings { Class.new { include AggregateRoot.with_default_apply_strategy } }
-    order = klass.new
-    spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) }.to raise_error(
-      AggregateRoot::MissingHandler,
-      "Missing handler method apply_spanish_inquisition on aggregate #{klass}",
+      "Missing handler method for Orders::Events::SpanishInquisition on aggregate #{order_klass}",
     )
   end
 
   it "ignores missing apply method based on a default non-strict apply strategy" do
-    klass =
-      silence_warnings do
-        Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
-      end
+    klass = Class.new { include AggregateRoot.with(strategy: -> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
     order = klass.new
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.not_to raise_error
-  end
-
-  it "include with_strategy should warn about deprecations" do
-    expect {
-      Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
-    }.to output(<<~EOW).to_stderr
-      Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)
-    EOW
-  end
-
-  it "include with_default_apply_strategy should warn about depracations" do
-    expect { Class.new { include AggregateRoot.with_default_apply_strategy } }.to output(<<~EOW).to_stderr
-      Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot
-    EOW
   end
 
   it "receives a method call based on a custom strategy" do
@@ -132,25 +82,23 @@ require "spec_helper"
       end
     end
     klass =
-      silence_warnings do
-        Class.new do
-          include AggregateRoot.with_strategy(strategy)
+      Class.new do
+        include AggregateRoot.with(strategy: strategy)
 
-          def initialize
-            @status = :draft
-          end
+        def initialize
+          @status = :draft
+        end
 
-          attr_accessor :status
+        attr_accessor :status
 
-          private
+        private
 
-          def custom_created(_event)
-            @status = :created
-          end
+        def custom_created(_event)
+          @status = :created
+        end
 
-          def custom_expired(_event)
-            @status = :expired
-          end
+        def custom_expired(_event)
+          @status = :expired
         end
       end
     order = klass.new
@@ -161,7 +109,7 @@ require "spec_helper"
   end
 
   it "included modules" do
-    klass = silence_warnings { Class.new { include AggregateRoot.with_default_apply_strategy } }
+    klass = Class.new { include AggregateRoot }
 
     expect(klass.included_modules[0]).to eq(AggregateRoot::AggregateMethods)
   end

@@ -42,9 +42,9 @@ module RubyEventStore
     private
 
     def instrument(args)
-      instrumentation.instrument("add.subscriptions.rails_event_store", args) do
+      instrumentation.instrument("add.subscriptions.ruby_event_store", args) do
         unsubscribe = yield
-        -> { instrumentation.instrument("remove.subscriptions.rails_event_store", args) { unsubscribe.call } }
+        -> { instrumentation.instrument("remove.subscriptions.ruby_event_store", args) { unsubscribe.call } }
       end
     end
 

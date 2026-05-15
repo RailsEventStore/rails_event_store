@@ -10,7 +10,7 @@ module RubyEventStore
         repository: InstrumentedRepository.new(InMemoryRepository.new, instrumenter),
         mapper: Mappers::InstrumentedMapper.new(Mappers::Default.new, instrumenter),
         message_broker:
-          RubyEventStore::Broker.new(dispatcher: InstrumentedDispatcher.new(Dispatcher.new, instrumenter)),
+          RubyEventStore::Broker.new(dispatcher: InstrumentedDispatcher.new(SyncScheduler.new, instrumenter)),
       )
     end
 
