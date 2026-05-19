@@ -187,6 +187,12 @@ module RubyEventStore
           expect(record.valid_at).to eq(time)
         end
 
+        specify "#event_to_record encodes metadata as binary string" do
+          record = Protobuf.new.event_to_record(domain_event)
+          expect(record.metadata).to be_a(String)
+          expect(record.metadata).not_to be_empty
+        end
+
         specify "#record_to_event returns event instance" do
           record = RubyEventStore::Protobuf::Mappers::Protobuf.new.event_to_record(domain_event)
           event = RubyEventStore::Protobuf::Mappers::Protobuf.new.record_to_event(record)
