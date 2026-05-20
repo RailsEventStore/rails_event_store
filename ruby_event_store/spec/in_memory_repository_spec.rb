@@ -112,6 +112,15 @@ module RubyEventStore
       end.to raise_error(InMemoryRepository::UnsupportedVersionAnyUsage)
     end
 
+    it "allows mixed :any usage when ensure_supported_any_usage is false" do
+      repository = InMemoryRepository.new(ensure_supported_any_usage: false)
+      repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
+
+      expect do
+        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
+      end.not_to raise_error
+    end
+
     it "message for UnsupportedVersionAnyUsage" do
       expect(InMemoryRepository::UnsupportedVersionAnyUsage.new.message).to eq(<<~EOS)
       Mixing expected version :any and specific position (or :auto) is unsupported.
