@@ -10,7 +10,7 @@ event_store =
   RubyEventStore::Client.new(
     repository: RubyEventStore::InstrumentedRepository.new(RubyEventStore::InMemoryRepository.new, instrumenter),
     mapper: RubyEventStore::Mappers::InstrumentedMapper.new(RubyEventStore::Mappers::Default.new, instrumenter),
-    dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::Dispatcher.new, instrumenter),
+    dispatcher: RubyEventStore::InstrumentedDispatcher.new(RubyEventStore::SyncScheduler.new, instrumenter),
   )
 
 repository = AggregateRoot::InstrumentedRepository.new(AggregateRoot::Repository.new(event_store), instrumenter)
