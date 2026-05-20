@@ -22,11 +22,12 @@ module RubyEventStore
       attr_reader :event_id, :position
     end
 
-    def initialize(serializer: NULL)
+    def initialize(serializer: NULL, ensure_supported_any_usage: true)
       @serializer = serializer
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex = Mutex.new
       @storage = Hash.new
+      @ensure_supported_any_usage = ensure_supported_any_usage
     end
 
     def append_to_stream(records, stream, expected_version)
@@ -237,7 +238,7 @@ module RubyEventStore
       violation =
         (resolved_version.nil? && !stream_positions.compact.empty?) ||
         (!resolved_version.nil? && stream_positions.include?(nil))
-      raise UnsupportedVersionAnyUsage if violation
+      raise UnsupportedVersionAnyUsage if violation && @ensure_supported_any_usage
     end
 
     attr_reader :streams, :mutex, :storage, :serializer
