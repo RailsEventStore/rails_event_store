@@ -12,7 +12,7 @@ Add to your gemfile in application:
 gem "ruby_event_store-sidekiq_scheduler"
 ```
 
-Declare the scheduler in your Ruby Event Store configuration. We recommend to use it with `AfterCommitAsyncDispatcher`
+Declare the scheduler in your Ruby Event Store configuration. We recommend to use it with `AfterCommitDispatcher`
 
 ```ruby
 event_store = RailsEventStore::Client.new(
