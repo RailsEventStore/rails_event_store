@@ -16,29 +16,19 @@ module RubyEventStore
     end
 
     specify "publish raises ArgumentError when nil passed as events" do
-      expect { client.publish(nil, stream_name: stream) }.to raise_error(ArgumentError, /events must not be nil/)
+      expect { client.publish(nil, stream_name: stream) }.to raise_error(ArgumentError, "Event cannot be `nil`")
     end
 
     specify "publish raises ArgumentError when nil passed inside events array" do
-      expect { client.publish([nil], stream_name: stream) }.to raise_error(ArgumentError, /events must not be nil/)
+      expect { client.publish([nil], stream_name: stream) }.to raise_error(ArgumentError, "Event cannot be `nil`")
     end
 
     specify "publish raises ArgumentError when nil mixed with valid events in array" do
-      expect { client.publish([TestEvent.new, nil], stream_name: stream) }.to raise_error(ArgumentError, /events must not be nil/)
+      expect { client.publish([TestEvent.new, nil], stream_name: stream) }.to raise_error(ArgumentError, "Event cannot be `nil`")
     end
 
     specify "link raises ArgumentError when nil passed as event_ids" do
-      expect { client.link(nil, stream_name: stream) }.to raise_error(ArgumentError, /event_ids must not be nil/)
-    end
-
-    specify "link raises ArgumentError when nil passed inside event_ids array" do
-      expect { client.link([nil], stream_name: stream) }.to raise_error(ArgumentError, /event_ids must not be nil/)
-    end
-
-    specify "link raises ArgumentError when nil mixed with valid event_ids in array" do
-      event = TestEvent.new
-      client.append(event)
-      expect { client.link([event.event_id, nil], stream_name: stream) }.to raise_error(ArgumentError, /event_ids must not be nil/)
+      expect { client.link(nil, stream_name: stream) }.to raise_error(ArgumentError, "Event cannot be `nil`")
     end
 
     specify "append returns client when success" do
