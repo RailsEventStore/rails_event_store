@@ -31,8 +31,8 @@ module RubyEventStore
             RubyEventStore::Broker.new(
               dispatcher:
                 ComposedDispatcher.new(
-                  ImmediateAsyncDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: NULL)),
-                  Dispatcher.new,
+                  ImmediateDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: NULL)),
+                  SyncScheduler.new,
                 ),
             ),
         )

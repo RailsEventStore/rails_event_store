@@ -2,7 +2,7 @@
 
 module AggregateRoot
   class Repository
-    def initialize(event_store = default_event_store)
+    def initialize(event_store)
       @event_store = event_store
     end
 
@@ -31,13 +31,5 @@ module AggregateRoot
     private
 
     attr_reader :event_store
-
-    def default_event_store
-      warn <<~EOW
-        DEPRECATION WARNING: Calling `AggregateRoot::Repository.new` without an event store argument relies on `AggregateRoot::Configuration` which is deprecated and will be removed in the next major release.
-        Use `AggregateRoot::Repository.new(event_store)` with explicit event store injection instead.
-      EOW
-      AggregateRoot.configuration.default_event_store
-    end
   end
 end

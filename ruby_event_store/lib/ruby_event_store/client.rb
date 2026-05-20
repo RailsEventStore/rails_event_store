@@ -98,11 +98,7 @@ module RubyEventStore
     # @param expected_version (see #publish)
     # @return [self]
     def link(event_ids, stream_name:, expected_version: :any)
-      if event_ids.nil? || Array(event_ids).any?(&:nil?)
-        warn <<~EOW
-          Passing `nil` to link is deprecated and will raise ArgumentError in RubyEventStore 3.0.
-        EOW
-      end
+      raise ArgumentError, "Event cannot be `nil`" if event_ids.nil?
       @repository.link_to_stream(Array(event_ids), Stream.new(stream_name), ExpectedVersion.new(expected_version))
       self
     end
@@ -385,16 +381,13 @@ module RubyEventStore
     end
 
     def enrich_events_metadata(events)
-      if events.nil? || Array(events).any?(&:nil?)
-        warn <<~EOW
-          Passing `nil` to publish/append is deprecated and will raise ArgumentError in RubyEventStore 3.0.
-        EOW
-      end
+      raise ArgumentError, "Event cannot be `nil`" if events.nil?
       events = Array(events)
       events.each { |event| enrich_event_metadata(event) }
     end
 
     def enrich_event_metadata(event)
+      raise ArgumentError, "Event cannot be `nil`" if event.nil?
       metadata.each { |key, value| event.metadata[key] ||= value }
       event.metadata[:timestamp] ||= @clock.call
       event.metadata[:valid_at] ||= event.metadata.fetch(:timestamp)

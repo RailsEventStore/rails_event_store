@@ -21,7 +21,6 @@ the table below.
 
 - Default mapper for `RubyEventStore::Client` and `RailsEventStore::Client`
 - Transforms an event into a record (and back). Additionally it symbolizes metadata keys
-- Deprecated: `events_class_remapping` — use [upcasting](../advanced-topics/migrating-existing-events) instead
 
 ### [RubyEventStore::Mappers::Protobuf](https://github.com/RailsEventStore/rails_event_store/blob/master/contrib/ruby_event_store-protobuf/lib/ruby_event_store/protobuf/mappers/protobuf.rb)
 
@@ -65,9 +64,8 @@ with explicit default arguments:
 module RubyEventStore
   module Mappers
     class Default < PipelineMapper
-      def initialize(events_class_remapping: {})
+      def initialize
         super(Pipeline.new(
-          Transformation::EventClassRemapper.new(events_class_remapping),
           Transformation::SymbolizeMetadataKeys.new,
           to_domain_event: Transformation::DomainEvent.new
         ))

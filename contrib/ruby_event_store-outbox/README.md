@@ -18,7 +18,7 @@ Generate and execute the migration adding necessary tables. If it's needed, chan
 bin/rails generate ruby_event_store:outbox:migration
 ```
 
-In your event store configuration, as a dispatcher use `RubyEventStore::ImmediateAsyncDispatcher` with `RubyEventStore::Outbox::SidekiqScheduler`, for example:
+In your event store configuration, as a dispatcher use `RubyEventStore::ImmediateDispatcher` with `RubyEventStore::Outbox::SidekiqScheduler`, for example:
 
 ```ruby
 

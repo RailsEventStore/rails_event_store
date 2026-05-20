@@ -22,7 +22,7 @@ module RubyEventStore
       attr_reader :event_id, :position
     end
 
-    def initialize(serializer: NULL, ensure_supported_any_usage: false)
+    def initialize(serializer: NULL, ensure_supported_any_usage: true)
       @serializer = serializer
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex = Mutex.new
@@ -238,16 +238,7 @@ module RubyEventStore
       violation =
         (resolved_version.nil? && !stream_positions.compact.empty?) ||
         (!resolved_version.nil? && stream_positions.include?(nil))
-
-      if violation
-        if @ensure_supported_any_usage
-          raise UnsupportedVersionAnyUsage
-        else
-          warn <<~EOW
-            Mixing expected version :any and specific position (or :auto) is deprecated and will raise UnsupportedVersionAnyUsage in RubyEventStore 3.0.
-          EOW
-        end
-      end
+      raise UnsupportedVersionAnyUsage if violation && @ensure_supported_any_usage
     end
 
     attr_reader :streams, :mutex, :storage, :serializer

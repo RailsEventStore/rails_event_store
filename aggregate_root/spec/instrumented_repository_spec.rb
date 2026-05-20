@@ -25,13 +25,11 @@ module AggregateRoot
 
         attr_accessor :status
 
-        private
-
-        def apply_order_created(_event)
+        on Orders::Events::OrderCreated do |_event|
           @status = :created
         end
 
-        def apply_order_expired(_event)
+        on Orders::Events::OrderExpired do |_event|
           @status = :expired
         end
       end

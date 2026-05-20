@@ -560,16 +560,6 @@ module RubyEventStore
     end
 
     specify do
-      expect { specification.in_batches_of }.to output(<<~EOW).to_stderr
-        RubyEventStore::Specification#in_batches_of is deprecated and will be removed in the next major release.
-
-        Use #in_batches instead.
-      EOW
-      expect(specification.in_batches_of.result).to eq(specification.in_batches.result)
-      expect(specification.in_batches_of(1000).result).to eq(specification.in_batches(1000).result)
-    end
-
-    specify do
       records = 200.times.map { test_record }
       repository.append_to_stream(records, Stream.new("whatever"), ExpectedVersion.none)
 
@@ -809,17 +799,8 @@ module RubyEventStore
       repository.append_to_stream([test_record(event_type: ProductAdded)], Stream.new("Dummy"), ExpectedVersion.any)
       expect(specification.of_type(TestEvent).count).to eq(1)
       expect(specification.of_type([TestEvent]).count).to eq(1)
-      expect { specification.of_types(TestEvent) }.to output(<<~EOW).to_stderr
-        RubyEventStore::Specification#of_types is deprecated and will be removed in the next major release.
-
-        Use #of_type instead.
-      EOW
-      expect(specification.of_types(TestEvent).count).to eq(1)
-      expect(specification.of_types([TestEvent]).count).to eq(1)
 
       expect(specification.of_type([OrderCreated, ProductAdded]).count).to eq(3)
-      expect(specification.of_types([OrderCreated, ProductAdded]).count).to eq(3)
-      expect(specification.of_types(OrderCreated, ProductAdded).count).to eq(3)
     end
 
     specify "by default time sort order is not defined" do
