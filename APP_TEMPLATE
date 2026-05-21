@@ -46,9 +46,12 @@ initializer "rails_event_store.rb", <<~CODE
     Rails.configuration.event_store = #{profile.client}
     Rails.configuration.command_bus = Arkency::CommandBus.new
 
-    AggregateRoot.configure do |config|
-      config.default_event_store = Rails.configuration.event_store
-    end
+    # Use AggregateRoot::Repository with explicit event store injection, e.g.:
+    #
+    #   repository = AggregateRoot::Repository.new(Rails.configuration.event_store)
+    #   repository.with_aggregate(Order.new(order_id), "Order$\#{order_id}") do |order|
+    #     order.submit
+    #   end
 
     # Subscribe event handlers below
     Rails.configuration.event_store.tap do |store|
