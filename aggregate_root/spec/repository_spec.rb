@@ -38,10 +38,10 @@ module AggregateRoot
     end
 
     def with_default_event_store(store)
-      previous = AggregateRoot.configuration&.default_event_store
+      previous = AggregateRoot.configuration
       AggregateRoot.configuration = AggregateRoot::Configuration.new.tap { |c| c.default_event_store = store }
       yield
-      AggregateRoot.configuration = AggregateRoot::Configuration.new.tap { |c| c.default_event_store = previous }
+      AggregateRoot.configuration = previous
     end
 
     describe "#initialize" do

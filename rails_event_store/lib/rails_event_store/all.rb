@@ -12,6 +12,7 @@ require_relative "json_client"
 require_relative "version"
 require_relative "railtie"
 require_relative "browser"
+require_relative "deprecated"
 
 module RailsEventStore
   DEPRECATED_CONSTANTS = {

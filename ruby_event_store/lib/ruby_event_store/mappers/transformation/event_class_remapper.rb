@@ -4,14 +4,7 @@ module RubyEventStore
   module Mappers
     module Transformation
       class EventClassRemapper
-        Deprecations.register(
-          :event_class_remapper,
-          "`RubyEventStore::Mappers::Transformation::EventClassRemapper` is deprecated and will be removed in the next major release.\n" \
-          "Use `RubyEventStore::Mappers::Transformation::Upcast` instead.",
-        )
-
         def initialize(class_map)
-          Deprecations.warn(:event_class_remapper)
           @class_map = class_map
         end
 

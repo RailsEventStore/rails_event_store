@@ -79,26 +79,15 @@ module AggregateRoot
     end
   end
 
-  RubyEventStore::Deprecations.register(
-    :with_default_apply_strategy,
-    "Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot"
-  )
-  RubyEventStore::Deprecations.register(
-    :with_strategy,
-    "Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)"
-  )
-
   def self.with_default_apply_strategy
     Module.new do
       def self.included(host_class)
-        RubyEventStore::Deprecations.warn(:with_default_apply_strategy)
         host_class.include AggregateRoot
       end
     end
   end
 
   def self.with_strategy(strategy)
-    RubyEventStore::Deprecations.warn(:with_strategy)
     with(strategy: strategy)
   end
 
@@ -122,4 +111,7 @@ module AggregateRoot
     host_class.extend OnDSL
     host_class.include with
   end
+
 end
+
+require_relative "aggregate_root/deprecated"

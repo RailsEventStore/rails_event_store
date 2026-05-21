@@ -2,12 +2,6 @@
 
 module AggregateRoot
   class Repository
-    RubyEventStore::Deprecations.register(
-      :repository_default_event_store,
-      "Calling `AggregateRoot::Repository.new` without an event store argument relies on `AggregateRoot::Configuration` which is deprecated and will be removed in the next major release.\n" \
-      "Use `AggregateRoot::Repository.new(event_store)` with explicit event store injection instead."
-    )
-
     def initialize(event_store = default_event_store)
       @event_store = event_store
     end
@@ -39,7 +33,6 @@ module AggregateRoot
     attr_reader :event_store
 
     def default_event_store
-      RubyEventStore::Deprecations.warn(:repository_default_event_store)
       AggregateRoot.configuration.default_event_store
     end
   end
