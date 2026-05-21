@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 require "ruby_event_store/active_record"
+require "ruby_event_store/deprecations"
 
-warn <<~EOW
-  The 'rails_event_store_active_record' gem has been renamed and is deprecated.
-  Please change your Gemfile or gemspec to use 'ruby_event_store-active_record' instead.
-EOW
+RubyEventStore::Deprecations.register(
+  :rails_event_store_active_record_renamed,
+  "The 'rails_event_store_active_record' gem has been renamed.\n" \
+    "Please use 'ruby_event_store-active_record' in your Gemfile instead.",
+)
 
-RailsEventStoreActiveRecord = RubyEventStore::ActiveRecord
+RubyEventStore::Deprecations.warn(:rails_event_store_active_record_renamed)
+
+RailsEventStoreActiveRecord = RubyEventStore::ActiveRecord unless defined?(RailsEventStoreActiveRecord)
