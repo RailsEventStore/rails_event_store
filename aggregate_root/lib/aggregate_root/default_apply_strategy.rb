@@ -41,7 +41,10 @@ module AggregateRoot
     def apply_handler_name(aggregate, event_type)
       name = "apply_#{Transform.to_snake_case(event_type(event_type))}"
       if aggregate.respond_to?(name, true)
-        warn DEPRECATION_MESSAGE % event_type
+        RubyEventStore::Deprecations.warn(
+          :"apply_naming_convention_#{event_type}",
+          message: DEPRECATION_MESSAGE % event_type
+        )
       end
       name
     end

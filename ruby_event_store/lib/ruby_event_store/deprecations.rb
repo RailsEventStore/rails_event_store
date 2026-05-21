@@ -3,7 +3,8 @@
 module RubyEventStore
   module Deprecations
     @suppressions = []
-    @warnings = {}
+    @warnings     = {}
+    @emitted      = []
 
     class << self
       def register(key, message)
@@ -14,13 +15,16 @@ module RubyEventStore
         @suppressions << key
       end
 
-      def warn(key)
+      def warn(key, message: nil)
         return if @suppressions.include?(key)
-        Kernel.warn("[DEPRECATION] #{@warnings.fetch(key)}")
+        return if @emitted.include?(key)
+        @emitted << key
+        Kernel.warn("[DEPRECATION] #{message || @warnings.fetch(key)}")
       end
 
       def reset!
         @suppressions = []
+        @emitted      = []
       end
     end
   end

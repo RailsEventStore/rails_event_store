@@ -4,7 +4,6 @@ require "spec_helper"
 require "ruby_event_store/deprecations"
 
 RSpec.describe "rails_event_store_active_record deprecation" do
-  after { RubyEventStore::Deprecations.reset! }
 
   it "warns when loaded directly" do
     expect { load File.expand_path("../lib/rails_event_store_active_record.rb", __dir__) }.to output(

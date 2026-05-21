@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "ruby_event_store/deprecations"
 require_relative "ruby_event_store/sync_scheduler"
 require_relative "ruby_event_store/dispatcher"
 require_relative "ruby_event_store/subscriptions"

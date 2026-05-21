@@ -5,6 +5,7 @@ require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
   ::RSpec.describe SyncScheduler do
+
     it_behaves_like "dispatcher", SyncScheduler.new
     let(:event) { instance_double(Event) }
     let(:record) { instance_double(Record) }

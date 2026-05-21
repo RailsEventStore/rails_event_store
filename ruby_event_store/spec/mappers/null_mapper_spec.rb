@@ -29,10 +29,7 @@ module RubyEventStore
       it_behaves_like "mapper", null_mapper_instance, TimeEnrichment.with(TestEvent.new)
 
       specify "warns on initialization" do
-        expect { NullMapper.new }.to output(<<~EOS).to_stderr
-          DEPRECATION WARNING: `RubyEventStore::Mappers::NullMapper` is deprecated and will be removed in the next major release.
-          Use `RubyEventStore::Mappers::Default.new` instead.
-        EOS
+        expect { NullMapper.new }.to output(/NullMapper.*deprecated.*Default\.new/m).to_stderr
       end
 
       specify "#event_to_record" do

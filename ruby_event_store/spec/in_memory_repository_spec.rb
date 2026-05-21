@@ -5,6 +5,7 @@ require "ruby_event_store/spec/event_repository_lint"
 
 module RubyEventStore
   ::RSpec.describe InMemoryRepository do
+
     helper = SpecHelper.new
     mk_repository = -> { InMemoryRepository.new }
 

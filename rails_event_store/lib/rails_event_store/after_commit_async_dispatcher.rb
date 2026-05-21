@@ -2,11 +2,14 @@
 
 module RailsEventStore
   class AfterCommitAsyncDispatcher < AfterCommitDispatcher
+    RubyEventStore::Deprecations.register(
+      :after_commit_async_dispatcher_renamed,
+      "`RailsEventStore::AfterCommitAsyncDispatcher` is deprecated and will be removed in the next major release.\n" \
+      "Use `RailsEventStore::AfterCommitDispatcher` instead."
+    )
+
     def initialize(scheduler:)
-      warn <<~EOW
-        DEPRECATION WARNING: `RailsEventStore::AfterCommitAsyncDispatcher` is deprecated and will be removed in the next major release.
-        Use `RailsEventStore::AfterCommitDispatcher` instead.
-      EOW
+      RubyEventStore::Deprecations.warn(:after_commit_async_dispatcher_renamed)
       super
     end
   end

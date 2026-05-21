@@ -3,6 +3,7 @@
 require "spec_helper"
 
 ::RSpec.describe AggregateRoot do
+
   let(:uuid) { SecureRandom.uuid }
   let(:order_klass) do
     Class.new do
@@ -23,6 +24,27 @@ require "spec_helper"
 
       attr_accessor :status
 
+      on Orders::Events::OrderCreated do |_event|
+        @status = :created
+      end
+
+      on Orders::Events::OrderExpired do |_event|
+        @status = :expired
+      end
+    end
+  end
+
+  let(:apply_order_klass) do
+    Class.new do
+      include AggregateRoot
+
+      def initialize(uuid)
+        @status = :draft
+        @uuid = uuid
+      end
+
+      attr_accessor :status
+
       private
 
       def apply_order_created(_event)
@@ -36,7 +58,7 @@ require "spec_helper"
   end
 
   it "has ability to apply event on itself" do
-    order = order_klass.new(uuid)
+    order = apply_order_klass.new(uuid)
     order_created = Orders::Events::OrderCreated.new
 
     expect(order).to receive(:"apply_order_created").with(order_created).and_call_original
@@ -59,11 +81,11 @@ require "spec_helper"
   end
 
   it "warns when using apply_* method naming convention" do
-    order = order_klass.new(uuid)
+    order = apply_order_klass.new(uuid)
     order_created = Orders::Events::OrderCreated.new
 
     expect { order.apply(order_created) }.to output(<<~EOW).to_stderr
-      Handling events via apply_* method naming convention is deprecated and will be removed in the next major release.
+      [DEPRECATION] Handling events via apply_* method naming convention is deprecated and will be removed in the next major release.
 
       Use the on DSL instead:
 
@@ -71,6 +93,13 @@ require "spec_helper"
           # your code
         end
     EOW
+  end
+
+  it "warns separately for each event type using apply_* naming convention" do
+    order = apply_order_klass.new(uuid)
+
+    expect { order.apply(Orders::Events::OrderCreated.new) }.to output(/OrderCreated/).to_stderr
+    expect { order.apply(Orders::Events::OrderExpired.new) }.to output(/OrderExpired/).to_stderr
   end
 
   it "raises error for missing apply method based on a default apply strategy" do
@@ -112,13 +141,13 @@ require "spec_helper"
     expect {
       Class.new { include AggregateRoot.with_strategy(-> { AggregateRoot::DefaultApplyStrategy.new(strict: false) }) }
     }.to output(<<~EOW).to_stderr
-      Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)
+      [DEPRECATION] Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)
     EOW
   end
 
   it "include with_default_apply_strategy should warn about depracations" do
     expect { Class.new { include AggregateRoot.with_default_apply_strategy } }.to output(<<~EOW).to_stderr
-      Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot
+      [DEPRECATION] Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot
     EOW
   end
 

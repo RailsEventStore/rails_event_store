@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "ruby_event_store/deprecations"
 require_relative "aggregate_root/version"
 require_relative "aggregate_root/configuration"
 require_relative "aggregate_root/transform"
@@ -78,21 +79,26 @@ module AggregateRoot
     end
   end
 
+  RubyEventStore::Deprecations.register(
+    :with_default_apply_strategy,
+    "Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot"
+  )
+  RubyEventStore::Deprecations.register(
+    :with_strategy,
+    "Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)"
+  )
+
   def self.with_default_apply_strategy
     Module.new do
       def self.included(host_class)
-        warn <<~EOW
-          Please replace include AggregateRoot.with_default_apply_strategy with include AggregateRoot
-        EOW
+        RubyEventStore::Deprecations.warn(:with_default_apply_strategy)
         host_class.include AggregateRoot
       end
     end
   end
 
   def self.with_strategy(strategy)
-    warn <<~EOW
-      Please replace include AggregateRoot.with_strategy(...) with include AggregateRoot.with(strategy: ...)
-    EOW
+    RubyEventStore::Deprecations.warn(:with_strategy)
     with(strategy: strategy)
   end
 

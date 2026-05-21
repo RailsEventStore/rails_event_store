@@ -27,26 +27,25 @@ module AggregateRoot
 
         attr_accessor :status
 
-        private
-
-        def apply_order_created(_event)
+        on Orders::Events::OrderCreated do |_event|
           @status = :created
         end
 
-        def apply_order_expired(_event)
+        on Orders::Events::OrderExpired do |_event|
           @status = :expired
         end
       end
     end
 
     def with_default_event_store(store)
-      previous = AggregateRoot.configuration.default_event_store
-      AggregateRoot.configure { |config| config.default_event_store = store }
+      previous = AggregateRoot.configuration&.default_event_store
+      AggregateRoot.configuration = AggregateRoot::Configuration.new.tap { |c| c.default_event_store = store }
       yield
-      AggregateRoot.configure { |config| config.default_event_store = previous }
+      AggregateRoot.configuration = AggregateRoot::Configuration.new.tap { |c| c.default_event_store = previous }
     end
 
     describe "#initialize" do
+
       it "uses default client if event_store not provided" do
         with_default_event_store(event_store) do
           repository = AggregateRoot::Repository.new
@@ -66,10 +65,11 @@ module AggregateRoot
         end
       end
 
-      it "warns when AggregateRoot.configure is used" do
+      it "warns when AggregateRoot.configure is used and yields configuration to block" do
         expect {
           AggregateRoot.configure { |config| config.default_event_store = event_store }
         }.to output(/AggregateRoot.configure.*deprecated/).to_stderr
+        expect(AggregateRoot.configuration.default_event_store).to eq(event_store)
       end
 
       it "prefers provided event_store client" do

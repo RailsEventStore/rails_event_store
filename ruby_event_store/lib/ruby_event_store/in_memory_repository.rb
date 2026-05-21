@@ -2,6 +2,11 @@
 
 module RubyEventStore
   class InMemoryRepository
+    Deprecations.register(
+      :any_version_with_specific_position,
+      "Mixing expected version :any and specific position (or :auto) is deprecated and will raise UnsupportedVersionAnyUsage in RubyEventStore 3.0."
+    )
+
     class UnsupportedVersionAnyUsage < StandardError
       def initialize
         super <<~EOS
@@ -243,9 +248,7 @@ module RubyEventStore
         if @ensure_supported_any_usage
           raise UnsupportedVersionAnyUsage
         else
-          warn <<~EOW
-            Mixing expected version :any and specific position (or :auto) is deprecated and will raise UnsupportedVersionAnyUsage in RubyEventStore 3.0.
-          EOW
+          Deprecations.warn(:any_version_with_specific_position)
         end
       end
     end

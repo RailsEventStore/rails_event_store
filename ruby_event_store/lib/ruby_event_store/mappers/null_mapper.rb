@@ -3,11 +3,14 @@
 module RubyEventStore
   module Mappers
     class NullMapper < PipelineMapper
+      Deprecations.register(
+        :null_mapper,
+        "`RubyEventStore::Mappers::NullMapper` is deprecated and will be removed in the next major release.\n" \
+        "Use `RubyEventStore::Mappers::Default.new` instead.",
+      )
+
       def initialize
-        warn <<~EOW
-          DEPRECATION WARNING: `RubyEventStore::Mappers::NullMapper` is deprecated and will be removed in the next major release.
-          Use `RubyEventStore::Mappers::Default.new` instead.
-        EOW
+        Deprecations.warn(:null_mapper)
         super(Pipeline.new)
       end
     end

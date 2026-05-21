@@ -60,7 +60,7 @@ module RubyEventStore
       it "warns when events_class_remapping is provided" do
         expect {
           Default.new(events_class_remapping: { "EventNameBeforeRefactor" => "SomethingHappened" })
-        }.to output(/events_class_remapping.*deprecated.*Upcast/m).to_stderr
+        }.to output(/\[DEPRECATION\].*events_class_remapping.*deprecated.*Upcast/m).to_stderr
       end
 
       it "does not warn when no events_class_remapping is provided" do
