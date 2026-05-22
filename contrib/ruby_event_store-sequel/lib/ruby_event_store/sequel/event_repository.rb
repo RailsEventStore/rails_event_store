@@ -18,7 +18,7 @@ module RubyEventStore
         resolved_version = resolved_version(expected_version, stream)
 
         @db.transaction do
-          records.map.with_index do |record, index|
+          records.each.with_index do |record, index|
             serialized_record = record.serialize(@serializer)
 
             @db[:event_store_events].insert(
