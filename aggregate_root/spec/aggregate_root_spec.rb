@@ -3,7 +3,6 @@
 require "spec_helper"
 
 ::RSpec.describe AggregateRoot do
-
   let(:uuid) { SecureRandom.uuid }
   let(:order_klass) do
     Class.new do
@@ -114,7 +113,13 @@ require "spec_helper"
   it "does not warn when apply_* method is missing" do
     order = order_klass.new(uuid)
     spanish_inquisition = Orders::Events::SpanishInquisition.new
-    expect { order.apply(spanish_inquisition) rescue nil }.not_to output.to_stderr
+    expect {
+      begin
+        order.apply(spanish_inquisition)
+      rescue StandardError
+        nil
+      end
+    }.not_to output.to_stderr
   end
 
   it "raises error for missing apply method based on a default apply strategy (explicity stated)" do

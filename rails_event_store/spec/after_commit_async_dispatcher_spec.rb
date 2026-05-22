@@ -5,7 +5,6 @@ require "ruby_event_store/spec/dispatcher_lint"
 
 module RailsEventStore
   ::RSpec.describe AfterCommitAsyncDispatcher do
-
     DummyError = Class.new(StandardError)
 
     class DummyRecord < ActiveRecord::Base

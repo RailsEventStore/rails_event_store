@@ -237,7 +237,7 @@ module RubyEventStore
       stream_positions = streams.fetch(stream.name, Array.new).map(&:position)
       violation =
         (resolved_version.nil? && !stream_positions.compact.empty?) ||
-        (!resolved_version.nil? && stream_positions.include?(nil))
+          (!resolved_version.nil? && stream_positions.include?(nil))
 
       if violation
         if @ensure_supported_any_usage

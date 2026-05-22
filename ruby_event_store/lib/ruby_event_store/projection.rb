@@ -33,9 +33,7 @@ module RubyEventStore
 
       Deprecations.warn(:projection_multiple_scopes) if scopes.size > 1
 
-      scopes.reduce(initial_state) do |state, scope|
-        scope.of_type(handled_events).reduce(state, &method(:transition))
-      end
+      scopes.reduce(initial_state) { |state, scope| scope.of_type(handled_events).reduce(state, &method(:transition)) }
     end
 
     def self.from_stream(stream_or_streams)
@@ -58,7 +56,10 @@ module RubyEventStore
     def when(events, handler)
       Array(events).each do |event_klass|
         name = event_klass.to_s
-        @handlers[name] = ->(state, event) { handler.call(state, event); state }
+        @handlers[name] = ->(state, event) do
+          handler.call(state, event)
+          state
+        end
       end
       self
     end
@@ -67,11 +68,13 @@ module RubyEventStore
       if @streams.any?
         raise ArgumentError, "Start must be an array with event ids" unless valid_start_for_streams?(start)
         scopes =
-          @streams.zip(start || []).map do |stream, start_event_id|
-            scope = event_store.read.stream(stream).in_batches(count)
-            scope = scope.from(start_event_id) if start_event_id
-            scope
-          end
+          @streams
+            .zip(start || [])
+            .map do |stream, start_event_id|
+              scope = event_store.read.stream(stream).in_batches(count)
+              scope = scope.from(start_event_id) if start_event_id
+              scope
+            end
       else
         raise ArgumentError, "Start must be valid event id" unless valid_start_for_all_streams?(start)
         scope = event_store.read.in_batches(count)

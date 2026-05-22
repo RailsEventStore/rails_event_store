@@ -111,7 +111,6 @@ module AggregateRoot
     host_class.extend OnDSL
     host_class.include with
   end
-
 end
 
 require_relative "aggregate_root/deprecated"

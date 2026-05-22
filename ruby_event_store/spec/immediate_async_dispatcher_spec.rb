@@ -6,7 +6,6 @@ require "ruby_event_store/spec/scheduler_lint"
 
 module RubyEventStore
   ::RSpec.describe ImmediateAsyncDispatcher do
-
     class MyCustomScheduler
       def call(klass, record)
         klass.perform_async(record)
@@ -18,7 +17,9 @@ module RubyEventStore
     end
 
     it "warns when instantiated" do
-      expect { ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new) }.to output(/RubyEventStore::ImmediateAsyncDispatcher.*deprecated.*ImmediateDispatcher/m).to_stderr
+      expect { ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new) }.to output(
+        /RubyEventStore::ImmediateAsyncDispatcher.*deprecated.*ImmediateDispatcher/m,
+      ).to_stderr
     end
 
     it_behaves_like "dispatcher", ImmediateAsyncDispatcher.new(scheduler: MyCustomScheduler.new)

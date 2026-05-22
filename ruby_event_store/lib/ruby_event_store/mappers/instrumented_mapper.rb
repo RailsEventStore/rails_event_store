@@ -10,9 +10,12 @@ module RubyEventStore
 
       def event_to_record(event)
         instrumentation.instrument("event_to_record.mapper.ruby_event_store", event: event) do
-          deprecated_instrument("serialize.mapper.ruby_event_store", { domain_event: event },
-                                canonical: "event_to_record.mapper.ruby_event_store",
-                                key: :instrumented_mapper_serialize_deprecated) do
+          deprecated_instrument(
+            "serialize.mapper.ruby_event_store",
+            { domain_event: event },
+            canonical: "event_to_record.mapper.ruby_event_store",
+            key: :instrumented_mapper_serialize_deprecated,
+          ) do
             deprecated_instrument("serialize.mapper.rails_event_store", { domain_event: event }) do
               mapper.event_to_record(event)
             end
@@ -22,9 +25,12 @@ module RubyEventStore
 
       def record_to_event(record)
         instrumentation.instrument("record_to_event.mapper.ruby_event_store", record: record) do
-          deprecated_instrument("deserialize.mapper.ruby_event_store", { record: record },
-                                canonical: "record_to_event.mapper.ruby_event_store",
-                                key: :instrumented_mapper_serialize_deprecated) do
+          deprecated_instrument(
+            "deserialize.mapper.ruby_event_store",
+            { record: record },
+            canonical: "record_to_event.mapper.ruby_event_store",
+            key: :instrumented_mapper_serialize_deprecated,
+          ) do
             deprecated_instrument("deserialize.mapper.rails_event_store", { record: record }) do
               mapper.record_to_event(record)
             end

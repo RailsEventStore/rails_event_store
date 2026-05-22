@@ -46,9 +46,11 @@ module RubyEventStore
         subscriber: subscriber,
         topics: topics,
       ) do
-        deprecated_instrument("add_thread_subscription.broker.rails_event_store", subscriber: subscriber, topics: topics) do
-          broker.add_thread_subscription(subscriber, topics)
-        end
+        deprecated_instrument(
+          "add_thread_subscription.broker.rails_event_store",
+          subscriber: subscriber,
+          topics: topics,
+        ) { broker.add_thread_subscription(subscriber, topics) }
       end
     end
 

@@ -45,7 +45,6 @@ module AggregateRoot
     end
 
     describe "#initialize" do
-
       it "uses default client if event_store not provided" do
         with_default_event_store(event_store) do
           repository = AggregateRoot::Repository.new
@@ -61,14 +60,16 @@ module AggregateRoot
 
       it "warns when no event_store argument provided" do
         with_default_event_store(event_store) do
-          expect { AggregateRoot::Repository.new }.to output(/AggregateRoot::Repository.new.*without an event store argument/).to_stderr
+          expect { AggregateRoot::Repository.new }.to output(
+            /AggregateRoot::Repository.new.*without an event store argument/,
+          ).to_stderr
         end
       end
 
       it "warns when AggregateRoot.configure is used and yields configuration to block" do
-        expect {
-          AggregateRoot.configure { |config| config.default_event_store = event_store }
-        }.to output(/AggregateRoot.configure.*deprecated/).to_stderr
+        expect { AggregateRoot.configure { |config| config.default_event_store = event_store } }.to output(
+          /AggregateRoot.configure.*deprecated/,
+        ).to_stderr
         expect(AggregateRoot.configuration.default_event_store).to eq(event_store)
       end
 

@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
     "changelog_uri" => "https://github.com/RailsEventStore/rails_event_store/releases",
     "source_code_uri" => "https://github.com/RailsEventStore/rails_event_store",
     "bug_tracker_uri" => "https://github.com/RailsEventStore/rails_event_store/issues",
-    "rubygems_mfa_required" => "true"
+    "rubygems_mfa_required" => "true",
   }
 
   spec.required_ruby_version = ">= 2.7"

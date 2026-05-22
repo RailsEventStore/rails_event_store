@@ -5,7 +5,6 @@ require "ruby_event_store/spec/dispatcher_lint"
 
 module RubyEventStore
   ::RSpec.describe SyncScheduler do
-
     it_behaves_like "dispatcher", SyncScheduler.new
     let(:event) { instance_double(Event) }
     let(:record) { instance_double(Record) }
@@ -42,7 +41,9 @@ module RubyEventStore
     specify "calls subscribed class with deprecation warning" do
       expect(HandlerClass).to receive(:new).and_return(handler)
       expect(handler).to receive(:call).with(event)
-      expect { SyncScheduler.new.call(HandlerClass, event, record) }.to output(/Passing a class as a subscriber is deprecated/).to_stderr
+      expect { SyncScheduler.new.call(HandlerClass, event, record) }.to output(
+        /Passing a class as a subscriber is deprecated/,
+      ).to_stderr
     end
 
     specify "allows callable instances and lambdas" do
@@ -55,23 +56,29 @@ module RubyEventStore
     end
 
     specify "warns when class passed to verify" do
-      expect { SyncScheduler.new.verify(HandlerClass) }.to output(/Passing a class as a subscriber is deprecated/).to_stderr
+      expect { SyncScheduler.new.verify(HandlerClass) }.to output(
+        /Passing a class as a subscriber is deprecated/,
+      ).to_stderr
     end
 
     specify "rejects class whose constructor requires arguments" do
-      klass = Class.new do
-        def initialize(something)
-          @something = something
+      klass =
+        Class.new do
+          def initialize(something)
+            @something = something
+          end
+          def call
+          end
         end
-        def call; end
-      end
       expect(SyncScheduler.new.verify(klass)).to be(false)
     end
 
     specify "warns when class passed to call" do
       allow(HandlerClass).to receive(:new).and_return(handler)
       allow(handler).to receive(:call)
-      expect { SyncScheduler.new.call(HandlerClass, event, record) }.to output(/Passing a class as a subscriber is deprecated/).to_stderr
+      expect { SyncScheduler.new.call(HandlerClass, event, record) }.to output(
+        /Passing a class as a subscriber is deprecated/,
+      ).to_stderr
     end
 
     private

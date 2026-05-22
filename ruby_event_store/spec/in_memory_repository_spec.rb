@@ -5,7 +5,6 @@ require "ruby_event_store/spec/event_repository_lint"
 
 module RubyEventStore
   ::RSpec.describe InMemoryRepository do
-
     helper = SpecHelper.new
     mk_repository = -> { InMemoryRepository.new }
 
@@ -126,10 +125,8 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: false)
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
 
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-      end.to output(
-        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m
+      expect do repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any) end.to output(
+        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m,
       ).to_stderr
     end
 
@@ -137,20 +134,16 @@ module RubyEventStore
       repository = InMemoryRepository.new(ensure_supported_any_usage: false)
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
 
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-      end.to output(
-        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m
+      expect do repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto) end.to output(
+        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m,
       ).to_stderr
     end
 
     it "does not warn when publishing :any to empty stream" do
       repository = InMemoryRepository.new(ensure_supported_any_usage: false)
 
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-      end.not_to output(
-        /Mixing expected version :any/
+      expect do repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any) end.not_to output(
+        /Mixing expected version :any/,
       ).to_stderr
     end
 
@@ -160,18 +153,14 @@ module RubyEventStore
 
       expect do
         repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
-      end.not_to output(
-        /Mixing expected version :any/
-      ).to_stderr
+      end.not_to output(/Mixing expected version :any/).to_stderr
     end
 
     it "warns by default when mixing :any and :auto" do
       repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
 
-      expect do
-        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any)
-      end.to output(
-        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m
+      expect do repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.any) end.to output(
+        /Mixing expected version :any and specific position.*deprecated.*UnsupportedVersionAnyUsage/m,
       ).to_stderr
     end
   end

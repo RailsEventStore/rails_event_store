@@ -70,9 +70,7 @@ module RubyEventStore
     end
 
     specify "warns when Projection.new is used instead of Projection.init" do
-      expect do
-        Projection.new(0)
-      end.to output(<<~EOW).to_stderr
+      expect do Projection.new(0) end.to output(<<~EOW).to_stderr
         [DEPRECATION] RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
         Use Projection.init(initial_state) instead.
       EOW
@@ -115,9 +113,16 @@ module RubyEventStore
       )
 
       stats =
-        Projection.new({})
-          .on(MoneyDeposited) { |state, event| state[:last_deposit] = event.data[:amount]; state }
-          .on(MoneyWithdrawn) { |state, event| state[:last_withdrawal] = event.data[:amount]; state }
+        Projection
+          .new({})
+          .on(MoneyDeposited) do |state, event|
+            state[:last_deposit] = event.data[:amount]
+            state
+          end
+          .on(MoneyWithdrawn) do |state, event|
+            state[:last_withdrawal] = event.data[:amount]
+            state
+          end
           .call(event_store.read.stream(stream_name))
       expect(stats).to eq(last_deposit: 20, last_withdrawal: 5)
     end
@@ -265,15 +270,14 @@ module RubyEventStore
     end
 
     specify "block must be given to on event handlers" do
-      expect do
-        Projection.new.on(MoneyDeposited)
-      end.to raise_error(ArgumentError, "No handler block given")
+      expect do Projection.new.on(MoneyDeposited) end.to raise_error(ArgumentError, "No handler block given")
     end
 
     it "does not support anonymous events" do
-      expect do
-        Projection.new.on(Class.new) { |_state, _event| }
-      end.to raise_error(ArgumentError, "Anonymous class is missing name")
+      expect do Projection.new.on(Class.new) { |_state, _event| } end.to raise_error(
+        ArgumentError,
+        "Anonymous class is missing name",
+      )
     end
 
     specify do
@@ -296,11 +300,7 @@ module RubyEventStore
         Client.new(mapper: Mappers::Default.new(events_class_remapping: { MoneyInvested.to_s => MoneyLost.to_s }))
       event_store.append(MoneyInvested.new(data: { amount: 1 }))
 
-      balance =
-        Projection
-          .new(0)
-          .on(MoneyLost) { |state, event| state - event.data[:amount] }
-          .call(event_store.read)
+      balance = Projection.new(0).on(MoneyLost) { |state, event| state - event.data[:amount] }.call(event_store.read)
       expect(balance).to eq(0)
 
       balance =
@@ -314,14 +314,12 @@ module RubyEventStore
     describe "deprecated API" do
       specify ".from_stream warns" do
         expect { Projection.from_stream(stream_name) }.to output(
-          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+          %r{from_stream/from_all_streams/init/when/run API is deprecated},
         ).to_stderr
       end
 
       specify ".from_stream does not warn about Projection.new being deprecated" do
-        expect { Projection.from_stream(stream_name) }.not_to output(
-          /Projection\.new is deprecated/
-        ).to_stderr
+        expect { Projection.from_stream(stream_name) }.not_to output(/Projection\.new is deprecated/).to_stderr
       end
 
       specify ".from_stream raises when no streams given" do
@@ -331,25 +329,23 @@ module RubyEventStore
 
       specify ".from_all_streams warns" do
         expect { Projection.from_all_streams }.to output(
-          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+          %r{from_stream/from_all_streams/init/when/run API is deprecated},
         ).to_stderr
       end
 
       specify ".from_all_streams does not warn about Projection.new being deprecated" do
-        expect { Projection.from_all_streams }.not_to output(
-          /Projection\.new is deprecated/
-        ).to_stderr
+        expect { Projection.from_all_streams }.not_to output(/Projection\.new is deprecated/).to_stderr
       end
 
       specify "#init warns" do
         expect { Projection.new.init(-> { 0 }) }.to output(
-          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+          %r{from_stream/from_all_streams/init/when/run API is deprecated},
         ).to_stderr
       end
 
       specify "#when warns" do
         expect { Projection.new.when(MoneyDeposited, ->(_s, _e) {}) }.to output(
-          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+          %r{from_stream/from_all_streams/init/when/run API is deprecated},
         ).to_stderr
       end
 
@@ -360,7 +356,7 @@ module RubyEventStore
 
       specify "#run warns" do
         expect { Projection.new.run(event_store) }.to output(
-          /from_stream\/from_all_streams\/init\/when\/run API is deprecated/
+          %r{from_stream/from_all_streams/init/when/run API is deprecated},
         ).to_stderr
       end
 
@@ -473,10 +469,7 @@ module RubyEventStore
       end
 
       specify "#run from stream raises on invalid start" do
-        projection =
-          Projection
-            .from_stream(stream_name)
-            .when(MoneyDeposited, ->(state, _event) { state })
+        projection = Projection.from_stream(stream_name).when(MoneyDeposited, ->(state, _event) { state })
         expect { projection.run(event_store, start: :last) }.to raise_error(
           ArgumentError,
           "Start must be an array with event ids",
@@ -492,10 +485,7 @@ module RubyEventStore
       end
 
       specify "#run from all streams raises on invalid start" do
-        projection =
-          Projection
-            .from_all_streams
-            .when(MoneyDeposited, ->(state, _event) { state })
+        projection = Projection.from_all_streams.when(MoneyDeposited, ->(state, _event) { state })
         expect { projection.run(event_store, start: :last) }.to raise_error(
           ArgumentError,
           "Start must be valid event id",

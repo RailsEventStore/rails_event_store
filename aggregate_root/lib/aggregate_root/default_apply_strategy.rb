@@ -43,7 +43,7 @@ module AggregateRoot
       if aggregate.respond_to?(name, true)
         RubyEventStore::Deprecations.warn(
           :"apply_naming_convention_#{event_type}",
-          message: DEPRECATION_MESSAGE % event_type
+          message: DEPRECATION_MESSAGE % event_type,
         )
       end
       name
