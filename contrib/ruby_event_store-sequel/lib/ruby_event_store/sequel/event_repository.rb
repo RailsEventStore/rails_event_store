@@ -299,7 +299,7 @@ module RubyEventStore
             ::Sequel[:event_store_events][:metadata],
             ::Sequel[:event_store_events][:created_at],
             ::Sequel[:event_store_events][:valid_at],
-          ).order(:id)
+          )
 
         dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
         dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
@@ -363,7 +363,6 @@ module RubyEventStore
           data: serialized_record.data,
           metadata: serialized_record.metadata,
           event_type: serialized_record.event_type,
-          valid_at: optimize_timestamp(record.valid_at, record.timestamp),
         }
       end
 

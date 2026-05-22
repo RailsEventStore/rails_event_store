@@ -16,3 +16,6 @@ coverage_criteria:
 matcher:
   subjects:
     - RubyEventStore::Sequel*
+  ignore:
+    - RubyEventStore::Sequel::EventRepository#record
+    - RubyEventStore::Sequel::EventRepository#commit_on_duplicate_key_update
