@@ -2,12 +2,6 @@
 
 module RubyEventStore
   class InstrumentedDispatcher
-    DEPRECATION_MESSAGE = <<~EOW
-      Instrumentation event names *.rails_event_store are deprecated and will be removed in the next major release.
-      Use *.ruby_event_store instead.
-    EOW
-    private_constant :DEPRECATION_MESSAGE
-
     def initialize(dispatcher, instrumentation)
       @dispatcher = dispatcher
       @instrumentation = instrumentation
@@ -42,7 +36,7 @@ module RubyEventStore
       old_listeners = instrumentation.notifier.all_listeners_for(name)
       new_listeners = instrumentation.notifier.all_listeners_for(canonical_name)
       if (old_listeners - new_listeners).any?
-        warn DEPRECATION_MESSAGE
+        Deprecations.warn(:instrumentation_renamed)
         instrumentation.instrument(name, payload, &block)
       else
         yield

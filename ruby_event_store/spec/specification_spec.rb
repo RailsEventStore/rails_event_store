@@ -561,7 +561,7 @@ module RubyEventStore
 
     specify do
       expect { specification.in_batches_of }.to output(<<~EOW).to_stderr
-        RubyEventStore::Specification#in_batches_of is deprecated and will be removed in the next major release.
+        [DEPRECATION] RubyEventStore::Specification#in_batches_of is deprecated and will be removed in the next major release.
 
         Use #in_batches instead.
       EOW
@@ -810,7 +810,7 @@ module RubyEventStore
       expect(specification.of_type(TestEvent).count).to eq(1)
       expect(specification.of_type([TestEvent]).count).to eq(1)
       expect { specification.of_types(TestEvent) }.to output(<<~EOW).to_stderr
-        RubyEventStore::Specification#of_types is deprecated and will be removed in the next major release.
+        [DEPRECATION] RubyEventStore::Specification#of_types is deprecated and will be removed in the next major release.
 
         Use #of_type instead.
       EOW

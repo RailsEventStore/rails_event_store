@@ -55,7 +55,7 @@ module RubyEventStore
           .on(MoneyDeposited) { |state, event| state += event.data[:amount] }
           .call(event_store.read.stream("Customer$1"), event_store.read.stream("Customer$2"))
       end.to output(<<~EOW).to_stderr
-        Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
+        [DEPRECATION] Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
         Use a single scope instead, e.g. call(event_store.read.stream("stream_name")).
       EOW
     end
@@ -73,7 +73,7 @@ module RubyEventStore
       expect do
         Projection.new(0)
       end.to output(<<~EOW).to_stderr
-        RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
+        [DEPRECATION] RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
         Use Projection.init(initial_state) instead.
       EOW
     end

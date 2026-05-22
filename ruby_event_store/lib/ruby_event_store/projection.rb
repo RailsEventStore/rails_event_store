@@ -3,22 +3,10 @@
 module RubyEventStore
   class Projection
     ANONYMOUS_CLASS = "#<Class:".freeze
-    DEPRECATION_MESSAGE = <<~EOW
-      RubyEventStore::Projection from_stream/from_all_streams/init/when/run API is deprecated and will be removed in the next major release.
-      Use Projection.init(initial_state).on(EventClass) { |state, event| new_state }.call(scope) instead.
-    EOW
-    MULTI_SCOPE_DEPRECATION_MESSAGE = <<~EOW
-      Passing multiple scopes to RubyEventStore::Projection#call is deprecated and will be removed in the next major release.
-      Use a single scope instead, e.g. call(event_store.read.stream("stream_name")).
-    EOW
-    NEW_CONSTRUCTOR_DEPRECATION_MESSAGE = <<~EOW
-      RubyEventStore::Projection.new is deprecated and will be removed in the next major release.
-      Use Projection.init(initial_state) instead.
-    EOW
-    private_constant :ANONYMOUS_CLASS, :DEPRECATION_MESSAGE, :MULTI_SCOPE_DEPRECATION_MESSAGE, :NEW_CONSTRUCTOR_DEPRECATION_MESSAGE
+    private_constant :ANONYMOUS_CLASS
 
     def initialize(initial_state = nil, _internal: false)
-      warn NEW_CONSTRUCTOR_DEPRECATION_MESSAGE unless _internal
+      Deprecations.warn(:projection_new_constructor) unless _internal
       @handlers = {}
       @init = -> { initial_state }
       @streams = []
@@ -43,7 +31,7 @@ module RubyEventStore
     def call(*scopes)
       return initial_state if handled_events.empty?
 
-      warn MULTI_SCOPE_DEPRECATION_MESSAGE if scopes.size > 1
+      Deprecations.warn(:projection_multiple_scopes) if scopes.size > 1
 
       scopes.reduce(initial_state) do |state, scope|
         scope.of_type(handled_events).reduce(state, &method(:transition))
@@ -51,7 +39,6 @@ module RubyEventStore
     end
 
     def self.from_stream(stream_or_streams)
-      warn DEPRECATION_MESSAGE
       streams = Array(stream_or_streams)
       raise(ArgumentError, "At least one stream must be given") if streams.empty?
       projection = new(_internal: true)
@@ -60,18 +47,15 @@ module RubyEventStore
     end
 
     def self.from_all_streams
-      warn DEPRECATION_MESSAGE
       new(_internal: true)
     end
 
     def init(handler)
-      warn DEPRECATION_MESSAGE
       @init = handler
       self
     end
 
     def when(events, handler)
-      warn DEPRECATION_MESSAGE
       Array(events).each do |event_klass|
         name = event_klass.to_s
         @handlers[name] = ->(state, event) { handler.call(state, event); state }
@@ -80,8 +64,6 @@ module RubyEventStore
     end
 
     def run(event_store, start: nil, count: PAGE_SIZE)
-      warn DEPRECATION_MESSAGE
-
       if @streams.any?
         raise ArgumentError, "Start must be an array with event ids" unless valid_start_for_streams?(start)
         scopes =
