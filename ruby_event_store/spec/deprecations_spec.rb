@@ -27,6 +27,11 @@ RSpec.describe RubyEventStore::Deprecations do
       .to output(/custom override message/).to_stderr
   end
 
+  it "raises KeyError for unregistered key when no message provided" do
+    expect { described_class.warn(:unregistered) }
+      .to raise_error(KeyError, "Deprecation :unregistered not registered. Call Deprecations.register first.")
+  end
+
   it "reset! clears suppressions so previously suppressed warning can fire again" do
     described_class.register(:foo, "foo is deprecated")
     described_class.suppress(:foo)

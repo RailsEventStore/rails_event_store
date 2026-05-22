@@ -55,7 +55,7 @@ module RailsEventStore
       @request_metadata = request_metadata
 
       if (subscriptions || dispatcher)
-        warn <<~EOW
+        msg = <<~EOW
           Passing subscriptions and dispatcher to #{self.class} has been deprecated.
 
           Pass it using message_broker argument. For example:
@@ -72,12 +72,12 @@ module RailsEventStore
             )
           )
         EOW
+        msg += <<~EOW if message_broker
 
-        warn <<~EOW if (message_broker)
-
-            Because message_broker has been provided,
-            arguments passed by subscriptions or dispatcher will be ignored.
-          EOW
+          Because message_broker has been provided,
+          arguments passed by subscriptions or dispatcher will be ignored.
+        EOW
+        RubyEventStore::Deprecations.warn(:rails_client_subscriptions_dispatcher, message: msg)
       end
     end
 

@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require "set"
+
 module RubyEventStore
   module Deprecations
-    @suppressions = []
+    @suppressions = Set.new
     @warnings     = {}
-    @emitted      = []
+    @emitted      = Set.new
 
     class << self
       def register(key, message)
@@ -19,7 +21,7 @@ module RubyEventStore
         return if @suppressions.include?(key)
         return if @emitted.include?(key)
         @emitted << key
-        Kernel.warn("[DEPRECATION] #{message || @warnings.fetch(key)}")
+        Kernel.warn("[DEPRECATION] #{message || @warnings.fetch(key) { raise KeyError, "Deprecation :#{key} not registered. Call Deprecations.register first." }}")
       end
 
       def deprecate(klass, method_name, key:)
@@ -49,8 +51,8 @@ module RubyEventStore
       end
 
       def reset!
-        @suppressions = []
-        @emitted      = []
+        @suppressions = Set.new
+        @emitted      = Set.new
       end
     end
   end
