@@ -37,6 +37,20 @@ module RailsEventStore
       end
     end
 
+    specify "prepend hook does not modify AsyncHandler's own module chain" do
+      with_test_handler do |handler|
+        modules_before = RailsEventStore::AsyncHandler.included_modules.dup
+        handler.prepend AsyncHandler
+        expect(RailsEventStore::AsyncHandler.included_modules).to eq(modules_before)
+      end
+
+      with_test_handler do |handler|
+        modules_before = RailsEventStore::AsyncHandlerJobIdOnly.included_modules.dup
+        handler.prepend AsyncHandlerJobIdOnly
+        expect(RailsEventStore::AsyncHandlerJobIdOnly.included_modules).to eq(modules_before)
+      end
+    end
+
     specify "with defaults" do
       with_test_handler do |handler|
         handler.prepend RailsEventStore::AsyncHandler
