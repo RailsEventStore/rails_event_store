@@ -82,10 +82,4 @@ module RubyEventStore
       "The domain_event: payload key in serialize.mapper.ruby_event_store has been renamed to event: in event_to_record.mapper.ruby_event_store.",
   )
 
-  Deprecations.register(
-    :specification_of_types,
-    "RubyEventStore::Specification#of_types is deprecated and will be removed in the next major release.\n\n" \
-      "Use #of_type instead.",
-  )
-  Deprecations.deprecate(Specification, :of_types, key: :specification_of_types)
 end
