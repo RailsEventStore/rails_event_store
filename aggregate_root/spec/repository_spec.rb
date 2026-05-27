@@ -37,53 +37,20 @@ module AggregateRoot
       end
     end
 
-    def with_default_event_store(store)
-      previous = AggregateRoot.configuration
-      AggregateRoot.configuration = AggregateRoot::Configuration.new.tap { |c| c.default_event_store = store }
-      yield
-      AggregateRoot.configuration = previous
-    end
-
     describe "#initialize" do
-      it "uses default client if event_store not provided" do
-        with_default_event_store(event_store) do
-          repository = AggregateRoot::Repository.new
-
-          order = repository.load(order_klass.new(uuid), stream_name)
-          order_created = Orders::Events::OrderCreated.new
-          order.apply(order_created)
-          repository.store(order, stream_name)
-
-          expect(event_store.read.stream(stream_name).to_a).to eq [order_created]
-        end
+      it "requires an event_store argument" do
+        expect { AggregateRoot::Repository.new }.to raise_error(ArgumentError)
       end
 
-      it "warns when no event_store argument provided" do
-        with_default_event_store(event_store) do
-          expect { AggregateRoot::Repository.new }.to output(
-            /AggregateRoot::Repository.new.*without an event store argument/,
-          ).to_stderr
-        end
-      end
+      it "uses provided event_store client" do
+        repository = AggregateRoot::Repository.new(event_store)
 
-      it "warns when AggregateRoot.configure is used and yields configuration to block" do
-        expect { AggregateRoot.configure { |config| config.default_event_store = event_store } }.to output(
-          /AggregateRoot.configure.*deprecated/,
-        ).to_stderr
-        expect(AggregateRoot.configuration.default_event_store).to eq(event_store)
-      end
+        order = repository.load(order_klass.new(uuid), stream_name)
+        order_created = Orders::Events::OrderCreated.new
+        order.apply(order_created)
+        repository.store(order, stream_name)
 
-      it "prefers provided event_store client" do
-        with_default_event_store(double(:event_store)) do
-          repository = AggregateRoot::Repository.new(event_store)
-
-          order = repository.load(order_klass.new(uuid), stream_name)
-          order_created = Orders::Events::OrderCreated.new
-          order.apply(order_created)
-          repository.store(order, stream_name)
-
-          expect(event_store.read.stream(stream_name).to_a).to eq [order_created]
-        end
+        expect(event_store.read.stream(stream_name).to_a).to eq [order_created]
       end
     end
 
