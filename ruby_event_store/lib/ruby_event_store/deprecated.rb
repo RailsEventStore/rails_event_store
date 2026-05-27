@@ -2,13 +2,6 @@
 
 module RubyEventStore
   Deprecations.register(
-    :dispatcher_renamed,
-    "`RubyEventStore::Dispatcher` is deprecated and will be removed in the next major release.\n" \
-      "Use `RubyEventStore::SyncScheduler` instead.",
-  )
-  Deprecations.deprecate(Dispatcher, :initialize, key: :dispatcher_renamed)
-
-  Deprecations.register(
     :class_subscriber,
     "Passing a class as a subscriber is deprecated and will be removed in the next major release.\n" \
       "Pass an instance or lambda instead, e.g. subscribe(MyHandler.new, to: [MyEvent]).",
