@@ -2,12 +2,6 @@
 
 module RubyEventStore
   Deprecations.register(
-    :class_subscriber,
-    "Passing a class as a subscriber is deprecated and will be removed in the next major release.\n" \
-      "Pass an instance or lambda instead, e.g. subscribe(MyHandler.new, to: [MyEvent]).",
-  )
-
-  Deprecations.register(
     :null_mapper,
     "`RubyEventStore::Mappers::NullMapper` is deprecated and will be removed in the next major release.\n" \
       "Use `RubyEventStore::Mappers::Default.new` instead.",
