@@ -78,18 +78,6 @@ module AggregateRoot
     end
   end
 
-  def self.with_default_apply_strategy
-    Module.new do
-      def self.included(host_class)
-        host_class.include AggregateRoot
-      end
-    end
-  end
-
-  def self.with_strategy(strategy)
-    with(strategy: strategy)
-  end
-
   def self.with(strategy: -> { DefaultApplyStrategy.new }, event_type_resolver: ->(value) { value.to_s })
     Module.new do
       define_singleton_method :included do |host_class|
@@ -111,5 +99,3 @@ module AggregateRoot
     host_class.include with
   end
 end
-
-require_relative "aggregate_root/deprecated"
