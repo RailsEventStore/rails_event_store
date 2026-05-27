@@ -59,17 +59,6 @@ module RubyEventStore
   )
 
   Deprecations.register(
-    :projection_old_api,
-    "RubyEventStore::Projection from_stream/from_all_streams/init/when/run API is deprecated and will be removed in the next major release.\n" \
-      "Use Projection.init(initial_state).on(EventClass) { |state, event| new_state }.call(scope) instead.",
-  )
-  Deprecations.deprecate_class_method(Projection, :from_stream, key: :projection_old_api)
-  Deprecations.deprecate_class_method(Projection, :from_all_streams, key: :projection_old_api)
-  Deprecations.deprecate(Projection, :init, key: :projection_old_api)
-  Deprecations.deprecate(Projection, :when, key: :projection_old_api)
-  Deprecations.deprecate(Projection, :run, key: :projection_old_api)
-
-  Deprecations.register(
     :instrumented_mapper_serialize_deprecated,
     "Instrumentation event names serialize.mapper.ruby_event_store and deserialize.mapper.ruby_event_store are deprecated and will be removed in the next major release.\n" \
       "Use event_to_record.mapper.ruby_event_store and record_to_event.mapper.ruby_event_store instead.\n" \
