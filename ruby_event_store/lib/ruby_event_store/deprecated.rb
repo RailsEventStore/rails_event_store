@@ -70,12 +70,6 @@ module RubyEventStore
   Deprecations.deprecate(Projection, :run, key: :projection_old_api)
 
   Deprecations.register(
-    :instrumentation_renamed,
-    "Instrumentation event names *.rails_event_store are deprecated and will be removed in the next major release.\n" \
-      "Use *.ruby_event_store instead.",
-  )
-
-  Deprecations.register(
     :instrumented_mapper_serialize_deprecated,
     "Instrumentation event names serialize.mapper.ruby_event_store and deserialize.mapper.ruby_event_store are deprecated and will be removed in the next major release.\n" \
       "Use event_to_record.mapper.ruby_event_store and record_to_event.mapper.ruby_event_store instead.\n" \

@@ -15,11 +15,7 @@ module RubyEventStore
             { domain_event: event },
             canonical: "event_to_record.mapper.ruby_event_store",
             key: :instrumented_mapper_serialize_deprecated,
-          ) do
-            deprecated_instrument("serialize.mapper.rails_event_store", { domain_event: event }) do
-              mapper.event_to_record(event)
-            end
-          end
+          ) { mapper.event_to_record(event) }
         end
       end
 
@@ -30,11 +26,7 @@ module RubyEventStore
             { record: record },
             canonical: "record_to_event.mapper.ruby_event_store",
             key: :instrumented_mapper_serialize_deprecated,
-          ) do
-            deprecated_instrument("deserialize.mapper.rails_event_store", { record: record }) do
-              mapper.record_to_event(record)
-            end
-          end
+          ) { mapper.record_to_event(record) }
         end
       end
 
@@ -42,10 +34,9 @@ module RubyEventStore
 
       attr_reader :instrumentation, :mapper
 
-      def deprecated_instrument(name, payload, canonical: nil, key: :instrumentation_renamed, &block)
-        canonical_name = canonical || name.sub("rails_event_store", "ruby_event_store")
+      def deprecated_instrument(name, payload, canonical:, key:, &block)
         old_listeners = instrumentation.notifier.all_listeners_for(name)
-        new_listeners = instrumentation.notifier.all_listeners_for(canonical_name)
+        new_listeners = instrumentation.notifier.all_listeners_for(canonical)
         if (old_listeners - new_listeners).any?
           Deprecations.warn(key)
           instrumentation.instrument(name, payload, &block)

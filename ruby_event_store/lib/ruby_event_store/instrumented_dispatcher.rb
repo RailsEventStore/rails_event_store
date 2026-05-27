@@ -9,9 +9,7 @@ module RubyEventStore
 
     def call(subscriber, event, record)
       instrumentation.instrument("call.dispatcher.ruby_event_store", event: event, subscriber: subscriber) do
-        deprecated_instrument("call.dispatcher.rails_event_store", event: event, subscriber: subscriber) do
-          dispatcher.call(subscriber, event, record)
-        end
+        dispatcher.call(subscriber, event, record)
       end
     end
 
@@ -30,17 +28,5 @@ module RubyEventStore
     private
 
     attr_reader :instrumentation, :dispatcher
-
-    def deprecated_instrument(name, payload, &block)
-      canonical_name = name.sub("rails_event_store", "ruby_event_store")
-      old_listeners = instrumentation.notifier.all_listeners_for(name)
-      new_listeners = instrumentation.notifier.all_listeners_for(canonical_name)
-      if (old_listeners - new_listeners).any?
-        Deprecations.warn(:instrumentation_renamed)
-        instrumentation.instrument(name, payload, &block)
-      else
-        yield
-      end
-    end
   end
 end

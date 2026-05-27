@@ -10,35 +10,19 @@ module RubyEventStore
 
       def events_to_records(events)
         instrumentation.instrument("events_to_records.mapper.ruby_event_store", domain_events: events) do
-          deprecated_instrument("events_to_records.mapper.rails_event_store", domain_events: events) do
-            mapper.events_to_records(events)
-          end
+          mapper.events_to_records(events)
         end
       end
 
       def records_to_events(records)
         instrumentation.instrument("records_to_events.mapper.ruby_event_store", records: records) do
-          deprecated_instrument("records_to_events.mapper.rails_event_store", records: records) do
-            mapper.records_to_events(records)
-          end
+          mapper.records_to_events(records)
         end
       end
 
       private
 
       attr_reader :instrumentation, :mapper
-
-      def deprecated_instrument(name, payload, &block)
-        canonical_name = name.sub("rails_event_store", "ruby_event_store")
-        old_listeners = instrumentation.notifier.all_listeners_for(name)
-        new_listeners = instrumentation.notifier.all_listeners_for(canonical_name)
-        if (old_listeners - new_listeners).any?
-          Deprecations.warn(:instrumentation_renamed)
-          instrumentation.instrument(name, payload, &block)
-        else
-          yield
-        end
-      end
     end
   end
 end

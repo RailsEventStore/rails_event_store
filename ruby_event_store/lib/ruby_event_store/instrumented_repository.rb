@@ -13,60 +13,42 @@ module RubyEventStore
         records: records,
         events: records,
         stream: stream,
-      ) do
-        deprecated_instrument(
-          "append_to_stream.repository.rails_event_store",
-          { records: records, events: records, stream: stream },
-        ) { repository.append_to_stream(records, stream, expected_version) }
-      end
+      ) { repository.append_to_stream(records, stream, expected_version) }
     end
 
     def link_to_stream(event_ids, stream, expected_version)
       instrumentation.instrument("link_to_stream.repository.ruby_event_store", event_ids: event_ids, stream: stream) do
-        deprecated_instrument("link_to_stream.repository.rails_event_store", event_ids: event_ids, stream: stream) do
-          repository.link_to_stream(event_ids, stream, expected_version)
-        end
+        repository.link_to_stream(event_ids, stream, expected_version)
       end
     end
 
     def delete_stream(stream)
       instrumentation.instrument("delete_stream.repository.ruby_event_store", stream: stream) do
-        deprecated_instrument("delete_stream.repository.rails_event_store", stream: stream) do
-          repository.delete_stream(stream)
-        end
+        repository.delete_stream(stream)
       end
     end
 
     def read(specification)
       instrumentation.instrument("read.repository.ruby_event_store", specification: specification) do
-        deprecated_instrument("read.repository.rails_event_store", specification: specification) do
-          repository.read(specification)
-        end
+        repository.read(specification)
       end
     end
 
     def count(specification)
       instrumentation.instrument("count.repository.ruby_event_store", specification: specification) do
-        deprecated_instrument("count.repository.rails_event_store", specification: specification) do
-          repository.count(specification)
-        end
+        repository.count(specification)
       end
     end
 
     def update_messages(records)
       instrumentation.instrument("update_messages.repository.ruby_event_store", records: records, messages: records) do
-        deprecated_instrument(
-          "update_messages.repository.rails_event_store",
-          { records: records, messages: records },
-        ) { repository.update_messages(records) }
+        repository.update_messages(records)
       end
     end
 
     def streams_of(event_id)
       instrumentation.instrument("streams_of.repository.ruby_event_store", event_id: event_id) do
-        deprecated_instrument("streams_of.repository.rails_event_store", event_id: event_id) do
-          repository.streams_of(event_id)
-        end
+        repository.streams_of(event_id)
       end
     end
 
@@ -85,17 +67,5 @@ module RubyEventStore
     private
 
     attr_reader :repository, :instrumentation
-
-    def deprecated_instrument(name, payload, &block)
-      canonical_name = name.sub("rails_event_store", "ruby_event_store")
-      old_listeners = instrumentation.notifier.all_listeners_for(name)
-      new_listeners = instrumentation.notifier.all_listeners_for(canonical_name)
-      if (old_listeners - new_listeners).any?
-        Deprecations.warn(:instrumentation_renamed)
-        instrumentation.instrument(name, payload, &block)
-      else
-        yield
-      end
-    end
   end
 end
