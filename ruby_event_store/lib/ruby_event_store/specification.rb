@@ -245,10 +245,6 @@ module RubyEventStore
       )
     end
 
-    def in_batches_of(batch_size = DEFAULT_BATCH_SIZE)
-      in_batches(batch_size)
-    end
-
     # Specifies that only first event should be read.
     # {https://railseventstore.org/docs/core-concepts/read Find out more}.
     #

@@ -83,13 +83,6 @@ module RubyEventStore
   )
 
   Deprecations.register(
-    :specification_in_batches_of,
-    "RubyEventStore::Specification#in_batches_of is deprecated and will be removed in the next major release.\n\n" \
-      "Use #in_batches instead.",
-  )
-  Deprecations.deprecate(Specification, :in_batches_of, key: :specification_in_batches_of)
-
-  Deprecations.register(
     :specification_of_types,
     "RubyEventStore::Specification#of_types is deprecated and will be removed in the next major release.\n\n" \
       "Use #of_type instead.",
