@@ -61,7 +61,7 @@ require "spec_helper"
     spanish_inquisition = Orders::Events::SpanishInquisition.new
     expect { order.apply(spanish_inquisition) }.to raise_error(
       AggregateRoot::MissingHandler,
-      "Missing handler method for Orders::Events::SpanishInquisition on aggregate #{order_klass}",
+      "Missing handler method on aggregate #{order_klass} for Orders::Events::SpanishInquisition",
     )
   end
 
