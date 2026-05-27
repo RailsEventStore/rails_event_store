@@ -27,12 +27,10 @@ module RubyEventStore
       self
     end
 
-    def call(*scopes)
+    def call(scope)
       return initial_state if handled_events.empty?
 
-      Deprecations.warn(:projection_multiple_scopes) if scopes.size > 1
-
-      scopes.reduce(initial_state) { |state, scope| scope.of_type(handled_events).reduce(state, &method(:transition)) }
+      scope.of_type(handled_events).reduce(initial_state, &method(:transition))
     end
 
     private
