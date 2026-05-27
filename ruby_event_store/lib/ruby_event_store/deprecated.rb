@@ -9,13 +9,6 @@ module RubyEventStore
   Deprecations.deprecate(Dispatcher, :initialize, key: :dispatcher_renamed)
 
   Deprecations.register(
-    :immediate_async_dispatcher_renamed,
-    "`RubyEventStore::ImmediateAsyncDispatcher` is deprecated and will be removed in the next major release.\n" \
-      "Use `RubyEventStore::ImmediateDispatcher` instead.",
-  )
-  Deprecations.deprecate(ImmediateAsyncDispatcher, :initialize, key: :immediate_async_dispatcher_renamed)
-
-  Deprecations.register(
     :class_subscriber,
     "Passing a class as a subscriber is deprecated and will be removed in the next major release.\n" \
       "Pass an instance or lambda instead, e.g. subscribe(MyHandler.new, to: [MyEvent]).",
