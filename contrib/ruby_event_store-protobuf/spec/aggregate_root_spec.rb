@@ -64,7 +64,7 @@ require "aggregate_root"
 
     expect { order.apply(spanish_inquisition) }.to raise_error(
       AggregateRoot::MissingHandler,
-      "Missing handler method for res_testing.SpanishInquisition on aggregate ResTesting::Order",
+      "Missing handler method on aggregate ResTesting::Order for res_testing.SpanishInquisition",
     )
   end
 end
