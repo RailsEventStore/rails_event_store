@@ -2,13 +2,6 @@
 
 module RubyEventStore
   Deprecations.register(
-    :null_mapper,
-    "`RubyEventStore::Mappers::NullMapper` is deprecated and will be removed in the next major release.\n" \
-      "Use `RubyEventStore::Mappers::Default.new` instead.",
-  )
-  Deprecations.deprecate(Mappers::NullMapper, :initialize, key: :null_mapper)
-
-  Deprecations.register(
     :any_version_with_specific_position,
     "Mixing expected version :any and specific position (or :auto) is deprecated and will raise UnsupportedVersionAnyUsage in RubyEventStore 3.0.",
   )
