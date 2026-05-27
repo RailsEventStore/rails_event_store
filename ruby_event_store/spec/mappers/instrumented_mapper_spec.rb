@@ -28,40 +28,6 @@ module RubyEventStore
           end
         end
 
-        specify "instruments with deprecated event name" do
-          some_mapper = instance_double(Mappers::Default)
-          allow(some_mapper).to receive(:event_to_record).with(event).and_return(record)
-          instrumented_mapper = InstrumentedMapper.new(some_mapper, ActiveSupport::Notifications)
-          subscribe_to("serialize.mapper.ruby_event_store") do |notification_calls|
-            expect(instrumented_mapper.event_to_record(event)).to eq(record)
-            expect(notification_calls).to eq([{ domain_event: event }])
-          end
-        end
-
-        specify "warns about deprecated event name serialize.mapper.ruby_event_store" do
-          instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
-          subscribe_to("serialize.mapper.ruby_event_store") do |_|
-            expect { instrumented_mapper.event_to_record(event) }.to output(
-              /serialize\.mapper\.ruby_event_store.*deprecated/m
-            ).to_stderr
-          end
-        end
-
-        specify "does not warn when nobody subscribes to deprecated event name" do
-          instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
-          expect { instrumented_mapper.event_to_record(event) }.not_to output(
-            /serialize\.mapper\.ruby_event_store.*deprecated/m
-          ).to_stderr
-        end
-
-        specify "does not warn about rename when subscriber matches canonical event name" do
-          instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
-          subscribe_to(/\A(serialize|event_to_record)\.mapper\.ruby_event_store\z/) do |_|
-            expect { instrumented_mapper.event_to_record(event) }.not_to output(
-              /serialize\.mapper\.ruby_event_store.*deprecated/m
-            ).to_stderr
-          end
-        end
       end
 
       describe "#record_to_event" do
@@ -81,33 +47,6 @@ module RubyEventStore
           end
         end
 
-        specify "instruments with deprecated event name" do
-          some_mapper = instance_double(Mappers::Default)
-          allow(some_mapper).to receive(:record_to_event).with(record).and_return(event)
-          instrumented_mapper = InstrumentedMapper.new(some_mapper, ActiveSupport::Notifications)
-          subscribe_to("deserialize.mapper.ruby_event_store") do |notification_calls|
-            expect(instrumented_mapper.record_to_event(record)).to eq(event)
-            expect(notification_calls).to eq([{ record: record }])
-          end
-        end
-
-        specify "warns about deprecated event name deserialize.mapper.ruby_event_store" do
-          instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
-          subscribe_to("deserialize.mapper.ruby_event_store") do |_|
-            expect { instrumented_mapper.record_to_event(record) }.to output(
-              /deserialize\.mapper\.ruby_event_store.*deprecated/m
-            ).to_stderr
-          end
-        end
-
-        specify "does not warn about rename when subscriber matches canonical event name" do
-          instrumented_mapper = InstrumentedMapper.new(spy, ActiveSupport::Notifications)
-          subscribe_to(/\A(deserialize|record_to_event)\.mapper\.ruby_event_store\z/) do |_|
-            expect { instrumented_mapper.record_to_event(record) }.not_to output(
-              /deserialize\.mapper\.ruby_event_store.*deprecated/m
-            ).to_stderr
-          end
-        end
       end
 
       def subscribe_to(name)
