@@ -5,14 +5,15 @@ module RubyEventStore
     ANONYMOUS_CLASS = "#<Class:".freeze
     private_constant :ANONYMOUS_CLASS
 
-    def initialize(initial_state = nil, _internal: false)
-      Deprecations.warn(:projection_new_constructor) unless _internal
-      @handlers = {}
-      @init = -> { initial_state }
-    end
+    private_class_method :new
 
     def self.init(initial_state = nil)
-      new(initial_state, _internal: true)
+      new(initial_state)
+    end
+
+    def initialize(initial_state)
+      @handlers = {}
+      @init = -> { initial_state }
     end
 
     def on(*event_klasses, &block)
