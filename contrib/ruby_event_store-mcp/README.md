@@ -18,7 +18,28 @@ Run from the root of your Rails application:
 bundle exec res-mcp
 ```
 
-The server communicates over stdio using the MCP protocol. Configure it in Claude Desktop or Claude Code:
+The server communicates over stdio using the MCP protocol. Installing the gem only provides the `res-mcp` binary — you still have to register it with your MCP client. Every client takes the same server definition; only the file it lives in differs.
+
+### Claude Code
+
+Add a `.mcp.json` to your project root (or run `claude mcp add res -- bundle exec res-mcp`):
+
+```json
+{
+  "mcpServers": {
+    "res": {
+      "command": "bundle",
+      "args": ["exec", "res-mcp"]
+    }
+  }
+}
+```
+
+Launched from the project directory, Claude Code runs the server there, so no `cwd` is needed. On the next launch Claude Code asks you to trust the server — approve it, then run `/mcp` to confirm `res` is connected with its tools.
+
+### Claude Desktop
+
+Add the same block with an explicit `cwd` pointing at your app's root, in `claude_desktop_config.json`:
 
 ```json
 {
@@ -32,15 +53,14 @@ The server communicates over stdio using the MCP protocol. Configure it in Claud
 }
 ```
 
-**Claude Code config file locations:**
-
-- `~/.claude/settings.json` — global, works for all projects
-- `.claude/settings.json` — project-local, committed with your app
-
-**Claude Desktop config file locations:**
+Config file locations:
 
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+### Other MCP clients
+
+Cursor, Windsurf, Cline and others take the same `mcpServers` block in their own config file. VS Code's built-in MCP support uses a `servers` key with `"type": "stdio"` instead. The `bundle exec res-mcp` command is the portable part.
 
 ## Requirements
 
