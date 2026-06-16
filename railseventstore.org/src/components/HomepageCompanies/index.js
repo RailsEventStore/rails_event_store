@@ -52,8 +52,13 @@ const CompaniesList = [
   {
     name: "elucid",
     img: "/images/elucid.svg",
-    link: "https://elucid.social"
-  }
+    link: "https://elucid.social",
+  },
+  {
+    name: "gigs",
+    img: "/images/gigs.svg",
+    link: "https://gigs.com/careers",
+  },
 ];
 
 function Company({ name, img, link }) {
