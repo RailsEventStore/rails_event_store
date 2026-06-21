@@ -91,6 +91,59 @@ module RubyEventStore
           expect(Upcast.new(upcast_map).load(record_v2)).to eq(record_v3)
           expect(Upcast.new(upcast_map).load(record_v3.dup)).to eq(record_v3)
         end
+
+        specify "no infinite loop when no-op upcast executed" do
+          upcast_map = {
+            "record.v1" =>
+              lambda do |r|
+                return r if r.data.any? { |v| v == {extended: :with_value} }
+
+                Record.new(
+                  event_id: r.event_id,
+                  metadata: r.metadata,
+                  timestamp: r.timestamp,
+                  valid_at: r.valid_at,
+                  event_type: "record.v1",
+                  data: r.data + [{extended: :with_value}],
+                )
+            end,
+            "record.v2" =>
+              lambda do |r|
+                Record.new(
+                  event_id: r.event_id,
+                  metadata: r.metadata,
+                  timestamp: r.timestamp,
+                  valid_at: r.valid_at,
+                  event_type: "record.v2",
+                  data: r.data.merge(extended: :with_value),
+                )
+            end
+          }
+          expect(Upcast.new(upcast_map).load(record_v1)).to eq(
+            Record.new(
+              event_id: uuid,
+              metadata: {
+                some: "meta",
+              },
+              data: [{ some: "value" }, {extended: :with_value}],
+              event_type: "record.v1",
+              timestamp: time,
+              valid_at: time,
+            )
+          )
+          expect(Upcast.new(upcast_map).load(record_v2)).to eq(
+            Record.new(
+              event_id: uuid,
+              metadata: {
+                some: "meta",
+              },
+              data: { as_hash: [{ some: "value" }], extended: :with_value },
+              event_type: "record.v2",
+              timestamp: time,
+              valid_at: time,
+            )
+          )
+        end
       end
     end
   end
