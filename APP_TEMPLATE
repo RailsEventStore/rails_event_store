@@ -78,7 +78,7 @@ profile.for_existing_app { run_bundle unless run "bundle check" }
 
 after_bundle do
   rails_command "db:create"
-  generate "rails_event_store_active_record:migration --data-type=#{profile.data_type}"
+  generate "ruby_event_store_active_record:migration --data-type=#{profile.data_type}"
   rails_command "db:migrate"
 end
 
