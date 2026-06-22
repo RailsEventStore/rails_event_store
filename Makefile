@@ -70,7 +70,7 @@ set-version: git-check-clean git-check-committed
 	@find . -path ./contrib -prune -o -name version.rb -exec sed $(SED_OPTS) "s/\(VERSION = \)\(.*\)/\1\"$(RES_VERSION)\"/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"aggregate_root\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"rails_event_store\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
-	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"rails_event_store_active_record\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
+	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-active_record\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-browser\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-rspec\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
