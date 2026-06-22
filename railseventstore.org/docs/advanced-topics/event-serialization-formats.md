@@ -24,7 +24,7 @@ events' `data` and `metadata` using `Marshal`.
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: Marshal)
+      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: Marshal)
     )
   end
 end
@@ -62,7 +62,7 @@ In Postgres database, you can store your events data and metadata in json or jso
 To generate migration containing event table schemas run
 
 ```console
-$ rails generate rails_event_store_active_record:migration --data-type=jsonb
+$ rails generate ruby_event_store_active_record:migration --data-type=jsonb
 ```
 
 Next, configure your event store client to the JSON client:
@@ -71,7 +71,7 @@ Next, configure your event store client to the JSON client:
 Rails.configuration.event_store = RailsEventStore::JSONClient.new
 ```
 
-If you need additional configuration beyond the included JSON client, continue from here. In your `RailsEventStore::Client` initialization, set repository serialization to ` RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)`
+If you need additional configuration beyond the included JSON client, continue from here. In your `RailsEventStore::Client` initialization, set repository serialization to ` RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)`
 
 ```ruby
 # config/environments/*.rb
@@ -79,7 +79,7 @@ If you need additional configuration beyond the included JSON client, continue f
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RailsEventStoreActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)
+      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::NULL)
     )
   end
 end

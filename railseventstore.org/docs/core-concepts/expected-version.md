@@ -100,4 +100,4 @@ The guarantees mentioned below **assume there is no application specific lock.**
 ## Beware
 
 - You should never mix `expected_version: :any` with `:auto` or explicit number (`Integer`) for the same stream name.
-- These described semantics are valid since `v0.19` and for `rails_event_store_active_record` adapter (which has always been the default).
+- These described semantics are valid since `v0.19` and for `ruby_event_store-active_record` adapter (which has always been the default).

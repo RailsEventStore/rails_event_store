@@ -86,14 +86,14 @@ If you use `spring`, stop it first via `spring stop`.
 #### Sqlite
 
 ```bash
-bin/rails generate rails_event_store_active_record:migration
+bin/rails generate ruby_event_store_active_record:migration
 bin/rails db:migrate
 ```
 
 #### MySQL
 
 ```bash
-bin/rails generate rails_event_store_active_record:migration
+bin/rails generate ruby_event_store_active_record:migration
 bin/rails db:migrate
 ```
 
@@ -102,7 +102,7 @@ bin/rails db:migrate
 We find `jsonb` as the most reasonable data type for storing events. It is available since PostgreSQL 9.4.
 
 ```bash
-bin/rails generate rails_event_store_active_record:migration --data-type=jsonb
+bin/rails generate ruby_event_store_active_record:migration --data-type=jsonb
 bin/rails db:migrate
 ```
 
