@@ -8,7 +8,7 @@ sequenceDiagram
     participant s as RubyEventStore::Subscriptions
     participant d as RubyEventStore::ComposedDispatcher
     participant acd as RailsEventStore::AfterCommitDispatcher
-    participant ddp as RubyEventStore::Dispatcher
+    participant ddp as RubyEventStore::SyncScheduler
     participant ajs as RailsEventStore::ActiveJobScheduler
   end
   a->>+c: subscribe(subscriber, to: [handlers])
