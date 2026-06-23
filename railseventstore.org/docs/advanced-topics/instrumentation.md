@@ -163,27 +163,27 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
-### event_to_record.mapper.ruby_event_store
+### events_to_records.mapper.ruby_event_store
 
-| Key    | Value                                                               |
-| ------ | ------------------------------------------------------------------- |
-| :event | An event instance which is being mapped into RubyEventStore::Record |
+| Key            | Value                                                              |
+| -------------- | ------------------------------------------------------------------ |
+| :domain_events | An array of event instances being mapped into RubyEventStore::Record objects |
 
 ```ruby
 {
-  event: #<MyEvent:0x000000010e786658>
+  domain_events: [#<MyEvent:0x000000010e786658>]
 }
 ```
 
-### record_to_event.mapper.ruby_event_store
+### records_to_events.mapper.ruby_event_store
 
-| Key     | Value                                                                                                                                             |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| :record | An instance of [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) which is being mapped into an event |
+| Key      | Value                                                                                                                                          |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| :records | An array of [RubyEventStore::Record](https://www.rubydoc.info/gems/ruby_event_store/RubyEventStore/Record) objects being mapped into events |
 
 ```ruby
 {
-  record: #<RubyEventStore::Record:0x0000000104b51f30>
+  records: [#<RubyEventStore::Record:0x0000000104b51f30>]
 }
 ```
 
