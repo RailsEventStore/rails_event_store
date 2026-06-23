@@ -5,17 +5,14 @@ sidebar_label: Event sourcing
 
 ## Configuration
 
-Choose your event store client. To do so add configuration in your environment setup. Example using [RailsEventStore](https://github.com/RailsEventStore/rails_event_store/):
+`AggregateRoot::Repository` needs an event store client to load and store aggregates. Pass it explicitly when you build the repository:
 
 ```ruby
-AggregateRoot.configure do |config|
-  config.default_event_store = RailsEventStore::Client.new
-  # or
-  config.default_event_store = Rails.configuration.event_store
-end
+event_store = Rails.configuration.event_store
+repository  = AggregateRoot::Repository.new(event_store)
 ```
 
-Remember that this is only a default event store used by the `AggregateRoot` module to initialize `AggregateRoot::Repository` when no event store is given in the repository's constructor as an argument.
+The event store is a required constructor argument — there is no global default.
 
 ## Usage
 
@@ -74,50 +71,11 @@ class Order
 end
 ```
 
-### Alternative syntax for event handler methods (deprecated)
-
-The convention is to use `apply_` plus an underscored event type (`event.event_type` what with `RubyEventStore::Event` is equal to event's class name) for event handler methods. I.e. when you apply the `OrderExpired` event, the `apply_order_expired` method is called. The downside is that you can't easily grep for usages of the event class.
-
-```ruby
-class Order
-  include AggregateRoot
-  class HasBeenAlreadySubmitted < StandardError; end
-  class HasExpired < StandardError; end
-
-  def initialize
-    @state = :new
-    # any other code here
-  end
-
-  def submit
-    raise HasBeenAlreadySubmitted if state == :submitted
-    raise HasExpired if state == :expired
-    apply OrderSubmitted.new(data: {delivery_date: Time.now + 24.hours})
-  end
-
-  def expire
-    apply OrderExpired.new
-  end
-
-  private
-  attr_reader :state
-
-  def apply_order_submitted(event)
-    @state = :submitted
-    @delivery_date = event.data.fetch(:delivery_date)
-  end
-
-  def apply_order_expired(event)
-    @state = :expired
-  end
-end
-```
-
 ### Loading an aggregate root object from an event store
 
 ```ruby
 stream_name = "Order$123"
-order = AggregateRoot::Repository.new.load(Order.new, stream_name)
+order = AggregateRoot::Repository.new(Rails.configuration.event_store).load(Order.new, stream_name)
 ```
 
 To restore the state of your aggregate you need to use `AggregateRoot::Repository`. Repository's `#load` gets all domain events stored for the aggregate in the event store stream `Order$123` and applies them to the newly created order object in order to rebuild the aggregate's state.
@@ -126,7 +84,7 @@ To restore the state of your aggregate you need to use `AggregateRoot::Repositor
 
 ```ruby
 stream_name = "Order$123"
-repository = AggregateRoot::Repository.new
+repository = AggregateRoot::Repository.new(Rails.configuration.event_store)
 order = repository.load(Order.new, stream_name)
 order.submit
 repository.store(order, stream_name)
@@ -140,7 +98,7 @@ Storing (publishing) aggregate changes is also performed by the `AggregateRoot::
 
 ```ruby
 stream_name = "Order$123"
-repository = AggregateRoot::Repository.new
+repository = AggregateRoot::Repository.new(Rails.configuration.event_store)
 repository.with_aggregate(Order.new, stream_name) do |order|
   order.submit
 end
