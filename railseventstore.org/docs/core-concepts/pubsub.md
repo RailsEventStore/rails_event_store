@@ -5,10 +5,10 @@ sidebar_label: Publish-Subscribe
 
 ## Defining an event
 
-Firstly, you have to define an event class extending `RailsEventStore::Event` class.
+Firstly, you have to define an event class extending `RubyEventStore::Event` class.
 
 ```ruby
-class OrderCancelled < RailsEventStore::Event
+class OrderCancelled < RubyEventStore::Event
 end
 ```
 

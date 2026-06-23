@@ -143,7 +143,7 @@ Asynchronous event handling by design happens outside of the request-response cy
 Let's look at an example how to retain it's metadata in any domain event published in an asynchronous handler.
 
 ```ruby
-OrderPlaced = Class.new(RailsEventStore::Event)
+OrderPlaced = Class.new(RubyEventStore::Event)
 
 module MetadataHandler
   def perform(event)

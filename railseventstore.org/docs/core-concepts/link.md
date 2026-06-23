@@ -7,7 +7,7 @@ An event, once published, can live in more than one stream. Such quality comes u
 Let's assume you've got an `Order` aggregate of `68a5214d-3194-4cfd-8997-5033bcb7e68a` id and an `OrderPlaced` event. By convention `OrderPlaced` event will be published in `Order$68a5214d-3194-4cfd-8997-5033bcb7e68a` stream:
 
 ```ruby
-OrderPlaced = Class.new(RailsEventStore::Event)
+OrderPlaced = Class.new(RubyEventStore::Event)
 
 class Order
   def initialize(id)
@@ -39,7 +39,7 @@ For repeated use it would be much better to process events only once and store t
 
 ```ruby
 order_placed =
-  RailsEventStore::Projection
+  RubyEventStore::Projection
     .from_all_streams
     .init(-> {  })
     .when(

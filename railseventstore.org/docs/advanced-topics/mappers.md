@@ -14,7 +14,6 @@ the table below.
 | Compatible with \ Mapper | `Default` | `Protobuf` | `Null` | `Encryption` |
 | :-: | :---------: | :----------: | :------: | :------------: |
 | `RubyEventStore::Event` | ✅ | ❌ | ✅ | ✅ |
-| `RailsEventStore::Event` | ✅ | ❌ | ✅ | ✅ |
 | `RubyEventStore::Proto`| ❌ | ✅ | ❌ | ❌ |
 
 ### [RubyEventStore::Mappers::Default](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/default.rb)
