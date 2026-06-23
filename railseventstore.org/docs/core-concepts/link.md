@@ -40,19 +40,16 @@ For repeated use it would be much better to process events only once and store t
 ```ruby
 order_placed =
   RubyEventStore::Projection
-    .from_all_streams
-    .init(-> {  })
-    .when(
-      [OrderPlaced],
-      ->(state, event) do
-        time = event.metadata[:timestamp]
-        if time.year == 2018 && time.month == 1
-          event_store.link(event.event_id, stream_name: "OrderPlaced$2018-01", expected_version: :any)
-        end
-      end,
-    )
+    .init(nil)
+    .on(OrderPlaced) do |state, event|
+      time = event.metadata[:timestamp]
+      if time.year == 2018 && time.month == 1
+        event_store.link(event.event_id, stream_name: "OrderPlaced$2018-01", expected_version: :any)
+      end
+      state
+    end
 
-order_placed.run(event_store)
+order_placed.call(event_store.read)
 ```
 
 Now going for `OrderPlaced` events in January is as simple as reading:
