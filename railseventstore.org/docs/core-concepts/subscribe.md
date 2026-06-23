@@ -141,10 +141,10 @@ class SyncHandler
 end
 ```
 
-because subsequent events would read the same `@customer_id` which was memoized when the handler was processing a previous event. To avoid that problem, you can subscribe a class (`SyncHandler`), and a new instance of that class will be created for every published event.
+because subsequent events would read the same `@customer_id` which was memoized when the handler was processing a previous event. To avoid that problem, subscribe a callable that builds a fresh instance for every published event, for example a lambda:
 
 ```ruby
-event_store.subscribe(SyncHandler, to: [OrderPlaced])
+event_store.subscribe(->(event) { SyncHandler.new.call(event) }, to: [OrderPlaced])
 ```
 
 ```ruby
@@ -393,7 +393,7 @@ end
 event_store = RailsEventStore::Client.new(
   message_broker: RubyEventStore::Broker.new(
     dispatcher: RubyEventStore::ComposedDispatcher.new(
-      RailsEventStore::ImmediateDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
+      RubyEventStore::ImmediateDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
       RubyEventStore::SyncScheduler.new
     )
   )
