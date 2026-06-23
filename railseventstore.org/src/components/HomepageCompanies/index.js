@@ -59,6 +59,11 @@ const CompaniesList = [
     img: "/images/gigs.svg",
     link: "https://gigs.com/careers",
   },
+  {
+    name: "imker",
+    img: "/images/imker_logo.png",
+    link: "https://imker.pl",
+  },
 ];
 
 function Company({ name, img, link }) {
