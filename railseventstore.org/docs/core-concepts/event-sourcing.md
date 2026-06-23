@@ -29,8 +29,8 @@ end
 ### Define domain events
 
 ```ruby
-class OrderSubmitted < RailsEventStore::Event; end
-class OrderExpired < RailsEventStore::Event; end
+class OrderSubmitted < RubyEventStore::Event; end
+class OrderExpired < RubyEventStore::Event; end
 ```
 
 ### Define aggregate logic

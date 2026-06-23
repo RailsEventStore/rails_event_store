@@ -98,7 +98,7 @@ JSON.load(JSON.dump({foo: :bar}))
 One way to approach this is to have your own event adapter, specific for the project you're working on.
 
 ```ruby
-class MyEvent < RailsEventStore::Event
+class MyEvent < RubyEventStore::Event
   def data
     ActiveSupport::HashWithIndifferentAccess.new(super)
   end
