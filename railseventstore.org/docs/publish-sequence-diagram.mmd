@@ -8,7 +8,6 @@ sequenceDiagram
     participant m as Default
     participant pip as Pipeline
     participant det as Transformation::DomainEvent
-    participant ecr as Transformation::EventClassRemapper
     participant smk as Transformation::SymbolizeMetadataKeys
   end
   box Repository
@@ -19,7 +18,7 @@ sequenceDiagram
     participant s as RubyEventStore::Subscriptions
     participant d as RubyEventStore::ComposedDispatcher
     participant acd as RailsEventStore::AfterCommitDispatcher
-    participant ddp as RubyEventStore::Dispatcher
+    participant ddp as RubyEventStore::SyncScheduler
     participant ajs as RailsEventStore::ActiveJobScheduler
   end
   participant yaml as RubyEventStore::Serializers::YAML
@@ -40,8 +39,6 @@ sequenceDiagram
           m->>+pip: dump(event)
             pip->>+det: dump(event)
             det->>-pip: Record
-            pip->>+ecr: dump(record)
-            ecr->>-pip: Record
             pip->>+smk: dump(record)
             smk->>-pip: Record
           pip->>-m: Record

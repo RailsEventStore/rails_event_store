@@ -8,7 +8,6 @@ sequenceDiagram
     participant m as Default
     participant pip as Pipeline
     participant det as Transformation::DomainEvent
-    participant ecr as Transformation::EventClassRemapper
     participant smk as Transformation::SymbolizeMetadataKeys
   end
   box Repository
@@ -40,8 +39,6 @@ sequenceDiagram
               m->>+pip: load(record)
                 pip->>+smk: load(record)
                 smk->>-pip: Record
-                pip->>+ecr: load(record)
-                ecr->>-pip: Record
                 pip->>+det: load(record)
                 det->>-pip: Event
               pip->>-m: Event
