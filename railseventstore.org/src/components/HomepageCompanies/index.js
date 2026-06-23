@@ -60,6 +60,11 @@ const CompaniesList = [
     link: "https://gigs.com/careers",
   },
   {
+    name: "chi-cargo",
+    img: "/images/chi-cargo_logo.png",
+    link: "https://chi-cargo.com",
+  },
+  {
     name: "imker",
     img: "/images/imker_logo.png",
     link: "https://imker.pl",
