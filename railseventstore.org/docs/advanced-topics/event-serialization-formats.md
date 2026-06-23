@@ -39,7 +39,7 @@ Rails.configuration.event_store = RailsEventStore::Client.new(
   message_broker: RubyEventStore::Broker.new( 
     dispatcher: RubyEventStore::ComposedDispatcher.new(
       RailsEventStore::AfterCommitDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: Marshal)),
-      RubyEventStore::Dispatcher.new
+      RubyEventStore::SyncScheduler.new
     )
   )
 )
