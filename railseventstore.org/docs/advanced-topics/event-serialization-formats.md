@@ -62,7 +62,7 @@ In Postgres database, you can store your events data and metadata in json or jso
 To generate migration containing event table schemas run
 
 ```console
-$ rails generate ruby_event_store_active_record:migration --data-type=jsonb
+$ rails generate ruby_event_store:active_record:migration --data-type=jsonb
 ```
 
 Next, configure your event store client to the JSON client:

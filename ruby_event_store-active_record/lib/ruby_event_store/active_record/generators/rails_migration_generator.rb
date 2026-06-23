@@ -11,7 +11,7 @@ module RubyEventStore
       class Error < Thor::Error
       end
 
-      namespace "ruby_event_store_active_record:migration"
+      namespace "ruby_event_store:active_record:migration"
 
       source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
       class_option(

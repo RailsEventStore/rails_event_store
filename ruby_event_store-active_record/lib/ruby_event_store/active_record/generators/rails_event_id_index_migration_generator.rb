@@ -12,7 +12,7 @@ if defined?(Rails::Generators::Base)
         class Error < Thor::Error
         end
 
-        namespace "ruby_event_store_active_record:migration_for_missing_event_id_index"
+        namespace "ruby_event_store:active_record:migration_for_missing_event_id_index"
 
         source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
 
