@@ -1,25 +1,25 @@
 PATH
   remote: ../..
   specs:
-    aggregate_root (2.19.2)
-      ruby_event_store (= 2.19.2)
-    rails_event_store (2.19.2)
+    aggregate_root (3.0.0)
+      ruby_event_store (= 3.0.0)
+    rails_event_store (3.0.0)
       activejob (>= 6.0)
       activemodel (>= 6.0)
       activesupport (>= 6.0)
-      aggregate_root (= 2.19.2)
+      aggregate_root (= 3.0.0)
       arkency-command_bus (>= 0.4)
-      ruby_event_store (= 2.19.2)
-      ruby_event_store-active_record (= 2.19.2)
-      ruby_event_store-browser (= 2.19.2)
-    ruby_event_store (2.19.2)
+      ruby_event_store (= 3.0.0)
+      ruby_event_store-active_record (= 3.0.0)
+      ruby_event_store-browser (= 3.0.0)
+    ruby_event_store (3.0.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
-    ruby_event_store-active_record (2.19.2)
+    ruby_event_store-active_record (3.0.0)
       activerecord (>= 6.0)
-      ruby_event_store (= 2.19.2)
-    ruby_event_store-browser (2.19.2)
+      ruby_event_store (= 3.0.0)
+    ruby_event_store-browser (3.0.0)
       rack
-      ruby_event_store (= 2.19.2)
+      ruby_event_store (= 3.0.0)
 
 PATH
   remote: .
@@ -27,7 +27,7 @@ PATH
     ruby_event_store-protobuf (2.0.0)
       google-protobuf (>= 4.26.0)
       protobuf_nested_struct (>= 2.0.0)
-      ruby_event_store (>= 2.0.0, < 3.0.0)
+      ruby_event_store (>= 2.0.0, < 4.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -164,20 +164,19 @@ GEM
     minitest (6.0.6)
       drb (~> 2.0)
       prism (~> 1.5)
-    mutant (0.16.3)
+    mutant (0.15.1)
       diff-lcs (>= 1.6, < 3)
       irb (~> 1.15)
       parser (~> 3.3.10)
       regexp_parser (~> 2.10)
-      securerandom (>= 0.3)
       sorbet-runtime (~> 0.6.0)
-      unparser (>= 0.8.2, < 0.10)
-    mutant-minitest (0.16.3)
+      unparser (~> 0.8.2)
+    mutant-minitest (0.15.1)
       minitest (>= 5.11, < 7)
-      mutant (= 0.16.3)
+      mutant (= 0.15.1)
       mutex_m (~> 0.2)
-    mutant-rspec (0.16.3)
-      mutant (= 0.16.3)
+    mutant-rspec (0.15.1)
+      mutant (= 0.15.1)
       rspec-core (>= 3.8.0, < 5.0.0)
     mutex_m (0.3.0)
     net-imap (0.6.4)
@@ -286,7 +285,7 @@ GEM
     tsort (0.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    unparser (0.9.0)
+    unparser (0.8.2)
       diff-lcs (>= 1.6, < 3)
       parser (>= 3.3.0)
       prism (>= 1.5.1)
@@ -336,7 +335,7 @@ CHECKSUMS
   activerecord (8.0.5) sha256=89b261b6cd910c9431cf2475f3f6e5e2f5ce589805043a33ef2b004376a129e6
   activestorage (8.0.5) sha256=25898a3f8f8aced15ea6a8578cb56955acf3a96ad931e000b2e77e9c8db43df3
   activesupport (8.0.5) sha256=37f213ff6a37cf3fadfa1a28c1a9678e2cb73b59bb9ebd0eeeca653cccadcb23
-  aggregate_root (2.19.2)
+  aggregate_root (3.0.0)
   arkency-command_bus (0.4.1) sha256=8acac50774080ecf6828ba2f953f1ae293e80878efd555267dbd61b2ee764bde
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
@@ -368,9 +367,9 @@ CHECKSUMS
   marcel (1.1.0) sha256=fdcfcfa33cc52e93c4308d40e4090a5d4ea279e160a7f6af988260fa970e0bee
   mini_mime (1.1.5) sha256=8681b7e2e4215f2a159f9400b5816d85e9d8c6c6b491e96a12797e798f8bccef
   minitest (6.0.6) sha256=153ea36d1d987a62942382b61075745042a2b3123b1cd48f4c3675af9cc7d6f1
-  mutant (0.16.3) sha256=7e10fb09b80a78d82f8e38283fc1e4d562cbb1392451e2a21611ea2bc44b5023
-  mutant-minitest (0.16.3) sha256=504d110c1bd503528a7e57a4f062960e571bba4e3939e4a66ddc0f75d2071d90
-  mutant-rspec (0.16.3) sha256=006ee9640800f205278604bb2160ca4b1d0013464fb216a48b7c09571a1fc547
+  mutant (0.15.1) sha256=432d0143d5e81f5178e46c120ef11cda30e5dca1f802fc14f258f7f06d1b4194
+  mutant-minitest (0.15.1) sha256=927f3c466ee9a623d8a5902baebf0a7821238dafe0030a12932f8681fe8fdefe
+  mutant-rspec (0.15.1) sha256=d2ac75b17eeb9c0ea3e1ebd34436136a5c1e6d19a9b4f72fd4ddfe7126c4a622
   mutex_m (0.3.0) sha256=cfcb04ac16b69c4813777022fdceda24e9f798e48092a2b817eb4c0a782b0751
   net-imap (0.6.4) sha256=9a5598c67a3022c284d98430ef1d4948e7dbdb62596f61081ea8ca933270a02b
   net-pop (0.1.2) sha256=848b4e982013c15b2f0382792268763b748cce91c9e91e36b0f27ed26420dff3
@@ -399,7 +398,7 @@ CHECKSUMS
   rails (8.0.5) sha256=4cb40f90948be292fa15cc7cb37757b97266585145c6e76957464b40edfd5be6
   rails-dom-testing (2.3.0) sha256=8acc7953a7b911ca44588bf08737bc16719f431a1cc3091a292bca7317925c1d
   rails-html-sanitizer (1.7.0) sha256=28b145cceaf9cc214a9874feaa183c3acba036c9592b19886e0e45efc62b1e89
-  rails_event_store (2.19.2)
+  rails_event_store (3.0.0)
   railties (8.0.5) sha256=ad98c6e9a096b7e8cf63c70872b60ec6c1d4152be2a4ffa63483ec02a837a9d5
   rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701
   rdoc (7.2.0) sha256=8650f76cd4009c3b54955eb5d7e3a075c60a57276766ebf36f9085e8c9f23192
@@ -410,9 +409,9 @@ CHECKSUMS
   rspec-expectations (3.13.5) sha256=33a4d3a1d95060aea4c94e9f237030a8f9eae5615e9bd85718fe3a09e4b58836
   rspec-mocks (3.13.8) sha256=086ad3d3d17533f4237643de0b5c42f04b66348c28bf6b9c2d3f4a3b01af1d47
   rspec-support (3.13.7) sha256=0640e5570872aafefd79867901deeeeb40b0c9875a36b983d85f54fb7381c47c
-  ruby_event_store (2.19.2)
-  ruby_event_store-active_record (2.19.2)
-  ruby_event_store-browser (2.19.2)
+  ruby_event_store (3.0.0)
+  ruby_event_store-active_record (3.0.0)
+  ruby_event_store-browser (3.0.0)
   ruby_event_store-protobuf (2.0.0)
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   sorbet-runtime (0.6.13210) sha256=06e5b332842c3f66afa8fbb29769ede5678d7da69f56114da504be8b656678e0
@@ -421,7 +420,7 @@ CHECKSUMS
   timeout (0.6.1) sha256=78f57368a7e7bbadec56971f78a3f5ecbcfb59b7fcbb0a3ed6ddc08a5094accb
   tsort (0.2.0) sha256=9650a793f6859a43b6641671278f79cfead60ac714148aabe4e3f0060480089f
   tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
-  unparser (0.9.0) sha256=4331f174a73a23b69250b13d47da3794ed1449711ee0f9ed8947dc020ba76067
+  unparser (0.8.2) sha256=654af48a6cfa25baf145563e01f40c60ca7d5c7520ff506912d0bb2f1240fd00
   uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6
   useragent (0.16.11) sha256=700e6413ad4bb954bb63547fa098dddf7b0ebe75b40cc6f93b8d54255b173844
   websocket-driver (0.8.0) sha256=ed0dba4b943c22f17f9a734817e808bc84cdce6a7e22045f5315aa57676d4962

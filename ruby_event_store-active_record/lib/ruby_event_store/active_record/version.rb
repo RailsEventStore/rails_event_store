@@ -2,6 +2,6 @@
 
 module RubyEventStore
   module ActiveRecord
-    VERSION = "2.19.2"
+    VERSION = "3.0.0"
   end
 end
