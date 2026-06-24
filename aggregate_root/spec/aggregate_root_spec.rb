@@ -213,6 +213,11 @@ require "spec_helper"
       expect(inherited_order_with_ons.on_methods.keys).to include("Orders::Events::OrderCanceled")
     end
 
+    it "on_methods defaults to empty hash without on handlers" do
+      klass = Class.new { include AggregateRoot }
+      expect(klass.on_methods).to eq({})
+    end
+
     it "handles super() with inheritance" do
       order_with_ons =
         Class.new do
