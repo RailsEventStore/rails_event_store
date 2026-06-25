@@ -46,7 +46,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          lastVersion: "3.0.0",
+          lastVersion: undefined,
           versions: {
             current: {
               label: "Master",
