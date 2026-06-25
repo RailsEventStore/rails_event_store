@@ -254,7 +254,7 @@ Temporarily subscribing to all events is also supported.
 ```ruby
 event_store
   .within { Import.new.run(file) }
-  .subscribe_to_all_events(EventsLogger)
+  .subscribe_to_all_events(EventsLogger.new(Rails.logger))
   .subscribe_to_all_events { |event| puts event.inspect }
   .call
 ```
