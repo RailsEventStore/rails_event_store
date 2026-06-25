@@ -155,6 +155,26 @@ event_store.publish(OrderPlaced.new(data: { customer_id: 3 }))
 # SyncHandler.new.call is invoked (instance B)
 ```
 
+Alternatively, you can define `self.call` on the handler class to encapsulate the fresh-instance logic:
+
+```ruby
+class SyncHandler
+  def self.call(event)
+    new.call(event)
+  end
+
+  def call(event)
+    # ...
+  end
+end
+```
+
+```ruby
+event_store.subscribe(SyncHandler, to: [OrderPlaced])
+```
+
+The class responds to `call`, so it qualifies as a callable subscriber. The tradeoff is that the intent — a fresh instance per event — is less visible at the subscription site than with a lambda.
+
 ### When are sync handlers executed?
 
 Those handlers are executed immediately after events are stored in the DB.
