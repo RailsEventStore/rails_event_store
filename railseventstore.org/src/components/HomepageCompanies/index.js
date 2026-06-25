@@ -69,6 +69,11 @@ const CompaniesList = [
     img: "/images/imker_logo.png",
     link: "https://imker.pl",
   },
+  {
+    name: "walter",
+    img: "/images/walter.svg",
+    link: "https://www.waltergmbh.de",
+  },
 ];
 
 function Company({ name, img, link }) {
