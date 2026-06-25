@@ -24,12 +24,6 @@ Rails.application.configure do
 end
 ```
 
-## Community event repositories
-
-Those repositories were written by community members and are not guaranteed to be up to date with latest Rails event store.
-
-- [rails_event_store_mongoid](https://github.com/gottfrois/rails_event_store_mongoid) by [Pierre-Louis Gottfrois](https://github.com/gottfrois)
-
 ## Writing your own repository
 
 If you want to write your own repository, we provide [a suite of tests that you can re-use](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb). Just [require](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store-active_record/spec/event_repository_spec.rb#L5) and [include it](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store-active_record/spec/event_repository_spec.rb#L23) in your repository spec. Make sure to meditate on which [expected_version option](./../core-concepts/expected-version/) you are going to support and how.
