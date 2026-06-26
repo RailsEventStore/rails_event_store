@@ -30,6 +30,7 @@
         "core-concepts/correlation-causation",
         "core-concepts/rspec",
         "core-concepts/browser",
+        "core-concepts/cli",
         "core-concepts/client-errors",
         "core-concepts/internals"
       ]
