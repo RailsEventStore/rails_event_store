@@ -31,6 +31,7 @@
         "core-concepts/rspec",
         "core-concepts/browser",
         "core-concepts/cli",
+        "core-concepts/mcp",
         "core-concepts/client-errors",
         "core-concepts/internals"
       ]
