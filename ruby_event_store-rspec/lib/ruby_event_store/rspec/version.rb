@@ -2,6 +2,6 @@
 
 module RubyEventStore
   module RSpec
-    VERSION = "2.18.0"
+    VERSION = "3.0.0"
   end
 end

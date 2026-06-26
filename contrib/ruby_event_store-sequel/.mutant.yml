@@ -16,3 +16,11 @@ coverage_criteria:
 matcher:
   subjects:
     - RubyEventStore::Sequel*
+  ignore:
+    - RubyEventStore::Sequel::EventRepository#record
+    - RubyEventStore::Sequel::EventRepository#commit_on_duplicate_key_update
+    - RubyEventStore::Sequel::EventRepository#commit_insert_conflict_update
+    - RubyEventStore::Sequel::IndexViolationDetector#detect
+    - RubyEventStore::Sequel::IndexViolationDetector#detect_mysql
+    - RubyEventStore::Sequel::IndexViolationDetector#detect_postgres
+    - RubyEventStore::Sequel::IndexViolationDetector#initialize

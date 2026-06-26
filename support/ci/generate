@@ -11,7 +11,7 @@ gemfile do
 end
 
 class CI
-  RUBY_VERSIONS = [MRI_RUBY = [RUBY_3_4 = "ruby-3.4", RUBY_3_3 = "ruby-3.3", RUBY_3_2 = "ruby-3.2"]].flatten
+  RUBY_VERSIONS = [MRI_RUBY = [RUBY_4_0 = "ruby-4.0", RUBY_3_4 = "ruby-3.4", RUBY_3_3 = "ruby-3.3"]].flatten
 
   DATA_TYPES = [DATA_TEXT = "text", DATA_BINARY = "binary", DATA_JSON = "json", DATA_JSONB = "jsonb"]
 
@@ -22,24 +22,24 @@ class CI
     SQLITE = "sqlite:db.sqlite3",
     SQLITE3 = "sqlite3:db.sqlite3",
     POSTGRES = [
-      POSTGRES_17 = "postgres://postgres:secret@localhost:10017/rails_event_store",
-      POSTGRES_13 = "postgres://postgres:secret@localhost:10013/rails_event_store",
+      POSTGRES_18 = "postgres://postgres:secret@localhost:10018/rails_event_store",
+      POSTGRES_14 = "postgres://postgres:secret@localhost:10014/rails_event_store",
     ],
     MYSQL = [
+      MYSQL_9_7 = "mysql2://root:secret@127.0.0.1:10097/rails_event_store",
       MYSQL_8_4 = "mysql2://root:secret@127.0.0.1:10084/rails_event_store",
-      MYSQL_8_0 = "mysql2://root:secret@127.0.0.1:10080/rails_event_store",
     ],
   ].flatten
 
   GEMFILE = "Gemfile"
 
-  RAILS_GEMFILES = [GEMFILE_RAILS_7_2 = "Gemfile.rails_7_2", GEMFILE_RAILS_7_1 = "Gemfile.rails_7_1"].flatten
+  RAILS_GEMFILES = [GEMFILE_RAILS_8_0 = "Gemfile.rails_8_0", GEMFILE_RAILS_7_2 = "Gemfile.rails_7_2"].flatten
 
-  AS_GEMFILES = [GEMFILE_AS_7_2 = "Gemfile.activesupport_7_2", GEMFILE_AS_7_1 = "Gemfile.activesupport_7_1"]
+  AS_GEMFILES = [GEMFILE_AS_8_0 = "Gemfile.activesupport_8_0", GEMFILE_AS_7_2 = "Gemfile.activesupport_7_2"]
 
-  AR_GEMFILES = [GEMFILE_AR_7_2 = "Gemfile.activerecord_7_2", GEMFILE_AR_7_1 = "Gemfile.activerecord_7_1"]
+  AR_GEMFILES = [GEMFILE_AR_8_0 = "Gemfile.activerecord_8_0", GEMFILE_AR_7_2 = "Gemfile.activerecord_7_2"]
 
-  SIDEKIQ_GEMFILES = [GEMFILE_SIDEKIQ_6_5 = "Gemfile.sidekiq_6_5"]
+  SIDEKIQ_GEMFILES = [GEMFILE_SIDEKIQ_7 = "Gemfile.sidekiq_7"]
 
   def workflows
     [
@@ -64,15 +64,14 @@ class CI
         matrix:
           join(
             generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-            generate(ruby_version(RUBY_3_4), bundle_gemfile(RAILS_GEMFILES.take(1))),
-            generate(ruby_version(RUBY_3_3), bundle_gemfile(RAILS_GEMFILES.drop(1))),
+            generate(ruby_version(RUBY_4_0), bundle_gemfile(RAILS_GEMFILES.take(2))),
           ),
       ),
       release_mutate("rails_event_store"),
       release_coverage("rails_event_store"),
       release_test(
         "ruby_event_store-active_record",
-        services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
+        services: [postgres_14, postgres_18, mysql_8_4, mysql_9_7],
         matrix:
           join(
             generate(
@@ -84,7 +83,7 @@ class CI
               ),
             ),
             generate(
-              generate(ruby_version(RUBY_3_4), bundle_gemfile(AR_GEMFILES.take(1))),
+              generate(ruby_version(RUBY_4_0), bundle_gemfile(AR_GEMFILES.take(1))),
               join(
                 generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
                 generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
@@ -92,7 +91,7 @@ class CI
               ),
             ),
             generate(
-              generate(ruby_version(RUBY_3_3), bundle_gemfile(AR_GEMFILES.drop(1))),
+              generate(ruby_version(RUBY_3_4), bundle_gemfile(AR_GEMFILES.drop(1))),
               join(
                 generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
                 generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
@@ -108,8 +107,7 @@ class CI
         matrix:
           join(
             generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-            generate(ruby_version(RUBY_3_4), bundle_gemfile(AS_GEMFILES.take(1))),
-            generate(ruby_version(RUBY_3_3), bundle_gemfile(AS_GEMFILES.drop(1))),
+            generate(ruby_version(RUBY_4_0), bundle_gemfile(AS_GEMFILES.take(2))),
           ),
       ),
       contrib_mutate("ruby_event_store-flipper"),
@@ -119,23 +117,23 @@ class CI
       contrib_coverage("ruby_event_store-newrelic"),
       contrib_test(
         "ruby_event_store-outbox",
-        services: [mysql_8_0, mysql_8_4],
+        services: [mysql_8_4, mysql_9_7],
         matrix:
           join(
             generate(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES),
-              database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
+              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7),
+            ),
+            generate(
+              ruby_version(RUBY_4_0),
+              bundle_gemfile(RAILS_GEMFILES.take(1)),
+              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7),
             ),
             generate(
               ruby_version(RUBY_3_4),
-              bundle_gemfile(RAILS_GEMFILES.take(1)),
-              database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
-            ),
-            generate(
-              ruby_version(RUBY_3_3),
               bundle_gemfile(RAILS_GEMFILES.drop(1)),
-              database_url(SQLITE3, MYSQL_8_0, MYSQL_8_4),
+              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7),
             ),
           ),
         steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("test")],
@@ -161,19 +159,19 @@ class CI
       contrib_test(
         "ruby_event_store-protobuf",
         matrix:
-          generate(ruby_version(MRI_RUBY - [RUBY_3_4]), bundle_gemfile(GEMFILE, RAILS_GEMFILES), database_url(SQLITE3)),
+          generate(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE, RAILS_GEMFILES), database_url(SQLITE3)),
       ),
       contrib_mutate(
         "ruby_event_store-protobuf",
-        matrix: generate(ruby_version(MRI_RUBY - [RUBY_3_4]), bundle_gemfile(GEMFILE)),
+        matrix: generate(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE)),
       ),
       contrib_coverage(
         "ruby_event_store-protobuf",
-        matrix: generate(ruby_version(MRI_RUBY - [RUBY_3_4]), bundle_gemfile(GEMFILE)),
+        matrix: generate(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE)),
       ),
       contrib_test(
         "ruby_event_store-rom",
-        services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
+        services: [postgres_14, postgres_18, mysql_8_4, mysql_9_7],
         matrix:
           join(
             generate(
@@ -200,7 +198,7 @@ class CI
       contrib_coverage("ruby_event_store-rom"),
       contrib_test(
         "ruby_event_store-sequel",
-        services: [postgres_13, postgres_17, mysql_8_0, mysql_8_4],
+        services: [postgres_14, postgres_18, mysql_8_4, mysql_9_7],
         matrix:
           join(
             generate(
@@ -254,7 +252,7 @@ class CI
       contrib_test("dres_client", triggers: dres_triggers("dres_client_test")),
       contrib_test(
         "dres_rails",
-        services: [postgres_13, postgres_17],
+        services: [postgres_14, postgres_18],
         matrix:
           generate(
             ruby_version(MRI_RUBY),
@@ -468,44 +466,30 @@ class CI
   include Triggers
 
   module Services
-    def postgres_13
+    def postgres_14
       {
-        "postgres_13" => {
-          "image" => "postgres:13",
+        "postgres_14" => {
+          "image" => "postgres:14",
           "env" => {
             "POSTGRES_DB" => "rails_event_store",
             "POSTGRES_PASSWORD" => "secret",
           },
-          "ports" => ["10013:5432"],
+          "ports" => ["10014:5432"],
           "options" => "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5",
         },
       }
     end
 
-    def postgres_17
+    def postgres_18
       {
-        "postgres_17" => {
-          "image" => "postgres:17",
+        "postgres_18" => {
+          "image" => "postgres:18",
           "env" => {
             "POSTGRES_DB" => "rails_event_store",
             "POSTGRES_PASSWORD" => "secret",
           },
-          "ports" => ["10017:5432"],
+          "ports" => ["10018:5432"],
           "options" => "--health-cmd \"pg_isready\" --health-interval 10s --health-timeout 5s --health-retries 5",
-        },
-      }
-    end
-
-    def mysql_8_0
-      {
-        "mysql_8" => {
-          "image" => "mysql:8.0",
-          "env" => {
-            "MYSQL_DATABASE" => "rails_event_store",
-            "MYSQL_ROOT_PASSWORD" => "secret",
-          },
-          "ports" => ["10080:3306"],
-          "options" => "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5",
         },
       }
     end
@@ -519,6 +503,20 @@ class CI
             "MYSQL_ROOT_PASSWORD" => "secret",
           },
           "ports" => ["10084:3306"],
+          "options" => "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5",
+        },
+      }
+    end
+
+    def mysql_9_7
+      {
+        "mysql_9_7" => {
+          "image" => "mysql:9.7",
+          "env" => {
+            "MYSQL_DATABASE" => "rails_event_store",
+            "MYSQL_ROOT_PASSWORD" => "secret",
+          },
+          "ports" => ["10097:3306"],
           "options" => "--health-cmd \"mysqladmin ping\" --health-interval 10s --health-timeout 5s --health-retries 5",
         },
       }

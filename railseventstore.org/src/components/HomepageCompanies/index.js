@@ -52,8 +52,28 @@ const CompaniesList = [
   {
     name: "elucid",
     img: "/images/elucid.svg",
-    link: "https://elucid.social"
-  }
+    link: "https://elucid.social",
+  },
+  {
+    name: "gigs",
+    img: "/images/gigs.svg",
+    link: "https://gigs.com/careers",
+  },
+  {
+    name: "chi-cargo",
+    img: "/images/chi-cargo_logo.png",
+    link: "https://chi-cargo.com",
+  },
+  {
+    name: "imker",
+    img: "/images/imker_logo.png",
+    link: "https://imker.pl",
+  },
+  {
+    name: "walter",
+    img: "/images/walter.svg",
+    link: "https://www.waltergmbh.de",
+  },
 ];
 
 function Company({ name, img, link }) {

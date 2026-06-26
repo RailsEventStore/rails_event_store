@@ -16,7 +16,7 @@ module RubyEventStore
       RubyEventStore::Client.new(
         message_broker:
           RubyEventStore::Broker.new(
-            dispatcher: ImmediateAsyncDispatcher.new(scheduler: SidekiqScheduler.new(serializer: serializer)),
+            dispatcher: ImmediateDispatcher.new(scheduler: SidekiqScheduler.new(serializer: serializer)),
           ),
       )
     end

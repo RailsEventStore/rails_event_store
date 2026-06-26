@@ -1,3 +1,8 @@
+### 2.3.0
+
+- Change: Allow `ruby_event_store` 3.x by relaxing the dependency bound to `< 4.0`. No functional code change since 2.2.0 (internal style/refactoring only); no schema change.
+- Add: README "Setup" section documenting Rake tasks, the database migration (with the `DATA_TYPE` option) and application wiring.
+
 ### 2.2.0
 
 - Change: Minimum required Ruby version is 2.7.0

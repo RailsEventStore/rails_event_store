@@ -160,6 +160,24 @@ module AggregateRoot
         expect_snapshot(order_expired.event_id, 1, Marshal.dump(order))
       end
 
+      specify "storing snapshot exactly at interval boundary — one event per store" do
+        order = order_klass.new(uuid)
+        repository = SnapshotRepository.new(event_store, 3)
+        allow(event_store).to receive(:publish)
+
+        order.apply(order_created)
+        repository.store(order, stream_name)
+        expect_no_snapshot
+
+        order.apply(order_expired)
+        repository.store(order, stream_name)
+        expect_no_snapshot
+
+        order.apply(order_canceled)
+        repository.store(order, stream_name)
+        expect_snapshot(order_canceled.event_id, 2, Marshal.dump(order))
+      end
+
       specify "standard storing of not dumpable aggregates" do
         order = not_dumpable_order_klass.new(uuid)
         repository = SnapshotRepository.new(event_store, 1)

@@ -35,7 +35,7 @@ end
 
 profile = Profile.new(options, ENV["LOCATION"])
 
-gem "rails_event_store", "~> 2.18.0"
+gem "rails_event_store", "~> 3.0.0"
 
 initializer "rails_event_store.rb", <<~CODE
   require "rails_event_store"
@@ -46,9 +46,12 @@ initializer "rails_event_store.rb", <<~CODE
     Rails.configuration.event_store = #{profile.client}
     Rails.configuration.command_bus = Arkency::CommandBus.new
 
-    AggregateRoot.configure do |config|
-      config.default_event_store = Rails.configuration.event_store
-    end
+    # Use AggregateRoot::Repository with explicit event store injection, e.g.:
+    #
+    #   repository = AggregateRoot::Repository.new(Rails.configuration.event_store)
+    #   repository.with_aggregate(Order.new(order_id), "Order$\#{order_id}") do |order|
+    #     order.submit
+    #   end
 
     # Subscribe event handlers below
     Rails.configuration.event_store.tap do |store|
@@ -71,16 +74,12 @@ CODE
 
 route "mount RailsEventStore::Browser => '/res' if Rails.env.development?"
 
-profile.for_existing_app do
-  run_bundle unless run "bundle check"
-end
+profile.for_existing_app { run_bundle unless run "bundle check" }
 
 after_bundle do
   rails_command "db:create"
-  generate "rails_event_store_active_record:migration --data-type=#{profile.data_type}"
+  generate "ruby_event_store:active_record:migration --data-type=#{profile.data_type}"
   rails_command "db:migrate"
 end
 
-profile.for_existing_app do
-  run_after_bundle_callbacks if Gem::Version.new(Rails.version) < Gem::Version.new("7.1.0")
-end
+profile.for_existing_app { run_after_bundle_callbacks if Gem::Version.new(Rails.version) < Gem::Version.new("7.1.0") }

@@ -11,9 +11,9 @@ module RubyEventStore
         skip unless ENV["DATABASE_URL"].include?("mysql")
 
         my_sql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
-        collation = my_sql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
-        charset = my_sql_major_version == 8 ? "utf8mb4" : "latin1"
-        bigint_lenght = my_sql_major_version == 8 ? "" : "(20)"
+        collation = my_sql_major_version >= 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
+        charset = my_sql_major_version >= 8 ? "utf8mb4" : "latin1"
+        bigint_lenght = my_sql_major_version >= 8 ? "" : "(20)"
 
         expect(mysql_show_create_table("event_store_outbox")).to eq <<~SCHEMA.strip
           CREATE TABLE `event_store_outbox` (

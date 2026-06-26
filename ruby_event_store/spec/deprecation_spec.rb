@@ -35,7 +35,7 @@ module RubyEventStore
             ),
         )
       }.to output(<<~EOS).to_stderr
-          Passing subscriptions and dispatcher to RubyEventStore::Client has been deprecated.
+          [DEPRECATION] Passing subscriptions and dispatcher to RubyEventStore::Client has been deprecated.
 
           Pass it using message_broker argument. For example:
 
@@ -54,7 +54,7 @@ module RubyEventStore
     specify do
       expect { RubyEventStore::Client.new(subscriptions: RubyEventStore::Subscriptions.new) }.to output(
         <<~EOS,
-          Passing subscriptions and dispatcher to RubyEventStore::Client has been deprecated.
+          [DEPRECATION] Passing subscriptions and dispatcher to RubyEventStore::Client has been deprecated.
 
           Pass it using message_broker argument. For example:
 
@@ -70,7 +70,7 @@ module RubyEventStore
 
     specify do
       expect { RubyEventStore::Client.new(dispatcher: RubyEventStore::SyncScheduler.new) }.to output(<<~EOS).to_stderr
-          Passing subscriptions and dispatcher to RubyEventStore::Client has been deprecated.
+          [DEPRECATION] Passing subscriptions and dispatcher to RubyEventStore::Client has been deprecated.
 
           Pass it using message_broker argument. For example:
 

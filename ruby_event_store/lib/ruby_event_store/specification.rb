@@ -245,15 +245,6 @@ module RubyEventStore
       )
     end
 
-    def in_batches_of(batch_size = DEFAULT_BATCH_SIZE)
-      warn <<~EOW
-        RubyEventStore::Specification#in_batches_of is deprecated and will be removed in the next major release.
-
-        Use #in_batches instead.
-      EOW
-      in_batches(batch_size)
-    end
-
     # Specifies that only first event should be read.
     # {https://railseventstore.org/docs/core-concepts/read Find out more}.
     #
@@ -295,15 +286,6 @@ module RubyEventStore
     # @return [Specification]
     def of_type(*types)
       Specification.new(reader, result.dup { |r| r.with_types = types.flatten })
-    end
-
-    def of_types(*types)
-      warn <<~EOW
-        RubyEventStore::Specification#of_types is deprecated and will be removed in the next major release.
-
-        Use #of_type instead.
-      EOW
-      of_type(*types)
     end
 
     # Limits the query to certain events by given even ids.

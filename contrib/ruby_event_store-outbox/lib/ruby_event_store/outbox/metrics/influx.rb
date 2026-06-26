@@ -1,5 +1,15 @@
 # frozen_string_literal: true
 
+require "cgi"
+require "uri"
+
+# influxdb 0.8.x uses CGI.parse which was removed in Ruby 4.0
+unless CGI.respond_to?(:parse)
+  CGI.define_singleton_method(:parse) do |query|
+    URI.decode_www_form(query || "").each_with_object({}) { |(k, v), h| (h[k] ||= []) << v }
+  end
+end
+
 require "influxdb"
 
 module RubyEventStore

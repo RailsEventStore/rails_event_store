@@ -48,6 +48,17 @@ module RubyEventStore
         end.to raise_error(Router::NoMatch)
       end
 
+      specify "matches path_info without leading slash" do
+        env = Rack::MockRequest.env_for("/")
+        env["PATH_INFO"] = "some/123"
+        request = Rack::Request.new(env)
+        expect do |probe|
+          router = Router.new
+          router.add_route("GET", "/some/:id", &probe)
+          router.handle(request)
+        end.to yield_with_args({ "id" => "123" }, urls.with_request(request))
+      end
+
       specify "root route when mounted" do
         router = Router.new
         router.add_route("GET", "/", &no_content)

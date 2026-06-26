@@ -18,7 +18,7 @@ module RubyEventStore
         resolved_version = resolved_version(expected_version, stream)
 
         @db.transaction do
-          records.map.with_index do |record, index|
+          records.each.with_index do |record, index|
             serialized_record = record.serialize(@serializer)
 
             @db[:event_store_events].insert(
@@ -291,15 +291,7 @@ module RubyEventStore
       end
 
       def read_from_global_stream(specification)
-        dataset =
-          @db[:event_store_events].select(
-            ::Sequel[:event_store_events][:event_id],
-            ::Sequel[:event_store_events][:event_type],
-            ::Sequel[:event_store_events][:data],
-            ::Sequel[:event_store_events][:metadata],
-            ::Sequel[:event_store_events][:created_at],
-            ::Sequel[:event_store_events][:valid_at],
-          ).order(:id)
+        dataset = @db[:event_store_events].select(:event_id, :event_type, :data, :metadata, :created_at, :valid_at)
 
         dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
         dataset = dataset.where(event_id: specification.with_ids) if specification.with_ids?
@@ -363,7 +355,6 @@ module RubyEventStore
           data: serialized_record.data,
           metadata: serialized_record.metadata,
           event_type: serialized_record.event_type,
-          valid_at: optimize_timestamp(record.valid_at, record.timestamp),
         }
       end
 

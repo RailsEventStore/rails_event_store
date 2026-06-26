@@ -41,12 +41,8 @@ ActiveRecord::Schema.verbose = $verbose
 DummyEvent = Class.new(RubyEventStore::Event)
 
 module GeneratorHelper
-  def dummy_app_name
-    "dummy_#{Rails::VERSION::MAJOR}_#{Rails::VERSION::MINOR}"
-  end
-
   def dummy_app_root
-    File.join(__dir__, dummy_app_name)
+    File.join(__dir__, "dummy")
   end
 
   def destination_root
@@ -55,7 +51,7 @@ module GeneratorHelper
 
   def prepare_destination_root
     FileUtils.mkdir_p(destination_root)
-    raise "App #{dummy_app_name} doesn't exist" unless File.exist?(dummy_app_root)
+    raise "Dummy app doesn't exist at #{dummy_app_root}" unless File.exist?(dummy_app_root)
     FileUtils.cp_r("#{dummy_app_root}/.", destination_root)
   end
 

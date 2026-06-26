@@ -149,6 +149,25 @@ module RubyEventStore
         )
       end
 
+      specify "global_position returns 0-based index" do
+        repository.append_to_stream([event = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
+        expect(repository.global_position(event.event_id)).to eq(0)
+      end
+
+      specify do
+        repository.append_to_stream([event = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
+        expect { repository.read(specification.stream("stream").from(event.event_id).result) }.to match_query(
+          /SELECT\s+.id. FROM .event_store_events_in_streams./,
+        )
+      end
+
+      specify do
+        repository.append_to_stream([event = SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
+        expect { repository.read(specification.from(event.event_id).result) }.to match_query(
+          /SELECT\s+.id. FROM .event_store_events./,
+        )
+      end
+
       specify "with batches and bi-temporal queries use offset + limit" do
         repository.append_to_stream(
           [

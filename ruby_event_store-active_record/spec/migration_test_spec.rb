@@ -72,10 +72,10 @@ module RubyEventStore
         data_type = data_type_to_mysql_type(ENV["DATA_TYPE"])
 
         mysql_major_version = ::ActiveRecord::Base.connection.select_value("SELECT VERSION();").to_i
-        collation = mysql_major_version == 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
-        charset = mysql_major_version == 8 ? "utf8mb4" : "latin1"
-        int_lenght = mysql_major_version == 8 ? "" : "(11)"
-        bigint_lenght = mysql_major_version == 8 ? "" : "(20)"
+        collation = mysql_major_version >= 8 ? " COLLATE=utf8mb4_0900_ai_ci" : ""
+        charset = mysql_major_version >= 8 ? "utf8mb4" : "latin1"
+        int_lenght = mysql_major_version >= 8 ? "" : "(11)"
+        bigint_lenght = mysql_major_version >= 8 ? "" : "(20)"
 
         expect(mysql_schema("event_store_events")).to eq <<~SCHEMA.strip
           CREATE TABLE `event_store_events` (

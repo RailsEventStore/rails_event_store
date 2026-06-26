@@ -6,10 +6,13 @@ module RubyEventStore
   module ActiveRecord
     class MigrationGenerator
       def call(database_adapter, migration_path)
-        migration_code = migration_code(database_adapter)
-        path = build_path(migration_path)
-        write_to_file(migration_code, path)
+        path, content = generate(database_adapter, migration_path)
+        File.write(path, content)
         path
+      end
+
+      def generate(database_adapter, migration_path)
+        [build_path(migration_path), migration_code(database_adapter)]
       end
 
       private
@@ -39,10 +42,6 @@ module RubyEventStore
 
       def timestamp
         Time.now.strftime("%Y%m%d%H%M%S")
-      end
-
-      def write_to_file(migration_code, path)
-        File.write(path, migration_code)
       end
 
       def build_path(migration_path)

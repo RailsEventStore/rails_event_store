@@ -1,3 +1,8 @@
+### 0.2.0
+
+- Change: Allow `ruby_event_store` 3.x by relaxing the dependency bound to `< 4.0`. No functional code change.
+- Change: README example uses `RailsEventStore::AfterCommitDispatcher` (renamed from `AfterCommitAsyncDispatcher`, which was removed in RES 3.0).
+
 ### 0.1.3
 
 - Remove: Drop support for Sidekiq 5.x [835f878f17ac63b39b1cdea429b718a07bb630a8]

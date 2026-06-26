@@ -13,6 +13,7 @@ SilenceStdout.silence_stdout { require "sidekiq/testing" }
 require "sidekiq/processor"
 
 RSpec.configure do |config|
+  config.filter_run_excluding :redis if ENV["MUTANT"]
   config.around(:each, :redis) do |example|
     Sidekiq.redis(&:itself).flushdb
     Sidekiq::Testing.disable! { example.run }
