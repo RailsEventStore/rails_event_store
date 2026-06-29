@@ -74,6 +74,11 @@ const CompaniesList = [
     img: "/images/walter.svg",
     link: "https://www.waltergmbh.de",
   },
+  {
+    name: "WarmlyYours",
+    img: "/images/warmlyyours-logo-red-fktx2n.png",
+    link: "https://www.warmlyyours.com",
+  }
 ];
 
 function Company({ name, img, link }) {
