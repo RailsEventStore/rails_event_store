@@ -45,4 +45,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "ruby_event_store", "= 3.0.0"
   spec.add_dependency "rack"
+  spec.add_dependency "railties", ">= 7.0"
+  spec.add_dependency "actionpack", ">= 7.0"
+  spec.add_dependency "actionview", ">= 7.0"
 end
