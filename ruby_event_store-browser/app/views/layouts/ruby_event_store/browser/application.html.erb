@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= yield(:title).presence || "RubyEventStore::Browser" %></title>
+    <link type="text/css" rel="stylesheet" href="<%= stylesheet_path %>">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+  </head>
+  <body>
+    <div>
+      <div class="bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" data-controller="search timezone" data-search-base-value="<%= root_path.chomp("/") %>">
+        <header>
+          <nav class="flex bg-red-700 px-8 h-16 justify-between sticky">
+            <div class="flex items-center">
+              <a href="<%= request.base_url %><%= root_path.chomp("/") %>" class="text-gray-100 font-semibold">Ruby Event Store</a>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 h-9 px-3 rounded" data-action="search#open">
+                <svg class="size-4" fill="none" height="24" width="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>Go to stream…<span class="text-xs">⌘K</span>
+              </button>
+            </div>
+          </nav>
+        </header>
+
+        <main class="bg-white flex w-full grow px-4">
+          <%= yield %>
+
+          <dialog data-search-target="dialog" class="backdrop:bg-gray-400/50 backdrop:backdrop-blur max-w-96 p-4 rounded-lg bg-white shadow w-full">
+            <button class="inset-0 fixed z-0" data-action="search#close"></button>
+            <div class="isolate">
+              <form data-action="search#go">
+                <div class="relative">
+                  <svg class="size-4 text-gray-400 absolute pointer-events-none top-3.5 left-2" fill="none" height="24" width="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  <input data-search-target="input" class="rounded text-gray-800 cursor-pointer pl-8 pr-12 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50" placeholder="Go to stream…" autofocus>
+                  <span class="absolute top-0 h-full flex items-center right-3 text-[.5rem] pointer-events-none">
+                    <span class="text-gray-500 bg-gray-50 font-bold block p-1 border border-gray-300 rounded ">ESC</span>
+                  </span>
+                </div>
+              </form>
+            </div>
+          </dialog>
+        </main>
+
+        <footer class="border-gray-400 border-t py-4 px-8 flex justify-between">
+          <div class="text-gray-500 text-sm">RubyEventStore v<%= RubyEventStore::VERSION %><span class="ml-4 font-bold inline-block text-gray-400">•</span>
+            <a href="https://railseventstore.org/docs/getting-started/install" class="ml-4">Documentation</a>
+            <span class="ml-4 font-bold inline-block text-gray-400">•</span>
+            <a href="https://railseventstore.org/support/" class="ml-4">Support</a>
+          </div>
+          <div class="text-gray-500 text-sm flex item-center gap-2">Display times in timezone:<select data-timezone-target="select" data-action="change->timezone#change">
+            <option value="UTC">UTC</option>
+          </select>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script type="module" src="<%= browser_js_path %>"></script>
+  </body>
+</html>

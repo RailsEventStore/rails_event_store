@@ -12,4 +12,8 @@ RubyEventStore::Browser::Engine.routes.draw do
       to: ->(_env) { [200, { "content-type" => "text/javascript" }, [File.binread(browser_js)]] },
       as: :browser_js,
       format: false
+
+  root to: "streams#show", defaults: { id: RubyEventStore::Browser::SERIALIZED_GLOBAL_STREAM_NAME }
+  get "streams/:id", to: "streams#show", as: :stream, constraints: { id: /.+/ }, format: false
+  get "events/:id", to: "events#show", as: :event, constraints: { id: /.+/ }, format: false
 end
