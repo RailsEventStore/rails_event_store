@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
     Explore correlation and causation connections.
   EOD
   spec.homepage = "https://railseventstore.org"
-  spec.files = Dir["lib/**/*"] + %w[
+  spec.files = Dir["lib/**/*"] + Dir["app/**/*"] + Dir["config/**/*"] + %w[
     bootstrap.js
     ruby_event_store_browser.css
     ruby_event_store_browser.js
