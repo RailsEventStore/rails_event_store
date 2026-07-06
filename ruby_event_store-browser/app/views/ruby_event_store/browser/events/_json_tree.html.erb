@@ -1,0 +1,4 @@
+<%# locals: (hash:) -%>
+<div class="font-mono whitespace-pre">{<ul class="list-none ml-[26px] pl-0"><% hash.sort_by { |key, _| key.to_s }.each do |key, value| %>
+<li class="relative"><span class="font-bold"><%= key %></span>: <span class="text-[green]"><%= value.to_json %></span>,</li><% end %>
+</ul>}</div>

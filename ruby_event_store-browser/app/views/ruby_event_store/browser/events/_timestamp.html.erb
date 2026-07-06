@@ -1,0 +1,8 @@
+<%# locals: (title:, time:) -%>
+<section class="space-y-1 cursor-help" data-timezone-target="zone" title="UTC">
+  <header class="flex items-center gap-1 text-xs">
+    <%= render "clock_icon" %>
+    <h2 class="text-gray-500 uppercase font-bold"><%= title %></h2>
+  </header>
+  <div class="overflow-auto w-full text-sm font-bold font-mono pl-4 text-gray-700 tracking-tight" data-timezone-target="time" data-iso="<%= time.utc.iso8601(6) %>"><%= time.utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></div>
+</section>

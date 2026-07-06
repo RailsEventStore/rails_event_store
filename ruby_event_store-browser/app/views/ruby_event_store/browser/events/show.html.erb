@@ -1,0 +1,70 @@
+<%# locals: (event:, metadata:, streams:, parent_event:, caused_by:) -%>
+<div class="py-8 md:py-12  container mx-auto space-y-10">
+  <header class="flex items-start justify-between gap-4 flex-wrap md:flex-nowrap">
+    <div class="flex flex-col items-start">
+      <h1 class="font-bold text-2xl break-words min-w-0 mb-2"><%= event.event_type %></h1>
+      <p class="flex gap-2 md:items-center min-w-0 text-sm flex-wrap mb-4">
+        <span class="whitespace-nowrap text-xs text-gray-500 uppercase font-bold">Event ID:</span>
+        <button data-controller="clipboard" data-clipboard-text-value="<%= event.event_id %>" data-action="clipboard#copy" class="flex items-center text-left gap-2 group font-mono text-gray-800 font-bold text-sm">
+          <%= event.event_id %>
+          <%= render "clipboard_icon", classes: "size-4 -translate-y-0.5 opacity-0 group-hover:opacity-100" %>
+        </button>
+      </p>
+    </div>
+    <div class="space-y-4">
+      <%= render "timestamp", title: "Created at", time: event.metadata[:timestamp] %>
+      <%= render "timestamp", title: "Valid at", time: event.metadata[:valid_at] %>
+    </div>
+  </header>
+
+  <div class="w-full text-left grid md:grid-cols-2 gap-8 overflow-hidden">
+    <%= render "raw_section", title: "Raw Data", hash: event.data %>
+    <%= render "raw_section", title: "Raw Metadata", hash: metadata %>
+  </div>
+
+  <div>
+    <h2 class="font-bold text-xl mb-4">Event streams</h2>
+    <ul class="list-disc pl-4 space-y-2">
+      <% streams.each do |stream| %>
+        <li>
+          <a class="text-red-700 no-underline" href="<%= root_path.chomp("/") %>/streams/<%= ERB::Util.url_encode(stream) %>"><%= stream %></a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <% if parent_event %>
+    <div>
+      <h2 class="font-bold text-xl mb-4">Related</h2>
+      <ul class="list-disc pl-4 space-y-2">
+        <li>Parent event: <a class="text-red-700 no-underline" href="<%= event_path(id: parent_event.event_id) %>"><%= parent_event.event_id %></a></li>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if caused_by.any? %>
+    <div class="space-y-4">
+      <h2 class="font-bold text-xl">Events caused by this event:</h2>
+      <table class="w-full text-left table-fixed">
+        <thead class="align-bottom leading-tight sticky top-0 bg-white/70 backdrop-blur-sm text-gray-500 uppercase text-xs">
+          <tr class="border-gray-400 border-b">
+            <th class="p-4">Event name</th>
+            <th class="py-4 pr-4 lg:w-80">Event id</th>
+          </tr>
+        </thead>
+        <tbody class="align-top">
+          <% caused_by.each do |child| %>
+            <tr class="border-gray-50 border-b hover:bg-gray-100">
+              <td>
+                <a class="text-red-700 no-underline min-h-11 w-full flex items-center px-4" href="<%= event_path(id: child.event_id) %>"><%= child.event_type %></a>
+              </td>
+              <td class="font-mono text-sm leading-none font-medium align-middle">
+                <a class="no-underline h-full min-h-11 flex items-center" href="<%= event_path(id: child.event_id) %>"><%= child.event_id %></a>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
