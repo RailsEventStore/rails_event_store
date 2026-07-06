@@ -1,6 +1,7 @@
 GEM_VERSION      = $(shell cat ../RES_VERSION)
 GEM_NAME         = ruby_event_store-browser
 TAILWIND_VERSION = 3.4.9
+STIMULUS_VERSION = 3.2.2
 
 include ../support/make/install.mk
 include ../support/make/test.mk
@@ -8,10 +9,14 @@ include ../support/make/mutant.mk
 include ../support/make/gem.mk
 include ../support/make/help.mk
 
-build: css
+build: css public/stimulus.js
 
 css: tailwindcss ## Build the stylesheet from the templates with Tailwind
 	@./tailwindcss --minify --input tailwind.css --output public/ruby_event_store_browser.css
+
+public/stimulus.js: ## Vendor the pinned Stimulus runtime from the CDN
+	@echo "Downloading @hotwired/stimulus $(STIMULUS_VERSION)"
+	@curl -sL -o public/stimulus.js "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@$(STIMULUS_VERSION)/+esm"
 
 tailwindcss:
 	@platform=`uname -s | tr '[:upper:]' '[:lower:]'`; \

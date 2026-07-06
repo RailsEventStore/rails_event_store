@@ -21,6 +21,7 @@ config/master.key
 *.orig
 ruby_event_store-browser/public/*
 !ruby_event_store-browser/public/bootstrap.js
+!ruby_event_store-browser/public/browser.js
 ruby_event_store-browser/tailwindcss
 .inch/
 .tmp
