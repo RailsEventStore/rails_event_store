@@ -105,7 +105,8 @@ module RubyEventStore
     let(:event_store) { Client.new }
 
     def app_builder(event_store)
-      Browser::App.for(event_store_locator: -> { event_store })
+      TestApplication.config.event_store = event_store
+      TestApplication
     end
 
     def mk_logger
