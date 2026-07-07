@@ -15,9 +15,7 @@ Gem::Specification.new do |spec|
   EOD
   spec.homepage = "https://railseventstore.org"
   spec.files = Dir["lib/**/*"] + Dir["app/**/*"] + Dir["config/**/*"] + %w[
-    bootstrap.js
     ruby_event_store_browser.css
-    ruby_event_store_browser.js
     stimulus.js
     browser.js
     android-chrome-192x192.png
