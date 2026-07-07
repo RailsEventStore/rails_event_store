@@ -18,30 +18,7 @@ Rails.application.routes.draw { mount RailsEventStore::Browser => "/res" if Rail
 
 It is assumed that you have Rails Event Store configured at `Rails.configuration.event_store`, in [recommended](../getting-started/install/) location.
 
-The `RailsEventStore::Browser` is just a wrapper around `RubyEventStore::Browser::App` with default options suitable for most applications. Read below the [Rack](#rack), in case you need this browser outside as a standalone application or you have a different event store location.
-
-### Rack
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem "ruby_event_store-browser"
-```
-
-Add this to your `config.ru` or wherever you mount your Rack apps to enable web interface. Check the appropriate environment variable (e.g. `ENV['RACK_ENV']`) to only mount the browser in the appropriate environment such as `development`.
-
-There is a helper method on the Rack app to configure options `event_store_locator`, `host` and `path`.
-
-```ruby
-# e.g. config.ru
-
-require "ruby_event_store/browser/app"
-
-# Example RES client you might configure
-event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
-
-run RubyEventStore::Browser::App.for(event_store_locator: -> { event_store })
-```
+`RailsEventStore::Browser` mounts a Rails engine that renders its pages server-side with Hotwire and reads from `Rails.configuration.event_store`.
 
 ## Usage in production
 
@@ -108,7 +85,7 @@ end
 
 Often you have streams, which are closely related to each other. To ease debugging, you may want to create custom links between streams. For example, if you are viewing stream `Ordering::Order$123`, you may want to link to stream `Payments::Transaction$456`.
 
-You can do that by passing related streams query object to browser configuration. Related streams query object can be anything, which reponds to `call(stream_name)` and always return an array (i.e. it can be simple lambda).
+You can do that by configuring a related streams query object. It can be anything that responds to `call(stream_name)` and always returns an array (i.e. it can be a simple lambda).
 
 Related streams will be displayed in stream view, at the bottom.
 
@@ -126,5 +103,6 @@ class RelatedStreamsQuery
   end
 end
 
-RubyEventStore::Browser::App.for(related_streams_query: RelatedStreamsQuery.new)
+# config/application.rb (or an initializer)
+Rails.application.config.x.ruby_event_store_browser_related_streams_query = RelatedStreamsQuery.new
 ```
