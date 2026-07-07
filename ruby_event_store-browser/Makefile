@@ -11,6 +11,8 @@ include ../support/make/help.mk
 
 build: css public/stimulus.js
 
+test mutate mutate-changes: css public/stimulus.js
+
 css: tailwindcss ## Build the stylesheet from the templates with Tailwind
 	@./tailwindcss --minify --input tailwind.css --output public/ruby_event_store_browser.css
 
