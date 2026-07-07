@@ -2,7 +2,7 @@
 <html>
   <head>
     <title><%= yield(:title).presence || "RubyEventStore::Browser" %></title>
-    <link type="text/css" rel="stylesheet" href="<%= stylesheet_path %>">
+    <link type="text/css" rel="stylesheet" href="<%= asset_url("ruby_event_store_browser.css", stylesheet_path) %>">
     <meta name="robots" content="noindex, nofollow">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -60,6 +60,6 @@
       </div>
     </div>
 
-    <script type="module" src="<%= browser_js_path %>"></script>
+    <script type="module" src="<%= asset_url("browser.js", browser_js_path) %>"></script>
   </body>
 </html>
