@@ -13,10 +13,15 @@ module RubyEventStore
                  stream_name: stream_name,
                  events: reader.events,
                  pagination: reader.pagination.transform_values { |cursor| stream_page_url(stream_name, cursor, reader.count) },
+                 related_streams: related_streams(stream_name),
                }
       end
 
       private
+
+      def related_streams(stream_name)
+        Rails.configuration.x.ruby_event_store_browser_related_streams_query&.call(stream_name)
+      end
 
       def stream_page_url(stream_name, cursor, count)
         query =
