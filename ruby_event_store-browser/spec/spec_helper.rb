@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "ruby_event_store"
-require "ruby_event_store/browser/app"
+require "ruby_event_store/browser"
 require "rack/test"
 require "support/web_client"
 require "support/csp_app"
