@@ -54,7 +54,7 @@ class CI
       release_coverage("ruby_event_store-rspec"),
       release_test(
         "ruby_event_store-browser",
-        steps: [checkout, verify_lockfile, setup_ruby, setup_node, cache_elm, make("install-npm test")],
+        steps: [checkout, verify_lockfile, setup_ruby, make("test")],
         matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")),
       ),
       release_mutate("ruby_event_store-browser"),
@@ -282,27 +282,6 @@ class CI
           "ruby-version" => "${{ env.RUBY_VERSION }}",
           "bundler-cache" => true,
           "working-directory" => "${{ env.WORKING_DIRECTORY }}",
-        },
-      }
-    end
-
-    def setup_node
-      {
-        "uses" => "actions/setup-node@v4",
-        "with" => {
-          "node-version" => 20,
-          "cache" => "npm",
-          "cache-dependency-path" => "${{ env.WORKING_DIRECTORY }}/elm/package-lock.json",
-        },
-      }
-    end
-
-    def cache_elm
-      {
-        "uses" => "actions/cache@v4",
-        "with" => {
-          "path" => "~/.elm",
-          "key" => "elm-${{ hashFiles(format('{0}/elm/elm.json', env.WORKING_DIRECTORY)) }}",
         },
       }
     end
@@ -729,12 +708,11 @@ class CI
         matrix: [],
         steps: [
           checkout,
-          setup_node,
-          cache_elm,
-          make("install-npm"),
-          make("build-npm"),
-          upload_artifact("ruby_event_store_browser.js"),
+          setup_ruby,
+          make("css public/stimulus.js"),
           upload_artifact("ruby_event_store_browser.css"),
+          upload_artifact("stimulus.js"),
+          upload_artifact("browser.js"),
           configure_aws_credentials,
           set_short_sha_env,
           aws_s3_sync,
