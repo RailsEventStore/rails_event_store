@@ -50,6 +50,20 @@ module RubyEventStore
       skip exc.message
     end
 
+    specify "displays timestamps in the browser timezone", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      session.driver.browser.page.command("Emulation.setTimezoneOverride", timezoneId: "America/New_York")
+
+      event = TimeEnrichment.with(FooBarEvent.new, timestamp: Time.utc(2020, 1, 1, 5, 0, 0, 0))
+      event_store.append(event, stream_name: "dummy")
+
+      session.visit("/events/#{event.event_id}")
+
+      expect(session).to have_content("2020-01-01T00:00:00.000")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
     specify "Content-Security-Policy", mutant: false do
       session =
         Capybara::Session.new(
