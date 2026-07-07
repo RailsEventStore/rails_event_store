@@ -9,7 +9,10 @@ PATH
       activerecord (>= 6.0)
       ruby_event_store (= 3.0.0)
     ruby_event_store-browser (3.0.0)
+      actionpack (>= 7.0)
+      actionview (>= 7.0)
       rack
+      railties (>= 7.0)
       ruby_event_store (= 3.0.0)
 
 PATH
