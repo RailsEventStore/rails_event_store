@@ -20,7 +20,7 @@ module RailsEventStore
                  metadata: metadata,
                  streams: event_store.streams_of(event.event_id).map(&:name).sort,
                  parent_event: parent_event,
-                 caused_by: event_store.read.stream("$by_causation_id_#{event.event_id}").backward.to_a,
+                 caused_by: event_store.read.stream("$by_causation_id_#{event.event_id}").backward.limit(PAGE_SIZE).to_a,
                }
       end
     end

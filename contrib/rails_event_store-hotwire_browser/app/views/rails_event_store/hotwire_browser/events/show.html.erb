@@ -64,6 +64,11 @@
             </tr>
           <% end %>
         </tbody>
+        <tfoot>
+          <tr>
+            <td class="text-gray-500 py-4 text-center text-xs" colspan="2"><%= "The results may be truncated, check stream for full information." if caused_by.size == 20 %></td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   <% else %>
