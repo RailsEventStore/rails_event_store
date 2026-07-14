@@ -17,5 +17,11 @@ module RailsEventStore
       event_store.append(event = DummyEvent.new)
       expect(web_client.get("/events/#{event.event_id}")).to be_ok
     end
+
+    specify do
+      response = web_client.get("/events/00000000-0000-0000-0000-000000000000")
+      expect(response).to be_not_found
+      expect(response.body).to include("There's no event with given ID")
+    end
   end
 end

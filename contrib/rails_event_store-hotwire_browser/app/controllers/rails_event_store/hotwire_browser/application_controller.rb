@@ -6,7 +6,7 @@ module RailsEventStore
       helper_method :asset_url
 
       rescue_from RubyEventStore::EventNotFound do
-        head :not_found
+        render "rails_event_store/hotwire_browser/not_found", status: :not_found
       end
 
       private
