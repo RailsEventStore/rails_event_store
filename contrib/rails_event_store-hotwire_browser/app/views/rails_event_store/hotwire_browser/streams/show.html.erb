@@ -1,0 +1,58 @@
+<%# locals: (stream_name:, events:, pagination:, related_streams:) -%>
+<div class="py-8 container mx-auto">
+  <div class="flex justify-between">
+    <h1 class="font-bold text-2xl">Events in <%= stream_name %></h1>
+    <div>
+      <ul class="flex">
+        <% [["first", pagination[:first]], ["previous", pagination[:prev]], ["next", pagination[:next]], ["last", pagination[:last]]].each do |label, url| %>
+          <li>
+            <% if url %>
+              <a class="text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1 mr-1" href="<%= url %>"><%= label %></a>
+            <% else %>
+              <a class="text-center text-sm border rounded px-2 py-1 mr-1 text-red-700/50 border-red-700/50 cursor-not-allowed"><%= label %></a>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+  <div>
+    <div class="overflow-x-scroll sm:overflow-visible w-full">
+      <table class="my-10 w-full lg:table-fixed text-left">
+        <thead class="align-bottom leading-tight sticky top-0 bg-white/70 backdrop-blur-sm text-gray-500 uppercase text-xs">
+          <tr class="border-gray-400 border-b">
+            <th class="p-4">Event name</th>
+            <th class="py-4  pr-4 lg:w-80">Event id</th>
+            <th class="py-4  pr-4  text-right lg:w-60"><span class="cursor-help" data-timezone-target="zone" title="UTC">Created at</span></th>
+          </tr>
+        </thead>
+        <tbody class="align-top">
+          <% events.each do |event| %>
+            <% href = event_path(id: event.event_id) %>
+            <tr class="border-gray-50 border-b hover:bg-gray-100">
+              <td>
+                <a class="text-red-700 no-underline min-h-11 w-full flex items-center px-4" href="<%= href %>"><span class="break-words min-w-0"><%= event.event_type %></span></a>
+              </td>
+              <td class="font-mono text-sm leading-none font-medium align-middle">
+                <a class="no-underline h-full min-h-11 flex items-center" href="<%= href %>"><%= event.event_id %></a>
+              </td>
+              <td class="font-mono text-sm leading-none font-medium">
+                <a class="no-underline min-h-11 flex items-center justify-end px-4" href="<%= href %>"><span data-timezone-target="time" data-iso="<%= event.metadata[:timestamp].utc.iso8601(6) %>" title="UTC"><%= event.metadata[:timestamp].utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></span></a>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <% if related_streams %>
+    <div>
+      <h2 class="font-bold text-xl">Related streams:</h2>
+      <ul class="list-disc pl-8">
+        <% related_streams.each do |stream| %>
+          <li><a class="text-red-700 no-underline" href="<%= root_path.chomp("/") %>/streams/<%= ERB::Util.url_encode(stream) %>"><%= stream %></a></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
