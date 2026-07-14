@@ -12,8 +12,7 @@
     <meta name="theme-color" content="#ffffff">
   </head>
   <body>
-    <div>
-      <div class="bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" data-controller="search timezone" data-search-base-value="<%= root_path.chomp("/") %>">
+    <div class="bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" data-controller="search timezone" data-search-base-value="<%= root_path.chomp("/") %>">
         <header>
           <nav class="flex bg-red-700 px-8 h-16 justify-between sticky">
             <div class="flex items-center">
@@ -53,7 +52,6 @@
           </select>
           </div>
         </footer>
-      </div>
     </div>
 
     <script type="module" src="<%= asset_url("browser.js", browser_js_path) %>"></script>
