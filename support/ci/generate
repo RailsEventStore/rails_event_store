@@ -105,6 +105,7 @@ class CI
       contrib_test("rails_event_store-hotwire_browser"),
       contrib_mutate("rails_event_store-hotwire_browser"),
       contrib_coverage("rails_event_store-hotwire_browser"),
+      contrib_assets("rails_event_store-hotwire_browser"),
       contrib_test(
         "ruby_event_store-flipper",
         matrix:
@@ -742,6 +743,17 @@ class CI
           set_short_sha_env,
           aws_s3_sync,
         ],
+        triggers: [manual_trigger, api_trigger, push_trigger],
+      )
+    end
+
+    def contrib_assets(name)
+      Workflow.new(
+        name,
+        job_name: "assets",
+        working_directory: "contrib/#{name}",
+        matrix: [],
+        steps: [checkout, make("build"), set_short_sha_env, configure_aws_credentials, aws_s3_sync],
         triggers: [manual_trigger, api_trigger, push_trigger],
       )
     end
