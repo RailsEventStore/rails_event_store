@@ -102,6 +102,9 @@ class CI
       ),
       release_mutate("ruby_event_store-active_record"),
       release_coverage("ruby_event_store-active_record"),
+      contrib_test("rails_event_store-hotwire_browser"),
+      contrib_mutate("rails_event_store-hotwire_browser"),
+      contrib_coverage("rails_event_store-hotwire_browser"),
       contrib_test(
         "ruby_event_store-flipper",
         matrix:
