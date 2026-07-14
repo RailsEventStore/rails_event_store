@@ -45,14 +45,16 @@
       </table>
     </div>
   </div>
-  <% if related_streams %>
-    <div>
-      <h2 class="font-bold text-xl">Related streams:</h2>
-      <ul class="list-disc pl-8">
-        <% related_streams.each do |stream| %>
-          <li><a class="text-red-700 no-underline" href="<%= root_path.chomp("/") %>/streams/<%= ERB::Util.url_encode(stream) %>"><%= stream %></a></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <div>
+    <% if related_streams %>
+      <div>
+        <h2 class="font-bold text-xl">Related streams:</h2>
+        <ul class="list-disc pl-8">
+          <% related_streams.each do |stream| %>
+            <li><a class="text-red-700 no-underline" href="<%= root_path.chomp("/") %>/streams/<%= ERB::Util.url_encode(stream) %>"><%= stream %></a></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
 </div>
