@@ -12,7 +12,7 @@
       </p>
     </div>
     <div class="space-y-4">
-      <%= render "timestamp", title: "Created at", time: event.metadata[:timestamp] %>
+      <%= render "timestamp", title: "Created at", time: event.metadata[:timestamp], top: true %>
       <%= render "timestamp", title: "Valid at", time: event.metadata[:valid_at] %>
     </div>
   </header>

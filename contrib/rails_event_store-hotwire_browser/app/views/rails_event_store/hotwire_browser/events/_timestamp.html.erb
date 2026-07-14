@@ -1,5 +1,5 @@
-<%# locals: (title:, time:) -%>
-<section class="space-y-1 cursor-help" data-timezone-target="zone" title="UTC">
+<%# locals: (title:, time:, top: false) -%>
+<section class="space-y-1<%= " pt-3" if top %> cursor-help" data-timezone-target="zone" title="UTC">
   <header class="flex items-center gap-1 text-xs">
     <%= render "clock_icon" %>
     <h2 class="text-gray-500 uppercase font-bold"><%= title %></h2>
