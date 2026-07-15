@@ -135,6 +135,7 @@ module RubyEventStore
           CREATE INDEX "index_event_store_events_in_streams_on_created_at" ON "event_store_events_in_streams" ("created_at")
           CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_position" ON "event_store_events_in_streams" ("stream", "position")
           CREATE UNIQUE INDEX "index_event_store_events_in_streams_on_stream_and_event_id" ON "event_store_events_in_streams" ("stream", "event_id")
+          CREATE INDEX "index_event_store_events_in_streams_on_stream_and_id" ON "event_store_events_in_streams" ("stream", "id")
         SCHEMA
       end
 

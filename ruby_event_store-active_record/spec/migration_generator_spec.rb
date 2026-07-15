@@ -125,6 +125,13 @@ module RubyEventStore
         )
       end
 
+      specify "creates migration with stream and id index for SQLite adapter" do
+        _, content = generate(@dir, "binary", "SQLite")
+        expect(content).to include(
+          'add_index :event_store_events_in_streams, [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
+        )
+      end
+
       specify "raises error when data type is not supported" do
         expect { generate(@dir, "invalid") }.to raise_error(
           InvalidDataTypeForAdapter,
