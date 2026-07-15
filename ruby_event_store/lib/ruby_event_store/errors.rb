@@ -15,6 +15,7 @@ module RubyEventStore
   EventNotFoundInStream = Class.new(Error)
   SubscriptionsNotSupported = Class.new(Error)
   StringsRequired = Class.new(Error)
+  InvalidUpcast = Class.new(Error)
 
   class EventNotFound < Error
     attr_reader :event_id

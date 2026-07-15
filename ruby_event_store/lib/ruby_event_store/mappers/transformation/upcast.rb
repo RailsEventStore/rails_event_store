@@ -12,7 +12,12 @@ module RubyEventStore
           def call(record)
             identity = lambda { |r| r }
             new_record = @upcast_map.fetch(record.event_type, identity)[record]
-            new_record.equal?(record) ? record : call(new_record)
+            return record if new_record.equal?(record)
+            if new_record.event_type == record.event_type
+              raise InvalidUpcast,
+                    "Upcast for '#{record.event_type}' returned the same event_type. In order to upcast provide a new event_type (e.g. '#{record.event_type}_v2')."
+            end
+            call(new_record)
           end
         end
 

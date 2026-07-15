@@ -13,42 +13,42 @@ module RubyEventStore
           Record.new(
             event_id: uuid,
             metadata: {
-              some: "meta",
+              some: "meta"
             },
             data: [{ some: "value" }],
             event_type: "record.v1",
             timestamp: time,
-            valid_at: time,
+            valid_at: time
           )
         end
         let(:record_v2) do
           Record.new(
             event_id: uuid,
             metadata: {
-              some: "meta",
+              some: "meta"
             },
             data: {
-              as_hash: [{ some: "value" }],
+              as_hash: [{ some: "value" }]
             },
             event_type: "record.v2",
             timestamp: time,
-            valid_at: time,
+            valid_at: time
           )
         end
         let(:record_v3) do
           Record.new(
             event_id: uuid,
             metadata: {
-              some: "meta",
+              some: "meta"
             },
             data: {
               as_hash: [{ some: "value" }],
               other_as_well: {
-              },
+              }
             },
             event_type: "record.v3",
             timestamp: time,
-            valid_at: time,
+            valid_at: time
           )
         end
         let(:upcast_map) do
@@ -62,8 +62,8 @@ module RubyEventStore
                   valid_at: r.valid_at,
                   event_type: "record.v2",
                   data: {
-                    as_hash: r.data,
-                  },
+                    as_hash: r.data
+                  }
                 )
               end,
             "record.v2" =>
@@ -74,9 +74,9 @@ module RubyEventStore
                   timestamp: r.timestamp,
                   valid_at: r.valid_at,
                   event_type: "record.v3",
-                  data: r.data.merge(other_as_well: {}),
+                  data: r.data.merge(other_as_well: {})
                 )
-              end,
+              end
           }
         end
 
@@ -90,6 +90,42 @@ module RubyEventStore
           expect(Upcast.new(upcast_map).load(record_v1)).to eq(record_v3)
           expect(Upcast.new(upcast_map).load(record_v2)).to eq(record_v3)
           expect(Upcast.new(upcast_map).load(record_v3.dup)).to eq(record_v3)
+        end
+
+        specify "upcast returning same event_type raises InvalidUpcast" do
+          time = Time.now.utc
+          uuid = SecureRandom.uuid
+
+          upcast_map = {
+            "OrderPlaced" =>
+              lambda do |record|
+                Record.new(
+                  event_id: record.event_id,
+                  metadata: record.metadata,
+                  timestamp: record.timestamp,
+                  valid_at: record.valid_at,
+                  event_type: "OrderPlaced",
+                  data: record.data.merge(extra: true)
+                )
+              end
+          }
+          record =
+            Record.new(
+              event_id: uuid,
+              metadata: {
+              },
+              data: {
+                value: 1
+              },
+              event_type: "OrderPlaced",
+              timestamp: time,
+              valid_at: time
+            )
+
+          expect { Upcast.new(upcast_map).load(record) }.to raise_error(
+            InvalidUpcast,
+            "Upcast for 'OrderPlaced' returned the same event_type. In order to upcast provide a new event_type (e.g. 'OrderPlaced_v2')."
+          )
         end
       end
     end

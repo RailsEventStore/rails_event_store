@@ -87,51 +87,7 @@ upcast_map = {
 
 A record stored as `OrderPlaced_v1` will be transformed through `v1 → v2 → v3` automatically on each read.
 
-### Idempotent upcasts
-
-Sometimes an upcast must keep the same `event_type` while enriching data — for example when backfilling a field that may or may not already be present.
-In this case the engine needs to know when the upcast is done.
-
-**The engine detects completion by object identity** (`equal?`): if the callable returns the exact same Ruby object it received, recursion stops.
-If it returns any other object — even one with identical values — the engine calls the upcast again, causing an infinite loop.
-
-When the record is already in the target shape, return the **original `record` object**:
-
-```ruby
-upcast_map = {
-  "OrderPlaced" => lambda do |record|
-    # Guard: already migrated — return the SAME object to signal "done"
-    return record if record.data.key?(:currency)
-
-    RubyEventStore::Record.new(
-      event_id:   record.event_id,
-      metadata:   record.metadata,
-      timestamp:  record.timestamp,
-      valid_at:   record.valid_at,
-      event_type: record.event_type,
-      data:       record.data.merge(currency: "USD"),
-    )
-  end
-}
-```
-
-The following pattern causes an infinite loop because it returns a new object even when no change is needed:
-
-```ruby
-# WRONG: returns a new object for already-migrated records
-upcast_map = {
-  "OrderPlaced" => lambda do |record|
-    if record.data.key?(:currency)
-      RubyEventStore::Record.new(**record.to_h)  # new object, same values → infinite loop
-    else
-      RubyEventStore::Record.new(
-        **record.to_h,
-        data: record.data.merge(currency: "USD"),
-      )
-    end
-  end
-}
-```
+Each upcast **must** change the `event_type`. Returning a record with the same `event_type` raises `RubyEventStore::InvalidUpcast`.
 
 ## Permanent migration
 
