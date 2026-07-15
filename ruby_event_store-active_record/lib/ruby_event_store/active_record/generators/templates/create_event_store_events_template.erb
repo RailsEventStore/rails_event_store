@@ -20,8 +20,7 @@ class CreateEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
 
       t.index [:stream, :position], unique: true
       t.index [:stream, :event_id], unique: true
+      t.index [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"
     end
-
-    add_index :event_store_events_in_streams, [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"
   end
 end

@@ -114,21 +114,21 @@ module RubyEventStore
       specify "creates migration with stream and id index for PostgreSQL adapter" do
         _, content = generate(@dir, "binary", "PostgreSQL")
         expect(content).to include(
-          'add_index :event_store_events_in_streams, [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
+          't.index [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
         )
       end
 
       specify "creates migration with stream and id index for MySQL2 adapter" do
         _, content = generate(@dir, "binary", "MySQL2")
         expect(content).to include(
-          'add_index :event_store_events_in_streams, [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
+          't.index [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
         )
       end
 
       specify "creates migration with stream and id index for SQLite adapter" do
         _, content = generate(@dir, "binary", "SQLite")
         expect(content).to include(
-          'add_index :event_store_events_in_streams, [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
+          't.index [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
         )
       end
 
