@@ -180,6 +180,28 @@ require "spec_helper"
     expect(klass.respond_to?(:on_methods)).to eq(true)
   end
 
+  it "applies event when event_type_resolver output differs from event.event_type" do
+    klass =
+      Class.new do
+        include AggregateRoot.with(event_type_resolver: ->(value) { "prefixed.#{value}" })
+
+        def initialize
+          @status = :draft
+        end
+
+        attr_accessor :status
+
+        on Orders::Events::OrderCreated do |_event|
+          @status = :created
+        end
+      end
+    order = klass.new
+
+    order.apply(Orders::Events::OrderCreated.new)
+
+    expect(order.status).to eq(:created)
+  end
+
   it "included modules" do
     klass = Class.new { include AggregateRoot }
 
