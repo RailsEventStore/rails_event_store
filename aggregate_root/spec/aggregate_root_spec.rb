@@ -135,6 +135,24 @@ require "spec_helper"
     expect(order.status).to eq :created
   end
 
+  it "does not include on methods DSL when using custom strategy" do
+    strategy = -> { ->(aggregate, event) { } }
+    klass =
+      Class.new do
+        include AggregateRoot.with(strategy: strategy)
+      end
+    expect(klass.respond_to?(:on_methods)).to eq(false)
+  end
+
+  it 'custom strategy inherited from DefaultApplyStrategy adds On~DSL' do
+    strategy = -> { Class.new(AggregateRoot::DefaultApplyStrategy).new }
+    klass =
+      Class.new do
+        include AggregateRoot.with(strategy: strategy)
+      end
+    expect(klass.respond_to?(:on_methods)).to eq(true)
+  end
+
   it "included modules" do
     klass = Class.new { include AggregateRoot }
 

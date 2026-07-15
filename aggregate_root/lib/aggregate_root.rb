@@ -80,6 +80,7 @@ module AggregateRoot
     Module.new do
       define_singleton_method :included do |host_class|
         host_class.extend Constructor
+        host_class.extend OnDSL if strategy.call.is_a?(DefaultApplyStrategy)
         host_class.include AggregateMethods
         host_class.define_singleton_method :event_type_for do |value|
           event_type_resolver.call(value)
@@ -93,7 +94,6 @@ module AggregateRoot
   end
 
   def self.included(host_class)
-    host_class.extend OnDSL
     host_class.include with
   end
 end
