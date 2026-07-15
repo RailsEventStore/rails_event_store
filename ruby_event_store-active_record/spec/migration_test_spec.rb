@@ -120,6 +120,7 @@ module RubyEventStore
           CREATE INDEX "index_event_store_events_on_event_type" ON "event_store_events" ("event_type")
           CREATE INDEX "index_event_store_events_on_created_at" ON "event_store_events" ("created_at")
           CREATE INDEX "index_event_store_events_on_valid_at" ON "event_store_events" ("valid_at")
+          CREATE INDEX "index_event_store_events_on_as_of" ON "event_store_events" (COALESCE(valid_at, created_at))
         SCHEMA
 
         expect(sqlite_schema("event_store_events_in_streams")).to eq <<~SCHEMA.strip

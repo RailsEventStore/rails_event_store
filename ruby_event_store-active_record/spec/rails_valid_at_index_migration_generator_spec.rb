@@ -37,14 +37,31 @@ module RubyEventStore
 
         expect(subject).to include('add_index :event_store_events,')
         expect(subject).to include('"COALESCE(valid_at, created_at)",')
-        expect(subject).to include('name: "index_event_store_events_on_as_of",')
-        expect(subject).to include("algorithm: :concurrently")
+        expect(subject).to include('name: "index_event_store_events_on_as_of"')
       end
 
-      it "disables ddl transaction" do
+      it "uses concurrent algorithm for PostgreSQL" do
         helper.establish_database_connection
+        skip unless DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name).is_a?(DatabaseAdapter::PostgreSQL)
 
+        expect(subject).to include("algorithm: :concurrently")
         expect(subject).to include("disable_ddl_transaction!")
+      end
+
+      it "uses inplace algorithm for MySQL" do
+        helper.establish_database_connection
+        skip unless DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name).is_a?(DatabaseAdapter::MySQL)
+
+        expect(subject).to include("algorithm: :inplace")
+        expect(subject).not_to include("disable_ddl_transaction!")
+      end
+
+      it "uses no algorithm for SQLite" do
+        helper.establish_database_connection
+        skip unless DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name).is_a?(DatabaseAdapter::SQLite)
+
+        expect(subject).not_to include("algorithm:")
+        expect(subject).not_to include("disable_ddl_transaction!")
       end
     end
   end

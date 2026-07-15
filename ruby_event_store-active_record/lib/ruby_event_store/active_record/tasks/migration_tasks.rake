@@ -28,7 +28,7 @@ task "db:migrations:add_valid_at_index" do
   task = MigrationTask.new("db:migrations:add_valid_at_index")
   task.establish_connection
 
-  path = RubyEventStore::ActiveRecord::ValidAtIndexMigrationGenerator.new.call(task.migration_path)
+  path = RubyEventStore::ActiveRecord::ValidAtIndexMigrationGenerator.new.call(task.adapter_type, task.migration_path)
 
   puts "Migration file created #{path}"
 end
@@ -65,6 +65,10 @@ class MigrationTask
     data_type = @data_type || raise("Specify data type (binary, json, jsonb): rake #{@task} DATA_TYPE=json")
 
     RubyEventStore::ActiveRecord::DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name, data_type)
+  end
+
+  def adapter_type
+    RubyEventStore::ActiveRecord::DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name)
   end
 
   def migration_path

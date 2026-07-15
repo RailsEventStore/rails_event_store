@@ -16,12 +16,24 @@ if defined?(Rails::Generators::Base)
 
         source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
 
+        def initialize(*args)
+          super
+
+          @database_adapter = DatabaseAdapter.from_string(adapter_name)
+        rescue UnsupportedAdapter => e
+          raise Error, e.message
+        end
+
         def create_migration
-          template "add_valid_at_index_to_event_store_events_template.erb",
+          template "#{@database_adapter.template_directory}add_valid_at_index_to_event_store_events_template.erb",
                    "db/migrate/#{timestamp}_add_valid_at_index_to_event_store_events.rb"
         end
 
         private
+
+        def adapter_name
+          ::ActiveRecord::Base.connection.adapter_name
+        end
 
         def migration_version
           ::ActiveRecord::Migration.current_version

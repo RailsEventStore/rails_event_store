@@ -97,9 +97,18 @@ module RubyEventStore
         )
       end
 
-      specify "does not create migration with COALESCE index for non-PostgreSQL adapter" do
+      specify "creates migration with COALESCE index for MySQL adapter" do
         _, content = generate(@dir, "binary", "MySQL2")
-        expect(content).not_to include("COALESCE")
+        expect(content).to include(
+          'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
+        )
+      end
+
+      specify "creates migration with COALESCE index for SQLite adapter" do
+        _, content = generate(@dir, "binary", "sqlite")
+        expect(content).to include(
+          'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
+        )
       end
 
       specify "raises error when data type is not supported" do
