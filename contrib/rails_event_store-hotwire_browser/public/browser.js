@@ -30,15 +30,21 @@ application.register(
   class extends Controller {
     static targets = ["time", "zone", "select"]
 
+    get storageKey() {
+      return "rails_event_store_hotwire_browser.timezone"
+    }
+
     connect() {
       const detected = Intl.DateTimeFormat().resolvedOptions().timeZone
-      const zones = detected === "UTC" ? ["UTC"] : ["UTC", detected]
+      const selected = localStorage.getItem(this.storageKey) || detected
+      const zones = [...new Set(["UTC", detected, selected])]
       this.selectTarget.innerHTML = zones.map((z) => `<option value="${z}">${z}</option>`).join("")
-      this.selectTarget.value = detected
+      this.selectTarget.value = selected
       this.render()
     }
 
     change() {
+      localStorage.setItem(this.storageKey, this.selectTarget.value)
       this.render()
     }
 
