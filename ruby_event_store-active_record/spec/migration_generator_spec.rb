@@ -118,7 +118,7 @@ module RubyEventStore
         )
       end
 
-      specify "creates migration with stream and id index for non-PostgreSQL adapter" do
+      specify "creates migration with stream and id index for MySQL2 adapter" do
         _, content = generate(@dir, "binary", "MySQL2")
         expect(content).to include(
           'add_index :event_store_events_in_streams, [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
