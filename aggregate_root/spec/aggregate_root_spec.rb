@@ -56,6 +56,33 @@ require "spec_helper"
     expect(order.status).to eq :created
   end
 
+  it "receives a method call based on a non-strict default apply strategy" do
+    order_klass = Class.new do
+      include AggregateRoot.with(strategy: -> { AggregateRoot::DefaultApplyStrategy.new(strict: false) })
+
+      def initialize(uuid)
+        @status = :draft
+        @uuid = uuid
+      end
+
+      def create
+        apply Orders::Events::OrderCreated.new
+      end
+
+      attr_accessor :status
+
+      on Orders::Events::OrderCreated do |_event|
+        @status = :created
+      end
+    end
+
+    order = order_klass.new(uuid)
+    order_created = Orders::Events::OrderCreated.new
+
+    order.apply(order_created)
+    expect(order.status).to eq :created
+  end
+
   it "raises error for missing apply method based on a default apply strategy" do
     order = order_klass.new(uuid)
     spanish_inquisition = Orders::Events::SpanishInquisition.new
