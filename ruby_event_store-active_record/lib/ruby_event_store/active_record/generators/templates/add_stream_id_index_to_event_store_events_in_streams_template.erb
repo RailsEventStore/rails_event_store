@@ -1,15 +1,20 @@
 # frozen_string_literal: true
 
 class AddStreamIdIndexToEventStoreEventsInStreams < ActiveRecord::Migration[<%= migration_version %>]
-  disable_ddl_transaction!
+  disable_ddl_transaction! if ActiveRecord::Base.connection.adapter_name.downcase == "postgresql"
 
   def change
     unless index_exists?(:event_store_events_in_streams, [:stream, :id],
                           name: "index_event_store_events_in_streams_on_stream_and_id")
-      add_index :event_store_events_in_streams,
-                [:stream, :id],
-                name: "index_event_store_events_in_streams_on_stream_and_id",
-                algorithm: :concurrently
+      options = { name: "index_event_store_events_in_streams_on_stream_and_id" }
+      options[:algorithm] = :concurrently if postgresql?
+      add_index :event_store_events_in_streams, [:stream, :id], **options
     end
+  end
+
+  private
+
+  def postgresql?
+    connection.adapter_name.downcase == "postgresql"
   end
 end
