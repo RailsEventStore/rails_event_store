@@ -80,7 +80,10 @@ module RubyEventStore
 
         expect {
           RailsStreamIdIndexMigrationGenerator.new([], destination_root: @dir)
-        }.to raise_error(RailsStreamIdIndexMigrationGenerator::Error, /Unsupported adapter/)
+        }.to raise_error(
+          RailsStreamIdIndexMigrationGenerator::Error,
+          'Unsupported adapter: "not_a_supported_adapter"',
+        )
       end
 
       private
