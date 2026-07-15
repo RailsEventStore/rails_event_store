@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
     "rubygems_mfa_required" => "true"
   }
 
-  spec.required_ruby_version = ">= 2.7"
+  spec.required_ruby_version = ">= 3.3"
 
   spec.add_runtime_dependency "rspec", "~> 3.0"
 end
