@@ -93,21 +93,21 @@ module RubyEventStore
       specify "creates migration with COALESCE index for PostgreSQL adapter" do
         _, content = generate(@dir, "binary", "PostgreSQL")
         expect(content).to include(
-          'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
+          't.index "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
         )
       end
 
       specify "creates migration with COALESCE index for MySQL adapter" do
         _, content = generate(@dir, "binary", "MySQL2")
         expect(content).to include(
-          'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
+          't.index "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
         )
       end
 
       specify "creates migration with COALESCE index for SQLite adapter" do
         _, content = generate(@dir, "binary", "sqlite")
         expect(content).to include(
-          'add_index :event_store_events, "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
+          't.index "COALESCE(valid_at, created_at)", name: "index_event_store_events_on_as_of"',
         )
       end
 
