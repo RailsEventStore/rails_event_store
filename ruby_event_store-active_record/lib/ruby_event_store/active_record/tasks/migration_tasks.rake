@@ -44,6 +44,16 @@ task "db:migrations:add_foreign_key_on_event_id" do
   puts "Migration file created #{path}"
 end
 
+desc "Generate migration for adding stream id index"
+task "db:migrations:add_stream_id_index" do
+  task = MigrationTask.new("db:migrations:add_stream_id_index")
+  task.establish_connection
+
+  path = RubyEventStore::ActiveRecord::StreamIdIndexMigrationGenerator.new.call(task.migration_path)
+
+  puts "Migration file created #{path}"
+end
+
 class MigrationTask
   def initialize(
     task,

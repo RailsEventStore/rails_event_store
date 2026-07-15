@@ -111,6 +111,20 @@ module RubyEventStore
         )
       end
 
+      specify "creates migration with stream and id index for PostgreSQL adapter" do
+        _, content = generate(@dir, "binary", "PostgreSQL")
+        expect(content).to include(
+          'add_index :event_store_events_in_streams, [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
+        )
+      end
+
+      specify "creates migration with stream and id index for non-PostgreSQL adapter" do
+        _, content = generate(@dir, "binary", "MySQL2")
+        expect(content).to include(
+          'add_index :event_store_events_in_streams, [:stream, :id], name: "index_event_store_events_in_streams_on_stream_and_id"',
+        )
+      end
+
       specify "raises error when data type is not supported" do
         expect { generate(@dir, "invalid") }.to raise_error(
           InvalidDataTypeForAdapter,
