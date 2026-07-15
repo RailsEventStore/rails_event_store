@@ -13,6 +13,8 @@ module AggregateRoot
       on_handler(aggregate, event.event_type)[event]
     end
 
+    def uses_on_dsl? = true
+
     private
 
     def on_handler(aggregate, event_type)
