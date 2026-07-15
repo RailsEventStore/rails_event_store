@@ -42,3 +42,4 @@ matcher:
     - RubyEventStore::ActiveRecord::RailsForeignKeyOnEventIdMigrationGenerator#create_migration
     - RubyEventStore::ActiveRecord::RailsValidAtIndexMigrationGenerator#initialize
     - RubyEventStore::ActiveRecord::RailsValidAtIndexMigrationGenerator#create_migration
+    - RubyEventStore::ActiveRecord::RailsStreamIdIndexMigrationGenerator#initialize
