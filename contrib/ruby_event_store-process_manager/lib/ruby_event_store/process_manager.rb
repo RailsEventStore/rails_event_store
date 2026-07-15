@@ -67,7 +67,7 @@ module RubyEventStore
         end
 
         define_method(:state) do
-          @state ||= initial_state
+          @state
         end
 
         def self.included(host_class)
