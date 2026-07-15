@@ -36,11 +36,22 @@ application.register(
 
     connect() {
       const detected = Intl.DateTimeFormat().resolvedOptions().timeZone
-      const selected = localStorage.getItem(this.storageKey) || detected
+      const stored = localStorage.getItem(this.storageKey)
+      const selected = this.supported(stored) ? stored : detected
       const zones = [...new Set(["UTC", detected, selected])]
       this.selectTarget.innerHTML = zones.map((z) => `<option value="${z}">${z}</option>`).join("")
       this.selectTarget.value = selected
       this.render()
+    }
+
+    supported(timeZone) {
+      if (!timeZone) return false
+      try {
+        Intl.DateTimeFormat("en-US", { timeZone: timeZone })
+        return true
+      } catch (_) {
+        return false
+      }
     }
 
     change() {
