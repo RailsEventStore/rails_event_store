@@ -16,3 +16,4 @@ matcher:
     - AggregateRoot*
   ignore:
     - AggregateRoot::DefaultApplyStrategy#event_type
+    - AggregateRoot::DefaultApplyStrategy#uses_on_dsl?
