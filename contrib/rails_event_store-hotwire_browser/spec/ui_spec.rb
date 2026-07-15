@@ -6,6 +6,19 @@ FooBarEvent = Class.new(::RubyEventStore::Event)
 
 module RailsEventStore
   ::RSpec.describe HotwireBrowser, :js, type: :feature do
+    specify "opens the search dialog with the keyboard shortcut", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      session.visit("/")
+
+      expect(session).to have_no_css("dialog[open]")
+
+      session.find("body").send_keys([:control, "k"])
+
+      expect(session).to have_css("dialog[open]")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
     specify "main view", mutant: false do
       session = Capybara::Session.new(:cuprite, app_builder(event_store))
 

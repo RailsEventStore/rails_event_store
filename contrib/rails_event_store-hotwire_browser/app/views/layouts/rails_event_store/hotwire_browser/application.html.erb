@@ -12,7 +12,7 @@
     <meta name="theme-color" content="#ffffff">
   </head>
   <body>
-    <div class="bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" data-controller="search timezone" data-search-base-value="<%= root_path.chomp("/") %>">
+    <div class="bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" data-controller="search timezone" data-search-base-value="<%= root_path.chomp("/") %>" data-action="keydown.meta+k@window->search#open keydown.ctrl+k@window->search#open">
         <header>
           <nav class="flex bg-red-700 px-8 h-16 justify-between sticky">
             <div class="flex items-center">

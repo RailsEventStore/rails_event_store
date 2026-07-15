@@ -8,7 +8,8 @@ application.register(
     static targets = ["dialog", "input"]
     static values = { base: String }
 
-    open() {
+    open(event) {
+      event?.preventDefault()
       this.dialogTarget.showModal()
       this.inputTarget.focus()
     }
