@@ -12,7 +12,6 @@ end
 
 class CI
   RUBY_VERSIONS = [MRI_RUBY = [RUBY_4_0 = "ruby-4.0", RUBY_3_4 = "ruby-3.4", RUBY_3_3 = "ruby-3.3"]].flatten
-  RUBY_3_2 = "ruby-3.2"
 
   DATA_TYPES = [DATA_TEXT = "text", DATA_BINARY = "binary", DATA_JSON = "json", DATA_JSONB = "jsonb"]
 
@@ -156,7 +155,7 @@ class CI
       ),
       contrib_test(
         "ruby_event_store-process_manager",
-        matrix: generate(ruby_version(MRI_RUBY + [RUBY_3_2]), bundle_gemfile(GEMFILE)),
+        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
       ),
       contrib_test("ruby_event_store-profiler"),
       contrib_mutate("ruby_event_store-profiler"),
