@@ -16,19 +16,11 @@ if defined?(Rails::Generators::Base)
 
         source_root File.expand_path(File.join(File.dirname(__FILE__), "../generators/templates"))
 
+        include RailsGeneratorMethods
+
         def create_migration
           template "add_event_id_index_to_event_store_events_in_streams_template.erb",
                    "db/migrate/#{timestamp}_add_event_id_index_to_event_store_events_in_streams.rb"
-        end
-
-        private
-
-        def migration_version
-          ::ActiveRecord::Migration.current_version
-        end
-
-        def timestamp
-          Time.now.strftime("%Y%m%d%H%M%S")
         end
       end
     end

@@ -33,6 +33,8 @@ module RubyEventStore
               "Invalid value for --data-type option. Supported for options are: #{DatabaseAdapter.from_string(adapter_name).supported_data_types.join(", ")}."
       end
 
+      include RailsGeneratorMethods
+
       def create_migration
         template "#{@database_adapter.template_directory}create_event_store_events_template.erb",
                  "db/migrate/#{timestamp}_create_event_store_events.rb"
@@ -42,18 +44,6 @@ module RubyEventStore
 
       def data_type
         options.fetch("data_type")
-      end
-
-      def adapter_name
-        ::ActiveRecord::Base.connection.adapter_name
-      end
-
-      def migration_version
-        ::ActiveRecord::Migration.current_version
-      end
-
-      def timestamp
-        Time.now.strftime("%Y%m%d%H%M%S")
       end
     end
   end
