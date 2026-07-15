@@ -4,12 +4,10 @@ class AddValidAtIndexToEventStoreEvents < ActiveRecord::Migration[<%= migration_
   disable_ddl_transaction!
 
   def change
-    unless index_exists?(:event_store_events, "COALESCE(valid_at, created_at)",
-                          name: "index_event_store_events_on_as_of")
-      add_index :event_store_events,
-                "COALESCE(valid_at, created_at)",
-                name: "index_event_store_events_on_as_of",
-                algorithm: :concurrently
-    end
+    add_index :event_store_events,
+              "COALESCE(valid_at, created_at)",
+              name: "index_event_store_events_on_as_of",
+              algorithm: :concurrently,
+              if_not_exists: true
   end
 end

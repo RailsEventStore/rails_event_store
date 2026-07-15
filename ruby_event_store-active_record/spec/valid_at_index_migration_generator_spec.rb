@@ -43,9 +43,7 @@ module RubyEventStore
 
         specify "guards against duplicate index" do
           _, content = ValidAtIndexMigrationGenerator.new.generate(adapter, @dir)
-          expect(content).to include(
-            'unless index_exists?(:event_store_events, "COALESCE(valid_at, created_at)",',
-          )
+          expect(content).to include("if_not_exists: true")
         end
       end
 

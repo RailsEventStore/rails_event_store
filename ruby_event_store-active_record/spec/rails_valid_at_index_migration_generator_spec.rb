@@ -38,6 +38,7 @@ module RubyEventStore
         expect(subject).to include('add_index :event_store_events,')
         expect(subject).to include('"COALESCE(valid_at, created_at)",')
         expect(subject).to include('name: "index_event_store_events_on_as_of"')
+        expect(subject).to include("if_not_exists: true")
       end
 
       it "uses concurrent algorithm for PostgreSQL" do
