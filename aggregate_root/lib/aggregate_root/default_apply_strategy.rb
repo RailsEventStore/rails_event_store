@@ -5,12 +5,13 @@ module AggregateRoot
   NullHandler    = Proc.new {}
 
   class DefaultApplyStrategy
-    def initialize(strict: true)
+    def initialize(strict: true, event_type_resolver: ->(value) { value.to_s })
       @strict = strict
+      @event_type_resolver = event_type_resolver
     end
 
     def call(aggregate, event)
-      on_handler(aggregate, event.event_type)[event]
+      on_handler(aggregate, event_type_resolver.call(event.class))[event]
     end
 
     def uses_on_dsl? = true
@@ -32,6 +33,6 @@ module AggregateRoot
       end
     end
 
-    attr_reader :strict, :on_methods
+    attr_reader :strict, :on_methods, :event_type_resolver
   end
 end

@@ -76,7 +76,8 @@ module AggregateRoot
     end
   end
 
-  def self.with(strategy: -> { DefaultApplyStrategy.new }, event_type_resolver: ->(value) { value.to_s })
+  def self.with(strategy: nil, event_type_resolver: ->(value) { value.to_s })
+    strategy ||= -> { DefaultApplyStrategy.new(event_type_resolver: event_type_resolver) }
     Module.new do
       define_singleton_method :included do |host_class|
         host_class.extend Constructor
