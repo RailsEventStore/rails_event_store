@@ -20,7 +20,7 @@ the table below.
 
 - Default mapper for `RubyEventStore::Client` and `RailsEventStore::Client`
 - Transforms an event into a record (and back). Additionally it symbolizes metadata keys
-- To rename event classes on read, use [upcasting](../advanced-topics/migrating-existing-events)
+- To transform events on read without rewriting stored data, use [upcasting](../advanced-topics/migrating-existing-events#upcasting)
 
 ### [RubyEventStore::Mappers::Protobuf](https://github.com/RailsEventStore/rails_event_store/blob/master/contrib/ruby_event_store-protobuf/lib/ruby_event_store/protobuf/mappers/protobuf.rb)
 
