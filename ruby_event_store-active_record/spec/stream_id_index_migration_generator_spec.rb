@@ -37,13 +37,13 @@ module RubyEventStore
         _, content = StreamIdIndexMigrationGenerator.new.generate(@dir)
         expect(content).to include("add_index :event_store_events_in_streams,")
         expect(content).to include("[:stream, :id],")
-        expect(content).to include('name: "index_event_store_events_in_streams_on_stream_and_id",')
-        expect(content).to include("algorithm: :concurrently")
+        expect(content).to include('name: "index_event_store_events_in_streams_on_stream_and_id"')
+        expect(content).to include("options[:algorithm] = :concurrently if postgresql?")
       end
 
-      specify "disables ddl transaction" do
+      specify "disables ddl transaction conditionally" do
         _, content = StreamIdIndexMigrationGenerator.new.generate(@dir)
-        expect(content).to include("disable_ddl_transaction!")
+        expect(content).to include("disable_ddl_transaction! if ActiveRecord::Base.connection.adapter_name.downcase == \"postgresql\"")
       end
 
       specify "guards against duplicate index" do
@@ -51,6 +51,12 @@ module RubyEventStore
         expect(content).to include(
           'unless index_exists?(:event_store_events_in_streams, [:stream, :id],',
         )
+      end
+
+      specify "uses runtime postgresql check" do
+        _, content = StreamIdIndexMigrationGenerator.new.generate(@dir)
+        expect(content).to include("def postgresql?")
+        expect(content).to include("connection.adapter_name.downcase == \"postgresql\"")
       end
     end
   end

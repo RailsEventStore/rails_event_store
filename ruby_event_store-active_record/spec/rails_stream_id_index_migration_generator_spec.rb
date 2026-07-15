@@ -37,14 +37,23 @@ module RubyEventStore
 
         expect(subject).to include("add_index :event_store_events_in_streams,")
         expect(subject).to include("[:stream, :id],")
-        expect(subject).to include('name: "index_event_store_events_in_streams_on_stream_and_id",')
-        expect(subject).to include("algorithm: :concurrently")
+        expect(subject).to include('name: "index_event_store_events_in_streams_on_stream_and_id"')
+        expect(subject).to include("options[:algorithm] = :concurrently if postgresql?")
       end
 
-      it "disables ddl transaction" do
+      it "disables ddl transaction conditionally" do
         helper.establish_database_connection
 
-        expect(subject).to include("disable_ddl_transaction!")
+        expect(subject).to include(
+          "disable_ddl_transaction! if ActiveRecord::Base.connection.adapter_name.downcase == \"postgresql\"",
+        )
+      end
+
+      it "uses runtime postgresql check" do
+        helper.establish_database_connection
+
+        expect(subject).to include("def postgresql?")
+        expect(subject).to include("connection.adapter_name.downcase == \"postgresql\"")
       end
     end
   end
