@@ -266,6 +266,12 @@ class CI
           ),
         triggers: dres_triggers("dres_rails_test"),
       ),
+      contrib_test("ruby_event_store-cli"),
+      contrib_mutate("ruby_event_store-cli"),
+      contrib_coverage("ruby_event_store-cli"),
+      contrib_test("ruby_event_store-mcp"),
+      contrib_mutate("ruby_event_store-mcp"),
+      contrib_coverage("ruby_event_store-mcp"),
       assets("ruby_event_store-browser"),
     ]
   end
