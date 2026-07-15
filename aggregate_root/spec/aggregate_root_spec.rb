@@ -153,6 +153,33 @@ require "spec_helper"
     expect(klass.respond_to?(:on_methods)).to eq(true)
   end
 
+  it 'when using InstrumentedApplyStrategy still adds On~DSL' do
+    strategy = -> { AggregateRoot::InstrumentedApplyStrategy.new(AggregateRoot::DefaultApplyStrategy.new, ActiveSupport::Notifications) }
+    klass =
+      Class.new do
+        include AggregateRoot.with(strategy: strategy)
+      end
+    expect(klass.respond_to?(:on_methods)).to eq(true)
+  end
+
+  it 'when using InstrumentedApplyStrategy with custom internal strategy does not add On~DSL' do
+    strategy = -> { AggregateRoot::InstrumentedApplyStrategy.new(->(aggregate, event) { }, ActiveSupport::Notifications) }
+    klass =
+      Class.new do
+        include AggregateRoot.with(strategy: strategy)
+      end
+    expect(klass.respond_to?(:on_methods)).to eq(false)
+  end
+
+  it 'custom strategy inherited from InstrumentedApplyStrategy adds On~DSL' do
+    strategy = -> { Class.new(AggregateRoot::InstrumentedApplyStrategy).new(AggregateRoot::DefaultApplyStrategy.new, ActiveSupport::Notifications) }
+    klass =
+      Class.new do
+        include AggregateRoot.with(strategy: strategy)
+      end
+    expect(klass.respond_to?(:on_methods)).to eq(true)
+  end
+
   it "included modules" do
     klass = Class.new { include AggregateRoot }
 
