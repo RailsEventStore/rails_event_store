@@ -24,23 +24,11 @@ if defined?(Rails::Generators::Base)
           raise Error, e.message
         end
 
+        include RailsGeneratorMethods
+
         def create_migration
           template "#{@database_adapter.template_directory}add_stream_id_index_to_event_store_events_in_streams_template.erb",
                    "db/migrate/#{timestamp}_add_stream_id_index_to_event_store_events_in_streams.rb"
-        end
-
-        private
-
-        def adapter_name
-          ::ActiveRecord::Base.connection.adapter_name
-        end
-
-        def migration_version
-          ::ActiveRecord::Migration.current_version
-        end
-
-        def timestamp
-          Time.now.strftime("%Y%m%d%H%M%S")
         end
       end
     end
