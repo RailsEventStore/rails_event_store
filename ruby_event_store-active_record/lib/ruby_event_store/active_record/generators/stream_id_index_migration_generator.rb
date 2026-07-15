@@ -3,14 +3,14 @@
 module RubyEventStore
   module ActiveRecord
     class StreamIdIndexMigrationGenerator
-      def call(migration_path)
-        path, content = generate(migration_path)
+      def call(database_adapter, migration_path)
+        path, content = generate(database_adapter, migration_path)
         File.write(path, content)
         path
       end
 
-      def generate(migration_path)
-        [build_path(migration_path), migration_code]
+      def generate(database_adapter, migration_path)
+        [build_path(migration_path), migration_code(database_adapter)]
       end
 
       private
@@ -19,16 +19,20 @@ module RubyEventStore
         File.expand_path(path, __dir__)
       end
 
-      def migration_code
-        migration_template.result_with_hash(migration_version: migration_version)
+      def migration_code(database_adapter)
+        migration_template(database_adapter).result_with_hash(migration_version: migration_version)
       end
 
-      def migration_template
+      def migration_template(database_adapter)
         ERB.new(
           File.read(
-            File.join(absolute_path("./templates"), "add_stream_id_index_to_event_store_events_in_streams_template.erb"),
+            File.join(template_root(database_adapter), "add_stream_id_index_to_event_store_events_in_streams_template.erb"),
           ),
         )
+      end
+
+      def template_root(database_adapter)
+        absolute_path("./templates/#{database_adapter.template_directory}")
       end
 
       def migration_version
