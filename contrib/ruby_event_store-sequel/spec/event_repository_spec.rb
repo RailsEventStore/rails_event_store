@@ -70,7 +70,7 @@ module RubyEventStore
           metadata: "{}",
           event_type: "TestDomainEvent",
           created_at: t1 = with_precision(Time.now.utc),
-          valid_at: t2 = with_precision(Time.at(0)),
+          valid_at: t2 = with_precision(Time.at(0).utc),
         )
 
         helper.sequel[:event_store_events_in_streams].insert(
