@@ -90,7 +90,8 @@ module RubyEventStore
             UNIQUE KEY `index_event_store_events_on_event_id` (`event_id`),
             KEY `index_event_store_events_on_event_type` (`event_type`),
             KEY `index_event_store_events_on_created_at` (`created_at`),
-            KEY `index_event_store_events_on_valid_at` (`valid_at`)
+            KEY `index_event_store_events_on_valid_at` (`valid_at`),
+            KEY `index_event_store_events_on_as_of` ((coalesce(`valid_at`,`created_at`)))
           ) ENGINE=InnoDB DEFAULT CHARSET=#{charset}#{collation}
         SCHEMA
 

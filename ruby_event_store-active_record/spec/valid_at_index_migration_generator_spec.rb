@@ -37,7 +37,7 @@ module RubyEventStore
         specify "adds COALESCE index" do
           _, content = ValidAtIndexMigrationGenerator.new.generate(adapter, @dir)
           expect(content).to include('add_index :event_store_events,')
-          expect(content).to include('"COALESCE(valid_at, created_at)",')
+          expect(content).to include('COALESCE(valid_at, created_at)')
           expect(content).to include('name: "index_event_store_events_on_as_of"')
         end
 

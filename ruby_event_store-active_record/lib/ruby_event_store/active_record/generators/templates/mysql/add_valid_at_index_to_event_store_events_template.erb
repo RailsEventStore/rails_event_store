@@ -3,7 +3,7 @@
 class AddValidAtIndexToEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
   def change
     add_index :event_store_events,
-              "COALESCE(valid_at, created_at)",
+              "(COALESCE(valid_at, created_at))",
               name: "index_event_store_events_on_as_of",
               algorithm: :inplace,
               if_not_exists: true
