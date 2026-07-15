@@ -347,6 +347,30 @@ module RubyEventStore
         expect(repository.read(specification.backward.limit(1).result).first.data).to eq("kaka dudu")
       end
 
+      describe "#search_streams" do
+        specify "uses a bounded number of queries regardless of the limit" do
+          %w[Stream-A Stream-B Stream-C].each do |name|
+            repository.append_to_stream([SRecord.new], Stream.new(name), ExpectedVersion.any)
+          end
+
+          expect { repository.search_streams("Stream", limit: 2) }.to match_query_count(be <= 3)
+        end
+
+        specify "query count does not grow with the number of events in a matching stream" do
+          repository.append_to_stream(Array.new(500) { SRecord.new }, Stream.new("Hot-Stream"), ExpectedVersion.any)
+          repository.append_to_stream([SRecord.new], Stream.new("Other-Stream"), ExpectedVersion.any)
+
+          expect { repository.search_streams("H", limit: 20) }.to match_query_count(be <= 2)
+        end
+
+        specify "escapes LIKE special characters in the prefix" do
+          repository.append_to_stream([SRecord.new], Stream.new("50%off"), ExpectedVersion.any)
+          repository.append_to_stream([SRecord.new], Stream.new("50Xoff"), ExpectedVersion.any)
+
+          expect(repository.search_streams("50%").map(&:name)).to eq(["50%off"])
+        end
+      end
+
       private
 
       def with_precision(time)

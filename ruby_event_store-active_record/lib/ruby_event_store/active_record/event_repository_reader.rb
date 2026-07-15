@@ -41,6 +41,23 @@ module RubyEventStore
         @stream_klass.where(event_id: event_id).pluck(:stream).map { |name| Stream.new(name) }
       end
 
+      # Walks to the next matching stream name one indexable hop at a time, instead of a
+      # single DISTINCT/GROUP BY or recursive CTE query -- neither is portable/reliable
+      # across the supported adapters for this access pattern.
+      def search_streams(prefix, limit: 20)
+        names = []
+        cursor = nil
+        while names.size < limit
+          scope = @stream_klass.where(stream_prefix_pattern.condition, stream_prefix_pattern.bind_value(prefix))
+          scope = scope.where("stream > ?", cursor) if cursor
+          next_name = scope.order(:stream).limit(1).pick(:stream)
+          break unless next_name
+          names << next_name
+          cursor = next_name
+        end
+        names.map { |name| Stream.new(name) }
+      end
+
       def position_in_stream(event_id, stream)
         record = @stream_klass.select("position").where(stream: stream.name).find_by(event_id: event_id)
         raise EventNotFoundInStream if record.nil?
@@ -60,6 +77,10 @@ module RubyEventStore
       private
 
       attr_reader :serializer
+
+      def stream_prefix_pattern
+        @stream_prefix_pattern ||= StreamPrefixPattern.for(@stream_klass.connection)
+      end
 
       def offset_limit_batch_reader(spec, stream)
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }

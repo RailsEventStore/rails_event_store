@@ -58,6 +58,12 @@ module RubyEventStore
         true
       end
 
+      def supports_case_sensitive_search_streams?
+        # MySQL's LIKE follows the stream column's collation, which defaults to
+        # case-insensitive (*_ci) -- forcing it would risk breaking the index again.
+        !mysql?
+      end
+
       def has_connection_pooling?
         true
       end

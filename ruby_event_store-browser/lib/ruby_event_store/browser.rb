@@ -7,6 +7,8 @@ module RubyEventStore
     PAGE_SIZE = 20
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
     DEFAULT_RELATED_STREAMS_QUERY = ->(stream_name) { [] }
+    SEARCH_STREAMS_LIMIT = 20
+    SEARCH_STREAMS_MIN_PREFIX_LENGTH = 3
 
     ASSETS_ROOT = File.expand_path("../../public", __dir__).freeze
 
@@ -22,6 +24,7 @@ module RubyEventStore
 end
 
 require_relative "browser/get_events_from_stream"
+require_relative "browser/search_streams"
 require_relative "browser/urls"
 require_relative "browser/router"
 require_relative "browser/renderer"

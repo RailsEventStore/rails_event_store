@@ -75,6 +75,39 @@ module RubyEventStore
       skip exc.message
     end
 
+    specify "search stream suggestions", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+
+      event_store.publish(FooBarEvent.new(data: {}), stream_name: "Orders-1")
+      event_store.publish(FooBarEvent.new(data: {}), stream_name: "Orders-2")
+      event_store.publish(FooBarEvent.new(data: {}), stream_name: "Payments-1")
+
+      session.visit("/")
+      session.click_button "Go to stream…"
+
+      search_input = session.find("input[placeholder='Go to stream…']")
+
+      search_input.set("Or")
+      expect(session).to have_no_css("a", text: "Orders-1", wait: 1)
+
+      search_input.set("Ord")
+      expect(session).to have_css("a", text: "Orders-1", wait: 2)
+      expect(session).to have_css("a", text: "Orders-2", wait: 2)
+      expect(session).to have_no_css("a", text: "Payments-1")
+
+      search_input.native.send_keys([:backspace, :backspace, :backspace])
+      expect(session).to have_no_css("a", text: "Orders-1")
+
+      search_input.set("Ord")
+      expect(session).to have_css("a", text: "Orders-1", wait: 2)
+
+      session.click_link "Orders-1"
+
+      expect(session).to have_content("Events in Orders-1")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
     specify "expect no severe browser warnings", mutant: false do
       logger = mk_logger
 

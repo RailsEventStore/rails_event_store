@@ -92,6 +92,10 @@ module RubyEventStore
         repo_reader.streams_of(event_id)
       end
 
+      def search_streams(prefix, limit: 20)
+        repo_reader.search_streams(prefix, limit: limit)
+      end
+
       def position_in_stream(event_id, stream)
         repo_reader.position_in_stream(event_id, stream)
       end

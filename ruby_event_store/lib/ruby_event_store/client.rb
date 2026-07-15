@@ -130,6 +130,15 @@ module RubyEventStore
       @repository.streams_of(event_id)
     end
 
+    # Finds streams whose name starts with the given prefix (case-sensitive)
+    #
+    # @param prefix [String] prefix to match stream names against
+    # @param limit [Integer] maximum number of streams to return
+    # @return [Array<Stream>] streams whose name starts with prefix, sorted ascending
+    def search_streams(prefix, limit: 20)
+      @repository.search_streams(prefix, limit: limit)
+    end
+
     # Gets position of the event in given stream
     #
     # The position is always nonnegative.

@@ -5,8 +5,8 @@ const application = Application.start()
 application.register(
   "search",
   class extends Controller {
-    static targets = ["dialog", "input"]
-    static values = { base: String }
+    static targets = ["dialog", "input", "list"]
+    static values = { base: String, minChars: { type: Number, default: 3 }, debounce: { type: Number, default: 300 } }
 
     open(event) {
       event?.preventDefault()
@@ -22,6 +22,40 @@ application.register(
       event.preventDefault()
       const name = this.inputTarget.value
       if (name) window.location = `${this.baseValue}/streams/${encodeURIComponent(name)}`
+    }
+
+    type() {
+      clearTimeout(this.debounceTimer)
+      const query = this.inputTarget.value
+      if (query.length < this.minCharsValue) {
+        this.render([])
+        return
+      }
+      this.debounceTimer = setTimeout(() => this.suggest(query), this.debounceValue)
+    }
+
+    async suggest(query) {
+      let streams = []
+      try {
+        const response = await fetch(`${this.baseValue}/search_streams/${encodeURIComponent(query)}`)
+        if (response.ok) streams = (await response.json()).streams
+      } catch (_) {}
+      if (this.inputTarget.value !== query) return // superseded by a newer keystroke
+      this.render(streams)
+    }
+
+    render(streams) {
+      this.listTarget.replaceChildren(
+        ...streams.map((name) => {
+          const item = document.createElement("li")
+          const link = document.createElement("a")
+          link.href = `${this.baseValue}/streams/${encodeURIComponent(name)}`
+          link.textContent = name
+          link.className = "p-3 block rounded hover:bg-red-200 w-full bg-gray-100 break-words text-xs font-bold font-mono"
+          item.appendChild(link)
+          return item
+        }),
+      )
     }
   },
 )
