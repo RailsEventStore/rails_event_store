@@ -2,10 +2,9 @@
 
 class AddStreamIdIndexToEventStoreEventsInStreams < ActiveRecord::Migration[<%= migration_version %>]
   def change
-    unless index_exists?(:event_store_events_in_streams, [:stream, :id],
-                          name: "index_event_store_events_in_streams_on_stream_and_id")
       add_index :event_store_events_in_streams, [:stream, :id],
-                name: "index_event_store_events_in_streams_on_stream_and_id"
+                name: "index_event_store_events_in_streams_on_stream_and_id",
+                if_not_exists: true
     end
   end
 end

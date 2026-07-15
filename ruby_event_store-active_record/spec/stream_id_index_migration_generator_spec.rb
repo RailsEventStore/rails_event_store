@@ -72,9 +72,7 @@ module RubyEventStore
 
       specify "guards against duplicate index" do
         _, content = generate(@dir)
-        expect(content).to include(
-          'unless index_exists?(:event_store_events_in_streams, [:stream, :id],',
-        )
+        expect(content).to include("if_not_exists: true")
       end
 
       private
