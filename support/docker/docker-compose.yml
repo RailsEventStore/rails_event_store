@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: support/docker/Dockerfile
+      target: app
+      args:
+        GEM_DIR: ruby_event_store-browser
+    ports:
+      - "127.0.0.1:9393:9393"

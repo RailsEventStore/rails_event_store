@@ -1,0 +1,21 @@
+services:
+  app:
+    volumes:
+      - ../..:/app
+    command:
+      - sh
+      - -c
+      - "find . -name '*.rb' -o -name '*.ru' -o -name '*.erb' | entr -nr bundle exec rackup --host 0.0.0.0 --port 9393 devserver/config.ru"
+
+  console:
+    build:
+      context: ../..
+      dockerfile: support/docker/Dockerfile
+      target: console
+      args:
+        GEM_DIR: ruby_event_store-browser
+    volumes:
+      - ../..:/app
+    command: ["irb", "-r", "ruby_event_store"]
+    stdin_open: true
+    tty: true
