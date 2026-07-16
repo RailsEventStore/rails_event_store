@@ -7,11 +7,14 @@ module RubyEventStore
   module OutboxRelay
     ::RSpec.describe MigrationGenerator do
       let(:generator) { MigrationGenerator.new }
+      let(:postgres_adapter) { RubyEventStore::ActiveRecord::DatabaseAdapter.from_string("postgresql") }
+      let(:mysql_adapter) { RubyEventStore::ActiveRecord::DatabaseAdapter.from_string("mysql2") }
+      let(:sqlite_adapter) { RubyEventStore::ActiveRecord::DatabaseAdapter.from_string("sqlite") }
 
       describe "#call" do
         specify "writes the generated migration to disk at migration_path and returns its path" do
           Dir.mktmpdir do |dir|
-            path = generator.call(dir)
+            path = generator.call(sqlite_adapter, dir)
 
             expect(path).to match(%r{\A#{Regexp.escape(dir)}/\d{14}_add_published_at_to_event_store_events\.rb\z})
             expect(File.read(path)).to include("class AddPublishedAtToEventStoreEvents < ActiveRecord::Migration[")
@@ -23,7 +26,7 @@ module RubyEventStore
       describe "#generate" do
         specify "returns the target path and migration content without writing anything to disk" do
           Dir.mktmpdir do |dir|
-            path, content = generator.generate(dir)
+            path, content = generator.generate(sqlite_adapter, dir)
 
             expect(path).to match(%r{\A#{Regexp.escape(dir)}/\d{14}_add_published_at_to_event_store_events\.rb\z})
             expect(content).to include("class AddPublishedAtToEventStoreEvents < ActiveRecord::Migration[")
@@ -31,11 +34,45 @@ module RubyEventStore
             expect(Dir.children(dir)).to be_empty
           end
         end
+
+        specify "renders the postgres-specific default and partial index" do
+          Dir.mktmpdir do |dir|
+            _, content = generator.generate(postgres_adapter, dir)
+
+            expect(content).to include('default: -> { "CURRENT_TIMESTAMP(6)" }')
+            expect(content).to include(
+              'add_index :event_store_events, :id, name: "index_event_store_events_unpublished", where: "published_at IS NULL"',
+            )
+          end
+        end
+
+        specify "renders the mysql-specific default and composite index" do
+          Dir.mktmpdir do |dir|
+            _, content = generator.generate(mysql_adapter, dir)
+
+            expect(content).to include('default: -> { "CURRENT_TIMESTAMP(6)" }')
+            expect(content).to include(
+              'add_index :event_store_events, %i[published_at id], name: "index_event_store_events_unpublished"',
+            )
+          end
+        end
+
+        specify "renders the sqlite-specific default and composite index" do
+          Dir.mktmpdir do |dir|
+            _, content = generator.generate(sqlite_adapter, dir)
+
+            expect(content).to include('default: -> { "CURRENT_TIMESTAMP" }')
+            expect(content).not_to include("CURRENT_TIMESTAMP(6)")
+            expect(content).to include(
+              'add_index :event_store_events, %i[published_at id], name: "index_event_store_events_unpublished"',
+            )
+          end
+        end
       end
 
       describe "#migration_code (private)" do
         specify "renders the template with the current migration_version interpolated" do
-          code = generator.send(:migration_code)
+          code = generator.send(:migration_code, sqlite_adapter)
 
           expect(code).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
           expect(code).to include("class AddPublishedAtToEventStoreEvents")
@@ -44,11 +81,18 @@ module RubyEventStore
 
       describe "#template (private)" do
         specify "loads the ERB source for the migration from the gem's own template file" do
-          template = generator.send(:template)
+          template = generator.send(:template, sqlite_adapter)
 
           expect(template).to be_a(ERB)
           expect(template.src).to include("class AddPublishedAtToEventStoreEvents")
           expect(template.src).to include("migration_version")
+        end
+
+        specify "raises when the adapter has no matching template directory" do
+          unknown_adapter = RubyEventStore::ActiveRecord::DatabaseAdapter::PostgreSQL.new
+          allow(unknown_adapter).to receive(:adapter_name).and_return("unknown")
+
+          expect { generator.send(:template, unknown_adapter) }.to raise_error(KeyError)
         end
       end
 

@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+class AddPublishedAtToEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
+  def change
+    add_column :event_store_events,
+               :published_at,
+               :datetime,
+               precision: 6,
+               null: true,
+               default: -> { "CURRENT_TIMESTAMP(6)" }
+
+    add_index :event_store_events, :id, name: "index_event_store_events_unpublished", where: "published_at IS NULL"
+  end
+end
