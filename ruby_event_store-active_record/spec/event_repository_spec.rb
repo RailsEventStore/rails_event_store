@@ -367,7 +367,27 @@ module RubyEventStore
           repository.append_to_stream([SRecord.new], Stream.new("Stream-B"), ExpectedVersion.any)
           repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
 
-          expect { repository.search_streams("Stream-") }.to match_query(/order by .*["`]stream["`] asc/i, be >= 1)
+          expect { repository.search_streams("Stream-") }.to match_query(/order by .*stream.* asc/i, be >= 1)
+        end
+
+        specify "on Postgres spells the hops with COLLATE \"C\" to match the index" do
+          skip unless helper.postgres?
+
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
+
+          expect { repository.search_streams("Stream") }.to match_query(/COLLATE "C" LIKE/, be >= 1)
+        end
+
+        specify "on Postgres the search is unavailable without the stream COLLATE \"C\" index" do
+          skip unless helper.postgres?
+
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
+          ::ActiveRecord::Base.connection.remove_index(
+            :event_store_events_in_streams,
+            name: "index_event_store_events_in_streams_on_stream_c_collation",
+          )
+
+          expect(repository.search_streams("Stream")).to eq([])
         end
 
         specify "escapes LIKE special characters in the prefix" do

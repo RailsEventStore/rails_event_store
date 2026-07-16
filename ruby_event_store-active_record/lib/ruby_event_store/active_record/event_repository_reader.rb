@@ -43,14 +43,18 @@ module RubyEventStore
 
       # Walks to the next matching stream name one indexable hop at a time, instead of a
       # single DISTINCT/GROUP BY or recursive CTE query -- neither is portable/reliable
-      # across the supported adapters for this access pattern.
+      # across the supported adapters for this access pattern. On PostgreSQL the search
+      # is available only when the stream COLLATE "C" index is present (see
+      # StreamPrefixPattern) and returns no results otherwise.
       def search_streams(prefix, limit:)
+        pattern = StreamPrefixPattern.for(@stream_klass)
+        return [] unless pattern
         names = []
         cursor = nil
         while names.size < limit
-          scope = @stream_klass.where(stream_prefix_pattern.condition, stream_prefix_pattern.bind_value(prefix))
-          scope = scope.where("stream > ?", cursor) if cursor
-          next_name = scope.order(:stream).pick(:stream)
+          scope = @stream_klass.where(pattern.condition, pattern.bind_value(prefix))
+          scope = scope.where(pattern.cursor_condition, cursor) if cursor
+          next_name = scope.order(pattern.order).pick(:stream)
           break unless next_name
           names << next_name
           cursor = next_name
@@ -77,10 +81,6 @@ module RubyEventStore
       private
 
       attr_reader :serializer
-
-      def stream_prefix_pattern
-        @stream_prefix_pattern ||= StreamPrefixPattern.for(@stream_klass.connection)
-      end
 
       def offset_limit_batch_reader(spec, stream)
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }

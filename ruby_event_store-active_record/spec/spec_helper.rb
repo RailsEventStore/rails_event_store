@@ -64,6 +64,8 @@ module RubyEventStore
         !mysql?
       end
 
+      public :postgres?
+
       def has_connection_pooling?
         true
       end

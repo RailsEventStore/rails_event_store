@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+class AddStreamCCollationIndexToEventStoreEventsInStreams < ActiveRecord::Migration[<%= migration_version %>]
+  disable_ddl_transaction!
+
+  def change
+    add_index :event_store_events_in_streams,
+              'stream COLLATE "C"',
+              name: "index_event_store_events_in_streams_on_stream_c_collation",
+              algorithm: :concurrently,
+              if_not_exists: true
+  end
+end
