@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+class AddPublishedAtToEventStoreEvents < ActiveRecord::Migration[<%= migration_version %>]
+  def change
+    current_timestamp = connection.adapter_name.match?(/postgres|mysql/i) ? "CURRENT_TIMESTAMP(6)" : "CURRENT_TIMESTAMP"
+
+    add_column :event_store_events,
+               :published_at,
+               :datetime,
+               precision: 6,
+               null: true,
+               default: -> { current_timestamp }
+
+    if connection.adapter_name.match?(/postgres/i)
+      add_index :event_store_events, :id, name: "index_event_store_events_unpublished", where: "published_at IS NULL"
+    else
+      add_index :event_store_events, %i[published_at id], name: "index_event_store_events_unpublished"
+    end
+  end
+end

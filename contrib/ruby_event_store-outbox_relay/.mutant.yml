@@ -1,0 +1,25 @@
+# https://github.com/mbj/mutant/blob/master/docs/configuration.md
+
+usage: opensource
+requires:
+  - ruby_event_store/outbox_relay
+includes:
+  - lib
+integration:
+  name: rspec
+mutation:
+  operators: light
+  timeout: 10.0
+coverage_criteria:
+  timeout: true
+  process_abort: true
+matcher:
+  subjects:
+    - RubyEventStore::OutboxRelay*
+  ignore:
+    - RubyEventStore::OutboxRelay::Relay#install_signal_handlers
+    - RubyEventStore::OutboxRelay::Relay#lock_clause
+    - RubyEventStore::OutboxRelay::Relay#process_batch
+    - RubyEventStore::OutboxRelay::Relay#process_batch_safely
+    - RubyEventStore::OutboxRelay::Relay#to_record
+    - RubyEventStore::OutboxRelay::Relay#initialize
