@@ -92,7 +92,7 @@ module RubyEventStore
         repo_reader.streams_of(event_id)
       end
 
-      def search_streams(prefix, limit: 20)
+      def search_streams(prefix, limit: 10)
         repo_reader.search_streams(prefix, limit: limit)
       end
 

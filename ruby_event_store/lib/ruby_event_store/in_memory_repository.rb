@@ -122,7 +122,7 @@ module RubyEventStore
       streams.select { |name,| has_event_in_stream?(event_id, name) }.map { |name,| Stream.new(name) }
     end
 
-    def search_streams(prefix, limit: 20)
+    def search_streams(prefix, limit: 10)
       streams.keys.select { |name| name.start_with?(prefix) }.sort.first(limit).map { |name| Stream.new(name) }
     end
 

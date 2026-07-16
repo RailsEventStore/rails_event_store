@@ -903,11 +903,11 @@ module RubyEventStore
         expect(client.search_streams("stream-4")).to eq []
       end
 
-      specify "limit defaults to 20" do
-        21.times { |i| client.append(OrderCreated.new(data: {}), stream_name: "stream-#{i.to_s.rjust(2, "0")}") }
+      specify "limit defaults to 10" do
+        11.times { |i| client.append(OrderCreated.new(data: {}), stream_name: "stream-#{i.to_s.rjust(2, "0")}") }
 
-        expect(client.search_streams("stream-").size).to eq(20)
-        expect(client.search_streams("stream-", limit: 21).size).to eq(21)
+        expect(client.search_streams("stream-").size).to eq(10)
+        expect(client.search_streams("stream-", limit: 11).size).to eq(11)
         expect(client.search_streams("stream-", limit: 5).size).to eq(5)
       end
     end

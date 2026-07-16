@@ -397,11 +397,11 @@ module RubyEventStore
           expect(repository.search_streams("50%").map(&:name)).to eq(["50%off"])
         end
 
-        specify "limit defaults to 20" do
-          21.times { |i| repository.append_to_stream([SRecord.new], Stream.new("Stream-#{i.to_s.rjust(2, "0")}"), ExpectedVersion.any) }
+        specify "limit defaults to 10" do
+          11.times { |i| repository.append_to_stream([SRecord.new], Stream.new("Stream-#{i.to_s.rjust(2, "0")}"), ExpectedVersion.any) }
 
-          expect(repository.search_streams("Stream-").size).to eq(20)
-          expect(repository.search_streams("Stream-", limit: 21).size).to eq(21)
+          expect(repository.search_streams("Stream-").size).to eq(10)
+          expect(repository.search_streams("Stream-", limit: 11).size).to eq(11)
         end
       end
 

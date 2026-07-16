@@ -135,7 +135,7 @@ module RubyEventStore
     # @param prefix [String] prefix to match stream names against
     # @param limit [Integer] maximum number of streams to return
     # @return [Array<Stream>] streams whose name starts with prefix, sorted ascending
-    def search_streams(prefix, limit: 20)
+    def search_streams(prefix, limit: 10)
       @repository.search_streams(prefix, limit: limit)
     end
 
