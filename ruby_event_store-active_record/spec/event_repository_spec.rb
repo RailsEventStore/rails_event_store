@@ -363,6 +363,13 @@ module RubyEventStore
           expect { repository.search_streams("H", limit: 20) }.to match_query_count(be <= 2)
         end
 
+        specify "orders each hop by stream name" do
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-B"), ExpectedVersion.any)
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
+
+          expect { repository.search_streams("Stream-") }.to match_query(/order by .*["`]stream["`] asc/i, be >= 1)
+        end
+
         specify "escapes LIKE special characters in the prefix" do
           repository.append_to_stream([SRecord.new], Stream.new("50%off"), ExpectedVersion.any)
           repository.append_to_stream([SRecord.new], Stream.new("50Xoff"), ExpectedVersion.any)
