@@ -21,7 +21,7 @@ build/
 ruby_event_store-browser/tailwindcss
 ruby_event_store-browser/public/*
 !ruby_event_store-browser/public/ruby_event_store_browser.js
-!ruby_event_store-browser/public/stimulus.js
+!ruby_event_store-browser/public/stimulus-*.js
 !ruby_event_store-browser/public/ruby_event_store_browser.css
 !ruby_event_store-browser/public/apple-touch-icon.png
 !ruby_event_store-browser/public/favicon-32x32.png
