@@ -19,14 +19,14 @@ module RubyEventStore
       specify "existing rows become published (published_at NOT NULL) after migrating" do
         skip "SQLite can't ADD COLUMN with a non-constant default on a non-empty table" unless helper.postgres? || helper.mysql?
 
-        pre_existing =
-          event_klass.create!(
-            event_id: SecureRandom.uuid,
-            event_type: "PreExisting",
-            data: "{}",
-            metadata: "{}",
-            created_at: Time.now.utc,
-          )
+        event_klass.insert({
+          event_id: SecureRandom.uuid,
+          event_type: "PreExisting",
+          data: "{}",
+          metadata: "{}",
+          created_at: Time.now.utc,
+        })
+        pre_existing = event_klass.first
 
         helper.load_outbox_schema
         helper.reset_column_information
