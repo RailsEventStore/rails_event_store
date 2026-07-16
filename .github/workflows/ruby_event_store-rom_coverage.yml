@@ -13,6 +13,7 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
+    - "!support/docker/**"
   pull_request:
     paths:
     - contrib/ruby_event_store-rom/Gemfile.lock
@@ -20,6 +21,7 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
+    - "!support/docker/**"
   schedule:
   - cron: 0 17 * * *
 jobs:

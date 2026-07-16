@@ -14,6 +14,7 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
+    - "!support/docker/**"
   pull_request:
     paths:
     - contrib/dres_client/**
@@ -22,6 +23,7 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
+    - "!support/docker/**"
 jobs:
   test:
     runs-on: ubuntu-latest

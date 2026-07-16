@@ -18,6 +18,7 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
+    - "!support/docker/**"
   pull_request:
     paths:
     - aggregate_root/**
@@ -30,6 +31,7 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
+    - "!support/docker/**"
 jobs:
   mutate:
     runs-on: macos-14

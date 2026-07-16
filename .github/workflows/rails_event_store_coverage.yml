@@ -13,6 +13,7 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
+    - "!support/docker/**"
   pull_request:
     paths:
     - rails_event_store/Gemfile.lock
@@ -20,6 +21,7 @@ on:
     - support/**
     - "!support/bundler/**"
     - "!support/ci/**"
+    - "!support/docker/**"
   schedule:
   - cron: 0 17 * * *
 jobs:

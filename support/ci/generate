@@ -420,7 +420,7 @@ class CI
     end
 
     def support_paths
-      %w[support/** !support/bundler/** !support/ci/**]
+      %w[support/** !support/bundler/** !support/ci/** !support/docker/**]
     end
   end
   include Triggers
