@@ -116,6 +116,30 @@ class CI
       contrib_mutate("ruby_event_store-newrelic"),
       contrib_coverage("ruby_event_store-newrelic"),
       contrib_test(
+        "ruby_event_store-outbox_relay",
+        services: [mysql_8_4, mysql_9_7, postgres_14, postgres_18],
+        matrix:
+          join(
+            generate(
+              ruby_version(MRI_RUBY),
+              bundle_gemfile(GEMFILE),
+              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7, POSTGRES_14, POSTGRES_18),
+            ),
+            generate(
+              ruby_version(RUBY_4_0),
+              bundle_gemfile(GEMFILE),
+              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7, POSTGRES_14, POSTGRES_18),
+            ),
+            generate(
+              ruby_version(RUBY_3_4),
+              bundle_gemfile(GEMFILE),
+              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7, POSTGRES_14, POSTGRES_18),
+            ),
+          )
+      ),
+      contrib_coverage("ruby_event_store-outbox_relay"),
+      contrib_mutate("ruby_event_store-outbox_relay"),
+      contrib_test(
         "ruby_event_store-outbox",
         services: [mysql_8_4, mysql_9_7],
         matrix:
