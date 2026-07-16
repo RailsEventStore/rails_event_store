@@ -390,6 +390,13 @@ module RubyEventStore
           expect(repository.search_streams("Stream")).to eq([])
         end
 
+        specify "the search is unavailable when no pattern strategy exists for the adapter" do
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
+          allow(StreamPrefixPattern).to receive(:for).and_return(nil)
+
+          expect(repository.search_streams("Stream")).to eq([])
+        end
+
         specify "escapes LIKE special characters in the prefix" do
           repository.append_to_stream([SRecord.new], Stream.new("50%off"), ExpectedVersion.any)
           repository.append_to_stream([SRecord.new], Stream.new("50Xoff"), ExpectedVersion.any)
