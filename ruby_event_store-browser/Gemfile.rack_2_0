@@ -11,3 +11,4 @@ gem "json-schema"
 gem "rack", "~> 2.0"
 gem "webrick"
 gem "cuprite"
+gem "tailwindcss-ruby", require: false

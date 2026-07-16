@@ -25,5 +25,7 @@ $(STIMULUS_JS): ## Vendor the pinned Stimulus runtime from the CDN
 dev: ## Start standalone browser seeded with some events
 	@bundle exec rackup --port 9393 devserver/config.ru
 
-clean:
+clean: clean-assets
+
+clean-assets:
 	@rm -f $(CSS_OUTFILE) $(STIMULUS_JS)

@@ -21,7 +21,7 @@ module RailsEventStore
       response = request.get("/res/streams/all")
 
       expect(response.status).to eq(200)
-      expect(response.body).to include("http://example.org/res/ruby_event_store_browser.js")
+      expect(response.body).to include("http://example.org/res/#{RubyEventStore::Browser::BROWSER_JS}")
     end
 
     specify "browser present at auto-generated path helper" do
