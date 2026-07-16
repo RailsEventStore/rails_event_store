@@ -5,7 +5,11 @@ require_relative "../ruby_event_store/outbox_relay/generators/migration_generato
 namespace :ruby_event_store do
   desc "Generate migration adding published_at to event_store_events"
   task "outbox_relay:install_migration" do
-    path = RubyEventStore::OutboxRelay::MigrationGenerator.new.call(ENV["MIGRATION_PATH"] || "db/migrate")
+    ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"]) if ENV["DATABASE_URL"]
+    database_adapter =
+      RubyEventStore::ActiveRecord::DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name)
+    path =
+      RubyEventStore::OutboxRelay::MigrationGenerator.new.call(database_adapter, ENV["MIGRATION_PATH"] || "db/migrate")
     puts "Migration file created #{path}"
   end
 
