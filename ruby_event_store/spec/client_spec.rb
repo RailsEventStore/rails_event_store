@@ -1017,6 +1017,15 @@ module RubyEventStore
       expect(received).to eq([order_created])
     end
 
+    specify "dispatch routes by event_type_resolver output, not by metadata[:event_type]" do
+      received = []
+      client.subscribe(to: [OrderCreated]) { |event| received << event }
+
+      client.publish(order_created = OrderCreated.new(metadata: { event_type: "Some.Other.Type" }))
+
+      expect(received).to eq([order_created])
+    end
+
     describe "#position_in_stream" do
       specify do
         client.publish(fact0 = OrderCreated.new, expected_version: :auto, stream_name: "SomeStream")
