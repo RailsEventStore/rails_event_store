@@ -14,3 +14,4 @@ gem "ostruct"
 gem "webrick"
 gem "cuprite"
 gem "rackup"
+gem "tailwindcss-ruby", require: false
