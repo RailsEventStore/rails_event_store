@@ -6,4 +6,4 @@ Find out more at [https://railseventstore.org](https://railseventstore.org/)
 
 ## UI Dev mode
 
-`make install clean dev` will auto-compile JS/CSS from ELM in the background and also serve standalone browser on http://localhost:9393
+`make build` compiles the CSS with Tailwind and vendors the pinned Stimulus runtime. `make dev` serves the standalone browser seeded with some events on http://localhost:9393
