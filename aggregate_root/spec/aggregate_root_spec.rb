@@ -182,14 +182,40 @@ require "spec_helper"
 
   it "deprecates passing event_type_resolver to AggregateRoot.with" do
     expect { AggregateRoot.with(event_type_resolver: ->(value) { value.to_s }) }.to output(
-      /\[DEPRECATION\].*event_type_resolver/m,
+      "[DEPRECATION] #{AggregateRoot::EVENT_TYPE_RESOLVER_DEPRECATION}",
     ).to_stderr
+  end
+
+  it "does not deprecate when event_type_resolver is not passed to AggregateRoot.with" do
+    expect { AggregateRoot.with }.not_to output.to_stderr
+  end
+
+  it "emits the AggregateRoot.with deprecation under a suppressible key" do
+    RubyEventStore::Deprecations.suppress(:aggregate_root_event_type_resolver)
+
+    expect { AggregateRoot.with(event_type_resolver: ->(value) { value.to_s }) }.not_to output.to_stderr
   end
 
   it "deprecates passing event_type_resolver to DefaultApplyStrategy.new" do
     expect { AggregateRoot::DefaultApplyStrategy.new(event_type_resolver: ->(value) { value.to_s }) }.to output(
-      /\[DEPRECATION\].*event_type_resolver/m,
+      "[DEPRECATION] #{AggregateRoot::EVENT_TYPE_RESOLVER_DEPRECATION}",
     ).to_stderr
+  end
+
+  it "does not deprecate when event_type_resolver is not passed to DefaultApplyStrategy.new" do
+    expect { AggregateRoot::DefaultApplyStrategy.new }.not_to output.to_stderr
+  end
+
+  it "emits the DefaultApplyStrategy.new deprecation under a suppressible key" do
+    RubyEventStore::Deprecations.suppress(:aggregate_root_event_type_resolver)
+
+    expect { AggregateRoot::DefaultApplyStrategy.new(event_type_resolver: ->(value) { value.to_s }) }.not_to output.to_stderr
+  end
+
+  it "derives on-DSL registration key from the event class name" do
+    klass = Class.new { include AggregateRoot }
+
+    expect(klass.event_type_for(Orders::Events::OrderCreated)).to eq("Orders::Events::OrderCreated")
   end
 
   it "routes apply by event.event_type, ignoring a passed event_type_resolver" do
