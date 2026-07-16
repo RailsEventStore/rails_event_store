@@ -35,7 +35,8 @@ module RubyEventStore
       end
 
       def load_outbox_schema
-        outbox_migrator.run_migration("add_published_at_to_event_store_events")
+        name = "add_published_at_to_event_store_events"
+        outbox_migrator.run_migration(name, "#{outbox_template_directory}/#{name}")
       end
 
       def reset_column_information
@@ -57,6 +58,12 @@ module RubyEventStore
       end
 
       private
+
+      def outbox_template_directory
+        return "postgres" if postgres?
+        return "mysql" if mysql?
+        "sqlite"
+      end
 
       def outbox_migrator
         Migrator.new(
