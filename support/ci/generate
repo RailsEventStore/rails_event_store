@@ -272,7 +272,6 @@ class CI
       contrib_test("ruby_event_store-mcp"),
       contrib_mutate("ruby_event_store-mcp"),
       contrib_coverage("ruby_event_store-mcp"),
-      assets("ruby_event_store-browser"),
     ]
   end
 
@@ -334,34 +333,6 @@ class CI
       body
     end
 
-    def upload_artifact(name)
-      {
-        "uses" => "actions/upload-artifact@v4",
-        "with" => {
-          "name" => name,
-          "path" => "${{ env.WORKING_DIRECTORY }}/public/#{name}",
-        },
-      }
-    end
-
-    def configure_aws_credentials
-      {
-        "uses" => "aws-actions/configure-aws-credentials@v4",
-        "with" => {
-          "aws-access-key-id" => "${{ secrets.AWS_ACCESS_KEY_ID }}",
-          "aws-secret-access-key" => "${{ secrets.AWS_SECRET_ACCESS_KEY }}",
-          "aws-region" => "eu-central-1",
-        },
-      }
-    end
-
-    def set_short_sha_env
-      { "run" => "echo \"SHORT_SHA=$(git rev-parse --short=12 HEAD)\" >> $GITHUB_ENV" }
-    end
-
-    def aws_s3_sync
-      { "run" => "aws s3 sync ${{ env.WORKING_DIRECTORY }}/public s3://ruby-event-store-assets/${{ env.SHORT_SHA }}" }
-    end
   end
   include Actions
 
@@ -711,24 +682,6 @@ class CI
       )
     end
 
-    def assets(name)
-      Workflow.new(
-        name,
-        job_name: "assets",
-        matrix: [],
-        steps: [
-          checkout,
-          make("build"),
-          upload_artifact("ruby_event_store_browser.js"),
-          upload_artifact("stimulus.js"),
-          upload_artifact("ruby_event_store_browser.css"),
-          configure_aws_credentials,
-          set_short_sha_env,
-          aws_s3_sync,
-        ],
-        triggers: [manual_trigger, api_trigger, push_trigger],
-      )
-    end
   end
   include Workflows
 

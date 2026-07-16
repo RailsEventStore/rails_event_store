@@ -92,31 +92,14 @@ module RubyEventStore
 
       specify "browser_css_url" do
         urls = Urls.from_configuration("http://example.com:9393", "/res")
-        expect(urls.browser_css_url).to eq("http://example.com:9393/res/ruby_event_store_browser.css")
+        expect(urls.browser_css_url).to eq("http://example.com:9393/res/#{BROWSER_CSS}")
       end
 
       specify "browser_js_url" do
         urls = Urls.from_configuration("http://example.com:9393", "/res")
-        expect(urls.browser_js_url).to eq("http://example.com:9393/res/ruby_event_store_browser.js")
+        expect(urls.browser_js_url).to eq("http://example.com:9393/res/#{BROWSER_JS}")
       end
 
-      specify "browser_js_url when from git" do
-        git_source = double(:git_source, version: "deadbeef", from_git?: true)
-        allow(GemSource).to receive(:new).and_return(git_source)
-
-        expect(Urls.initial.browser_js_url).to eq(
-          "https://cdn.railseventstore.org/deadbeef/ruby_event_store_browser.js",
-        )
-      end
-
-      specify "browser_css_url when from git" do
-        git_source = double(:git_source, version: "deadbeef", from_git?: true)
-        allow(GemSource).to receive(:new).and_return(git_source)
-
-        expect(Urls.initial.browser_css_url).to eq(
-          "https://cdn.railseventstore.org/deadbeef/ruby_event_store_browser.css",
-        )
-      end
     end
   end
 end

@@ -21,7 +21,6 @@ module RubyEventStore
         @host = host
         @root_path = root_path
         @app_url = [host, root_path].compact.reduce(:+)
-        @gem_source = GemSource.new($LOAD_PATH)
       end
 
       def stream_url(stream_name)
@@ -41,29 +40,15 @@ module RubyEventStore
       end
 
       def browser_js_url
-        name = "ruby_event_store_browser.js"
-        gem_source.from_git? ? cdn_file_url(name) : local_file_url(name)
+        "#{app_url}/#{BROWSER_JS}"
       end
 
       def browser_css_url
-        name = "ruby_event_store_browser.css"
-        gem_source.from_git? ? cdn_file_url(name) : local_file_url(name)
+        "#{app_url}/#{BROWSER_CSS}"
       end
 
       def ==(other)
         self.class.eql?(other.class) && app_url.eql?(other.app_url)
-      end
-
-      private
-
-      attr_reader :gem_source
-
-      def local_file_url(name)
-        "#{app_url}/#{name}"
-      end
-
-      def cdn_file_url(name)
-        "https://cdn.railseventstore.org/#{gem_source.version}/#{name}"
       end
     end
   end

@@ -16,7 +16,6 @@ matcher:
   subjects:
     - RubyEventStore::Browser*
   ignore:
-    - RubyEventStore::Browser::App#res_version
     - RubyEventStore::Browser::App.for
     - RubyEventStore::Browser::App#initialize
     - RubyEventStore::Browser::Urls#with_request

@@ -46,9 +46,7 @@ module RubyEventStore
           use Rack::Static,
               urls:
                 %w[
-                  ruby_event_store_browser.js
-                  stimulus.js
-                  ruby_event_store_browser.css
+                  stimulus-3.2.2.js
                   android-chrome-192x192.png
                   android-chrome-512x512.png
                   apple-touch-icon.png
@@ -61,7 +59,10 @@ module RubyEventStore
                   mstile-310x150.png
                   mstile-310x310.png
                   safari-pinned-tab.svg
-                ].map { |f| ["/#{f}", f] }.to_h,
+                ].map { |f| ["/#{f}", f] }.to_h.merge(
+                  "/#{BROWSER_JS}"  => "ruby_event_store_browser.js",
+                  "/#{BROWSER_CSS}" => "ruby_event_store_browser.css",
+                ),
               root: "#{__dir__}/../../../public"
           run App.new(
                 event_store_locator: event_store_locator,
