@@ -3,6 +3,7 @@
 .rspec_status
 .sass-cache/
 .cache/
+.mutant/
 _yardoc/
 coverage/
 log/
