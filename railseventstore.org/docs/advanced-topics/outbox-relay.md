@@ -114,7 +114,7 @@ gem "ruby_event_store-outbox_relay"
 Generate and run the migration. It adds `published_at` (nullable, defaulting to the current database time) and an index tuned per adapter — a partial index (`WHERE published_at IS NULL`) on PostgreSQL, a composite `(published_at, id)` index on MySQL, since MySQL doesn't support partial indexes.
 
 ```
-bundle exec rake outbox_relay:install_migration
+bundle exec rake ruby_event_store:outbox_relay:install_migration
 bin/rails db:migrate
 ```
 
@@ -183,7 +183,7 @@ A rake task is available too:
 
 ```
 OUTBOX_RELAY_ARGS="--require=config/outbox_relay.rb --database-url=$DATABASE_URL" \
-  bundle exec rake outbox_relay:run
+  bundle exec rake ruby_event_store:outbox_relay:run
 ```
 
 ### Running under systemd

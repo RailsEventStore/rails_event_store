@@ -38,7 +38,7 @@ gem "ruby_event_store-outbox_relay"
 Generate and run the migration adding `published_at` to `event_store_events`:
 
 ```
-bundle exec rake outbox_relay:install_migration
+bundle exec rake ruby_event_store:outbox_relay:install_migration
 bin/rails db:migrate
 ```
 
@@ -98,7 +98,7 @@ Run it:
 bundle exec res_outbox_relay --require=config/outbox_relay.rb --database-url="$DATABASE_URL"
 ```
 
-Run it as many instances as you like — `FOR UPDATE SKIP LOCKED` means concurrent relays never process the same batch twice. A systemd unit template (`Restart=always`) is included at `support/systemd/res-outbox-relay.service`; a `bundle exec rake outbox_relay:run` task is also available for environments that prefer rake.
+Run it as many instances as you like — `FOR UPDATE SKIP LOCKED` means concurrent relays never process the same batch twice. A systemd unit template (`Restart=always`) is included at `support/systemd/res-outbox-relay.service`; a `bundle exec rake ruby_event_store:outbox_relay:run` task is also available for environments that prefer rake.
 
 ### Options
 
