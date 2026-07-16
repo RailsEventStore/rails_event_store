@@ -25,6 +25,15 @@ $(STIMULUS_JS): ## Vendor the pinned Stimulus runtime from the CDN
 dev: ## Start standalone browser seeded with some events
 	@bundle exec rackup --port 9393 devserver/config.ru
 
+docker-dev: ## Start standalone browser in Docker (no Ruby install required)
+	@docker compose -f ../support/docker/docker-compose.yml up --build
+
+docker-dev-watch: ## Start standalone browser in Docker with live code reload
+	@docker compose -f ../support/docker/docker-compose.yml -f ../support/docker/docker-compose.dev.yml up --build
+
+docker-console: ## Open an interactive console against the Docker image
+	@docker compose -f ../support/docker/docker-compose.yml -f ../support/docker/docker-compose.dev.yml run --rm console
+
 clean: clean-assets
 
 clean-assets:
