@@ -6,19 +6,9 @@ module AggregateRoot
   MissingHandler = Class.new(StandardError)
   NullHandler    = Proc.new {}
 
-  EVENT_TYPE_RESOLVER_DEPRECATION = <<~EOW.freeze
-    Passing event_type_resolver to AggregateRoot has been deprecated.
-
-    Event type is now derived from event.event_type. The event_type_resolver
-    argument is ignored and will be removed in a future release.
-  EOW
-
   class DefaultApplyStrategy
-    def initialize(strict: true, event_type_resolver: nil)
+    def initialize(strict: true)
       @strict = strict
-      unless event_type_resolver.nil?
-        RubyEventStore::Deprecations.warn(:aggregate_root_event_type_resolver, message: EVENT_TYPE_RESOLVER_DEPRECATION)
-      end
     end
 
     def call(aggregate, event)

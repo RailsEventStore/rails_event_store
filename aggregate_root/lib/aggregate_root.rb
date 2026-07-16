@@ -13,7 +13,7 @@ module AggregateRoot
 
     def on(*event_klasses, &block)
       event_klasses.each do |event_klass|
-        name = event_type_for(event_klass)
+        name = event_klass.to_s
         raise(ArgumentError, "Anonymous class is missing name") if name.start_with? ANONYMOUS_CLASS
 
         handler_name = "on_#{name}"
@@ -78,16 +78,19 @@ module AggregateRoot
 
   def self.with(strategy: -> { DefaultApplyStrategy.new }, event_type_resolver: nil)
     unless event_type_resolver.nil?
-      RubyEventStore::Deprecations.warn(:aggregate_root_event_type_resolver, message: EVENT_TYPE_RESOLVER_DEPRECATION)
+      message = <<~EOW
+        Passing event_type_resolver to AggregateRoot has been deprecated.
+
+        Event type is now derived from event.event_type. The event_type_resolver
+        argument is ignored and will be removed in a future release.
+      EOW
+      RubyEventStore::Deprecations.warn(:aggregate_root_event_type_resolver, message:)
     end
     Module.new do
       define_singleton_method :included do |host_class|
         host_class.extend Constructor
         host_class.extend OnDSL if strategy.call.respond_to?(:uses_on_dsl?)
         host_class.include AggregateMethods
-        host_class.define_singleton_method :event_type_for do |value|
-          value.to_s
-        end
       end
 
       define_method :apply_strategy do
