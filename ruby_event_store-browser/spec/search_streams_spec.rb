@@ -36,15 +36,17 @@ module RubyEventStore
       expect(JSON.parse(response.body)).to eq({ "streams" => [] })
     end
 
-    specify "caps results at the configured limit even if the repository returned more" do
-      stub_const("RubyEventStore::Browser::SEARCH_STREAMS_LIMIT", 2)
-      event_store.publish(DummyEvent.new, stream_name: "dummy-1")
-      event_store.publish(DummyEvent.new, stream_name: "dummy-2")
-      event_store.publish(DummyEvent.new, stream_name: "dummy-3")
+    specify "caps results at the configured limit even if the repository returns more" do
+      misbehaving_event_store = Object.new
+      def misbehaving_event_store.search_streams(_prefix, limit:)
+        (1..(limit * 2)).map { |i| Stream.new("dummy-#{i}") }
+      end
+      misbehaving_web_client = WebClient.new(Browser::App.for(event_store_locator: -> { misbehaving_event_store }))
 
-      response = web_client.get("/search_streams/dummy-")
+      response = misbehaving_web_client.get("/search_streams/dummy-")
 
-      expect(JSON.parse(response.body).fetch("streams").size).to eq(2)
+      expect(response).to be_ok
+      expect(JSON.parse(response.body).fetch("streams").size).to eq(Browser::SEARCH_STREAMS_LIMIT)
     end
   end
 end

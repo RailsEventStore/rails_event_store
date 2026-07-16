@@ -44,7 +44,7 @@ module RubyEventStore
       # Walks to the next matching stream name one indexable hop at a time, instead of a
       # single DISTINCT/GROUP BY or recursive CTE query -- neither is portable/reliable
       # across the supported adapters for this access pattern.
-      def search_streams(prefix, limit: 20)
+      def search_streams(prefix, limit:)
         names = []
         cursor = nil
         while names.size < limit

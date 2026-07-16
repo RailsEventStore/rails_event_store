@@ -1229,6 +1229,12 @@ module RubyEventStore
       expect(repository.search_streams("Stream", limit: 2)).to eq [stream_a, stream_b]
     end
 
+    specify "search_streams defaults to a limit of 20" do
+      21.times { |i| repository.append_to_stream([SRecord.new], Stream.new("Stream #{i.to_s.rjust(2, "0")}"), version_any) }
+
+      expect(repository.search_streams("Stream").size).to eq(20)
+    end
+
     specify do
       e1 = SRecord.new(event_id: "8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea")
       e2 = SRecord.new(event_id: "8cee1139-4f96-483a-a175-2b947283c3c7")

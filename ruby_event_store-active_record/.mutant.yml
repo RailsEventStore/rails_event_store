@@ -21,6 +21,7 @@ matcher:
     - RubyEventStore::ActiveRecord::IndexViolationDetector#detect
     - RubyEventStore::ActiveRecord::IndexViolationDetector#detect_mysql
     - RubyEventStore::ActiveRecord::IndexViolationDetector#detect_postgres
+    - RubyEventStore::ActiveRecord::StreamPrefixPattern::Like*
     - RubyEventStore::ActiveRecord::PgLinearizedEventRepository*
     - RubyEventStore::ActiveRecord::EventRepository#update_messages
     - RubyEventStore::ActiveRecord::EventRepository#upsert_hash
