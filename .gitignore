@@ -23,7 +23,7 @@ config/master.key
 ruby_event_store-browser/tailwindcss
 ruby_event_store-browser/public/*
 !ruby_event_store-browser/public/ruby_event_store_browser.js
-!ruby_event_store-browser/public/stimulus.js
+!ruby_event_store-browser/public/stimulus-*.js
 !ruby_event_store-browser/public/ruby_event_store_browser.css
 .inch/
 .tmp

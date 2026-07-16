@@ -14,9 +14,8 @@ Gem::Specification.new do |spec|
     Explore correlation and causation connections.
   EOD
   spec.homepage = "https://railseventstore.org"
-  spec.files = Dir["lib/**/*"] + %w[
+  spec.files = Dir["lib/**/*"] + Dir["public/stimulus-*.js"] + %w[
     ruby_event_store_browser.js
-    stimulus.js
     ruby_event_store_browser.css
     android-chrome-192x192.png
     android-chrome-512x512.png

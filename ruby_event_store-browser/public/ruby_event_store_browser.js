@@ -1,4 +1,4 @@
-import { Application, Controller } from "./stimulus.js"
+import { Application, Controller } from "./stimulus-3.2.2.js"
 
 const application = Application.start()
 
