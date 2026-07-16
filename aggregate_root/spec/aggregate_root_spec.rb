@@ -180,21 +180,36 @@ require "spec_helper"
     expect(klass.respond_to?(:on_methods)).to eq(true)
   end
 
-  it "applies event when event_type_resolver output differs from event.event_type" do
-    klass =
-      Class.new do
-        include AggregateRoot.with(event_type_resolver: ->(value) { "prefixed.#{value}" })
+  it "deprecates passing event_type_resolver to AggregateRoot.with" do
+    expect { AggregateRoot.with(event_type_resolver: ->(value) { value.to_s }) }.to output(
+      /\[DEPRECATION\].*event_type_resolver/m,
+    ).to_stderr
+  end
 
-        def initialize
-          @status = :draft
+  it "deprecates passing event_type_resolver to DefaultApplyStrategy.new" do
+    expect { AggregateRoot::DefaultApplyStrategy.new(event_type_resolver: ->(value) { value.to_s }) }.to output(
+      /\[DEPRECATION\].*event_type_resolver/m,
+    ).to_stderr
+  end
+
+  it "routes apply by event.event_type, ignoring a passed event_type_resolver" do
+    klass = nil
+    silence_warnings do
+      klass =
+        Class.new do
+          include AggregateRoot.with(event_type_resolver: ->(value) { "prefixed.#{value}" })
+
+          def initialize
+            @status = :draft
+          end
+
+          attr_accessor :status
+
+          on Orders::Events::OrderCreated do |_event|
+            @status = :created
+          end
         end
-
-        attr_accessor :status
-
-        on Orders::Events::OrderCreated do |_event|
-          @status = :created
-        end
-      end
+    end
     order = klass.new
 
     order.apply(Orders::Events::OrderCreated.new)

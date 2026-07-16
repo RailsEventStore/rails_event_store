@@ -76,15 +76,17 @@ module AggregateRoot
     end
   end
 
-  def self.with(strategy: nil, event_type_resolver: ->(value) { value.to_s })
-    strategy ||= -> { DefaultApplyStrategy.new(event_type_resolver: event_type_resolver) }
+  def self.with(strategy: -> { DefaultApplyStrategy.new }, event_type_resolver: nil)
+    unless event_type_resolver.nil?
+      RubyEventStore::Deprecations.warn(:aggregate_root_event_type_resolver, message: EVENT_TYPE_RESOLVER_DEPRECATION)
+    end
     Module.new do
       define_singleton_method :included do |host_class|
         host_class.extend Constructor
         host_class.extend OnDSL if strategy.call.respond_to?(:uses_on_dsl?)
         host_class.include AggregateMethods
         host_class.define_singleton_method :event_type_for do |value|
-          event_type_resolver.call(value)
+          value.to_s
         end
       end
 
