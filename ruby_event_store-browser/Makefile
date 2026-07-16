@@ -19,7 +19,7 @@ css: ## Build the stylesheet from the templates with Tailwind
 
 $(STIMULUS_JS): ## Vendor the pinned Stimulus runtime from the CDN
 	@echo "Downloading @hotwired/stimulus $(STIMULUS_VERSION)"
-	@curl -sL -o $(STIMULUS_JS) "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@$(STIMULUS_VERSION)/+esm"
+	@curl -sL "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@$(STIMULUS_VERSION)/+esm" | sed '/^\/\/#[[:space:]]*sourceMappingURL=/d' > $(STIMULUS_JS)
 
 
 dev: ## Start standalone browser seeded with some events
