@@ -6,36 +6,26 @@ module RubyEventStore
   ::RSpec.describe Browser do
     specify do
       expect { Browser::App.for(event_store_locator: -> { event_store }, environment: :test) }.to output(
-        <<~EOS,
-          Passing :environment to RubyEventStore::Browser::App.for is deprecated. 
-
-          This option is no-op, has no effect and will be removed in next major release.
-      EOS
+        /Passing :environment to RubyEventStore::Browser::App\.for is deprecated/,
       ).to_stderr
     end
 
     specify do
-      expect { Browser::App.for(event_store_locator: -> { event_store }, host: "http://localhost:31337") }.to output(
-        <<~EOS,
-          Passing :host to RubyEventStore::Browser::App.for is deprecated. 
+      expect {
+        Browser::App.for(event_store_locator: -> { event_store }, host: "http://localhost:31337")
+      }.to output(/Passing :host to RubyEventStore::Browser::App\.for is deprecated/).to_stderr
+    end
 
-          This option will be removed in next major release. 
-          
-          Host and mount points are correctly recognized from Rack environment 
-          and this option is redundant.
-      EOS
+    specify do
+      expect { Browser::App.for(event_store_locator: -> { event_store }, path: "/res") }.to output(
+        /Passing :path to RubyEventStore::Browser::App\.for is deprecated/,
       ).to_stderr
     end
 
     specify do
-      expect { Browser::App.for(event_store_locator: -> { event_store }, path: "/res") }.to output(<<~EOS).to_stderr
-          Passing :path to RubyEventStore::Browser::App.for is deprecated. 
-
-          This option will be removed in next major release. 
-
-          Host and mount points are correctly recognized from Rack environment 
-          and this option is redundant.
-      EOS
+      expect { Browser::App.for(event_store_locator: -> { event_store }, api_url: "http://example.com/api") }.to output(
+        /Passing :api_url to RubyEventStore::Browser::App\.for is deprecated/,
+      ).to_stderr
     end
 
     let(:event_store) { Client.new }

@@ -1,0 +1,9 @@
+<section class="space-y-4">
+  <header class="flex justify-between border-gray-400 border-b text-xs pb-2">
+    <h2 class="text-gray-500 uppercase font-bold"><%= title %></h2>
+    <button data-controller="clipboard" data-clipboard-text-value="<%= h(safe_json(hash)) %>" data-action="clipboard#copy" class="text-red-700 no-underline"><%= render("_clipboard_icon", classes: "text-gray-400 hover:text-red-700", size: 16) %></button>
+  </header>
+  <div class="overflow-auto w-full">
+    <%= render("_json_tree", hash: hash) %>
+  </div>
+</section>

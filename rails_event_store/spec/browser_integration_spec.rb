@@ -8,29 +8,20 @@ require "support/test_application"
 
 module RailsEventStore
   ::RSpec.describe Browser do
-    specify "root" do
+    specify "root redirects to all-stream" do
       request = ::Rack::MockRequest.new(app)
       response = request.get("/res")
 
-      expect(response.status).to eq(200)
-      expect(
-        response.body,
-      ).to match %r{<script type="text/javascript" src="http://example.org/res/ruby_event_store_browser.js"></script>}
+      expect(response.status).to eq(302)
+      expect(response.headers["location"]).to end_with("/res/streams/all")
     end
 
-    specify "api" do
-      event_store.publish(events = 21.times.map { DummyEvent.new })
+    specify "streams page" do
       request = ::Rack::MockRequest.new(app)
-      response = request.get("/res/api/streams/all/relationships/events")
+      response = request.get("/res/streams/all")
 
-      expect(JSON.parse(response.body)["links"]).to eq(
-        {
-          "last" =>
-            "http://example.org/res/api/streams/all/relationships/events?page%5Bposition%5D=head&page%5Bdirection%5D=forward&page%5Bcount%5D=20",
-          "next" =>
-            "http://example.org/res/api/streams/all/relationships/events?page%5Bposition%5D=#{events[1].event_id}&page%5Bdirection%5D=backward&page%5Bcount%5D=20",
-        },
-      )
+      expect(response.status).to eq(200)
+      expect(response.body).to include("http://example.org/res/ruby_event_store_browser.js")
     end
 
     specify "browser present at auto-generated path helper" do

@@ -2,115 +2,72 @@
 
 module RubyEventStore
   module Browser
-    class GetEventsFromStream
-      HEAD = Object.new
+    GetEventsFromStream =
+      Struct.new(:event_store, :stream_name, :page, keyword_init: true) do
+        def initialize(event_store:, stream_name:, page:)
+          super(event_store: event_store, stream_name: stream_name, page: page || {})
+        end
 
-      def initialize(event_store:, routing:, stream_name:, page:)
-        @event_store = event_store
-        @routing = routing
-        @stream_name = stream_name
-        @page = page || {}
-      end
+        def events
+          @events ||=
+            case direction
+            when :forward
+              read(event_store.read, position).reverse
+            when :backward
+              read(event_store.read.backward, position)
+            end
+        end
 
-      def to_h
-        { data: events.map { |e| JsonApiEvent.new(e, nil).to_h }, links: links }
-      end
-
-      private
-
-      attr_reader :event_store, :routing, :stream_name, :page
-
-      def events
-        @events ||=
-          case direction
-          when :forward
-            events_forward(position).reverse
-          when :backward
-            events_backward(position)
-          end
-      end
-
-      def links
-        @links ||=
+        def pagination
+          found = events
           {}.tap do |h|
-            if prev_event?
-              h[:prev] = prev_page_link(events.first.event_id)
-              h[:first] = first_page_link
+            if prev_event?(found)
+              h[:prev] = { position: found.first.event_id, direction: :forward }
+              h[:first] = { position: :head, direction: :backward }
             end
 
-            if next_event?
-              h[:next] = next_page_link(events.last.event_id)
-              h[:last] = last_page_link
+            if next_event?(found)
+              h[:next] = { position: found.last.event_id, direction: :backward }
+              h[:last] = { position: :head, direction: :forward }
             end
           end
-      end
+        end
 
-      def events_forward(position)
-        spec = event_store.read.limit(count)
-        spec = spec.stream(stream_name) unless stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
-        spec = spec.from(position) unless position.equal?(HEAD)
-        spec.to_a
-      end
+        def count
+          Integer(page["count"] || PAGE_SIZE)
+        end
 
-      def events_backward(position)
-        spec = event_store.read.limit(count).backward
-        spec = spec.stream(stream_name) unless stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
-        spec = spec.from(position) unless position.equal?(HEAD)
-        spec.to_a
-      end
+        private
 
-      def next_event?
-        return if events.empty?
-        events_backward(events.last.event_id).any?
-      end
+        def read(reader, position)
+          spec = reader.limit(count)
+          spec = spec.stream(stream_name) unless stream_name.eql?(SERIALIZED_GLOBAL_STREAM_NAME)
+          spec = spec.from(position) if position
+          spec.to_a
+        end
 
-      def prev_event?
-        return if events.empty?
-        events_forward(events.first.event_id).any?
-      end
+        def next_event?(found)
+          return if found.empty?
+          read(event_store.read.backward, found.last.event_id).any?
+        end
 
-      def prev_page_link(event_id)
-        routing.paginated_events_from_stream_url(id: stream_name, position: event_id, direction: :forward, count: count)
-      end
+        def prev_event?(found)
+          return if found.empty?
+          read(event_store.read, found.first.event_id).any?
+        end
 
-      def next_page_link(event_id)
-        routing.paginated_events_from_stream_url(
-          id: stream_name,
-          position: event_id,
-          direction: :backward,
-          count: count,
-        )
-      end
+        def direction
+          case page["direction"]
+          when "forward"
+            :forward
+          else
+            :backward
+          end
+        end
 
-      def first_page_link
-        routing.paginated_events_from_stream_url(id: stream_name, position: :head, direction: :backward, count: count)
-      end
-
-      def last_page_link
-        routing.paginated_events_from_stream_url(id: stream_name, position: :head, direction: :forward, count: count)
-      end
-
-      def count
-        Integer(page["count"] || PAGE_SIZE)
-      end
-
-      def direction
-        case page["direction"]
-        when "forward"
-          :forward
-        else
-          :backward
+        def position
+          page["position"] unless page["position"].nil? || page["position"] == "head"
         end
       end
-
-      def position
-        case page["position"]
-        when "head", nil
-          HEAD
-        else
-          page.fetch("position")
-        end
-      end
-    end
   end
 end

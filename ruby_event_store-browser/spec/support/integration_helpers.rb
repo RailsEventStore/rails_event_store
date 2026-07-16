@@ -18,10 +18,6 @@ module RubyEventStore
               @web_client ||= WebClient.new(app[default_app], host)
             end
 
-            define_method :api_client do
-              @api_client ||= ApiClient.new(app[default_app], host)
-            end
-
             define_method :event_store do
               @event_store ||=
                 Client.new.tap do |event_store|

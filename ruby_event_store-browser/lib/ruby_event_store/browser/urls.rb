@@ -3,48 +3,41 @@
 module RubyEventStore
   module Browser
     class Urls
-      def self.from_configuration(host, root_path, api_url = nil)
-        new(host, root_path, api_url)
+      def self.from_configuration(host, root_path)
+        new(host, root_path)
       end
 
       def self.initial
-        new(nil, nil, nil)
+        new(nil, nil)
       end
 
       def with_request(request)
-        Urls.new(host || request.base_url, root_path || request.script_name, api_url)
+        Urls.new(host || request.base_url, root_path || request.script_name)
       end
 
-      attr_reader :app_url, :api_url, :host, :root_path
+      attr_reader :app_url, :host, :root_path
 
-      def initialize(host, root_path, api_url)
+      def initialize(host, root_path)
         @host = host
         @root_path = root_path
         @app_url = [host, root_path].compact.reduce(:+)
-        @api_url = api_url || ("#{app_url}/api" if app_url)
         @gem_source = GemSource.new($LOAD_PATH)
       end
 
-      def events_url
-        "#{api_url}/events"
+      def stream_url(stream_name)
+        "#{app_url}/streams/#{Rack::Utils.escape(stream_name)}"
       end
 
-      def streams_url
-        "#{api_url}/streams"
+      def event_url(event_id)
+        "#{app_url}/events/#{event_id}"
       end
 
-      def paginated_events_from_stream_url(id:, position: nil, direction: nil, count: nil)
-        stream_name = Rack::Utils.escape(id)
-        query_string =
+      def stream_page_url(stream_name, cursor, count)
+        query =
           URI.encode_www_form(
-            { "page[position]" => position, "page[direction]" => direction, "page[count]" => count }.compact,
+            [["page[position]", cursor[:position]], ["page[direction]", cursor[:direction]], ["page[count]", count]],
           )
-
-        if query_string.empty?
-          "#{api_url}/streams/#{stream_name}/relationships/events"
-        else
-          "#{api_url}/streams/#{stream_name}/relationships/events?#{query_string}"
-        end
+        "#{stream_url(stream_name)}?#{query}"
       end
 
       def browser_js_url
@@ -57,12 +50,8 @@ module RubyEventStore
         gem_source.from_git? ? cdn_file_url(name) : local_file_url(name)
       end
 
-      def bootstrap_js_url
-        "#{app_url}/bootstrap.js"
-      end
-
-      def ==(o)
-        self.class.eql?(o.class) && app_url.eql?(o.app_url) && api_url.eql?(o.api_url)
+      def ==(other)
+        self.class.eql?(other.class) && app_url.eql?(other.app_url)
       end
 
       private

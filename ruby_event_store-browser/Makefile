@@ -1,7 +1,8 @@
-GEM_VERSION  = $(shell cat ../RES_VERSION)
-GEM_NAME     = ruby_event_store-browser
-JS_OUTFILE   = public/ruby_event_store_browser.js
-CSS_OUTFILE   = public/ruby_event_store_browser.css
+GEM_VERSION      = $(shell cat ../RES_VERSION)
+GEM_NAME         = ruby_event_store-browser
+TAILWIND_VERSION = 3.4.9
+STIMULUS_VERSION = 3.2.2
+CSS_OUTFILE      = public/ruby_event_store_browser.css
 
 include ../support/make/install.mk
 include ../support/make/test.mk
@@ -9,56 +10,33 @@ include ../support/make/mutant.mk
 include ../support/make/gem.mk
 include ../support/make/help.mk
 
-install: install-npm
+build: css public/stimulus.js
 
-test: clean $(JS_OUTFILE) $(CSS_OUTFILE) test-elm
+test mutate mutate-changes: css public/stimulus.js
 
-build: $(JS_OUTFILE) $(CSS_OUTFILE)
+css: tailwindcss ## Build the stylesheet from the templates with Tailwind
+	@./tailwindcss --minify --input tailwind.css --output $(CSS_OUTFILE)
 
-push: $(JS_OUTFILE) $(CSS_OUTFILE)
+public/stimulus.js: ## Vendor the pinned Stimulus runtime from the CDN
+	@echo "Downloading @hotwired/stimulus $(STIMULUS_VERSION)"
+	@curl -sL -o public/stimulus.js "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@$(STIMULUS_VERSION)/+esm"
 
-clean: clean-elm clean-css
+tailwindcss:
+	@platform=`uname -s | tr '[:upper:]' '[:lower:]'`; \
+	arch=`uname -m`; \
+	case "$$platform-$$arch" in \
+	  darwin-arm64)   target=macos-arm64 ;; \
+	  darwin-x86_64)  target=macos-x64 ;; \
+	  linux-x86_64)   target=linux-x64 ;; \
+	  linux-aarch64)  target=linux-arm64 ;; \
+	  *) echo "unsupported platform: $$platform-$$arch"; exit 1 ;; \
+	esac; \
+	echo "Downloading tailwindcss $(TAILWIND_VERSION) ($$target)"; \
+	curl -sL -o tailwindcss "https://github.com/tailwindlabs/tailwindcss/releases/download/v$(TAILWIND_VERSION)/tailwindcss-$$target"; \
+	chmod +x tailwindcss
 
-clean-elm:
-	@rm $(JS_OUTFILE) 2>/dev/null || true
-
-clean-css:
-	@rm $(CSS_OUTFILE) 2>/dev/null || true
-
-watch-elm: clean-elm
-	@cd elm; \
-		npx chokidar-cli "src/**/*.elm" \
-			-c "npx elm make src/Main.elm --debug --output ../$(JS_OUTFILE)" \
-			--initial
-
-watch-css: clean-css
-	@cd elm; \
-		npx tailwindcss --watch=always \
-			-i src/style.css \
-			-o ../$(CSS_OUTFILE)
-
-dev: ## Start standalone browser seeded with some events and Elm/CSS recompile on change
-	@$(MAKE) -j3 serve watch-elm watch-css
-
-serve:
+dev: ## Start standalone browser seeded with some events
 	@bundle exec rackup --port 9393 devserver/config.ru
 
-build-npm: $(JS_OUTFILE) $(CSS_OUTFILE)
-
-install-npm:
-	@cd elm; npm install --no-fund --no-audit
-
-test-elm:
-	@cd elm; npx elm-test
-
-$(CSS_OUTFILE):
-	@echo "Building browser CSS"
-	@cd elm; NODE_ENV=production npx tailwindcss -m -i src/style.css -o ../public/ruby_event_store_browser.css 2> /dev/null
-
-$(JS_OUTFILE):
-	@echo "Building browser JS"
-	@cd elm; npx elm make --optimize --output=../public/ruby_event_store_browser.js src/Main.elm > /dev/null
-	@cd elm; npx uglify-js ../public/ruby_event_store_browser.js --compress "pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe" | npx uglify-js --mangle --output ../public/ruby_event_store_browser.js
-
-generate-timezones-map:
-	@ruby bin/generate_timezones_map.rb
+clean:
+	@rm -f $(CSS_OUTFILE) public/stimulus.js tailwindcss

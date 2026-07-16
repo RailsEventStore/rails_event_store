@@ -2,8 +2,7 @@
 
 require_relative "../browser"
 require "rack"
-require "erb"
-require "json"
+require "uri"
 
 module RubyEventStore
   module Browser
@@ -17,34 +16,39 @@ module RubyEventStore
         related_streams_query: DEFAULT_RELATED_STREAMS_QUERY
       )
         warn(<<~WARN) if environment
-        Passing :environment to RubyEventStore::Browser::App.for is deprecated. 
+          Passing :environment to RubyEventStore::Browser::App.for is deprecated.
 
-        This option is no-op, has no effect and will be removed in next major release.
-      WARN
+          This option is no-op, has no effect and will be removed in next major release.
+        WARN
         warn(<<~WARN) if host
-        Passing :host to RubyEventStore::Browser::App.for is deprecated. 
+          Passing :host to RubyEventStore::Browser::App.for is deprecated.
 
-        This option will be removed in next major release. 
-        
-        Host and mount points are correctly recognized from Rack environment 
-        and this option is redundant.
-      WARN
+          This option will be removed in next major release.
+
+          Host and mount points are correctly recognized from Rack environment
+          and this option is redundant.
+        WARN
         warn(<<~WARN) if path
-        Passing :path to RubyEventStore::Browser::App.for is deprecated. 
+          Passing :path to RubyEventStore::Browser::App.for is deprecated.
 
-        This option will be removed in next major release. 
+          This option will be removed in next major release.
 
-        Host and mount points are correctly recognized from Rack environment 
-        and this option is redundant.
-      WARN
+          Host and mount points are correctly recognized from Rack environment
+          and this option is redundant.
+        WARN
+        warn(<<~WARN) if api_url
+          Passing :api_url to RubyEventStore::Browser::App.for is deprecated.
+
+          This option is no-op and will be removed in next major release.
+        WARN
 
         Rack::Builder.new do
           use Rack::Static,
               urls:
                 %w[
-                  bootstrap.js
-                  ruby_event_store_browser.css
                   ruby_event_store_browser.js
+                  stimulus.js
+                  ruby_event_store_browser.css
                   android-chrome-192x192.png
                   android-chrome-512x512.png
                   apple-touch-icon.png
@@ -64,54 +68,63 @@ module RubyEventStore
                 related_streams_query: related_streams_query,
                 host: host,
                 root_path: path,
-                api_url: api_url,
               )
         end
       end
 
-      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, api_url:)
+      def initialize(event_store_locator:, related_streams_query:, host:, root_path:)
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
-        @routing = Urls.from_configuration(host, root_path, api_url)
+        @routing = Urls.from_configuration(host, root_path)
       end
 
       def call(env)
+        request = Rack::Request.new(env)
         router = Router.new(routing)
-        router.add_route("GET", "/api/events/:event_id") do |params|
-          json GetEvent.new(event_store: event_store, event_id: params.fetch("event_id"))
+
+        router.add_route("GET", "/") do |_, urls|
+          [302, { "location" => urls.stream_url(SERIALIZED_GLOBAL_STREAM_NAME) }, []]
         end
-        router.add_route("GET", "/api/streams/:stream_name") do |params, urls|
-          json GetStream.new(
-                 stream_name: params.fetch("stream_name"),
-                 routing: urls,
-                 related_streams_query: related_streams_query,
-               )
-        end
-        router.add_route("GET", "/api/streams/:stream_name/relationships/events") do |params, urls|
-          json GetEventsFromStream.new(
-                 event_store: event_store,
-                 routing: urls,
-                 stream_name: params.fetch("stream_name"),
-                 page: params["page"],
+
+        router.add_route("GET", "/streams/:stream_name") do |params, urls|
+          stream_name = params.fetch("stream_name")
+          reader = GetEventsFromStream.new(event_store: event_store, stream_name: stream_name, page: params["page"])
+          html render(
+                 "streams/show",
+                 urls: urls,
+                 stream_name: stream_name,
+                 events: reader.events,
+                 pagination:
+                   reader.pagination.transform_values { |cursor|
+                     urls.stream_page_url(stream_name, cursor, reader.count)
+                   },
+                 related_streams: related_streams_query.call(stream_name),
                )
         end
 
-        %w[/ /events/:event_id /streams/:stream_name].each do |starting_route|
-          router.add_route("GET", starting_route) do |_, urls|
-            erb bootstrap_html,
-                browser_js_src: urls.browser_js_url,
-                browser_css_src: urls.browser_css_url,
-                bootstrap_js_src: urls.bootstrap_js_url,
-                initial_data: {
-                  rootUrl: urls.app_url,
-                  apiUrl: urls.api_url,
-                  resVersion: res_version,
-                }
-          end
+        router.add_route("GET", "/events/:event_id") do |params, urls|
+          event = event_store.read.event!(params.fetch("event_id"))
+          metadata = format_event_metadata(event)
+          parent_event =
+            event_store.read.event(event.metadata.fetch(:causation_id)) if event.metadata.key?(:causation_id)
+
+          html render(
+                 "events/show",
+                 urls: urls,
+                 event: event,
+                 metadata: metadata,
+                 streams: event_store.streams_of(event.event_id).map(&:name).sort,
+                 parent_event: parent_event,
+                 caused_by:
+                   event_store.read.stream("$by_causation_id_#{event.event_id}").backward.limit(PAGE_SIZE).to_a,
+               )
         end
-        router.handle(Rack::Request.new(env))
-      rescue EventNotFound, Router::NoMatch
-        not_found
+
+        router.handle(request)
+      rescue EventNotFound
+        not_found(routing.with_request(request))
+      rescue Router::NoMatch
+        [404, {}, []]
       end
 
       private
@@ -122,44 +135,29 @@ module RubyEventStore
         event_store_locator.call
       end
 
-      def bootstrap_html
-        <<~HTML
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>RubyEventStore::Browser</title>
-            <link type="text/css" rel="stylesheet" href="<%= browser_css_src %>">
-            <meta name="ruby-event-store-browser-settings" content="<%= Rack::Utils.escape_html(JSON.dump(initial_data)) %>">
-            <meta name="robots" content="noindex, nofollow">
-            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-            <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-            <meta name="msapplication-TileColor" content="#da532c">
-            <meta name="theme-color" content="#ffffff">
-          </head>
-          <body>
-            <script type="text/javascript" src="<%= browser_js_src %>"></script>
-            <script type="text/javascript" src="<%= bootstrap_js_src %>"></script>
-          </body>
-        </html>
-        HTML
+      def format_event_metadata(event)
+        event.metadata.to_h.tap do |metadata|
+          %i[timestamp valid_at].each do |key|
+            metadata[key] = metadata.fetch(key).iso8601(RubyEventStore::TIMESTAMP_PRECISION) if metadata.key?(key)
+          end
+        end
       end
 
-      def not_found
-        [404, {}, []]
+      def render(template, urls:, **locals)
+        renderer = Renderer.new
+        content = renderer.render(template, urls: urls, **locals)
+        renderer.render("layout", content: content, urls: urls)
       end
 
-      def json(body)
-        [200, { "content-type" => "application/vnd.api+json" }, [JSON.dump(body.to_h)]]
+      def html(body)
+        [200, { "content-type" => "text/html;charset=utf-8" }, [body]]
       end
 
-      def erb(template, **locals)
-        [200, { "content-type" => "text/html;charset=utf-8" }, [ERB.new(template).result_with_hash(locals)]]
-      end
-
-      def res_version
-        RubyEventStore::VERSION
+      def not_found(urls)
+        renderer = Renderer.new
+        content = renderer.render("not_found")
+        [404, { "content-type" => "text/html;charset=utf-8" },
+         [renderer.render("layout", content: content, urls: urls)]]
       end
     end
   end

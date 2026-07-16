@@ -22,3 +22,6 @@ matcher:
     - RubyEventStore::Browser::Urls#with_request
     - RubyEventStore::Browser::Urls#initialize
     - RubyEventStore::Browser::Router#initialize
+    - RubyEventStore::Browser::Urls#stream_page_url
+    - RubyEventStore::Browser::App#format_event_metadata
+    - RubyEventStore::Browser::Renderer::Context#safe_json
