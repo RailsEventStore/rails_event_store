@@ -72,7 +72,8 @@
       "collapsible": true,
       "collapsed": false,
       "items": [
-        "contributing/maintenance_policy"
+        "contributing/maintenance_policy",
+        "contributing/docker_dev_setup"
       ]
     }
   ]

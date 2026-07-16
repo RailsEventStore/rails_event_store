@@ -123,6 +123,11 @@ export default function Contributing() {
                   . You could do it even if not everything is ready. The sooner you will share your changes the quicker feedback you will get.
                 </li>
               </ul>
+              <p>
+                Don&#x27;t have Ruby (or Nix) installed? You can run the demo app, tests and mutation tests in Docker instead —
+                see{" "}
+                <a href="/docs/contributing/docker_dev_setup">Docker-based local development</a>.
+              </p>
             </div>
           </div>
           <div className="flex flex-wrap flex-col">
