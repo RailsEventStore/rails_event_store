@@ -15,7 +15,6 @@ spec/reports/
 spec/tmp/
 db.sqlite3
 node_modules/
-elm-stuff/
 build/
 contributors.json
 config/master.key
