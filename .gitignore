@@ -28,6 +28,9 @@ ruby_event_store-browser/public/*
 .tmp
 support/bundler/*.lock
 .docusaurus/
+.devenv/
+.devenv.flake.nix
+devenv.local.nix
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

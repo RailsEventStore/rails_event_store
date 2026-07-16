@@ -95,6 +95,11 @@ export default function Contributing() {
                 <code>make test</code>{" "}
                 again) there.
               </p>
+              <p>
+                Prefer not to install Ruby and the databases by hand? The{" "}
+                <a href="/docs/contributing/devenv_setup">devenv setup</a>
+                {" "}provisions the whole toolchain (matching Ruby, Postgres, MySQL, Redis) for you.
+              </p>
               <ul>
                 <li>Make sure your changes survive mutation testing</li>
               </ul>

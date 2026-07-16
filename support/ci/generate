@@ -272,6 +272,7 @@ class CI
       contrib_test("ruby_event_store-mcp"),
       contrib_mutate("ruby_event_store-mcp"),
       contrib_coverage("ruby_event_store-mcp"),
+      devenv_setup_test,
     ]
   end
 
@@ -307,6 +308,31 @@ class CI
           "authToken" => "${{ secrets.CACHIX_AUTH_TOKEN }}",
         },
       }
+    end
+
+    def setup_nix_flakes
+      { "uses" => "cachix/install-nix-action@v25", "with" => { "extra_nix_config" => "accept-flake-config = true" } }
+    end
+
+    def install_devenv
+      { "run" => "nix profile install nixpkgs#devenv" }
+    end
+
+    def devenv_up
+      { "run" => "devenv up -d" }
+    end
+
+    def wait_for_port(port)
+      { "run" => "for i in $(seq 1 60); do nc -z localhost #{port} && exit 0; sleep 2; done; exit 1" }
+    end
+
+    def devenv_run(command, env: {})
+      step = { "run" => "devenv shell -- #{command}" }
+      env.empty? ? step : step.merge("env" => env)
+    end
+
+    def devenv_down
+      { "if" => "always()", "run" => "devenv processes down || true" }
     end
 
     def make_nix_shell(target, imports: ["redis.nix"])
@@ -375,6 +401,11 @@ class CI
 
     def dres_triggers(workflow_name)
       paths = dres_paths(workflow_name)
+      [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup)]
+    end
+
+    def devenv_triggers(workflow_name)
+      paths = %w[devenv.nix devenv.yaml devenv.lock].concat(workflow_paths(workflow_name))
       [manual_trigger, api_trigger, push_trigger(paths.dup), pr_trigger(paths.dup)]
     end
 
@@ -679,6 +710,35 @@ class CI
           "BUNDLE_WITHOUT" => "database",
         },
         **,
+      )
+    end
+
+    def devenv_setup_test
+      Workflow.new(
+        "devenv",
+        name: "devenv_setup_test",
+        job_name: "devenv",
+        working_directory: ".",
+        matrix: [],
+        steps: [
+          checkout,
+          setup_nix_flakes,
+          setup_cachix,
+          install_devenv,
+          devenv_up,
+          wait_for_port(10018),
+          devenv_run(
+            "make test-ruby_event_store-active_record",
+            env: {
+              "DATABASE_URL" => "postgres://postgres:secret@localhost:10018/rails_event_store",
+              "DATA_TYPE" => "jsonb",
+            },
+          ),
+          devenv_run("make test-ruby_event_store"),
+          devenv_down,
+        ],
+        triggers: devenv_triggers("devenv_setup_test"),
+        runs_on: "ubuntu-latest",
       )
     end
 

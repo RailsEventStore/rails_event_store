@@ -1,0 +1,47 @@
+name: devenv_setup_test
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types:
+    - script
+  push:
+    branches:
+    - master
+    paths:
+    - devenv.nix
+    - devenv.yaml
+    - devenv.lock
+    - ".github/workflows/devenv_setup_test.yml"
+  pull_request:
+    paths:
+    - devenv.nix
+    - devenv.yaml
+    - devenv.lock
+    - ".github/workflows/devenv_setup_test.yml"
+jobs:
+  devenv:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      WORKING_DIRECTORY: "."
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    - uses: cachix/install-nix-action@v25
+      with:
+        extra_nix_config: accept-flake-config = true
+    - uses: cachix/cachix-action@v14
+      with:
+        name: railseventstore
+        authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+    - run: nix profile install nixpkgs#devenv
+    - run: devenv up -d
+    - run: for i in $(seq 1 60); do nc -z localhost 10018 && exit 0; sleep 2; done; exit 1
+    - run: devenv shell -- make test-ruby_event_store-active_record
+      env:
+        DATABASE_URL: postgres://postgres:secret@localhost:10018/rails_event_store
+        DATA_TYPE: jsonb
+    - run: devenv shell -- make test-ruby_event_store
+    - if: always()
+      run: devenv processes down || true
