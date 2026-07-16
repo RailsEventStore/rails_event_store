@@ -7,7 +7,7 @@ module RubyEventStore
     PAGE_SIZE = 20
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
     DEFAULT_RELATED_STREAMS_QUERY = ->(stream_name) { [] }
-    SEARCH_STREAMS_LIMIT = 20
+    SEARCH_STREAMS_LIMIT = 10
     SEARCH_STREAMS_MIN_PREFIX_LENGTH = 3
 
     ASSETS_ROOT = File.expand_path("../../public", __dir__).freeze
