@@ -50,7 +50,7 @@ module RubyEventStore
         while names.size < limit
           scope = @stream_klass.where(stream_prefix_pattern.condition, stream_prefix_pattern.bind_value(prefix))
           scope = scope.where("stream > ?", cursor) if cursor
-          next_name = scope.order(:stream).limit(1).pick(:stream)
+          next_name = scope.order(:stream).pick(:stream)
           break unless next_name
           names << next_name
           cursor = next_name
