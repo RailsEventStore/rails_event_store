@@ -128,3 +128,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/RailsE
 1. Bump version
 2. `make build`
 3. `make push`
+
+## License
+
+MIT
