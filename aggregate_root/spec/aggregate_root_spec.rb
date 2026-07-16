@@ -224,6 +224,33 @@ require "spec_helper"
     expect(order.status).to eq(:created)
   end
 
+  it "deprecates calling event_type_for on an aggregate class" do
+    klass = Class.new { include AggregateRoot }
+
+    expect { klass.event_type_for(Orders::Events::OrderCreated) }.to output(<<~EOS).to_stderr
+      [DEPRECATION] Calling event_type_for on an AggregateRoot class has been deprecated.
+
+      Event type is now derived from event.event_type. This method is ignored
+      internally, returns value.to_s, and will be removed in a future release.
+    EOS
+  end
+
+  it "event_type_for returns value.to_s" do
+    klass = Class.new { include AggregateRoot }
+    result = nil
+
+    silence_warnings { result = klass.event_type_for(Orders::Events::OrderCreated) }
+
+    expect(result).to eq("Orders::Events::OrderCreated")
+  end
+
+  it "emits the event_type_for deprecation under a suppressible key" do
+    RubyEventStore::Deprecations.suppress(:aggregate_root_event_type_for)
+    klass = Class.new { include AggregateRoot }
+
+    expect { klass.event_type_for(Orders::Events::OrderCreated) }.not_to output.to_stderr
+  end
+
   it "included modules" do
     klass = Class.new { include AggregateRoot }
 

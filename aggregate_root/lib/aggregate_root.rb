@@ -91,6 +91,18 @@ module AggregateRoot
         host_class.extend Constructor
         host_class.extend OnDSL if strategy.call.respond_to?(:uses_on_dsl?)
         host_class.include AggregateMethods
+        host_class.define_singleton_method :event_type_for do |value|
+          RubyEventStore::Deprecations.warn(
+            :aggregate_root_event_type_for,
+            message: <<~EOW,
+              Calling event_type_for on an AggregateRoot class has been deprecated.
+
+              Event type is now derived from event.event_type. This method is ignored
+              internally, returns value.to_s, and will be removed in a future release.
+            EOW
+          )
+          value.to_s
+        end
       end
 
       define_method :apply_strategy do
