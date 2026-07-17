@@ -136,6 +136,21 @@ in
         exec ${pkgs.redis}/bin/redis-server --port 0 --unixsocket ${redisSocket} \
           --save "" --appendonly no --protected-mode no
       '';
+
+      # MySQL 9.7 is the one CI cell nixpkgs can't provide (no 9.x build), so it
+      # comes from a container instead of a native process. Runs only when a
+      # docker-compatible CLI is on PATH (Docker, OrbStack, or an Apple
+      # `container` docker shim); otherwise it idles so `devenv up` still boots
+      # the rest of the stack.
+      mysql_9_7.exec = ''
+        if ! command -v docker >/dev/null 2>&1; then
+          echo "mysql_9_7: no docker on PATH; skipping (nixpkgs has no mysql 9.x)" >&2
+          exec sleep infinity
+        fi
+        exec docker run --rm -p 127.0.0.1:10097:3306 \
+          -e MYSQL_DATABASE=rails_event_store -e MYSQL_ROOT_PASSWORD=secret \
+          mysql:9.7
+      '';
     };
 
   scripts = {
@@ -145,15 +160,16 @@ in
     #   res-ruby-3.4 res-cell pg14 jsonb make test-ruby_event_store-active_record
     res-cell.exec = ''
       set -euo pipefail
-      db="''${1:?usage: res-cell <sqlite|pg14|pg18|mysql84> <data_type> <command...>}"
-      data_type="''${2:?usage: res-cell <sqlite|pg14|pg18|mysql84> <data_type> <command...>}"
+      db="''${1:?usage: res-cell <sqlite|pg14|pg18|mysql84|mysql97> <data_type> <command...>}"
+      data_type="''${2:?usage: res-cell <sqlite|pg14|pg18|mysql84|mysql97> <data_type> <command...>}"
       shift 2
       case "$db" in
         sqlite)  url="sqlite3:db.sqlite3" ;;
         pg14)    url="postgres://postgres:secret@localhost:10014/rails_event_store" ;;
         pg18)    url="postgres://postgres:secret@localhost:10018/rails_event_store" ;;
         mysql84) url="mysql2://root:secret@127.0.0.1:10084/rails_event_store" ;;
-        *) echo "res-cell: unknown db '$db' (sqlite|pg14|pg18|mysql84)" >&2; exit 1 ;;
+        mysql97) url="mysql2://root:secret@127.0.0.1:10097/rails_event_store" ;;
+        *) echo "res-cell: unknown db '$db' (sqlite|pg14|pg18|mysql84|mysql97)" >&2; exit 1 ;;
       esac
       exec env DATABASE_URL="$url" DATA_TYPE="$data_type" "$@"
     '';
@@ -171,6 +187,7 @@ in
     echo "  postgres 14  postgres://postgres:secret@localhost:10014/rails_event_store"
     echo "  postgres 18  postgres://postgres:secret@localhost:10018/rails_event_store"
     echo "  mysql 8.4    mysql2://root:secret@127.0.0.1:10084/rails_event_store"
+    echo "  mysql 9.7    mysql2://root:secret@127.0.0.1:10097/rails_event_store (container, needs docker)"
     echo "  redis        $REDIS_URL"
     echo "Reproduce a CI cell: res-cell pg14 jsonb make test-ruby_event_store-active_record"
     echo "Other Ruby versions: res-ruby-3.4 <command>"

@@ -44,10 +44,13 @@ copied from any CI matrix cell works verbatim:
 | Postgres 14 | `postgres://postgres:secret@localhost:10014/rails_event_store` |
 | Postgres 18 | `postgres://postgres:secret@localhost:10018/rails_event_store` |
 | MySQL 8.4   | `mysql2://root:secret@127.0.0.1:10084/rails_event_store`       |
+| MySQL 9.7   | `mysql2://root:secret@127.0.0.1:10097/rails_event_store`       |
 | Redis       | `$REDIS_URL` (unix socket, exported in the shell)             |
 
-> MySQL 9.7 (CI's `mysql_9_7`) is not reproducible locally yet: nixpkgs no longer packages a
-> MySQL 9.x/innovation build. That single matrix axis is the one gap versus CI.
+> MySQL 9.7 (CI's `mysql_9_7`) is the one version nixpkgs can't provide (no 9.x build), so it
+> runs from a `mysql:9.7` container instead of a native process. It starts automatically when a
+> docker-compatible CLI (Docker, OrbStack, or an Apple `container` docker shim) is on `PATH`;
+> without one, `devenv up` simply skips it and everything else still works natively.
 
 ## Running the suites
 
@@ -65,8 +68,8 @@ name to the CI `DATABASE_URL` and sets `DATA_TYPE` for you:
 res-cell pg14 jsonb make test-ruby_event_store-active_record
 ```
 
-Databases are `sqlite`, `pg14`, `pg18`, `mysql84`. Or set the environment variables by
-hand if you prefer:
+Databases are `sqlite`, `pg14`, `pg18`, `mysql84`, `mysql97`. Or set the environment
+variables by hand if you prefer:
 
 ```
 DATABASE_URL=postgres://postgres:secret@localhost:10014/rails_event_store \
