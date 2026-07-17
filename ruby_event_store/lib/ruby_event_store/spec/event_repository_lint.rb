@@ -1578,6 +1578,35 @@ module RubyEventStore
       )
     end
 
+    specify "named stream order is respected also when reading backward" do
+      repository.append_to_stream(
+        records = [
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 29, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 28, 0))),
+          RubyEventStore::SRecord.new(timestamp: with_precision(Time.new(2023, 1, 1, 12, 27, 0))),
+          RubyEventStore::SRecord.new(
+            timestamp: with_precision(Time.new(2023, 1, 1, 12, 26, 0)),
+            valid_at: with_precision(Time.new(2023, 1, 1, 12, 30, 0)),
+          ),
+        ],
+        RubyEventStore::Stream.new("stream"),
+        RubyEventStore::ExpectedVersion.any,
+      )
+
+      expect(repository.read(specification.stream("stream").backward.result).to_a).to eq(
+        [records[3], records[2], records[1], records[0]],
+      )
+      expect(repository.read(specification.stream("stream").as_at.backward.result).to_a).to eq(
+        [records[0], records[1], records[2], records[3]],
+      )
+      expect(repository.read(specification.stream("stream").as_at.backward.limit(2).result).to_a).to eq(
+        [records[0], records[1]],
+      )
+      expect(repository.read(specification.stream("stream").as_of.backward.result).to_a).to eq(
+        [records[3], records[0], records[1], records[2]],
+      )
+    end
+
     specify "reading last event sorted by valid_at" do
       repository.append_to_stream(
         records = [
