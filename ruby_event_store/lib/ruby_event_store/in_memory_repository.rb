@@ -148,7 +148,6 @@ module RubyEventStore
       serialized_records = serialized_records.reverse if spec.backward?
       serialized_records = serialized_records.drop(index_of(serialized_records, spec.start) + 1) if spec.start
       serialized_records = serialized_records.take(index_of(serialized_records, spec.stop)) if spec.stop
-      serialized_records = serialized_records.take(spec.limit) if spec.limit?
       serialized_records =
         serialized_records.select do |sr|
           Time.iso8601(time_comparison_field(spec, sr)) < spec.older_than
@@ -165,6 +164,7 @@ module RubyEventStore
         serialized_records.select do |sr|
           Time.iso8601(time_comparison_field(spec, sr)) >= spec.newer_than_or_equal
         end if spec.newer_than_or_equal
+      serialized_records = serialized_records.take(spec.limit) if spec.limit?
       serialized_records
     end
 
