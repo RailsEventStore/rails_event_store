@@ -127,21 +127,47 @@ module RubyEventStore
           [302, { "location" => urls.stream_url(SERIALIZED_GLOBAL_STREAM_NAME) }, []]
         end
 
+        router.add_route("GET", "/streams/compare/more") do |params, urls|
+          stream_names = Array(params["streams"])
+          reader =
+            GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names, cursor: params["cursor"])
+
+          json(
+            html: Renderer.new.render("streams/_rows", urls: urls, stream_names: stream_names, events: reader.events),
+            more_url: (urls.compare_more_url(stream_names, reader.next_cursor) if reader.more?),
+          )
+        end
+
         router.add_route("GET", "/streams/:stream_name") do |params, urls|
           stream_name = params.fetch("stream_name")
-          reader = GetEventsFromStream.new(event_store: event_store, stream_name: stream_name, page: params["page"])
-          html render(
-                 "streams/show",
-                 urls: urls,
-                 stream_name: stream_name,
-                 events: reader.events,
-                 pagination:
-                   reader.pagination.transform_values { |cursor|
-                     urls.stream_page_url(stream_name, cursor, reader.count)
-                   },
-                 related_streams: related_streams_query.call(stream_name),
-                 extension_links: extension_links(stream_name, urls),
-               )
+          compare_names = Array(params["compare"]).reject { |name| name.nil? || name.empty? }
+
+          if compare_names.any?
+            stream_names = ([stream_name] + compare_names).uniq
+            reader = GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names)
+
+            html render(
+                   "streams/compare",
+                   urls: urls,
+                   stream_names: stream_names,
+                   events: reader.events,
+                   more_url: (urls.compare_more_url(stream_names, reader.next_cursor) if reader.more?),
+                 )
+          else
+            reader = GetEventsFromStream.new(event_store: event_store, stream_name: stream_name, page: params["page"])
+            html render(
+                   "streams/show",
+                   urls: urls,
+                   stream_name: stream_name,
+                   events: reader.events,
+                   pagination:
+                     reader.pagination.transform_values { |cursor|
+                       urls.stream_page_url(stream_name, cursor, reader.count)
+                     },
+                   related_streams: related_streams_query.call(stream_name),
+                   extension_links: extension_links(stream_name, urls),
+                 )
+          end
         end
 
         router.add_route("GET", "/events/:event_id") do |params, urls|
@@ -221,6 +247,10 @@ module RubyEventStore
 
       def html(body)
         [200, { "content-type" => "text/html;charset=utf-8" }, [body]]
+      end
+
+      def json(body)
+        [200, { "content-type" => "application/json" }, [JSON.generate(body)]]
       end
 
       def not_found(urls)

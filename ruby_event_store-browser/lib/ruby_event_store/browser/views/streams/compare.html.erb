@@ -1,0 +1,30 @@
+<div class="py-8 container mx-auto" data-controller="swimlane" data-swimlane-more-url-value="<%= more_url %>">
+  <div class="flex justify-between items-center">
+    <h1 class="font-bold text-2xl">Comparing <%= h(stream_names.join(", ")) %></h1>
+    <button class="text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1" data-action="compare#open">+ Compare</button>
+  </div>
+
+  <div class="my-10 overflow-x-auto">
+    <table class="text-left">
+      <thead class="align-bottom leading-tight text-gray-500 uppercase text-xs">
+        <tr>
+          <th class="font-bold border-b border-gray-400 pb-2 px-2 whitespace-nowrap normal-case text-base text-gray-800">Time</th>
+          <% stream_names.each_with_index do |stream_name, column| -%>
+            <th class="font-bold border-b border-gray-400 pb-2 px-2 normal-case text-base text-gray-800<%= " border-l" if column.positive? %>">
+              <div class="flex justify-between items-center gap-2">
+                <span class="break-words"><%= h(stream_name) %></span>
+                <% if stream_names.size > 1 -%>
+                  <% new_primary, *others = stream_names - [stream_name] -%>
+                  <a class="text-gray-400 hover:text-red-700 no-underline text-xl leading-none" href="<%= urls.compare_url(new_primary, others) %>" title="Remove from comparison">&times;</a>
+                <% end -%>
+              </div>
+            </th>
+          <% end -%>
+        </tr>
+      </thead>
+      <tbody data-swimlane-target="tbody">
+        <%= render("streams/_rows", urls: urls, stream_names: stream_names, events: events) %>
+      </tbody>
+    </table>
+  </div>
+</div>

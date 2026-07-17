@@ -50,6 +50,24 @@ module RubyEventStore
       skip exc.message
     end
 
+    specify "compare streams", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+
+      event_store.publish(FooBarEvent.new(data: { foo: :bar }), stream_name: "dummy")
+      event_store.publish(FooBarEvent.new(data: { foo: :baz }), stream_name: "dummy_too")
+
+      session.visit("/streams/dummy")
+      session.click_button("+ Compare")
+      session.find("[data-compare-target='input']").set("dummy_too")
+      session.find("[data-compare-target='input']").send_keys(:enter)
+
+      expect(session).to have_content("Comparing dummy, dummy_too")
+      expect(session).to have_content("dummy_too")
+      expect(session.all("table a[href*='/events/']").size).to eq(2)
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
     specify "Content-Security-Policy", mutant: false do
       session =
         Capybara::Session.new(

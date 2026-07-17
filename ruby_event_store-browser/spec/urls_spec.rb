@@ -100,6 +100,33 @@ module RubyEventStore
         expect(urls.browser_js_url).to eq("http://example.com:9393/res/#{BROWSER_JS}")
       end
 
+      specify "compare_url" do
+        urls = Urls.from_configuration("http://example.com:9393", "/res")
+        expect(urls.compare_url("all", %w[other another])).to eq(
+          "http://example.com:9393/res/streams/all?compare%5B%5D=other&compare%5B%5D=another",
+        )
+      end
+
+      specify "compare_url without other streams is just the stream url" do
+        urls = Urls.from_configuration("http://example.com:9393", "/res")
+        expect(urls.compare_url("all", [])).to eq("http://example.com:9393/res/streams/all")
+      end
+
+      specify "compare_url escapes stream names" do
+        urls = Urls.from_configuration("http://example.com:9393", nil)
+        expect(urls.compare_url("foo/bar.xml", ["b c"])).to eq(
+          "http://example.com:9393/streams/foo%2Fbar.xml?compare%5B%5D=b+c",
+        )
+      end
+
+      specify "compare_more_url" do
+        urls = Urls.from_configuration("http://example.com:9393", "/res")
+        expect(urls.compare_more_url(%w[all other], "2024-01-01T12:00:00.000000Z")).to eq(
+          "http://example.com:9393/res/streams/compare/more" \
+            "?streams%5B%5D=all&streams%5B%5D=other&cursor=2024-01-01T12%3A00%3A00.000000Z",
+        )
+      end
+
     end
   end
 end

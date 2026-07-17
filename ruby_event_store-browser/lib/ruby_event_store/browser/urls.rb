@@ -39,6 +39,18 @@ module RubyEventStore
         "#{stream_url(stream_name)}?#{query}"
       end
 
+      def compare_url(primary, others)
+        return stream_url(primary) if others.empty?
+
+        "#{stream_url(primary)}?#{URI.encode_www_form(others.map { |name| ["compare[]", name] })}"
+      end
+
+      def compare_more_url(stream_names, cursor)
+        query = stream_names.map { |name| ["streams[]", name] }
+        query << ["cursor", cursor]
+        "#{app_url}/streams/compare/more?#{URI.encode_www_form(query)}"
+      end
+
       def browser_js_url
         "#{app_url}/#{BROWSER_JS}"
       end
