@@ -220,7 +220,6 @@ module RubyEventStore
               :valid_at,
             )
             .where(stream: specification.stream.name)
-            .order(::Sequel[:event_store_events_in_streams][:id])
 
         dataset = dataset.where(event_type: specification.with_types) if specification.with_types?
         dataset =
@@ -264,10 +263,16 @@ module RubyEventStore
             )
         end
 
-        dataset = dataset.order(::Sequel[:event_store_events][:created_at]) if specification.time_sort_by_as_at?
-        dataset = dataset.order(::Sequel.lit(coalesced_date)) if specification.time_sort_by_as_of?
+        dataset =
+          if specification.time_sort_by_as_at?
+            dataset.order(::Sequel[:event_store_events][:created_at])
+          elsif specification.time_sort_by_as_of?
+            dataset.order(::Sequel.lit(coalesced_date))
+          else
+            dataset.order(::Sequel[:event_store_events_in_streams][:id])
+          end
         dataset = dataset.limit(specification.limit) if specification.limit?
-        dataset = dataset.order(::Sequel[:event_store_events_in_streams][:id]).reverse if specification.backward?
+        dataset = dataset.reverse if specification.backward?
 
         dataset
       end
