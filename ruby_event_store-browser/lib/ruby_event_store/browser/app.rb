@@ -3,6 +3,7 @@
 require_relative "../browser"
 require "rack"
 require "uri"
+require "json"
 
 module RubyEventStore
   module Browser
@@ -100,6 +101,14 @@ module RubyEventStore
               ),
             ],
           ]
+        end
+
+        def render_partial(template, views_root:, urls:, **locals)
+          Renderer.new([views_root, Renderer::VIEWS_ROOT]).render(template, urls: urls, **locals)
+        end
+
+        def json(body)
+          [200, { "content-type" => "application/json" }, [JSON.generate(body)]]
         end
       end
 

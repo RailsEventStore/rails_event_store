@@ -253,6 +253,55 @@ module RubyEventStore
       expect(response.body).to include('<script type="module" src="http://example.org/extension.js"></script>')
     end
 
+    specify "extension can respond with json" do
+      extension =
+        Class.new do
+          def register_routes(router, context)
+            router.add_route("GET", "/custom.json") do |_, _|
+              context.json(events: context.event_store.read.count, more_url: nil)
+            end
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+      event_store.append(DummyEvent.new)
+
+      response = Rack::MockRequest.new(app).get("/custom.json")
+      expect(response.status).to eq(200)
+      expect(response.headers["content-type"]).to eq("application/json")
+      expect(JSON.parse(response.body)).to eq({ "events" => 1, "more_url" => nil })
+    end
+
+    specify "extension can render a bare partial without the layout" do
+      Dir.mktmpdir do |views_root|
+        File.write(
+          File.join(views_root, "_row.html.erb"),
+          "<tr><td><%= h(name) %> at <%= urls.app_url %></td>" \
+            "<td><%= render(\"_timestamp\", title: \"Created at\", time: Time.utc(2024, 1, 1), top: true) %></td></tr>",
+        )
+        extension =
+          Class.new do
+            def initialize(views_root)
+              @views_root = views_root
+            end
+
+            def register_routes(router, context)
+              views_root = @views_root
+              router.add_route("GET", "/rows.json") do |_, urls|
+                context.json(html: context.render_partial("_row", views_root: views_root, urls: urls, name: "<x>"))
+              end
+            end
+          end.new(views_root)
+        app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+
+        response = WebClient.new(app, "example.org").get("/rows.json")
+        expect(response.status).to eq(200)
+        html = JSON.parse(response.body).fetch("html")
+        expect(html).to include("<tr><td>&lt;x&gt; at http://example.org</td>")
+        expect(html).to include("Created at")
+        expect(html).not_to include("<!DOCTYPE")
+      end
+    end
+
     specify "extension can render its own views wrapped in the layout" do
       Dir.mktmpdir do |views_root|
         File.write(File.join(views_root, "hello.html.erb"), "<p>hello <%= h(name) %> from <%= urls.app_url %></p>")
