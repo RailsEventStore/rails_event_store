@@ -3,6 +3,9 @@ PATH
   specs:
     ruby_event_store (3.0.0)
       concurrent-ruby (~> 1.0, >= 1.1.6)
+    ruby_event_store-browser (3.0.0)
+      rack
+      ruby_event_store (= 3.0.0)
 
 PATH
   remote: .
@@ -52,6 +55,9 @@ GEM
     prettyprint (0.2.0)
     prism (1.9.0)
     racc (1.8.1)
+    rack (3.2.6)
+    rack-test (2.2.0)
+      rack (>= 1.3)
     rake (13.4.2)
     rbs (4.0.3)
       logger
@@ -80,6 +86,8 @@ GEM
     rspec-support (3.13.7)
     securerandom (0.4.1)
     sorbet-runtime (0.6.13341)
+    tailwindcss-ruby (4.3.2)
+    tailwindcss-ruby (4.3.2-arm64-darwin)
     tsort (0.2.0)
     unparser (0.9.0)
       diff-lcs (>= 1.6, < 3)
@@ -95,10 +103,14 @@ DEPENDENCIES
   mutant
   mutant-minitest
   mutant-rspec
+  rack (~> 3.0)
+  rack-test
   rake (>= 10.0)
   rspec
   ruby_event_store!
+  ruby_event_store-browser!
   ruby_event_store-process_manager!
+  tailwindcss-ruby (~> 4.3)
 
 BUNDLED WITH
   4.0.10
