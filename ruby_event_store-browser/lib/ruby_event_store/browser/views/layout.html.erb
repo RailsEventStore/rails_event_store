@@ -3,6 +3,9 @@
   <head>
     <title>RubyEventStore::Browser</title>
     <link type="text/css" rel="stylesheet" href="<%= urls.browser_css_url %>">
+    <% extension_stylesheets.each do |href| -%>
+    <link type="text/css" rel="stylesheet" href="<%= href %>">
+    <% end -%>
     <meta name="robots" content="noindex, nofollow">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
