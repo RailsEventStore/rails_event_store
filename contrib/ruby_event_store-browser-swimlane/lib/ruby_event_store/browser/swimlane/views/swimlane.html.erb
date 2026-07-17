@@ -1,0 +1,50 @@
+<div class="py-8 container mx-auto" data-controller="swimlane swimlane-add" data-swimlane-more-url-value="<%= more_url %>">
+  <div class="flex justify-between items-center">
+    <h1 class="font-bold text-2xl">Comparing <%= h(stream_names.join(", ")) %></h1>
+    <button class="text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1" data-action="swimlane-add#open">Add stream</button>
+  </div>
+  <div class="pt-3 flex items-center gap-2 text-sm">
+    <span class="text-gray-500">Sort by</span>
+    <% if sort == "as_of" -%>
+      <a class="no-underline text-gray-500 hover:text-red-700" href="<%= swimlane.swimlane_url(urls, stream_names) %>">created at</a>
+      <span class="font-bold text-red-700">valid at</span>
+    <% else -%>
+      <span class="font-bold text-red-700">created at</span>
+      <a class="no-underline text-gray-500 hover:text-red-700" href="<%= swimlane.swimlane_url(urls, stream_names, "as_of") %>">valid at</a>
+    <% end -%>
+  </div>
+
+  <div class="my-10 overflow-x-auto">
+    <table class="text-left">
+      <thead class="align-bottom leading-tight text-gray-500 uppercase text-xs">
+        <tr>
+          <th class="font-bold border-b border-gray-400 pb-2 px-2 whitespace-nowrap normal-case text-base text-gray-800">Time</th>
+          <% stream_names.each_with_index do |stream_name, column| -%>
+            <th class="font-bold border-b border-gray-400 pb-2 px-2 normal-case text-base text-gray-800<%= " border-l" if column.positive? %>">
+              <div class="flex justify-between items-center gap-2">
+                <span class="break-words"><%= h(stream_name) %></span>
+                <% if stream_names.size > 1 -%>
+                  <a class="text-gray-400 hover:text-red-700 no-underline text-xl leading-none" href="<%= swimlane.swimlane_url(urls, stream_names - [stream_name], sort) %>" title="Remove from comparison">&times;</a>
+                <% end -%>
+              </div>
+            </th>
+          <% end -%>
+        </tr>
+      </thead>
+      <tbody data-swimlane-target="tbody">
+        <%= render("_rows", urls: urls, stream_names: stream_names, events: events, sort: sort) %>
+      </tbody>
+    </table>
+  </div>
+
+  <dialog data-swimlane-add-target="dialog" class="backdrop:bg-gray-400/50 backdrop:backdrop-blur max-w-96 p-4 rounded-lg bg-white shadow w-full">
+    <button class="inset-0 fixed z-0" data-action="swimlane-add#close"></button>
+    <div class="isolate">
+      <form data-action="swimlane-add#go">
+        <div class="relative">
+          <input data-swimlane-add-target="input" class="rounded text-gray-800 cursor-pointer px-3 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50" placeholder="Add stream to compare&hellip;" autofocus>
+        </div>
+      </form>
+    </div>
+  </dialog>
+</div>

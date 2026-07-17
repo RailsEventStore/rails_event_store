@@ -102,6 +102,9 @@ class CI
       ),
       release_mutate("ruby_event_store-active_record"),
       release_coverage("ruby_event_store-active_record"),
+      contrib_test("ruby_event_store-browser-swimlane"),
+      contrib_mutate("ruby_event_store-browser-swimlane"),
+      contrib_coverage("ruby_event_store-browser-swimlane"),
       contrib_test(
         "ruby_event_store-flipper",
         matrix:
