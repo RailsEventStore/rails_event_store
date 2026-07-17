@@ -311,7 +311,18 @@ class CI
     end
 
     def setup_nix_flakes
-      { "uses" => "cachix/install-nix-action@v25", "with" => { "extra_nix_config" => "accept-flake-config = true" } }
+      { "uses" => "cachix/install-nix-action@v31", "with" => { "extra_nix_config" => "accept-flake-config = true" } }
+    end
+
+    def setup_cachix_devenv
+      {
+        "uses" => "cachix/cachix-action@v14",
+        "with" => {
+          "name" => "railseventstore",
+          "authToken" => "${{ secrets.CACHIX_AUTH_TOKEN }}",
+          "extraPullNames" => "devenv",
+        },
+      }
     end
 
     def install_devenv
@@ -734,7 +745,7 @@ class CI
         steps: [
           checkout,
           setup_nix_flakes,
-          setup_cachix,
+          setup_cachix_devenv,
           install_devenv,
           cache_gems,
           devenv_up,
