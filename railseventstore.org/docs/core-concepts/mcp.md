@@ -2,7 +2,7 @@
 title: MCP server
 ---
 
-`ruby_event_store-mcp` lets an AI assistant explore your event store on its own. It is the companion to the [CLI](../cli/): where the `res` command queries the store from your terminal, the MCP server exposes the same queries as [MCP tools](https://modelcontextprotocol.io/) so your assistant reads the events itself — you ask questions in plain English instead of copy-pasting payloads into the chat.
+`ruby_event_store-mcp` lets an AI assistant explore your event store on its own. It is the companion to the [CLI](./cli/): where the `res` command queries the store from your terminal, the MCP server exposes the same queries as [MCP tools](https://modelcontextprotocol.io/) so your assistant reads the events itself — you ask questions in plain English instead of copy-pasting payloads into the chat.
 
 The server is intentionally **read-only**. The assistant can inspect events, streams, and correlations, but it cannot append, link, or delete. Every tool goes through the public `event_store` API — no SQL, no adapter internals — so it works regardless of the storage adapter underneath.
 
@@ -79,7 +79,7 @@ The server gives the assistant nine read-only tools over your event store. You n
 **Follow a process**
 
 - `aggregate_history` — the full event history of one aggregate instance (e.g. a single `Fulfillment::Order`)
-- `trace` — the [causation tree](../correlation-causation/) of everything sharing a correlation ID, so you can see where a multi-step flow stopped
+- `trace` — the [causation tree](./correlation-causation/) of everything sharing a correlation ID, so you can see where a multi-step flow stopped
 
 ## Ask questions, not commands
 
@@ -97,4 +97,4 @@ The assistant calls `recent`, `aggregate_history`, `search`, or `trace` behind t
 
 ## See also
 
-Prefer typing the queries yourself? The companion [CLI](../cli/) exposes the same event store as a `res` command in your terminal.
+Prefer typing the queries yourself? The companion [CLI](./cli/) exposes the same event store as a `res` command in your terminal.

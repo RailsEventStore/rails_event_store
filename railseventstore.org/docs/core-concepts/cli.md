@@ -4,7 +4,7 @@ title: CLI
 
 The `res` command-line interface lets you inspect your event store directly from the terminal — without opening a Rails console, writing SQL, or adding custom rake tasks. It is a quick way to browse streams and events while developing or debugging.
 
-It is the terminal counterpart to the [Browser](../browser/): where the Browser gives you a web interface, the CLI answers the same questions ("What happened in this stream?", "Was this event persisted?", "What does the latest event look like?") from your shell.
+It is the terminal counterpart to the [Browser](./browser/): where the Browser gives you a web interface, the CLI answers the same questions ("What happened in this stream?", "Was this event persisted?", "What does the latest event look like?") from your shell.
 
 ## Installation
 
@@ -97,7 +97,7 @@ Metadata:   {
 
 ### `event streams`
 
-An event is published to one stream and can be [linked](../link/) into many. This lists every stream it belongs to:
+An event is published to one stream and can be [linked](./link/) into many. This lists every stream it belongs to:
 
 ```
 $ bundle exec res event streams 59588873-00fa-423f-89d1-03d7c3b0ab35
@@ -173,7 +173,7 @@ Each JSON event carries `event_id`, `event_type`, `data`, `metadata`, and `times
 
 ## Trace correlated events
 
-Give `res trace` a [correlation ID](../correlation-causation/) and it gathers every event sharing it, then shapes them by causation — which event triggered which — into a tree:
+Give `res trace` a [correlation ID](./correlation-causation/) and it gathers every event sharing it, then shapes them by causation — which event triggered which — into a tree:
 
 ```
 $ bundle exec res trace 452fd6f0-e3a2-4716-bc8a-43bbcf2cae61
