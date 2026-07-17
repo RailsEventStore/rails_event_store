@@ -119,11 +119,26 @@ module RubyEventStore
         )
       end
 
+      specify "compare_url with sort" do
+        urls = Urls.from_configuration("http://example.com:9393", "/res")
+        expect(urls.compare_url("all", %w[other], "as_of")).to eq(
+          "http://example.com:9393/res/streams/all?compare%5B%5D=other&sort=as_of",
+        )
+      end
+
       specify "compare_more_url" do
         urls = Urls.from_configuration("http://example.com:9393", "/res")
         expect(urls.compare_more_url(%w[all other], "2024-01-01T12:00:00.000000Z")).to eq(
           "http://example.com:9393/res/streams/compare/more" \
             "?streams%5B%5D=all&streams%5B%5D=other&cursor=2024-01-01T12%3A00%3A00.000000Z",
+        )
+      end
+
+      specify "compare_more_url with sort" do
+        urls = Urls.from_configuration("http://example.com:9393", "/res")
+        expect(urls.compare_more_url(%w[all other], "2024-01-01T12:00:00.000000Z", "as_of")).to eq(
+          "http://example.com:9393/res/streams/compare/more" \
+            "?streams%5B%5D=all&streams%5B%5D=other&cursor=2024-01-01T12%3A00%3A00.000000Z&sort=as_of",
         )
       end
 

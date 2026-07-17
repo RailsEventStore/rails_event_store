@@ -8,19 +8,25 @@ module RubyEventStore
       let(:event_store) { RubyEventStore::Client.new }
       let(:base_time) { Time.utc(2024, 1, 1, 12, 0, 0) }
 
-      def reader(stream_names:, cursor: nil, count: 20)
-        GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names, cursor: cursor, count: count)
+      def reader(stream_names:, cursor: nil, sort: nil, count: 20)
+        GetEventsFromStreams.new(
+          event_store: event_store,
+          stream_names: stream_names,
+          cursor: cursor,
+          sort: sort,
+          count: count,
+        )
       end
 
-      def next_page(previous, stream_names:, count:)
-        reader(stream_names: stream_names, cursor: previous.next_cursor, count: count)
+      def next_page(previous, stream_names:, count:, sort: nil)
+        reader(stream_names: stream_names, cursor: previous.next_cursor, sort: sort, count: count)
       end
 
-      def publish(stream:, at: nil)
+      def publish(stream:, at: nil, valid_at: nil)
         event = DummyEvent.new
         if at
           event.metadata[:timestamp] = at
-          event.metadata[:valid_at] = at
+          event.metadata[:valid_at] = valid_at || at
         end
         event_store.publish(event, stream_name: stream)
         event
@@ -139,6 +145,38 @@ module RubyEventStore
 
         result = reader(stream_names: %w[a], count: 3).events
         expect(result.map(&:first)).to eq([["a"], ["a"], ["a"]])
+      end
+
+      specify "sorts by validity time when sort is as_of" do
+        e1 = publish(stream: "a", at: base_time + 3, valid_at: base_time + 11)
+        e2 = publish(stream: "b", at: base_time + 2, valid_at: base_time + 12)
+        e3 = publish(stream: "a", at: base_time + 1, valid_at: base_time + 13)
+
+        by_append = reader(stream_names: %w[a b]).events.map { |_, event| event.event_id }
+        by_validity = reader(stream_names: %w[a b], sort: "as_of").events.map { |_, event| event.event_id }
+        expect(by_append).to eq([e1.event_id, e2.event_id, e3.event_id])
+        expect(by_validity).to eq([e3.event_id, e2.event_id, e1.event_id])
+      end
+
+      specify "as_of cursor pages along the validity axis" do
+        e1 = publish(stream: "a", at: base_time + 3, valid_at: base_time + 11)
+        e2 = publish(stream: "a", at: base_time + 2, valid_at: base_time + 12)
+        e3 = publish(stream: "a", at: base_time + 1, valid_at: base_time + 13)
+
+        page = reader(stream_names: %w[a], sort: "as_of", count: 2)
+        expect(page.events.map { |_, event| event.event_id }).to eq([e3.event_id, e2.event_id])
+        expect(page.next_cursor).to eq((base_time + 12).iso8601(TIMESTAMP_PRECISION))
+
+        rest = next_page(page, stream_names: %w[a], sort: "as_of", count: 2)
+        expect(rest.events.map { |_, event| event.event_id }).to eq([e1.event_id])
+        expect(rest.more?).to eq(false)
+      end
+
+      specify "as_of pages run to the end of their last validity time instead of splitting the group" do
+        published = 4.times.map { |i| publish(stream: "a", at: base_time + i, valid_at: base_time + 10) }
+
+        page = reader(stream_names: %w[a], sort: "as_of", count: 3)
+        expect(page.events.map { |_, event| event.event_id }).to match_array(published.map(&:event_id))
       end
 
       specify "reads each stream once per page" do

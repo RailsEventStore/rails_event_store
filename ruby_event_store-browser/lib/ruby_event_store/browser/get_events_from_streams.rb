@@ -4,17 +4,18 @@ module RubyEventStore
   module Browser
     # Reads the next page of events across several streams merged into one
     # newest-first timeline, using only the single-stream read API. Each
-    # stream is read in as_at order, so the per-stream pages are sorted by
-    # the same key the merge uses and can be zipped together correctly.
+    # stream is read in time order — as_at by default, as_of when sorting
+    # by validity — so the per-stream pages are sorted by the same key the
+    # merge uses and can be zipped together correctly.
     #
     # The shared cursor is a timestamp and pages never split a group of
     # events sharing one: a page runs to the end of its last timestamp
     # (which can make it a little longer than count), so the next page can
     # ask for strictly older events and nothing is dropped or repeated.
     GetEventsFromStreams =
-      Struct.new(:event_store, :stream_names, :cursor, :count, keyword_init: true) do
-        def initialize(event_store:, stream_names:, cursor: nil, count: PAGE_SIZE)
-          super(event_store: event_store, stream_names: stream_names, cursor: cursor, count: count)
+      Struct.new(:event_store, :stream_names, :cursor, :sort, :count, keyword_init: true) do
+        def initialize(event_store:, stream_names:, cursor: nil, sort: nil, count: PAGE_SIZE)
+          super(event_store: event_store, stream_names: stream_names, cursor: cursor, sort: sort, count: count)
         end
 
         def events
@@ -27,7 +28,7 @@ module RubyEventStore
         end
 
         def next_cursor
-          events.last && timestamp(events.last.last).iso8601(TIMESTAMP_PRECISION)
+          events.last && time_of(events.last.last).iso8601(TIMESTAMP_PRECISION)
         end
 
         private
@@ -40,8 +41,8 @@ module RubyEventStore
             return []
           end
 
-          boundary = timestamp(merged[[count, merged.size].min - 1].last)
-          page_rows = rows.select { |_, event| timestamp(event) >= boundary }
+          boundary = time_of(merged[[count, merged.size].min - 1].last)
+          page_rows = rows.select { |_, event| time_of(event) >= boundary }
           @more = full_chunks.any? || merged.size > group(page_rows).size
           group(page_rows + drained_rows(boundary))
         end
@@ -51,7 +52,7 @@ module RubyEventStore
         end
 
         def read_chunk(name)
-          scope = event_store.read.stream(name).as_at.backward.limit(count)
+          scope = time_sorted(event_store.read.stream(name)).backward.limit(count)
           scope = scope.older_than(cursor_time) if cursor_time
           scope.to_a
         end
@@ -64,24 +65,32 @@ module RubyEventStore
         # some of that timestamp's events behind — fetch the whole group.
         def drained_rows(boundary)
           full_chunks
-            .select { |name| timestamp(chunks[name].last) == boundary }
+            .select { |name| time_of(chunks[name].last) == boundary }
             .flat_map { |name| drain(name, boundary).map { |event| [name, event] } }
         end
 
         def drain(name, boundary)
-          event_store.read.stream(name).between(boundary..boundary).to_a
+          time_sorted(event_store.read.stream(name)).between(boundary..boundary).to_a
         end
 
         def group(rows)
           rows
             .group_by { |_, event| event.event_id }
             .map { |_, list| [list.map(&:first).uniq, list.first.last] }
-            .sort_by { |_, event| [timestamp(event), event.event_id] }
+            .sort_by { |_, event| [time_of(event), event.event_id] }
             .reverse
         end
 
-        def timestamp(event)
-          event.metadata.fetch(:timestamp)
+        def time_sorted(scope)
+          as_of? ? scope.as_of : scope.as_at
+        end
+
+        def time_of(event)
+          event.metadata.fetch(as_of? ? :valid_at : :timestamp)
+        end
+
+        def as_of?
+          sort == "as_of"
         end
 
         def cursor_time

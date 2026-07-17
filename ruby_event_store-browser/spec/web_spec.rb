@@ -153,8 +153,11 @@ module RubyEventStore
       expect(body).to include("Comparing fizz, buzz")
     end
 
-    def event_at(time)
-      DummyEvent.new.tap { |event| event.metadata[:timestamp] = time }
+    def event_at(time, valid_at: nil)
+      DummyEvent.new.tap do |event|
+        event.metadata[:timestamp] = time
+        event.metadata[:valid_at] = valid_at if valid_at
+      end
     end
 
     def compare_more_url(stream_names, cursor_time)
@@ -223,6 +226,59 @@ module RubyEventStore
       event_store.append(DummyEvent.new, stream_name: "fizz")
 
       expect(web_client.get("/streams/fizz?compare%5B%5D").body).to include("Events in fizz")
+    end
+
+    specify "compare view sorts by validity time when requested" do
+      event_store.append(e1 = event_at(compare_time + 2, valid_at: compare_time + 11), stream_name: "fizz")
+      event_store.append(e2 = event_at(compare_time + 1, valid_at: compare_time + 12), stream_name: "buzz")
+
+      by_append = web_client.get("/streams/fizz?compare%5B%5D=buzz").body
+      expect(by_append.index(e1.event_id)).to be < by_append.index(e2.event_id)
+      expect(by_append).to include("?compare%5B%5D=buzz&sort=as_of")
+
+      by_validity = web_client.get("/streams/fizz?compare%5B%5D=buzz&sort=as_of").body
+      expect(by_validity.index(e2.event_id)).to be < by_validity.index(e1.event_id)
+      expect(by_validity).to include((compare_time + 12).utc.iso8601(6))
+    end
+
+    specify "compare more endpoint honors as_of sort and carries it in more_url" do
+      events =
+        Array.new(Browser::PAGE_SIZE + 1) { |i| event_at(compare_time + i, valid_at: compare_time + 100 - i) }
+      event_store.append(events, stream_name: "fizz")
+
+      query = URI.encode_www_form([["streams[]", "fizz"], ["sort", "as_of"]])
+      payload = JSON.parse(web_client.get("/streams/compare/more?#{query}").body)
+      expect(payload["html"]).to include(events[0].event_id)
+      expect(payload["html"]).to include((compare_time + 100).utc.iso8601(6))
+      expect(payload["html"]).not_to include(events[20].event_id)
+      expect(payload["more_url"]).to eq(
+        "http://www.example.com/streams/compare/more" \
+          "?#{URI.encode_www_form([["streams[]", "fizz"], ["cursor", (compare_time + 81).iso8601(TIMESTAMP_PRECISION)], ["sort", "as_of"]])}",
+      )
+    end
+
+    specify "compare view carries as_of sort in the url for fetching older events" do
+      events =
+        Array.new(Browser::PAGE_SIZE + 1) { |i| event_at(compare_time + i, valid_at: compare_time + 100 - i) }
+      event_store.append(events, stream_name: "fizz")
+
+      body = web_client.get("/streams/fizz?compare%5B%5D=buzz&sort=as_of").body
+      expect(body).to include(
+        "data-swimlane-more-url-value=\"http://www.example.com/streams/compare/more" \
+          "?#{URI.encode_www_form([["streams[]", "fizz"], ["streams[]", "buzz"], ["cursor", (compare_time + 81).iso8601(TIMESTAMP_PRECISION)], ["sort", "as_of"]])}\"",
+      )
+    end
+
+    specify "unknown sort values fall back to created-at order" do
+      event_store.append(e1 = event_at(compare_time + 2, valid_at: compare_time + 11), stream_name: "fizz")
+      event_store.append(e2 = event_at(compare_time + 1, valid_at: compare_time + 12), stream_name: "buzz")
+
+      body = web_client.get("/streams/fizz?compare%5B%5D=buzz&sort=wrong").body
+      expect(body.index(e1.event_id)).to be < body.index(e2.event_id)
+
+      query = URI.encode_www_form([["streams[]", "fizz"], ["streams[]", "buzz"], ["sort", "wrong"]])
+      html = JSON.parse(web_client.get("/streams/compare/more?#{query}").body).fetch("html")
+      expect(html.index(e1.event_id)).to be < html.index(e2.event_id)
     end
 
     specify "compare more endpoint pages from the cursor" do

@@ -129,12 +129,25 @@ module RubyEventStore
 
         router.add_route("GET", "/streams/compare/more") do |params, urls|
           stream_names = Array(params["streams"])
+          sort = ("as_of" if params["sort"] == "as_of")
           reader =
-            GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names, cursor: params["cursor"])
+            GetEventsFromStreams.new(
+              event_store: event_store,
+              stream_names: stream_names,
+              cursor: params["cursor"],
+              sort: sort,
+            )
 
           json(
-            html: Renderer.new.render("streams/_rows", urls: urls, stream_names: stream_names, events: reader.events),
-            more_url: (urls.compare_more_url(stream_names, reader.next_cursor) if reader.more?),
+            html:
+              Renderer.new.render(
+                "streams/_rows",
+                urls: urls,
+                stream_names: stream_names,
+                events: reader.events,
+                sort: sort,
+              ),
+            more_url: (urls.compare_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
           )
         end
 
@@ -144,14 +157,16 @@ module RubyEventStore
 
           if compare_names.any?
             stream_names = ([stream_name] + compare_names).uniq
-            reader = GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names)
+            sort = ("as_of" if params["sort"] == "as_of")
+            reader = GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names, sort: sort)
 
             html render(
                    "streams/compare",
                    urls: urls,
                    stream_names: stream_names,
                    events: reader.events,
-                   more_url: (urls.compare_more_url(stream_names, reader.next_cursor) if reader.more?),
+                   sort: sort,
+                   more_url: (urls.compare_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
                  )
           else
             reader = GetEventsFromStream.new(event_store: event_store, stream_name: stream_name, page: params["page"])
