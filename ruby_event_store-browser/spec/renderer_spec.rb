@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "tmpdir"
 
 module RubyEventStore
   module Browser
@@ -36,6 +37,29 @@ module RubyEventStore
           expect(
             context.render("layout", content: "marker-content", urls: urls, extension_stylesheets: []),
           ).to include("marker-content")
+        end
+      end
+
+      describe "multiple view roots" do
+        specify "renders template from an additional root, falling back to the default one" do
+          Dir.mktmpdir do |root|
+            File.write(File.join(root, "custom.html.erb"), "custom content")
+            renderer = Renderer.new([root, Renderer::VIEWS_ROOT])
+            expect(renderer.render("custom")).to eq("custom content")
+            expect(renderer.render("not_found")).to include("There's no event with given ID")
+          end
+        end
+
+        specify "earlier roots take precedence" do
+          Dir.mktmpdir do |root|
+            File.write(File.join(root, "not_found.html.erb"), "overridden")
+            renderer = Renderer.new([root, Renderer::VIEWS_ROOT])
+            expect(renderer.render("not_found")).to eq("overridden")
+          end
+        end
+
+        specify "raises when template is not found in any root" do
+          expect { renderer.render("nonexistent") }.to raise_error(ArgumentError, /nonexistent/)
         end
       end
 

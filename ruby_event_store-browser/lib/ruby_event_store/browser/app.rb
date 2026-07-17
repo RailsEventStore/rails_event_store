@@ -78,9 +78,9 @@ module RubyEventStore
       class ExtensionContext
         attr_reader :event_store
 
-        def initialize(event_store, extensions)
+        def initialize(event_store, stylesheets_resolver)
           @event_store = event_store
-          @extensions = extensions
+          @stylesheets_resolver = stylesheets_resolver
         end
 
         def render(template, views_root:, urls:, **locals)
@@ -94,7 +94,7 @@ module RubyEventStore
                 "layout",
                 content: content,
                 urls: urls,
-                extension_stylesheets: @extensions.flat_map { |e| e.respond_to?(:stylesheets) ? e.stylesheets(urls) : [] },
+                extension_stylesheets: @stylesheets_resolver.call(urls),
               ),
             ],
           ]
@@ -151,7 +151,9 @@ module RubyEventStore
                )
         end
 
-        extensions.each { |extension| extension.register_routes(router, ExtensionContext.new(event_store, extensions)) }
+        extensions.each do |extension|
+          extension.register_routes(router, ExtensionContext.new(event_store, method(:extension_stylesheets)))
+        end
 
         router.handle(request)
       rescue EventNotFound
@@ -169,13 +171,15 @@ module RubyEventStore
       end
 
       def extension_links(stream_name, urls)
-        extensions.flat_map do |extension|
-          extension.respond_to?(:stream_links) ? extension.stream_links(stream_name, urls) : []
-        end
+        extensions
+          .select { |extension| extension.respond_to?(:stream_links) }
+          .flat_map { |extension| extension.stream_links(stream_name, urls) }
       end
 
       def extension_stylesheets(urls)
-        extensions.flat_map { |extension| extension.respond_to?(:stylesheets) ? extension.stylesheets(urls) : [] }
+        extensions
+          .select { |extension| extension.respond_to?(:stylesheets) }
+          .flat_map { |extension| extension.stylesheets(urls) }
       end
 
       def format_event_metadata(event)

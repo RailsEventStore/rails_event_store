@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "tmpdir"
 
 module RubyEventStore
   ::RSpec.describe Browser do
@@ -196,8 +197,80 @@ module RubyEventStore
         end.new
       app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
 
-      body = Rack::MockRequest.new(app).get("/streams/all").body
-      expect(body).to include('href="http://example.org/extension.css"')
+      response = Rack::MockRequest.new(app).get("/streams/all")
+      expect(response.status).to eq(200)
+      expect(response.body).to include('href="http://example.org/extension.css"')
+    end
+
+    specify "extension stylesheets are linked on the not found page" do
+      extension =
+        Class.new do
+          def register_routes(router, context)
+          end
+
+          def stylesheets(urls)
+            ["#{urls.app_url}/extension.css"]
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+
+      response = Rack::MockRequest.new(app).get("/events/00000000-0000-0000-0000-000000000000")
+      expect(response).to be_not_found
+      expect(response.body).to include('href="http://example.org/extension.css"')
+    end
+
+    specify "extension can render its own views wrapped in the layout" do
+      Dir.mktmpdir do |views_root|
+        File.write(File.join(views_root, "hello.html.erb"), "<p>hello <%= h(name) %> from <%= urls.app_url %></p>")
+        extension =
+          Class.new do
+            def initialize(views_root)
+              @views_root = views_root
+            end
+
+            def register_routes(router, context)
+              views_root = @views_root
+              router.add_route("GET", "/hello") do |_, urls|
+                context.render("hello", views_root: views_root, urls: urls, name: "world")
+              end
+            end
+
+            def stylesheets(urls)
+              ["#{urls.app_url}/extension.css"]
+            end
+          end.new(views_root)
+        app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+
+        response = WebClient.new(app, "example.org").get("/hello")
+        expect(response.status).to eq(200)
+        expect(response.content_type).to eq("text/html;charset=utf-8")
+        expect(response.body).to include("<p>hello world from http://example.org</p>")
+        expect(response.body.scan("<!DOCTYPE").size).to eq(1)
+        expect(response.body).to include('href="http://example.org/extension.css"')
+      end
+    end
+
+    specify "extensions without optional hooks leave pages untouched" do
+      bare_extension =
+        Class.new do
+          def register_routes(router, context)
+          end
+        end.new
+      linking_extension =
+        Class.new do
+          def register_routes(router, context)
+          end
+
+          def stream_links(stream_name, urls)
+            [{ label: "Inspect stream", url: "#{urls.app_url}/inspect/#{stream_name}" }]
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [bare_extension, linking_extension])
+
+      response = Rack::MockRequest.new(app).get("/streams/special")
+      expect(response.status).to eq(200)
+      expect(response.body).to include("Inspect stream")
+      expect(response.body).not_to include('href=""')
     end
 
     specify "uses configured host for generated URLs" do
