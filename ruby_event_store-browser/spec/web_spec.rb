@@ -150,6 +150,56 @@ module RubyEventStore
       expect(response.body.scan("<!DOCTYPE").size).to eq(1)
     end
 
+    specify "extensions can register their own routes" do
+      extension =
+        Class.new do
+          def register_routes(router, context)
+            router.add_route("GET", "/custom") do |_, _|
+              [200, { "content-type" => "text/plain" }, ["events: #{context.event_store.read.count}"]]
+            end
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+      event_store.append(DummyEvent.new)
+
+      response = Rack::MockRequest.new(app).get("/custom")
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("events: 1")
+    end
+
+    specify "extensions can contribute links on the stream page" do
+      extension =
+        Class.new do
+          def register_routes(router, context)
+          end
+
+          def stream_links(stream_name, urls)
+            return [] unless stream_name.eql?("special")
+            [{ label: "Inspect stream", url: "#{urls.app_url}/inspect/#{stream_name}" }]
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+
+      expect(Rack::MockRequest.new(app).get("/streams/special").body).to include("Inspect stream")
+      expect(Rack::MockRequest.new(app).get("/streams/other").body).not_to include("Inspect stream")
+    end
+
+    specify "extensions can contribute stylesheets to the layout" do
+      extension =
+        Class.new do
+          def register_routes(router, context)
+          end
+
+          def stylesheets(urls)
+            ["#{urls.app_url}/extension.css"]
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+
+      body = Rack::MockRequest.new(app).get("/streams/all").body
+      expect(body).to include('href="http://example.org/extension.css"')
+    end
+
     specify "uses configured host for generated URLs" do
       app =
         Browser::App.new(

@@ -44,10 +44,20 @@ module RubyEventStore
         end
       end
 
+      def initialize(views_roots = [VIEWS_ROOT])
+        @views_roots = views_roots
+      end
+
       def render(template, **locals)
-        path = File.join(VIEWS_ROOT, "#{template}.html.erb")
         context = Context.new(self, locals)
-        ERB.new(File.read(path), trim_mode: "-").result(context.get_binding)
+        ERB.new(File.read(template_path(template)), trim_mode: "-").result(context.get_binding)
+      end
+
+      private
+
+      def template_path(template)
+        @views_roots.map { |root| File.join(root, "#{template}.html.erb") }.find { |path| File.exist?(path) } ||
+          raise(ArgumentError, "Template not found: #{template}")
       end
     end
   end

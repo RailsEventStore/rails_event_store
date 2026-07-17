@@ -13,7 +13,8 @@ module RubyEventStore
         path: nil,
         api_url: nil,
         environment: nil,
-        related_streams_query: DEFAULT_RELATED_STREAMS_QUERY
+        related_streams_query: DEFAULT_RELATED_STREAMS_QUERY,
+        extensions: []
       )
         warn(<<~WARN) if environment
           Passing :environment to RubyEventStore::Browser::App.for is deprecated.
@@ -69,13 +70,41 @@ module RubyEventStore
                 related_streams_query: related_streams_query,
                 host: host,
                 root_path: path,
+                extensions: extensions,
               )
         end
       end
 
-      def initialize(event_store_locator:, related_streams_query:, host:, root_path:)
+      class ExtensionContext
+        attr_reader :event_store
+
+        def initialize(event_store, extensions)
+          @event_store = event_store
+          @extensions = extensions
+        end
+
+        def render(template, views_root:, urls:, **locals)
+          renderer = Renderer.new([views_root, Renderer::VIEWS_ROOT])
+          content = renderer.render(template, urls: urls, **locals)
+          [
+            200,
+            { "content-type" => "text/html;charset=utf-8" },
+            [
+              renderer.render(
+                "layout",
+                content: content,
+                urls: urls,
+                extension_stylesheets: @extensions.flat_map { |e| e.respond_to?(:stylesheets) ? e.stylesheets(urls) : [] },
+              ),
+            ],
+          ]
+        end
+      end
+
+      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, extensions: [])
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
+        @extensions = extensions
         @routing = Urls.from_configuration(host, root_path)
       end
 
@@ -100,6 +129,7 @@ module RubyEventStore
                      urls.stream_page_url(stream_name, cursor, reader.count)
                    },
                  related_streams: related_streams_query.call(stream_name),
+                 extension_links: extension_links(stream_name, urls),
                )
         end
 
@@ -121,6 +151,8 @@ module RubyEventStore
                )
         end
 
+        extensions.each { |extension| extension.register_routes(router, ExtensionContext.new(event_store, extensions)) }
+
         router.handle(request)
       rescue EventNotFound
         not_found(routing.with_request(request))
@@ -130,10 +162,20 @@ module RubyEventStore
 
       private
 
-      attr_reader :event_store_locator, :related_streams_query, :routing
+      attr_reader :event_store_locator, :related_streams_query, :routing, :extensions
 
       def event_store
         event_store_locator.call
+      end
+
+      def extension_links(stream_name, urls)
+        extensions.flat_map do |extension|
+          extension.respond_to?(:stream_links) ? extension.stream_links(stream_name, urls) : []
+        end
+      end
+
+      def extension_stylesheets(urls)
+        extensions.flat_map { |extension| extension.respond_to?(:stylesheets) ? extension.stylesheets(urls) : [] }
       end
 
       def format_event_metadata(event)
@@ -147,7 +189,7 @@ module RubyEventStore
       def render(template, urls:, **locals)
         renderer = Renderer.new
         content = renderer.render(template, urls: urls, **locals)
-        renderer.render("layout", content: content, urls: urls)
+        renderer.render("layout", content: content, urls: urls, extension_stylesheets: extension_stylesheets(urls))
       end
 
       def html(body)
@@ -158,7 +200,7 @@ module RubyEventStore
         renderer = Renderer.new
         content = renderer.render("not_found")
         [404, { "content-type" => "text/html;charset=utf-8" },
-         [renderer.render("layout", content: content, urls: urls)]]
+         [renderer.render("layout", content: content, urls: urls, extension_stylesheets: extension_stylesheets(urls))]]
       end
     end
   end
