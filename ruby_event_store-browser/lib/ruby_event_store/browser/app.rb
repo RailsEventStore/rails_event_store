@@ -78,9 +78,10 @@ module RubyEventStore
       class ExtensionContext
         attr_reader :event_store
 
-        def initialize(event_store, stylesheets_resolver)
+        def initialize(event_store, stylesheets_resolver, scripts_resolver)
           @event_store = event_store
           @stylesheets_resolver = stylesheets_resolver
+          @scripts_resolver = scripts_resolver
         end
 
         def render(template, views_root:, urls:, **locals)
@@ -95,6 +96,7 @@ module RubyEventStore
                 content: content,
                 urls: urls,
                 extension_stylesheets: @stylesheets_resolver.call(urls),
+                extension_scripts: @scripts_resolver.call(urls),
               ),
             ],
           ]
@@ -152,7 +154,7 @@ module RubyEventStore
         end
 
         extensions.each do |extension|
-          extension.register_routes(router, ExtensionContext.new(event_store, method(:extension_stylesheets)))
+          extension.register_routes(router, ExtensionContext.new(event_store, method(:extension_stylesheets), method(:extension_scripts)))
         end
 
         router.handle(request)
@@ -182,6 +184,12 @@ module RubyEventStore
           .flat_map { |extension| extension.stylesheets(urls) }
       end
 
+      def extension_scripts(urls)
+        extensions
+          .select { |extension| extension.respond_to?(:scripts) }
+          .flat_map { |extension| extension.scripts(urls) }
+      end
+
       def format_event_metadata(event)
         event.metadata.to_h.tap do |metadata|
           %i[timestamp valid_at].each do |key|
@@ -193,7 +201,13 @@ module RubyEventStore
       def render(template, urls:, **locals)
         renderer = Renderer.new
         content = renderer.render(template, urls: urls, **locals)
-        renderer.render("layout", content: content, urls: urls, extension_stylesheets: extension_stylesheets(urls))
+        renderer.render(
+          "layout",
+          content: content,
+          urls: urls,
+          extension_stylesheets: extension_stylesheets(urls),
+          extension_scripts: extension_scripts(urls),
+        )
       end
 
       def html(body)
@@ -203,8 +217,19 @@ module RubyEventStore
       def not_found(urls)
         renderer = Renderer.new
         content = renderer.render("not_found")
-        [404, { "content-type" => "text/html;charset=utf-8" },
-         [renderer.render("layout", content: content, urls: urls, extension_stylesheets: extension_stylesheets(urls))]]
+        [
+          404,
+          { "content-type" => "text/html;charset=utf-8" },
+          [
+            renderer.render(
+              "layout",
+              content: content,
+              urls: urls,
+              extension_stylesheets: extension_stylesheets(urls),
+              extension_scripts: extension_scripts(urls),
+            ),
+          ],
+        ]
       end
     end
   end

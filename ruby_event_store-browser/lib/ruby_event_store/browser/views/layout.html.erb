@@ -58,5 +58,8 @@
     </div>
 
     <script type="module" src="<%= urls.browser_js_url %>"></script>
+    <% extension_scripts.each do |src| -%>
+    <script type="module" src="<%= src %>"></script>
+    <% end -%>
   </body>
 </html>
