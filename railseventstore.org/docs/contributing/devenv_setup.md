@@ -54,11 +54,14 @@ copied from any CI matrix cell works verbatim:
 
 ## Running the suites
 
-Inside the devenv shell, use the regular `make` targets:
+Inside the devenv shell, install the gem's dependencies once, then use the regular
+`make` targets:
 
 ```
-make test-ruby_event_store                 # no database needed
-make test-ruby_event_store-active_record   # against Postgres 18 by default
+make install-ruby_event_store                  # bundle install for that gem
+make test-ruby_event_store                     # no database needed
+make install-ruby_event_store-active_record    # bundle install for that gem
+make test-ruby_event_store-active_record       # against Postgres 18 by default
 ```
 
 To reproduce a specific CI matrix cell, use `res-cell`, which maps a short database

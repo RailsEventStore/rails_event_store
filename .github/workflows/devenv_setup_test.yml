@@ -36,12 +36,19 @@ jobs:
         name: railseventstore
         authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
     - run: nix profile install nixpkgs#devenv
+    - uses: actions/cache@v4
+      with:
+        path: ".devenv/state/.bundle"
+        key: "${{ runner.os }}-devenv-gems-${{ hashFiles('**/Gemfile.lock', 'devenv.lock') }}"
+        restore-keys: "${{ runner.os }}-devenv-gems-"
     - run: devenv up -d
     - run: for i in $(seq 1 60); do nc -z localhost 10018 && exit 0; sleep 2; done; exit 1
+    - run: devenv shell -- make install-ruby_event_store-active_record
     - run: devenv shell -- make test-ruby_event_store-active_record
       env:
         DATABASE_URL: postgres://postgres:secret@localhost:10018/rails_event_store
         DATA_TYPE: jsonb
+    - run: devenv shell -- make install-ruby_event_store
     - run: devenv shell -- make test-ruby_event_store
     - if: always()
       run: devenv processes down || true

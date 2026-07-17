@@ -335,6 +335,17 @@ class CI
       { "if" => "always()", "run" => "devenv processes down || true" }
     end
 
+    def cache_gems
+      {
+        "uses" => "actions/cache@v4",
+        "with" => {
+          "path" => ".devenv/state/.bundle",
+          "key" => "${{ runner.os }}-devenv-gems-${{ hashFiles('**/Gemfile.lock', 'devenv.lock') }}",
+          "restore-keys" => "${{ runner.os }}-devenv-gems-",
+        },
+      }
+    end
+
     def make_nix_shell(target, imports: ["redis.nix"])
       { "run" => <<~SHELL, "working-directory" => "${{ env.WORKING_DIRECTORY }}" }
         nix-shell --run "make #{target}" -E"
@@ -725,8 +736,10 @@ class CI
           setup_nix_flakes,
           setup_cachix,
           install_devenv,
+          cache_gems,
           devenv_up,
           wait_for_port(10018),
+          devenv_run("make install-ruby_event_store-active_record"),
           devenv_run(
             "make test-ruby_event_store-active_record",
             env: {
@@ -734,6 +747,7 @@ class CI
               "DATA_TYPE" => "jsonb",
             },
           ),
+          devenv_run("make install-ruby_event_store"),
           devenv_run("make test-ruby_event_store"),
           devenv_down,
         ],
