@@ -69,6 +69,20 @@ module RailsEventStore
         expect(Base64::Transformation.new.dump(record).data[:email]).to be_nil
       end
 
+      specify "skips an attribute declared in the schema but absent from data" do
+        record =
+          RubyEventStore::Record.new(
+            event_id: "id",
+            event_type: "ProfileUpdated",
+            data: { user_id: "u1" },
+            metadata: { encryption: { email: { cipher: "aes-256-gcm", iv: "\x01\x02\x03".b, identifier: "u1" } } },
+            timestamp: Time.now,
+            valid_at: Time.now,
+          )
+
+        expect(Base64::Transformation.new.dump(record).data).to eq({ user_id: "u1" })
+      end
+
       specify "recurses into nested schema branches" do
         record =
           RubyEventStore::Record.new(

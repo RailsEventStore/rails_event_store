@@ -28,8 +28,9 @@ module RailsEventStore
         def recode_encrypted(data, description, &coder)
           description.each do |attribute, leaf_or_branch|
             if leaf?(leaf_or_branch)
-              data[attribute] = coder.call(data[attribute]) unless data[attribute].nil?
-              leaf_or_branch[:iv] = coder.call(leaf_or_branch[:iv])
+              value = data[attribute]
+              data[attribute] = coder.call(value) unless value.nil?
+              leaf_or_branch[:iv] = coder.call(leaf_or_branch.fetch(:iv))
             else
               recode_encrypted(data.fetch(attribute), leaf_or_branch, &coder)
             end
