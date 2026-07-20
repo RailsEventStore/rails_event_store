@@ -17,6 +17,4 @@ matcher:
   ignore:
     - RailsEventStore::Client#initialize
     - RailsEventStore::JSONClient#initialize
-    - RailsEventStore::AfterCommitAsyncDispatcher::AsyncRecord*
-    - RailsEventStore::AfterCommitAsyncDispatcher#async_record
     - RailsEventStore::AsyncHandler.with
