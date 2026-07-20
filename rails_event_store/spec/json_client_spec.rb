@@ -10,6 +10,24 @@ module RailsEventStore
   ::RSpec.describe JSONClient do
     let(:client) { JSONClient.new(repository: RubyEventStore::InMemoryRepository.new(serializer: JSON)) }
 
+    specify "inherits the full constructor signature from Client instead of restating it" do
+      clock = -> { Time.utc(2021, 8, 5, 12, 0, 0) }
+      client = JSONClient.new(repository: RubyEventStore::InMemoryRepository.new(serializer: JSON), clock: clock)
+
+      event = DummyEvent.new
+      client.append(event)
+
+      expect(client.read.event(event.event_id).metadata[:timestamp]).to eq(Time.utc(2021, 8, 5, 12, 0, 0))
+    end
+
+    specify "serializes with JSON via the serializer seam" do
+      event = DummyEvent.new(data: { money: BigDecimal("123.45") })
+      JSONClient.new.append(event)
+
+      raw = ActiveRecord::Base.connection.select_value("select data from event_store_events")
+      expect(raw).to eq(%({"money":"123.45"}))
+    end
+
     specify "reads type of ActiveSupport::TimeWithZone" do
       time_zone = Time.zone
       Time.zone = "Europe/Warsaw"

@@ -4,8 +4,14 @@ require "json"
 
 module RailsEventStore
   class JSONClient < Client
-    def initialize(
-      mapper: RubyEventStore::Mappers::BatchMapper.new(
+    private
+
+    def serializer
+      JSON
+    end
+
+    def default_mapper
+      RubyEventStore::Mappers::BatchMapper.new(
         RubyEventStore::Mappers::PipelineMapper.new(
           RubyEventStore::Mappers::Pipeline.new(
             {
@@ -47,16 +53,7 @@ module RailsEventStore
             RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new,
           ),
         ),
-      ),
-      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: JSON),
-      subscriptions: nil,
-      dispatcher: nil,
-      message_broker: nil,
-      clock: default_clock,
-      correlation_id_generator: default_correlation_id_generator,
-      request_metadata: default_request_metadata
-    )
-      super
+      )
     end
   end
 end
