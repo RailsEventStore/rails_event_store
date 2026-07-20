@@ -92,7 +92,13 @@ module RailsEventStore
     end
 
     def default_mapper
-      RubyEventStore::Mappers::BatchMapper.new
+      RubyEventStore::Mappers::BatchMapper.new(
+        RubyEventStore::Mappers::PipelineMapper.new(RubyEventStore::Mappers::Pipeline.new(*transformations)),
+      )
+    end
+
+    def transformations
+      [RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new]
     end
 
     def default_repository
