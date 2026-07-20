@@ -55,16 +55,16 @@ class CI
       release_test(
         "ruby_event_store-browser",
         steps: [checkout, verify_lockfile, setup_ruby, make("test")],
-        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")),
+        matrix: sparse(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")),
       ),
       release_mutate("ruby_event_store-browser"),
       release_coverage("ruby_event_store-browser"),
       release_test(
         "rails_event_store",
         matrix:
-          join(
-            generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-            generate(ruby_version(RUBY_4_0), bundle_gemfile(RAILS_GEMFILES.take(2))),
+          union(
+            sparse(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+            sparse(ruby_version(RUBY_4_0), bundle_gemfile(RAILS_GEMFILES.take(2))),
           ),
       ),
       release_mutate("rails_event_store"),
@@ -73,29 +73,29 @@ class CI
         "ruby_event_store-active_record",
         services: [postgres_14, postgres_18, mysql_8_4, mysql_9_7],
         matrix:
-          join(
-            generate(
-              generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
-              join(
-                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
-                generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
-                generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+          union(
+            sparse(
+              sparse(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+              union(
+                sparse(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                sparse(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+                sparse(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
               ),
             ),
-            generate(
-              generate(ruby_version(RUBY_4_0), bundle_gemfile(AR_GEMFILES.take(1))),
-              join(
-                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
-                generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
-                generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+            sparse(
+              sparse(ruby_version(RUBY_4_0), bundle_gemfile(AR_GEMFILES.take(1))),
+              union(
+                sparse(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                sparse(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+                sparse(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
               ),
             ),
-            generate(
-              generate(ruby_version(RUBY_3_4), bundle_gemfile(AR_GEMFILES.drop(1))),
-              join(
-                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
-                generate(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
-                generate(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+            sparse(
+              sparse(ruby_version(RUBY_3_4), bundle_gemfile(AR_GEMFILES.drop(1))),
+              union(
+                sparse(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                sparse(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+                sparse(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
               ),
             ),
           ),
@@ -105,9 +105,9 @@ class CI
       contrib_test(
         "ruby_event_store-flipper",
         matrix:
-          join(
-            generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
-            generate(ruby_version(RUBY_4_0), bundle_gemfile(AS_GEMFILES.take(2))),
+          union(
+            sparse(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+            sparse(ruby_version(RUBY_4_0), bundle_gemfile(AS_GEMFILES.take(2))),
           ),
       ),
       contrib_mutate("ruby_event_store-flipper"),
@@ -119,18 +119,18 @@ class CI
         "ruby_event_store-outbox",
         services: [mysql_8_4, mysql_9_7],
         matrix:
-          join(
-            generate(
+          union(
+            sparse(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES),
               database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7),
             ),
-            generate(
+            sparse(
               ruby_version(RUBY_4_0),
               bundle_gemfile(RAILS_GEMFILES.take(1)),
               database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7),
             ),
-            generate(
+            sparse(
               ruby_version(RUBY_3_4),
               bundle_gemfile(RAILS_GEMFILES.drop(1)),
               database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7),
@@ -155,7 +155,7 @@ class CI
       ),
       contrib_test(
         "ruby_event_store-process_manager",
-        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+        matrix: sparse(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
       ),
       contrib_test("ruby_event_store-profiler"),
       contrib_mutate("ruby_event_store-profiler"),
@@ -163,34 +163,34 @@ class CI
       contrib_test(
         "ruby_event_store-protobuf",
         matrix:
-          generate(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE, RAILS_GEMFILES), database_url(SQLITE3)),
+          sparse(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE, RAILS_GEMFILES), database_url(SQLITE3)),
       ),
       contrib_mutate(
         "ruby_event_store-protobuf",
-        matrix: generate(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE)),
+        matrix: sparse(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE)),
       ),
       contrib_coverage(
         "ruby_event_store-protobuf",
-        matrix: generate(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE)),
+        matrix: sparse(ruby_version(MRI_RUBY - [RUBY_4_0]), bundle_gemfile(GEMFILE)),
       ),
       contrib_test(
         "ruby_event_store-rom",
         services: [postgres_14, postgres_18, mysql_8_4, mysql_9_7],
         matrix:
-          join(
-            generate(
+          union(
+            sparse(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(SQLITE),
               data_type(DATA_TYPES_IN_SEQUEL.take(1)),
             ),
-            generate(
+            sparse(
               ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES),
               data_type(DATA_TYPES_IN_SEQUEL),
             ),
-            generate(
+            sparse(
               ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(MYSQL),
@@ -204,20 +204,20 @@ class CI
         "ruby_event_store-sequel",
         services: [postgres_14, postgres_18, mysql_8_4, mysql_9_7],
         matrix:
-          join(
-            generate(
+          union(
+            sparse(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
               database_url(SQLITE),
               data_type(DATA_TYPES_IN_SEQUEL.take(1)),
             ),
-            generate(
+            sparse(
               ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(POSTGRES),
               data_type(DATA_TYPES_IN_SEQUEL),
             ),
-            generate(
+            sparse(
               ruby_version(MRI_RUBY.take(1)),
               bundle_gemfile(GEMFILE),
               database_url(MYSQL),
@@ -229,7 +229,7 @@ class CI
       contrib_coverage("ruby_event_store-sequel"),
       contrib_test(
         "ruby_event_store-sidekiq_scheduler",
-        matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES)),
+        matrix: sparse(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE, SIDEKIQ_GEMFILES)),
         steps: [checkout, setup_nix, setup_cachix, verify_lockfile, setup_ruby, make_nix_shell("test")],
       ),
       contrib_mutate(
@@ -258,7 +258,7 @@ class CI
         "dres_rails",
         services: [postgres_14, postgres_18],
         matrix:
-          generate(
+          sparse(
             ruby_version(MRI_RUBY),
             bundle_gemfile(GEMFILE),
             database_url(POSTGRES),
@@ -538,7 +538,13 @@ class CI
   include Services
 
   module Matrix
-    def generate(*axes)
+    # Sparse matrix: varies one axis at a time against the others' first
+    # (baseline) value — NOT a full cartesian product.
+    #   sparse(ruby_version("4.0", "3.4", "3.3"), bundle_gemfile("G", "R1", "R2"))
+    #   => 5 rows, not 9:
+    #     {ruby 4.0, G} {ruby 3.4, G} {ruby 3.3, G}  +  {ruby 4.0, R1} {ruby 4.0, R2}
+    # For the full product use Szczupac.permutation.
+    def sparse(*axes)
       Szczupac.generate(*axes)
     end
 
@@ -546,7 +552,8 @@ class CI
       Szczupac.axis(name, Array(items.flatten))
     end
 
-    def join(*axes)
+    # Set union of matrix rows (dedup) — for composing several sparse blocks.
+    def union(*axes)
       axes.flatten.uniq
     end
 
@@ -579,7 +586,7 @@ class CI
         job_name: "test",
         name: "#{gem}_#{job_name}",
         working_directory: gem,
-        matrix: generate(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
+        matrix: sparse(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE)),
         steps: [checkout, verify_lockfile, setup_ruby, make("test")],
         services: [],
         triggers: release_triggers(name),
@@ -638,7 +645,7 @@ class CI
     def contrib_test(
       name,
       working_directory: "contrib/#{name}",
-      matrix: generate(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+      matrix: sparse(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
       **
     )
       Workflow.new(
@@ -652,7 +659,7 @@ class CI
 
     def release_mutate(
       name,
-      matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+      matrix: sparse(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout(depth: 0), verify_lockfile, setup_ruby, make("mutate-changes")],
       **
     )
@@ -673,7 +680,7 @@ class CI
     def contrib_mutate(
       name,
       working_directory: "contrib/#{name}",
-      matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+      matrix: sparse(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout(depth: 0), verify_lockfile, setup_ruby, make("mutate-changes")],
       **
     )
@@ -695,7 +702,7 @@ class CI
 
     def release_coverage(
       name,
-      matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+      matrix: sparse(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
       **
     )
@@ -716,7 +723,7 @@ class CI
     def contrib_coverage(
       name,
       working_directory: "contrib/#{name}",
-      matrix: generate(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
+      matrix: sparse(ruby_version(MRI_RUBY.take(1)), bundle_gemfile(GEMFILE)),
       steps: [checkout, verify_lockfile, setup_ruby, make("mutate")],
       **
     )
