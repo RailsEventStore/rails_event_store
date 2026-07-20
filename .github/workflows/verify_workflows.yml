@@ -1,0 +1,25 @@
+name: verify_workflows
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - master
+    paths:
+    - support/ci/**
+    - ".github/workflows/**"
+  pull_request:
+    paths:
+    - support/ci/**
+    - ".github/workflows/**"
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "4.0"
+    - run: make verify-workflows

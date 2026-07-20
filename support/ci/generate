@@ -790,4 +790,5 @@ class CI
   attr_reader :workflows_root, :template_root
 end
 
-CI.new(File.join(__dir__, "../../.github/workflows/"), __dir__).as_github_actions
+workflows_root = ENV.fetch("WORKFLOWS_ROOT", File.join(__dir__, "../../.github/workflows/"))
+CI.new(workflows_root, __dir__).as_github_actions

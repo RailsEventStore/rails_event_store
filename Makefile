@@ -101,6 +101,18 @@ push: $(addprefix push-, $(GEMS)) ## Push all gem packages to RubyGems
 
 clean: $(addprefix clean-, $(GEMS)) ## Remove all previously built packages
 
+verify-workflows: ## Verify .github/workflows match support/ci/generate
+	@tmp=`mktemp -d`; \
+	WORKFLOWS_ROOT=$$tmp ruby support/ci/generate >/dev/null; \
+	out=`diff -ruN -x verify_workflows.yml .github/workflows $$tmp`; \
+	rm -rf $$tmp; \
+	if [ -n "$$out" ]; then \
+		echo "workflows drifted from support/ci/generate — edit the script, not the YAML:"; \
+		echo "$$out"; \
+		exit 1; \
+	fi; \
+	echo "workflows in sync with support/ci/generate"
+
 release: git-check-clean git-check-committed install test git-tag clean build push ## Make a new release on RubyGems
 	@echo Released v$(RES_VERSION)
 
