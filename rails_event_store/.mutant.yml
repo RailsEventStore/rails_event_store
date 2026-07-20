@@ -20,4 +20,5 @@ matcher:
     - RailsEventStore::Serialization::JSON#preserve_types
     - RailsEventStore::Encryption#initialize
     - RailsEventStore::Encryption#transformations
+    - RailsEventStore::Encoding::Base64#transformations
     - RailsEventStore::AsyncHandler.with

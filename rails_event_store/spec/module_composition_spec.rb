@@ -28,6 +28,27 @@ module RailsEventStore
       expect(raw).not_to include("bob@secret")
     end
 
+    specify "Base64 encoding bridges encryption and JSON so ciphertext is stored as valid JSON" do
+      key_repository = RubyEventStore::Mappers::InMemoryEncryptionKeyRepository.new
+      user_id = SecureRandom.uuid
+      key_repository.create(user_id)
+      client_class =
+        Class.new(Client) do
+          include Serialization::JSON
+          include Encoding::Base64
+          prepend Encryption
+        end
+      client = client_class.new(key_repository: key_repository)
+
+      event = ProfileUpdated.new(data: { user_id: user_id, email: "dave@secret" })
+      client.publish(event)
+
+      expect(client.read.event(event.event_id).data[:email]).to eq("dave@secret")
+      raw = ActiveRecord::Base.connection.select_value("select data from event_store_events")
+      expect { ::JSON.parse(raw) }.not_to raise_error
+      expect(raw).not_to include("dave@secret")
+    end
+
     specify "two transformation modules compose in include order onto the same client" do
       first = Module.new { private def transformations = [marker(:first), *super] }
       second = Module.new { private def transformations = [marker(:second), *super] }
