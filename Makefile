@@ -101,6 +101,9 @@ push: $(addprefix push-, $(GEMS)) ## Push all gem packages to RubyGems
 
 clean: $(addprefix clean-, $(GEMS)) ## Remove all previously built packages
 
+generate-workflows: ## Regenerate .github/workflows from support/ci/generate
+	@ruby support/ci/generate
+
 verify-workflows: ## Verify .github/workflows match support/ci/generate
 	@tmp=`mktemp -d`; \
 	WORKFLOWS_ROOT=$$tmp ruby support/ci/generate >/dev/null; \
