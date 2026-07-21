@@ -73,7 +73,8 @@
       "collapsed": false,
       "items": [
         "contributing/maintenance_policy",
-        "contributing/devenv_setup"
+        "contributing/devenv_setup",
+        "contributing/ci_workflows"
       ]
     }
   ]
