@@ -78,6 +78,11 @@ const CompaniesList = [
     name: "WarmlyYours",
     img: "/images/warmlyyours-logo-red-fktx2n.png",
     link: "https://www.warmlyyours.com",
+  },
+  {
+    name: "wrapbook",
+    img: "/images/wrapbook.svg",
+    link: "https://www.wrapbook.com",
   }
 ];
 
