@@ -6,11 +6,11 @@
   <div class="pt-3 flex items-center gap-2 text-sm">
     <span class="text-gray-500">Sort by</span>
     <% if sort == "as_of" -%>
-      <a class="no-underline text-gray-500 hover:text-red-700" href="<%= swimlane.swimlane_url(urls, stream_names) %>">created at</a>
+      <a class="no-underline text-gray-500 hover:text-red-700" href="<%= urls.swimlane_url(stream_names) %>">created at</a>
       <span class="font-bold text-red-700">valid at</span>
     <% else -%>
       <span class="font-bold text-red-700">created at</span>
-      <a class="no-underline text-gray-500 hover:text-red-700" href="<%= swimlane.swimlane_url(urls, stream_names, "as_of") %>">valid at</a>
+      <a class="no-underline text-gray-500 hover:text-red-700" href="<%= urls.swimlane_url(stream_names, "as_of") %>">valid at</a>
     <% end -%>
   </div>
 
@@ -24,7 +24,7 @@
               <div class="flex justify-between items-center gap-2">
                 <span class="break-words"><%= h(stream_name) %></span>
                 <% if stream_names.size > 1 -%>
-                  <a class="text-gray-400 hover:text-red-700 no-underline text-xl leading-none" href="<%= swimlane.swimlane_url(urls, stream_names - [stream_name], sort) %>" title="Remove from comparison">&times;</a>
+                  <a class="text-gray-400 hover:text-red-700 no-underline text-xl leading-none" href="<%= urls.swimlane_url(stream_names - [stream_name], sort) %>" title="Remove from comparison">&times;</a>
                 <% end -%>
               </div>
             </th>
@@ -32,7 +32,7 @@
         </tr>
       </thead>
       <tbody data-swimlane-target="tbody">
-        <%= render("_rows", urls: urls, stream_names: stream_names, events: events, sort: sort) %>
+        <%= render("swimlane/_rows", urls: urls, stream_names: stream_names, events: events, sort: sort) %>
       </tbody>
     </table>
   </div>

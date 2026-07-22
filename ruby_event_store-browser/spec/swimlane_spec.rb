@@ -6,9 +6,9 @@ require "uri"
 
 module RubyEventStore
   module Browser
-    ::RSpec.describe Swimlane do
+    ::RSpec.describe Browser do
       let(:event_store) { RubyEventStore::Client.new }
-      let(:app) { App.for(event_store_locator: -> { event_store }, extensions: [Swimlane.new]) }
+      let(:app) { App.for(event_store_locator: -> { event_store }) }
       let(:client) { Rack::MockRequest.new(Rack::Lint.new(app)) }
       let(:base_time) { Time.utc(2024, 1, 1, 12, 0, 0) }
 
@@ -158,18 +158,6 @@ module RubyEventStore
         expect(body).to include("data-swimlane-more-url-value=\"#{more_url(%w[fizz], base_time + 81, "as_of")}\"")
       end
 
-      specify "exposes its script url for the layout" do
-        urls = Urls.from_configuration("http://example.org", nil)
-        expect(Swimlane.new.scripts(urls)).to eq(["http://example.org/swimlane/swimlane.js"])
-      end
-
-      specify "exposes a compare link for the stream page" do
-        urls = Urls.from_configuration("http://example.org", nil)
-        expect(Swimlane.new.stream_links("fizz", urls)).to eq(
-          [{ label: "Streamline", url: "http://example.org/swimlane?streams%5B%5D=fizz" }],
-        )
-      end
-
       specify "comparing the all stream shows the global timeline" do
         event_store.append(event = event_at(base_time), stream_name: "orders")
 
@@ -177,26 +165,12 @@ module RubyEventStore
         expect(body).to include(event.event_id)
       end
 
-      specify "contributes a compare link on the stream page" do
+      specify "stream page links to comparing that stream" do
         event_store.append(event_at(base_time), stream_name: "fizz")
 
         body = client.get("/streams/fizz").body
         expect(body).to include("Streamline")
         expect(body).to include("http://example.org/swimlane?streams%5B%5D=fizz")
-      end
-
-      specify "contributes its script to the layout" do
-        response = client.get("/streams/all")
-        expect(response.body).to include(
-          '<script type="module" src="http://example.org/swimlane/swimlane.js"></script>',
-        )
-      end
-
-      specify "serves its script" do
-        response = client.get("/swimlane/swimlane.js")
-        expect(response.status).to eq(200)
-        expect(response.headers["content-type"]).to eq("text/javascript")
-        expect(response.body).to include('application.register(\n  "swimlane",'.gsub('\n', "\n"))
       end
 
       specify "removing a stream from comparison keeps the sort" do

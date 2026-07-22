@@ -162,6 +162,41 @@ module RubyEventStore
                )
         end
 
+        router.add_route("GET", "/swimlane") do |params, urls|
+          stream_names, sort = swimlane_params(params)
+          reader = GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names, sort: sort)
+          html render(
+                 "swimlane/show",
+                 urls: urls,
+                 stream_names: stream_names,
+                 events: reader.events,
+                 sort: sort,
+                 more_url: (urls.swimlane_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
+               )
+        end
+
+        router.add_route("GET", "/swimlane/more") do |params, urls|
+          stream_names, sort = swimlane_params(params)
+          reader =
+            GetEventsFromStreams.new(
+              event_store: event_store,
+              stream_names: stream_names,
+              cursor: params["cursor"],
+              sort: sort,
+            )
+          json(
+            html:
+              Renderer.new.render(
+                "swimlane/_rows",
+                urls: urls,
+                stream_names: stream_names,
+                events: reader.events,
+                sort: sort,
+              ),
+            more_url: (urls.swimlane_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
+          )
+        end
+
         extensions.each do |extension|
           extension.register_routes(router, ExtensionContext.new(event_store, method(:extension_stylesheets), method(:extension_scripts)))
         end
@@ -221,6 +256,16 @@ module RubyEventStore
 
       def html(body)
         [200, { "content-type" => "text/html;charset=utf-8" }, [body]]
+      end
+
+      def json(body)
+        [200, { "content-type" => "application/json" }, [JSON.generate(body)]]
+      end
+
+      def swimlane_params(params)
+        stream_names = Array(params["streams"]).reject { |name| name.nil? || name.empty? }.uniq
+        sort = ("as_of" if params["sort"] == "as_of")
+        [stream_names, sort]
       end
 
       def not_found(urls)
