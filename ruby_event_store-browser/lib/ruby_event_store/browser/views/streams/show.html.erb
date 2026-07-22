@@ -15,11 +15,15 @@
       </ul>
     </div>
   </div>
-  <div class="pt-3 flex gap-2">
-    <% [{ label: "Streamline", url: urls.swimlane_url([stream_name]) }].concat(extension_links).each do |link| -%>
-      <a class="inline-block text-center text-sm bg-red-700 text-gray-100 border border-red-700 rounded px-2 py-1" href="<%= link[:url] %>"><%= h(link[:label]) %></a>
-    <% end -%>
-  </div>
+  <% swimlane_link = { label: "Swimlane view", url: urls.swimlane_url([stream_name]) } unless stream_name == SERIALIZED_GLOBAL_STREAM_NAME -%>
+  <% links = [swimlane_link, *extension_links].compact -%>
+  <% if links.any? -%>
+    <div class="pt-3 flex gap-2">
+      <% links.each do |link| -%>
+        <a class="inline-block text-center text-sm bg-red-700 text-gray-100 border border-red-700 rounded px-2 py-1" href="<%= link[:url] %>"><%= h(link[:label]) %></a>
+      <% end -%>
+    </div>
+  <% end -%>
   <div>
     <div class="overflow-x-scroll sm:overflow-visible w-full">
       <table class="my-10 w-full lg:table-fixed text-left">

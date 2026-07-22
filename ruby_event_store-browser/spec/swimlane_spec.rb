@@ -169,8 +169,14 @@ module RubyEventStore
         event_store.append(event_at(base_time), stream_name: "fizz")
 
         body = client.get("/streams/fizz").body
-        expect(body).to include("Streamline")
+        expect(body).to include("Swimlane view")
         expect(body).to include("http://example.org/swimlane?streams%5B%5D=fizz")
+      end
+
+      specify "the global stream page does not link to the swimlane view" do
+        event_store.append(event_at(base_time), stream_name: "fizz")
+
+        expect(client.get("/streams/all").body).not_to include("Swimlane view")
       end
 
       specify "removing a stream from comparison keeps the sort" do
