@@ -4,12 +4,12 @@ require "spec_helper"
 
 module RubyEventStore
   module Browser
-    ::RSpec.describe Swimlane::GetEventsFromStreams do
+    ::RSpec.describe GetEventsFromStreams do
       let(:event_store) { RubyEventStore::Client.new }
       let(:base_time) { Time.utc(2024, 1, 1, 12, 0, 0) }
 
       def reader(stream_names:, cursor: nil, sort: nil, count: 20)
-        Swimlane::GetEventsFromStreams.new(
+        GetEventsFromStreams.new(
           event_store: event_store,
           stream_names: stream_names,
           cursor: cursor,

@@ -39,6 +39,14 @@ module RubyEventStore
         "#{stream_url(stream_name)}?#{query}"
       end
 
+      def swimlane_url(stream_names, sort = nil)
+        "#{app_url}/swimlane?#{swimlane_query(stream_names, sort)}"
+      end
+
+      def swimlane_more_url(stream_names, cursor, sort)
+        "#{app_url}/swimlane/more?#{swimlane_query(stream_names, sort, [["cursor", cursor]])}"
+      end
+
       def browser_js_url
         "#{app_url}/#{BROWSER_JS}"
       end
@@ -49,6 +57,15 @@ module RubyEventStore
 
       def ==(other)
         self.class.eql?(other.class) && app_url.eql?(other.app_url)
+      end
+
+      private
+
+      def swimlane_query(stream_names, sort, extra = [])
+        pairs = stream_names.map { |name| ["streams[]", name] }
+        pairs.concat(extra)
+        pairs << ["sort", sort] if sort
+        URI.encode_www_form(pairs)
       end
     end
   end
