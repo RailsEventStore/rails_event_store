@@ -1194,6 +1194,47 @@ module RubyEventStore
       expect(repository.streams_of("d10c8fe9-2163-418d-ba47-88c9a1f9391b")).to eq []
     end
 
+    specify "search_streams finds streams matching a prefix, sorted" do
+      stream_a = Stream.new("Stream A")
+      stream_b = Stream.new("Stream B")
+      stream_c = Stream.new("Stream C")
+      repository.append_to_stream([SRecord.new], stream_c, version_any)
+      repository.append_to_stream([SRecord.new], stream_a, version_any)
+      repository.append_to_stream([SRecord.new], stream_b, version_any)
+
+      expect(repository.search_streams("Stream")).to eq [stream_a, stream_b, stream_c]
+      expect(repository.search_streams("Stream A")).to eq [stream_a]
+      expect(repository.search_streams("Stream B")).to eq [stream_b]
+      expect(repository.search_streams("Stream C")).to eq [stream_c]
+      expect(repository.search_streams("Nonexistent")).to eq []
+    end
+
+    specify "search_streams matches case-sensitively" do
+      skip unless helper.supports_case_sensitive_search_streams?
+
+      stream_a = Stream.new("Stream A")
+      repository.append_to_stream([SRecord.new], stream_a, version_any)
+
+      expect(repository.search_streams("stream")).to eq []
+    end
+
+    specify "search_streams respects the limit" do
+      stream_a = Stream.new("Stream A")
+      stream_b = Stream.new("Stream B")
+      stream_c = Stream.new("Stream C")
+      repository.append_to_stream([SRecord.new], stream_c, version_any)
+      repository.append_to_stream([SRecord.new], stream_a, version_any)
+      repository.append_to_stream([SRecord.new], stream_b, version_any)
+
+      expect(repository.search_streams("Stream", limit: 2)).to eq [stream_a, stream_b]
+    end
+
+    specify "search_streams defaults to a limit of 10" do
+      11.times { |i| repository.append_to_stream([SRecord.new], Stream.new("Stream #{i.to_s.rjust(2, "0")}"), version_any) }
+
+      expect(repository.search_streams("Stream").size).to eq(10)
+    end
+
     specify do
       e1 = SRecord.new(event_id: "8a6f053e-3ce2-4c82-a55b-4d02c66ae6ea")
       e2 = SRecord.new(event_id: "8cee1139-4f96-483a-a175-2b947283c3c7")

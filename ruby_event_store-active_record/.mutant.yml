@@ -21,6 +21,8 @@ matcher:
     - RubyEventStore::ActiveRecord::IndexViolationDetector#detect
     - RubyEventStore::ActiveRecord::IndexViolationDetector#detect_mysql
     - RubyEventStore::ActiveRecord::IndexViolationDetector#detect_postgres
+    - RubyEventStore::ActiveRecord::StreamPrefixPattern::Like*
+    - RubyEventStore::ActiveRecord::StreamPrefixPattern.c_collation_index?
     - RubyEventStore::ActiveRecord::PgLinearizedEventRepository*
     - RubyEventStore::ActiveRecord::EventRepository#update_messages
     - RubyEventStore::ActiveRecord::EventRepository#upsert_hash
@@ -43,3 +45,5 @@ matcher:
     - RubyEventStore::ActiveRecord::RailsValidAtIndexMigrationGenerator#initialize
     - RubyEventStore::ActiveRecord::RailsValidAtIndexMigrationGenerator#create_migration
     - RubyEventStore::ActiveRecord::RailsStreamIdIndexMigrationGenerator#initialize
+    - RubyEventStore::ActiveRecord::RailsStreamCCollationIndexMigrationGenerator#initialize
+    - RubyEventStore::ActiveRecord::RailsStreamCCollationIndexMigrationGenerator#create_migration

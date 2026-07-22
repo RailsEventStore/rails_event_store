@@ -31,6 +31,10 @@ module RubyEventStore
       true
     end
 
+    def supports_case_sensitive_search_streams?
+      true
+    end
+
     def has_connection_pooling?
       false
     end

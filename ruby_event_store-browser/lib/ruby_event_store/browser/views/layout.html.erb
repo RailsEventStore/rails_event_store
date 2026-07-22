@@ -38,12 +38,13 @@
             <form data-action="search#go">
               <div class="relative">
                 <svg class="size-4 text-gray-400 absolute pointer-events-none top-3.5 left-2" fill="none" height="24" width="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input data-search-target="input" class="rounded text-gray-800 cursor-pointer pl-8 pr-12 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50" placeholder="Go to stream&hellip;" autofocus>
+                <input data-search-target="input" data-action="input->search#type" class="rounded text-gray-800 cursor-pointer pl-8 pr-12 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50" placeholder="Go to stream&hellip;" autofocus>
                 <span class="absolute top-0 h-full flex items-center right-3 text-[.5rem] pointer-events-none">
                   <span class="text-gray-500 bg-gray-50 font-bold block p-1 border border-gray-300 rounded">ESC</span>
                 </span>
               </div>
             </form>
+            <ul data-search-target="list" class="mt-4 overflow-auto space-y-2 w-full"></ul>
           </div>
         </dialog>
       </main>

@@ -347,6 +347,71 @@ module RubyEventStore
         expect(repository.read(specification.backward.limit(1).result).first.data).to eq("kaka dudu")
       end
 
+      describe "#search_streams" do
+        specify "uses a bounded number of queries regardless of the limit" do
+          %w[Stream-A Stream-B Stream-C].each do |name|
+            repository.append_to_stream([SRecord.new], Stream.new(name), ExpectedVersion.any)
+          end
+
+          expect { repository.search_streams("Stream", limit: 2) }.to match_query_count(be <= 3)
+        end
+
+        specify "query count does not grow with the number of events in a matching stream" do
+          repository.append_to_stream(Array.new(500) { SRecord.new }, Stream.new("Hot-Stream"), ExpectedVersion.any)
+          repository.append_to_stream([SRecord.new], Stream.new("Other-Stream"), ExpectedVersion.any)
+
+          expect { repository.search_streams("H", limit: 20) }.to match_query_count(be <= 2)
+        end
+
+        specify "orders each hop by stream name" do
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-B"), ExpectedVersion.any)
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
+
+          expect { repository.search_streams("Stream-") }.to match_query(/order by .*stream.* asc/i, be >= 1)
+        end
+
+        specify "on Postgres spells the hops with COLLATE \"C\" to match the index" do
+          skip unless helper.postgres?
+
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
+
+          expect { repository.search_streams("Stream") }.to match_query(/COLLATE "C" LIKE/, be >= 1)
+        end
+
+        specify "on Postgres the search is unavailable without the stream COLLATE \"C\" index" do
+          skip unless helper.postgres?
+
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
+          ::ActiveRecord::Base.connection.remove_index(
+            :event_store_events_in_streams,
+            name: "index_event_store_events_in_streams_on_stream_c_collation",
+          )
+
+          expect(repository.search_streams("Stream")).to eq([])
+        end
+
+        specify "the search is unavailable when no pattern strategy exists for the adapter" do
+          repository.append_to_stream([SRecord.new], Stream.new("Stream-A"), ExpectedVersion.any)
+          allow(StreamPrefixPattern).to receive(:for).and_return(nil)
+
+          expect(repository.search_streams("Stream")).to eq([])
+        end
+
+        specify "escapes LIKE special characters in the prefix" do
+          repository.append_to_stream([SRecord.new], Stream.new("50%off"), ExpectedVersion.any)
+          repository.append_to_stream([SRecord.new], Stream.new("50Xoff"), ExpectedVersion.any)
+
+          expect(repository.search_streams("50%").map(&:name)).to eq(["50%off"])
+        end
+
+        specify "limit defaults to 10" do
+          11.times { |i| repository.append_to_stream([SRecord.new], Stream.new("Stream-#{i.to_s.rjust(2, "0")}"), ExpectedVersion.any) }
+
+          expect(repository.search_streams("Stream-").size).to eq(10)
+          expect(repository.search_streams("Stream-", limit: 11).size).to eq(11)
+        end
+      end
+
       private
 
       def with_precision(time)

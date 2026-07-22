@@ -889,6 +889,29 @@ module RubyEventStore
       end
     end
 
+    describe "#search_streams" do
+      specify do
+        stream_1 = Stream.new("stream-1")
+        stream_2 = Stream.new("stream-2")
+        stream_3 = Stream.new("stream-3")
+        client.append(OrderCreated.new(data: {}), stream_name: stream_1.name)
+        client.append(OrderCreated.new(data: {}), stream_name: stream_2.name)
+        client.append(OrderCreated.new(data: {}), stream_name: stream_3.name)
+
+        expect(client.search_streams("stream")).to eq [stream_1, stream_2, stream_3]
+        expect(client.search_streams("stream-1")).to eq [stream_1]
+        expect(client.search_streams("stream-4")).to eq []
+      end
+
+      specify "limit defaults to 10" do
+        11.times { |i| client.append(OrderCreated.new(data: {}), stream_name: "stream-#{i.to_s.rjust(2, "0")}") }
+
+        expect(client.search_streams("stream-").size).to eq(10)
+        expect(client.search_streams("stream-", limit: 11).size).to eq(11)
+        expect(client.search_streams("stream-", limit: 5).size).to eq(5)
+      end
+    end
+
     describe "#subscribers_for" do
       specify do
         handler = Subscribers::ValidHandler.new

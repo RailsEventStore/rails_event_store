@@ -143,6 +143,9 @@ module RubyEventStore
                  extension_links: extension_links(stream_name, urls),
                )
         end
+        router.add_route("GET", "/search_streams/:prefix") do |params|
+          json SearchStreams.new(event_store: event_store, prefix: params.fetch("prefix"))
+        end
 
         router.add_route("GET", "/events/:event_id") do |params, urls|
           event = event_store.read.event!(params.fetch("event_id"))
@@ -221,6 +224,10 @@ module RubyEventStore
 
       def html(body)
         [200, { "content-type" => "text/html;charset=utf-8" }, [body]]
+      end
+
+      def json(body)
+        [200, { "content-type" => "application/json;charset=utf-8" }, [JSON.dump(body.to_h)]]
       end
 
       def not_found(urls)

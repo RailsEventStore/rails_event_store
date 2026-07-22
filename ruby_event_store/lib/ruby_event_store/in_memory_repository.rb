@@ -122,6 +122,10 @@ module RubyEventStore
       streams.select { |name,| has_event_in_stream?(event_id, name) }.map { |name,| Stream.new(name) }
     end
 
+    def search_streams(prefix, limit: 10)
+      streams.keys.select { |name| name.start_with?(prefix) }.sort.first(limit).map { |name| Stream.new(name) }
+    end
+
     def position_in_stream(event_id, stream)
       event_in_stream = streams[stream.name].find { |event_in_stream| event_in_stream.event_id.eql?(event_id) }
       raise EventNotFoundInStream if event_in_stream.nil?

@@ -41,6 +41,27 @@ module RubyEventStore
         @stream_klass.where(event_id: event_id).pluck(:stream).map { |name| Stream.new(name) }
       end
 
+      # Walks to the next matching stream name one indexable hop at a time, instead of a
+      # single DISTINCT/GROUP BY or recursive CTE query -- neither is portable/reliable
+      # across the supported adapters for this access pattern. On PostgreSQL the search
+      # is available only when the stream COLLATE "C" index is present (see
+      # StreamPrefixPattern) and returns no results otherwise.
+      def search_streams(prefix, limit:)
+        pattern = StreamPrefixPattern.for(@stream_klass)
+        return [] unless pattern
+        names = []
+        cursor = nil
+        while names.size < limit
+          scope = @stream_klass.where(pattern.condition, pattern.bind_value(prefix))
+          scope = scope.where(pattern.cursor_condition, cursor) if cursor
+          next_name = scope.order(pattern.order).pick(:stream)
+          break unless next_name
+          names << next_name
+          cursor = next_name
+        end
+        names.map { |name| Stream.new(name) }
+      end
+
       def position_in_stream(event_id, stream)
         record = @stream_klass.select("position").where(stream: stream.name).find_by(event_id: event_id)
         raise EventNotFoundInStream if record.nil?

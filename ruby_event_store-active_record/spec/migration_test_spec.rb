@@ -62,6 +62,7 @@ module RubyEventStore
               "index_event_store_events_in_streams_on_stream_and_event_id" UNIQUE, btree (stream, event_id)
               "index_event_store_events_in_streams_on_stream_and_id" btree (stream, id)
               "index_event_store_events_in_streams_on_stream_and_position" UNIQUE, btree (stream, "position")
+              "index_event_store_events_in_streams_on_stream_c_collation" btree (stream COLLATE "C")
           Foreign-key constraints:
               "fk_rails_c8d52b5857" FOREIGN KEY (event_id) REFERENCES event_store_events(event_id)
         SCHEMA
