@@ -22,6 +22,7 @@ module RubyEventStore
 end
 
 require_relative "browser/get_events_from_stream"
+require_relative "browser/get_events_from_streams"
 require_relative "browser/urls"
 require_relative "browser/router"
 require_relative "browser/renderer"

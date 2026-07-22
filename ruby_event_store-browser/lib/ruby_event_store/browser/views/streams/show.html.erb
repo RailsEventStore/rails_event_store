@@ -1,6 +1,9 @@
 <div class="py-8 container mx-auto">
   <div class="flex justify-between">
-    <h1 class="font-bold text-2xl">Events in <%= h(stream_name) %></h1>
+    <div class="flex items-center gap-3">
+      <h1 class="font-bold text-2xl">Events in <%= h(stream_name) %></h1>
+      <button class="text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1" data-action="compare#open">+ Compare</button>
+    </div>
     <div>
       <ul class="flex">
         <% [["first", pagination[:first]], ["previous", pagination[:prev]], ["next", pagination[:next]], ["last", pagination[:last]]].each do |label, url| -%>

@@ -26,10 +26,31 @@ sample_event_type =
     [namespaces.sample, events.sample].join("::")
   end
 
-event_store.publish(
-  90.times.map { RubyEventStore::Event.new(data: sample_data, metadata: { event_type: sample_event_type.call }) },
-  stream_name: "DummyStream$78",
-)
+# Spread events across a realistic time range instead of publishing them all
+# within the same millisecond — mixes tight bursts (sub-second gaps, to
+# exercise the swimlane's same-timestamp grouping) with sparser gaps (up to a
+# minute), across several streams with different endpoints so the compare
+# view has plenty to line up.
+GAP_POOL = [0.002, 0.01, 0.05, 0.2, 1, 3, 8, 20, 45].freeze
+
+seed_stream =
+  lambda do |stream_name, count:, end_at:|
+    gaps = Array.new(count) { GAP_POOL.sample * rand }
+    time = end_at - gaps.sum
+
+    gaps.each do |gap|
+      time += gap
+      event = RubyEventStore::Event.new(data: sample_data, metadata: { event_type: sample_event_type.call })
+      event.metadata[:timestamp] = time
+      event.metadata[:valid_at] = time
+      event_store.publish(event, stream_name: stream_name)
+    end
+  end
+
+now = Time.now.utc
+seed_stream.call("DummyStream$78", count: 300, end_at: now)
+seed_stream.call("DummyStream$79", count: 220, end_at: now - 12)
+seed_stream.call("DummyStream$80", count: 180, end_at: now - 40)
 
 other_event =
   RubyEventStore::Event.new(

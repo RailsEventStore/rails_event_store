@@ -27,6 +27,32 @@ application.register(
 )
 
 application.register(
+  "compare",
+  class extends Controller {
+    static targets = ["dialog", "input"]
+
+    open(event) {
+      event?.preventDefault()
+      this.dialogTarget.showModal()
+      this.inputTarget.focus()
+    }
+
+    close() {
+      this.dialogTarget.close()
+    }
+
+    go(event) {
+      event.preventDefault()
+      const name = this.inputTarget.value
+      if (!name) return
+      const url = new URL(window.location.href)
+      url.searchParams.append("compare[]", name)
+      window.location = url.toString()
+    }
+  },
+)
+
+application.register(
   "timezone",
   class extends Controller {
     static targets = ["time", "zone", "select"]
@@ -78,6 +104,55 @@ application.register(
         }).formatToParts(new Date(iso)).map((p) => [p.type, p.value])
       )
       return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}.${parts.fractionalSecond}`
+    }
+  },
+)
+
+application.register(
+  "swimlane",
+  class extends Controller {
+    static targets = ["tbody"]
+    static values = { moreUrl: String }
+
+    connect() {
+      this.onScroll = () => this.catchUp()
+      window.addEventListener("scroll", this.onScroll, { passive: true })
+      this.catchUp()
+    }
+
+    disconnect() {
+      window.removeEventListener("scroll", this.onScroll)
+    }
+
+    // Rows are just a plain table — the browser aligns columns and draws row
+    // borders on its own, no layout math needed here. One shared cursor for
+    // every stream at once (see #compare_more) means there's nothing to fall
+    // behind — just check whether we're near the bottom of the page after
+    // every scroll and after every load.
+    catchUp() {
+      if (!this.moreUrlValue) return
+      if (document.body.scrollHeight - (window.scrollY + window.innerHeight) > 200) return
+      this.loadMore()
+    }
+
+    loadMore() {
+      const url = this.moreUrlValue
+      if (!url) return
+      this.moreUrlValue = ""
+
+      fetch(url, { headers: { Accept: "application/json" } })
+        .then((response) => response.json())
+        .then(({ html, more_url }) => {
+          this.tbodyTarget.insertAdjacentHTML("beforeend", html)
+          this.moreUrlValue = more_url || ""
+
+          // Newly inserted rows carry the server-rendered UTC time until the
+          // timezone controller re-renders them to whatever zone is selected.
+          const timezoneEl = document.querySelector('[data-controller~="timezone"]')
+          this.application.getControllerForElementAndIdentifier(timezoneEl, "timezone")?.render()
+
+          this.catchUp()
+        })
     }
   },
 )

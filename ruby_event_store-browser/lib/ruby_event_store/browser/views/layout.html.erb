@@ -15,7 +15,7 @@
     <meta name="theme-color" content="#ffffff">
   </head>
   <body>
-    <div class="bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" data-controller="search timezone" data-search-base-value="<%= urls.app_url %>" data-action="keydown.meta+k@window->search#open keydown.ctrl+k@window->search#open">
+    <div class="bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" data-controller="search timezone compare" data-search-base-value="<%= urls.app_url %>" data-action="keydown.meta+k@window->search#open keydown.ctrl+k@window->search#open">
       <header>
         <nav class="flex bg-red-700 px-8 h-16 justify-between sticky">
           <div class="flex items-center">
@@ -42,6 +42,17 @@
                 <span class="absolute top-0 h-full flex items-center right-3 text-[.5rem] pointer-events-none">
                   <span class="text-gray-500 bg-gray-50 font-bold block p-1 border border-gray-300 rounded">ESC</span>
                 </span>
+              </div>
+            </form>
+          </div>
+        </dialog>
+
+        <dialog data-compare-target="dialog" class="backdrop:bg-gray-400/50 backdrop:backdrop-blur max-w-96 p-4 rounded-lg bg-white shadow w-full">
+          <button class="inset-0 fixed z-0" data-action="compare#close"></button>
+          <div class="isolate">
+            <form data-action="compare#go">
+              <div class="relative">
+                <input data-compare-target="input" class="rounded text-gray-800 cursor-pointer px-3 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50" placeholder="Add stream to compare&hellip;" autofocus>
               </div>
             </form>
           </div>

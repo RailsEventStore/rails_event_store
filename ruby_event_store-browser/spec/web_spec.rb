@@ -127,6 +127,172 @@ module RubyEventStore
       expect(body).to include("results may be truncated")
     end
 
+    specify "compare view lists events from all compared streams" do
+      event_store.append(e1 = DummyEvent.new, stream_name: "fizz")
+      event_store.append(e2 = DummyEvent.new, stream_name: "buzz")
+
+      response = web_client.get("/streams/fizz?compare%5B%5D=buzz")
+      expect(response).to be_ok
+      expect(response.content_type).to eq("text/html;charset=utf-8")
+      expect(response.body).to include("Comparing fizz, buzz")
+      expect(response.body).to include(e1.event_id)
+      expect(response.body).to include(e2.event_id)
+    end
+
+    specify "compare view ignores blank compare params" do
+      event_store.append(DummyEvent.new, stream_name: "fizz")
+
+      expect(web_client.get("/streams/fizz?compare%5B%5D=").body).to include("Events in fizz")
+    end
+
+    specify "compare view does not duplicate the primary stream" do
+      event_store.append(DummyEvent.new, stream_name: "fizz")
+      event_store.append(DummyEvent.new, stream_name: "buzz")
+
+      body = web_client.get("/streams/fizz?compare%5B%5D=fizz&compare%5B%5D=buzz").body
+      expect(body).to include("Comparing fizz, buzz")
+    end
+
+    def event_at(time, valid_at: nil)
+      DummyEvent.new.tap do |event|
+        event.metadata[:timestamp] = time
+        event.metadata[:valid_at] = valid_at if valid_at
+      end
+    end
+
+    def compare_more_url(stream_names, cursor_time)
+      query = stream_names.map { |name| ["streams[]", name] } << ["cursor", cursor_time.iso8601(TIMESTAMP_PRECISION)]
+      "http://www.example.com/streams/compare/more?#{URI.encode_www_form(query)}"
+    end
+
+    let(:compare_time) { Time.utc(2024, 1, 1, 12, 0, 0) }
+
+    specify "compare view exposes the url for fetching older events" do
+      event_store.append(event_at(compare_time), stream_name: "buzz")
+      events = Array.new(Browser::PAGE_SIZE + 1) { |i| event_at(compare_time + i + 1) }
+      event_store.append(events, stream_name: "fizz")
+
+      body = web_client.get("/streams/fizz?compare%5B%5D=buzz").body
+      expect(body).to include(
+        "data-swimlane-more-url-value=\"#{compare_more_url(%w[fizz buzz], compare_time + 2)}\"",
+      )
+    end
+
+    specify "compare view has no more-url when everything fits one page" do
+      event_store.append(DummyEvent.new, stream_name: "fizz")
+      event_store.append(DummyEvent.new, stream_name: "buzz")
+
+      body = web_client.get("/streams/fizz?compare%5B%5D=buzz").body
+      expect(body).to include(%q[data-swimlane-more-url-value=""])
+    end
+
+    specify "compare more endpoint returns next rows and cursor as JSON" do
+      event_store.append(event_at(compare_time), stream_name: "buzz")
+      events = Array.new(Browser::PAGE_SIZE + 1) { |i| event_at(compare_time + i + 1) }
+      event_store.append(events, stream_name: "fizz")
+
+      response = web_client.get("/streams/compare/more?streams%5B%5D=fizz&streams%5B%5D=buzz")
+      expect(response).to be_ok
+      expect(response.content_type).to eq("application/json")
+      payload = JSON.parse(response.body)
+      expect(payload.keys).to eq(%w[html more_url])
+      expect(payload["html"]).to include(events.last.event_id)
+      expect(payload["html"]).not_to include("<!DOCTYPE")
+      expect(payload["more_url"]).to eq(compare_more_url(%w[fizz buzz], compare_time + 2))
+    end
+
+    specify "compare more endpoint renders a column per requested stream" do
+      event_store.append(DummyEvent.new, stream_name: "fizz")
+      event_store.append(DummyEvent.new, stream_name: "buzz")
+
+      payload = JSON.parse(web_client.get("/streams/compare/more?streams%5B%5D=fizz&streams%5B%5D=buzz").body)
+      expect(payload["html"].scan("<td").size).to eq(6)
+    end
+
+    specify "compare more endpoint accepts a single stream" do
+      event_store.append(event = DummyEvent.new, stream_name: "fizz")
+
+      payload = JSON.parse(web_client.get("/streams/compare/more?streams=fizz").body)
+      expect(payload["html"]).to include(event.event_id)
+    end
+
+    specify "compare more endpoint tolerates missing streams param" do
+      response = web_client.get("/streams/compare/more")
+      expect(response).to be_ok
+      expect(JSON.parse(response.body)).to eq({ "html" => "", "more_url" => nil })
+    end
+
+    specify "compare view tolerates valueless compare params" do
+      event_store.append(DummyEvent.new, stream_name: "fizz")
+
+      expect(web_client.get("/streams/fizz?compare%5B%5D").body).to include("Events in fizz")
+    end
+
+    specify "compare view sorts by validity time when requested" do
+      event_store.append(e1 = event_at(compare_time + 2, valid_at: compare_time + 11), stream_name: "fizz")
+      event_store.append(e2 = event_at(compare_time + 1, valid_at: compare_time + 12), stream_name: "buzz")
+
+      by_append = web_client.get("/streams/fizz?compare%5B%5D=buzz").body
+      expect(by_append.index(e1.event_id)).to be < by_append.index(e2.event_id)
+      expect(by_append).to include("?compare%5B%5D=buzz&sort=as_of")
+
+      by_validity = web_client.get("/streams/fizz?compare%5B%5D=buzz&sort=as_of").body
+      expect(by_validity.index(e2.event_id)).to be < by_validity.index(e1.event_id)
+      expect(by_validity).to include((compare_time + 12).utc.iso8601(6))
+    end
+
+    specify "compare more endpoint honors as_of sort and carries it in more_url" do
+      events =
+        Array.new(Browser::PAGE_SIZE + 1) { |i| event_at(compare_time + i, valid_at: compare_time + 100 - i) }
+      event_store.append(events, stream_name: "fizz")
+
+      query = URI.encode_www_form([["streams[]", "fizz"], ["sort", "as_of"]])
+      payload = JSON.parse(web_client.get("/streams/compare/more?#{query}").body)
+      expect(payload["html"]).to include(events[0].event_id)
+      expect(payload["html"]).to include((compare_time + 100).utc.iso8601(6))
+      expect(payload["html"]).not_to include(events[20].event_id)
+      expect(payload["more_url"]).to eq(
+        "http://www.example.com/streams/compare/more" \
+          "?#{URI.encode_www_form([["streams[]", "fizz"], ["cursor", (compare_time + 81).iso8601(TIMESTAMP_PRECISION)], ["sort", "as_of"]])}",
+      )
+    end
+
+    specify "compare view carries as_of sort in the url for fetching older events" do
+      events =
+        Array.new(Browser::PAGE_SIZE + 1) { |i| event_at(compare_time + i, valid_at: compare_time + 100 - i) }
+      event_store.append(events, stream_name: "fizz")
+
+      body = web_client.get("/streams/fizz?compare%5B%5D=buzz&sort=as_of").body
+      expect(body).to include(
+        "data-swimlane-more-url-value=\"http://www.example.com/streams/compare/more" \
+          "?#{URI.encode_www_form([["streams[]", "fizz"], ["streams[]", "buzz"], ["cursor", (compare_time + 81).iso8601(TIMESTAMP_PRECISION)], ["sort", "as_of"]])}\"",
+      )
+    end
+
+    specify "unknown sort values fall back to created-at order" do
+      event_store.append(e1 = event_at(compare_time + 2, valid_at: compare_time + 11), stream_name: "fizz")
+      event_store.append(e2 = event_at(compare_time + 1, valid_at: compare_time + 12), stream_name: "buzz")
+
+      body = web_client.get("/streams/fizz?compare%5B%5D=buzz&sort=wrong").body
+      expect(body.index(e1.event_id)).to be < body.index(e2.event_id)
+
+      query = URI.encode_www_form([["streams[]", "fizz"], ["streams[]", "buzz"], ["sort", "wrong"]])
+      html = JSON.parse(web_client.get("/streams/compare/more?#{query}").body).fetch("html")
+      expect(html.index(e1.event_id)).to be < html.index(e2.event_id)
+    end
+
+    specify "compare more endpoint pages from the cursor" do
+      e1, e2, e3 = Array.new(3) { |i| event_at(compare_time + i + 1) }
+      event_store.append([e1, e2, e3], stream_name: "fizz")
+
+      query = URI.encode_www_form([["streams[]", "fizz"], ["cursor", (compare_time + 2).iso8601(TIMESTAMP_PRECISION)]])
+      payload = JSON.parse(web_client.get("/streams/compare/more?#{query}").body)
+      expect(payload["html"]).to include(e1.event_id)
+      expect(payload["html"]).not_to include(e2.event_id)
+      expect(payload["html"]).not_to include(e3.event_id)
+      expect(payload["more_url"]).to be_nil
+    end
+
     specify "not found page uses absolute url from request for assets" do
       response = web_client.get("/events/00000000-0000-0000-0000-000000000000")
       expect(response.body).to include("http://www.example.com")
