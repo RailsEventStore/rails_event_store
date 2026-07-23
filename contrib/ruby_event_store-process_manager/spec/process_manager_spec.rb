@@ -18,6 +18,27 @@ RSpec.describe RubyEventStore::ProcessManager do
     end
   end
 
+  class EventStoreWithConcurrentLink
+    def initialize(event_store, concurrent_event)
+      @event_store = event_store
+      @concurrent_event = concurrent_event
+    end
+
+    def read
+      @event_store.read
+    end
+
+    def link(event_id, stream_name:, expected_version:)
+      if @concurrent_event
+        concurrent_event = @concurrent_event
+        @concurrent_event = nil
+        @event_store.link(concurrent_event.event_id, stream_name:, expected_version:)
+      end
+
+      @event_store.link(event_id, stream_name:, expected_version:)
+    end
+  end
+
   OrderPaid = Class.new(RubyEventStore::Event)
   OrderAddressSet = Class.new(RubyEventStore::Event)
   DeliverOrder = Data.define(:order_id)
@@ -88,6 +109,20 @@ RSpec.describe RubyEventStore::ProcessManager do
 
     paid_event = OrderPaid.new(data: { order_id: order_id })
     event_store.append(paid_event)
+    process.call(paid_event)
+
+    expect(command_bus.commands).to eq([DeliverOrder.new(order_id: order_id)])
+  end
+
+  specify "retries after another event is linked concurrently" do
+    order_id = "order-789"
+    paid_event = OrderPaid.new(data: { order_id: order_id })
+    address_event = OrderAddressSet.new(data: { order_id: order_id })
+    event_store.append(paid_event)
+    event_store.append(address_event)
+    concurrent_event_store = EventStoreWithConcurrentLink.new(event_store, address_event)
+    process = OrderDeliveryProcess.new(concurrent_event_store, command_bus)
+
     process.call(paid_event)
 
     expect(command_bus.commands).to eq([DeliverOrder.new(order_id: order_id)])
