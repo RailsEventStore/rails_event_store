@@ -289,6 +289,7 @@ module RubyEventStore
               "layout",
               content: content,
               urls: urls,
+              title: "Not found",
               extension_stylesheets: extension_stylesheets(urls),
               extension_scripts: extension_scripts(urls),
             ),
