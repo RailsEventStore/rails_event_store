@@ -1006,6 +1006,26 @@ module RubyEventStore
       expect(event.event_id).to eq("8d69cc2b-c6c5-4494-99f6-954c7f583477")
     end
 
+    specify "custom resolver output differing from event.event_type still routes published events to subscribers" do
+      received = []
+      resolver = ->(klass) { "prefixed.#{klass}" }
+      client = Client.new(event_type_resolver: resolver)
+      client.subscribe(to: [OrderCreated]) { |event| received << event }
+
+      client.publish(order_created = OrderCreated.new)
+
+      expect(received).to eq([order_created])
+    end
+
+    specify "dispatch routes by event_type_resolver output, not by metadata[:event_type]" do
+      received = []
+      client.subscribe(to: [OrderCreated]) { |event| received << event }
+
+      client.publish(order_created = OrderCreated.new(metadata: { event_type: "Some.Other.Type" }))
+
+      expect(received).to eq([order_created])
+    end
+
     describe "#position_in_stream" do
       specify do
         client.publish(fact0 = OrderCreated.new, expected_version: :auto, stream_name: "SomeStream")
