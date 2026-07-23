@@ -22,8 +22,8 @@ module RubyEventStore
         reader(stream_names: stream_names, cursor: previous.next_cursor, sort: sort, count: count)
       end
 
-      def publish(stream:, at: nil, valid_at: nil)
-        event = DummyEvent.new
+      def publish(stream:, at: nil, valid_at: nil, event_id: nil)
+        event = event_id ? DummyEvent.new(event_id: event_id) : DummyEvent.new
         if at
           event.metadata[:timestamp] = at
           event.metadata[:valid_at] = valid_at || at
@@ -202,6 +202,77 @@ module RubyEventStore
 
         result = reader(stream_names: %w[all orders]).events.map { |names, event| [names, event.event_id] }
         expect(result).to eq([[%w[all], a2.event_id], [%w[all orders], a1.event_id]])
+      end
+
+      specify "defaults to a PAGE_SIZE page read from the newest event" do
+        (Browser::PAGE_SIZE + 1).times { |i| publish(stream: "a", at: base_time + i) }
+
+        page = GetEventsFromStreams.new(event_store: event_store, stream_names: %w[a])
+        expect(page.events.size).to eq(Browser::PAGE_SIZE)
+        expect(page.more?).to eq(true)
+      end
+
+      specify "streams without any events are reported missing, in the requested order" do
+        publish(stream: "a", at: base_time)
+
+        expect(reader(stream_names: %w[ghost a phantom]).missing_stream_names).to eq(%w[ghost phantom])
+      end
+
+      specify "the global stream alias is never reported missing" do
+        expect(reader(stream_names: %w[all]).missing_stream_names).to eq([])
+      end
+
+      specify "next_cursor is nil on an empty page" do
+        expect(reader(stream_names: %w[a]).next_cursor).to be_nil
+      end
+
+      specify "unknown sort values order by event time" do
+        e1 = publish(stream: "a", at: base_time + 1, valid_at: base_time + 12)
+        e2 = publish(stream: "a", at: base_time + 2, valid_at: base_time + 11)
+
+        result = reader(stream_names: %w[a], sort: "junk").events.map { |_, event| event.event_id }
+        expect(result).to eq([e2.event_id, e1.event_id])
+      end
+
+      specify "a truncated page keeps the newest events by event time, not validity time" do
+        e1 = publish(stream: "a", at: base_time + 1, valid_at: base_time + 13)
+        e2 = publish(stream: "a", at: base_time + 2, valid_at: base_time + 12)
+        e3 = publish(stream: "a", at: base_time + 3, valid_at: base_time + 11)
+
+        result = reader(stream_names: %w[a], count: 2).events.map { |_, event| event.event_id }
+        expect(result).to eq([e3.event_id, e2.event_id])
+      end
+
+      specify "drains only the streams whose chunk ends at the boundary" do
+        publish(stream: "a", at: base_time + 1)
+        a4 = publish(stream: "a", at: base_time + 4)
+        a5 = publish(stream: "a", at: base_time + 5)
+        publish(stream: "b", at: base_time + 2)
+        publish(stream: "b", at: base_time + 3)
+        b6 = publish(stream: "b", at: base_time + 6)
+
+        allow(event_store).to receive(:read).and_call_original
+        page = reader(stream_names: %w[a b], count: 2)
+
+        expect(page.events.map { |_, event| event.event_id }).to eq([b6, a5, a4].map(&:event_id))
+        expect(event_store).to have_received(:read).exactly(3).times
+      end
+
+      specify "a truncated page keeps the newest events by event time, not by append order" do
+        e1 = publish(stream: "a", at: base_time + 3)
+        publish(stream: "a", at: base_time + 1)
+        e3 = publish(stream: "a", at: base_time + 2)
+
+        result = reader(stream_names: %w[a], count: 2).events.map { |_, event| event.event_id }
+        expect(result).to eq([e1.event_id, e3.event_id])
+      end
+
+      specify "ties on event time are broken by event id" do
+        lo = publish(stream: "a", at: base_time, event_id: "11111111-4676-4e0e-95b3-c67f4bea0fb8")
+        hi = publish(stream: "a", at: base_time, event_id: "22222222-4676-4e0e-95b3-c67f4bea0fb8")
+
+        result = reader(stream_names: %w[a]).events.map { |_, event| event.event_id }
+        expect(result).to eq([hi.event_id, lo.event_id])
       end
 
       specify "reads each stream once per page" do
