@@ -96,6 +96,7 @@ module RubyEventStore
                 "layout",
                 content: content,
                 urls: urls,
+                title: locals[:title],
                 extension_stylesheets: @stylesheets_resolver.call(urls),
                 extension_scripts: @scripts_resolver.call(urls),
               ),
@@ -134,6 +135,7 @@ module RubyEventStore
                  "streams/show",
                  urls: urls,
                  stream_name: stream_name,
+                 title: "Stream #{stream_name}",
                  events: reader.events,
                  pagination:
                    reader.pagination.transform_values { |cursor|
@@ -154,6 +156,7 @@ module RubyEventStore
                  "events/show",
                  urls: urls,
                  event: event,
+                 title: "Event #{event.event_id}",
                  metadata: metadata,
                  streams: event_store.streams_of(event.event_id).map(&:name).sort,
                  parent_event: parent_event,
@@ -172,6 +175,7 @@ module RubyEventStore
                  urls: urls,
                  stream_names: stream_names,
                  missing_stream_names: missing_stream_names,
+                 title: "Swimlane #{stream_names.join(', ')}",
                  events: reader.events,
                  sort: sort,
                  more_url: (urls.swimlane_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
@@ -252,6 +256,7 @@ module RubyEventStore
           "layout",
           content: content,
           urls: urls,
+          title: locals[:title],
           extension_stylesheets: extension_stylesheets(urls),
           extension_scripts: extension_scripts(urls),
         )

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>RubyEventStore::Browser</title>
+    <title>RubyEventStore::Browser - <%= title %></title>
     <link type="text/css" rel="stylesheet" href="<%= urls.browser_css_url %>">
     <% extension_stylesheets.each do |href| -%>
     <link type="text/css" rel="stylesheet" href="<%= href %>">
@@ -15,32 +15,32 @@
     <meta name="theme-color" content="#ffffff">
   </head>
   <body>
-    <div class="bg-gray-100 flex flex-col min-h-screen w-full text-gray-800 font-sans leading-relaxed antialiased" data-controller="search timezone" data-search-base-value="<%= urls.app_url %>" data-action="keydown.meta+k@window->search#open keydown.ctrl+k@window->search#open">
+    <div class="flex flex-col w-full min-h-screen font-sans antialiased leading-relaxed text-gray-800 bg-gray-100" data-controller="search timezone" data-search-base-value="<%= urls.app_url %>" data-action="keydown.meta+k@window->search#open keydown.ctrl+k@window->search#open">
       <header>
-        <nav class="flex bg-red-700 px-8 h-16 justify-between sticky">
+        <nav class="sticky flex justify-between h-16 px-8 bg-red-700">
           <div class="flex items-center">
-            <a href="<%= urls.app_url %>" class="text-gray-100 font-semibold">Ruby Event Store</a>
+            <a href="<%= urls.app_url %>" class="font-semibold text-gray-100">Ruby Event Store</a>
           </div>
           <div class="flex items-center gap-2">
-            <button class="text-red-100 outline-none text-sm flex gap-2 items-center bg-red-800 hover:bg-red-900 h-9 px-3 rounded" data-action="search#open">
+            <button class="flex items-center gap-2 px-3 text-sm text-red-100 bg-red-800 rounded outline-none hover:bg-red-900 h-9" data-action="search#open">
               <svg class="size-4" fill="none" height="24" width="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>Go to stream&hellip;<span class="text-xs">&#x2318;K</span>
             </button>
           </div>
         </nav>
       </header>
 
-      <main class="bg-white flex w-full grow px-4">
+      <main class="flex w-full px-4 bg-white grow">
         <%= content %>
 
-        <dialog data-search-target="dialog" class="backdrop:bg-gray-400/50 backdrop:backdrop-blur max-w-96 p-4 rounded-lg bg-white shadow w-full">
-          <button class="inset-0 fixed z-0" data-action="search#close"></button>
+        <dialog data-search-target="dialog" class="w-full p-4 bg-white rounded-lg shadow backdrop:bg-gray-400/50 backdrop:backdrop-blur max-w-96">
+          <button class="fixed inset-0 z-0" data-action="search#close"></button>
           <div class="isolate">
             <form data-action="search#go">
               <div class="relative">
                 <svg class="size-4 text-gray-400 absolute pointer-events-none top-3.5 left-2" fill="none" height="24" width="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input data-search-target="input" class="rounded text-gray-800 cursor-pointer pl-8 pr-12 py-2 w-full appearance-none outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50" placeholder="Go to stream&hellip;" autofocus>
+                <input data-search-target="input" class="w-full py-2 pl-8 pr-12 text-gray-800 rounded outline-none appearance-none cursor-pointer focus:ring-2 focus:ring-red-500 focus:ring-opacity-50" placeholder="Go to stream&hellip;" autofocus>
                 <span class="absolute top-0 h-full flex items-center right-3 text-[.5rem] pointer-events-none">
-                  <span class="text-gray-500 bg-gray-50 font-bold block p-1 border border-gray-300 rounded">ESC</span>
+                  <span class="block p-1 font-bold text-gray-500 border border-gray-300 rounded bg-gray-50">ESC</span>
                 </span>
               </div>
             </form>
@@ -48,9 +48,9 @@
         </dialog>
       </main>
 
-      <footer class="border-gray-400 border-t py-4 px-8 flex justify-between">
-        <div class="text-gray-500 text-sm">RubyEventStore v<%= RubyEventStore::VERSION %><span class="ml-4 font-bold inline-block text-gray-400">&bull;</span><a href="https://railseventstore.org/docs/getting-started/install" class="ml-4">Documentation</a><span class="ml-4 font-bold inline-block text-gray-400">&bull;</span><a href="https://railseventstore.org/support/" class="ml-4">Support</a></div>
-        <div class="text-gray-500 text-sm flex item-center gap-2">Display times in timezone:<select data-timezone-target="select" data-action="change->timezone#change">
+      <footer class="flex justify-between px-8 py-4 border-t border-gray-400">
+        <div class="text-sm text-gray-500">RubyEventStore v<%= RubyEventStore::VERSION %><span class="inline-block ml-4 font-bold text-gray-400">&bull;</span><a href="https://railseventstore.org/docs/getting-started/install" class="ml-4">Documentation</a><span class="inline-block ml-4 font-bold text-gray-400">&bull;</span><a href="https://railseventstore.org/support/" class="ml-4">Support</a></div>
+        <div class="flex gap-2 text-sm text-gray-500 item-center">Display times in timezone:<select data-timezone-target="select" data-action="change->timezone#change">
           <option value="UTC">UTC</option>
         </select>
         </div>
