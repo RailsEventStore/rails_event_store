@@ -165,10 +165,13 @@ module RubyEventStore
         router.add_route("GET", "/swimlane") do |params, urls|
           stream_names, sort = swimlane_params(params)
           reader = GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names, sort: sort)
+          missing_stream_names = reader.missing_stream_names
+          stream_names -= missing_stream_names
           html render(
                  "swimlane/show",
                  urls: urls,
                  stream_names: stream_names,
+                 missing_stream_names: missing_stream_names,
                  events: reader.events,
                  sort: sort,
                  more_url: (urls.swimlane_more_url(stream_names, reader.next_cursor, sort) if reader.more?),

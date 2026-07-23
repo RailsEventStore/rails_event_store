@@ -175,6 +175,7 @@ application.register(
   "swimlane-add",
   class extends Controller {
     static targets = ["dialog", "input"]
+    static values = { baseUrl: String }
 
     open(event) {
       event?.preventDefault()
@@ -190,7 +191,7 @@ application.register(
       event.preventDefault()
       const name = this.inputTarget.value
       if (!name) return
-      const url = new URL(window.location.href)
+      const url = new URL(this.baseUrlValue)
       url.searchParams.append("streams[]", name)
       window.location = url.toString()
     }

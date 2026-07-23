@@ -17,6 +17,10 @@ module RubyEventStore
           @more
         end
 
+        def missing_stream_names
+          stream_names.select { |name| name != SERIALIZED_GLOBAL_STREAM_NAME && chunks[name].empty? }
+        end
+
         def next_cursor
           events.last && time_of(events.last.last).iso8601(TIMESTAMP_PRECISION)
         end

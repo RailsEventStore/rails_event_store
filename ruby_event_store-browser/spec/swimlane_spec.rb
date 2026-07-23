@@ -158,11 +158,57 @@ module RubyEventStore
         expect(body).to include("data-swimlane-more-url-value=\"#{more_url(%w[fizz], base_time + 81, "as_of")}\"")
       end
 
+      specify "compare view shows a notice instead of a column for a stream without events" do
+        event_store.append(e1 = event_at(base_time), stream_name: "fizz")
+
+        body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=ghost").body
+        expect(body).to include("Comparing fizz</h1>")
+        expect(body).to include(%q[Stream <span class="font-bold">ghost</span> does not exist.])
+        expect(body).to include(e1.event_id)
+        expect(body.scan("<th ").size).to eq(2)
+      end
+
+      specify "compare view with only missing streams renders no table" do
+        body = client.get("/swimlane?streams%5B%5D=ghost").body
+        expect(body).to include(%q[Stream <span class="font-bold">ghost</span> does not exist.])
+        expect(body).not_to include("<table")
+        expect(body).not_to include("Sort by")
+      end
+
+      specify "compare view escapes the missing stream name in the notice" do
+        body = client.get("/swimlane?streams%5B%5D=%3Cscript%3E").body
+        expect(body).to include("&lt;script&gt;")
+        expect(body).not_to include("<script>")
+      end
+
+      specify "compare view leaves missing streams out of the base url for adding streams" do
+        event_store.append(event_at(base_time), stream_name: "fizz")
+
+        body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=ghost&sort=as_of").body
+        expect(body).to include(
+          %q[data-swimlane-add-base-url-value="http://example.org/swimlane?streams%5B%5D=fizz&sort=as_of"],
+        )
+      end
+
+      specify "compare view leaves missing streams out of the url for fetching older events" do
+        events = Array.new(Browser::PAGE_SIZE + 1) { |i| event_at(base_time + i + 1) }
+        event_store.append(events, stream_name: "fizz")
+
+        body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=ghost").body
+        expect(body).to include("data-swimlane-more-url-value=\"#{more_url(%w[fizz], base_time + 2)}\"")
+      end
+
       specify "comparing the all stream shows the global timeline" do
         event_store.append(event = event_at(base_time), stream_name: "orders")
 
         body = client.get("/swimlane?streams%5B%5D=all").body
         expect(body).to include(event.event_id)
+      end
+
+      specify "comparing the all stream on an empty event store is not reported as missing" do
+        body = client.get("/swimlane?streams%5B%5D=all").body
+        expect(body).to include("Comparing all</h1>")
+        expect(body).not_to include("does not exist")
       end
 
       specify "stream page links to comparing that stream" do

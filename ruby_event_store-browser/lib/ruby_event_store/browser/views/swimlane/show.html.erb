@@ -1,8 +1,15 @@
-<div class="py-8 container mx-auto" data-controller="swimlane swimlane-add" data-swimlane-more-url-value="<%= more_url %>">
+<div class="py-8 container mx-auto" data-controller="swimlane swimlane-add" data-swimlane-more-url-value="<%= more_url %>" data-swimlane-add-base-url-value="<%= urls.swimlane_url(stream_names, sort) %>">
   <div class="flex justify-between items-center">
     <h1 class="font-bold text-2xl">Comparing <%= h(stream_names.join(", ")) %></h1>
     <button class="text-center text-sm border-red-700 text-red-700 border rounded px-2 py-1" data-action="swimlane-add#open">Add stream</button>
   </div>
+  <% missing_stream_names.each do |stream_name| -%>
+    <p class="mt-4 rounded border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+      Stream <span class="font-bold"><%= h(stream_name) %></span> does not exist.
+    </p>
+  <% end -%>
+
+  <% if stream_names.any? -%>
   <div class="pt-3 flex items-center gap-2 text-sm">
     <span class="text-gray-500">Sort by</span>
     <% if sort == "as_of" -%>
@@ -36,6 +43,7 @@
       </tbody>
     </table>
   </div>
+  <% end -%>
 
   <dialog data-swimlane-add-target="dialog" class="backdrop:bg-gray-400/50 backdrop:backdrop-blur max-w-96 p-4 rounded-lg bg-white shadow w-full">
     <button class="inset-0 fixed z-0" data-action="swimlane-add#close"></button>
