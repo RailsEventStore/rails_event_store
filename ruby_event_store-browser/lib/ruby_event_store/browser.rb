@@ -13,7 +13,7 @@ module RubyEventStore
     def self.fingerprint(name)
       base, ext = name.split(".", 2)
       digest = Digest::MD5.hexdigest(File.binread(File.join(ASSETS_ROOT, name)))[0, 8]
-      "#{base}-#{digest}.#{ext}"
+      "#{base}.#{ext}?v=#{digest}"
     end
 
     BROWSER_JS  = fingerprint("ruby_event_store_browser.js")

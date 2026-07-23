@@ -17,6 +17,9 @@ test mutate mutate-changes: css $(STIMULUS_JS)
 css: ## Build the stylesheet from the templates with Tailwind
 	@bundle exec tailwindcss --minify --input tailwind.css --output $(CSS_OUTFILE)
 
+css-watch: ## Watch the stylesheet for changes and rebuild
+	@bundle exec tailwindcss --watch --input tailwind.css --output $(CSS_OUTFILE)
+
 $(STIMULUS_JS): ## Vendor the pinned Stimulus runtime from the CDN
 	@echo "Downloading @hotwired/stimulus $(STIMULUS_VERSION)"
 	@curl -sL "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@$(STIMULUS_VERSION)/+esm" | sed '/^\/\/#[[:space:]]*sourceMappingURL=/d' > $(STIMULUS_JS)

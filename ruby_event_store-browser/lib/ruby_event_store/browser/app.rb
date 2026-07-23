@@ -61,6 +61,8 @@ module RubyEventStore
                   mstile-310x150.png
                   mstile-310x310.png
                   safari-pinned-tab.svg
+                  ruby_event_store_browser.js
+                  ruby_event_store_browser.css
                 ].map { |f| ["/#{f}", f] }.to_h.merge(
                   "/#{BROWSER_JS}"  => "ruby_event_store_browser.js",
                   "/#{BROWSER_CSS}" => "ruby_event_store_browser.css",
