@@ -132,6 +132,11 @@ module RubyEventStore
       expect(response.body).to include("http://www.example.com")
     end
 
+    specify "not found page sets the page title" do
+      response = web_client.get("/events/00000000-0000-0000-0000-000000000000")
+      expect(response.body).to include("<title>RubyEventStore::Browser - Not found</title>")
+    end
+
     specify "related_streams_query is called with the stream name" do
       called_with = []
       app =
