@@ -1,0 +1,20 @@
+<% time_field = sort == "as_of" ? :valid_at : :timestamp -%>
+<% events.each_with_index do |(names, event), index| -%>
+  <% next_event = events[index + 1]&.last -%>
+  <% same_group = next_event && next_event.metadata[time_field].utc.iso8601(3) == event.metadata[time_field].utc.iso8601(3) -%>
+  <% cell = "align-middle px-2 py-1#{" border-b border-gray-300" unless same_group}" -%>
+  <tr>
+    <td class="<%= cell %> font-mono text-xs text-gray-500 whitespace-nowrap">
+      <% unless same_group -%>
+        <span data-swimlane-target="time" data-iso="<%= event.metadata[time_field].utc.iso8601(6) %>" title="UTC"><%= event.metadata[time_field].utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></span>
+      <% end -%>
+    </td>
+    <% stream_names.each_with_index do |stream_name, column| -%>
+      <td class="<%= cell %><%= " border-l border-gray-200" if column.positive? %><%= " hover:bg-gray-100" if names.include?(stream_name) %>">
+        <% if names.include?(stream_name) -%>
+          <a href="<%= urls.event_url(event.event_id) %>" class="no-underline text-red-700 text-sm break-words"><%= h(event.event_type) %></a>
+        <% end -%>
+      </td>
+    <% end -%>
+  </tr>
+<% end -%>
