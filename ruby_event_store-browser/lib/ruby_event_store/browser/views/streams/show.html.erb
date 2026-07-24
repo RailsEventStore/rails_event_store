@@ -20,7 +20,7 @@
   <% if links.any? -%>
     <div class="pt-3 flex gap-2">
       <% links.each do |link| -%>
-        <a class="inline-block text-center text-sm bg-red-700 text-gray-100 border border-red-700 rounded px-2 py-1" href="<%= link[:url] %>"><%= h(link[:label]) %></a>
+        <a class="inline-block text-center text-sm bg-red-700 text-gray-100 border border-red-700 rounded px-2 py-1" href="<%= h(link[:url]) %>"><%= h(link[:label]) %></a>
       <% end -%>
     </div>
   <% end -%>

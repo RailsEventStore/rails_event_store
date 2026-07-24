@@ -200,6 +200,20 @@ module RubyEventStore
       expect(Rack::MockRequest.new(app).get("/streams/other").body).not_to include("Inspect stream")
     end
 
+    specify "extension link urls cannot break out of the href attribute" do
+      extension =
+        Class.new do
+          def stream_links(stream_name, urls)
+            [{ label: "Inspect", url: %(#{urls.app_url}/inspect/x" onmouseover="alert(1)) }]
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+
+      body = Rack::MockRequest.new(app).get("/streams/special").body
+      expect(body).not_to include('onmouseover="alert(1)')
+      expect(body).to include("/inspect/x&quot; onmouseover=&quot;alert(1)")
+    end
+
     specify "extensions can contribute stylesheets to the layout" do
       extension =
         Class.new do
