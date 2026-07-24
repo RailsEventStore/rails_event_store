@@ -19,7 +19,7 @@ module RubyEventStore
         views_root: nil
       )
         warn(<<~WARN) if environment
-          Passing :environment to RubyEjventStore::Browser::App.for is deprecated.
+          Passing :environment to RubyEventStore::Browser::App.for is deprecated.
 
           This option is no-op, has no effect and will be removed in next major release.
         WARN
