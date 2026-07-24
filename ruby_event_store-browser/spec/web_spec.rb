@@ -137,6 +137,19 @@ module RubyEventStore
       expect(response.body).to include("<title>RubyEventStore::Browser - Not found</title>")
     end
 
+    specify "stream page sets the page title" do
+      expect(web_client.get("/streams/test-stream").body).to include(
+        "<title>RubyEventStore::Browser - Stream test-stream</title>",
+      )
+    end
+
+    specify "event page sets the page title" do
+      event_store.append(event = DummyEvent.new)
+      expect(web_client.get("/events/#{event.event_id}").body).to include(
+        "<title>RubyEventStore::Browser - Event #{event.event_id}</title>",
+      )
+    end
+
     specify "related_streams_query is called with the stream name" do
       called_with = []
       app =

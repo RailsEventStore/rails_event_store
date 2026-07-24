@@ -39,6 +39,14 @@ module RubyEventStore
         expect(response.body.scan("<!DOCTYPE").size).to eq(1)
       end
 
+      specify "compare view sets the page title" do
+        event_store.append(event_at(base_time + 1), stream_name: "fizz")
+        event_store.append(event_at(base_time + 2), stream_name: "buzz")
+
+        body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=buzz").body
+        expect(body).to include("<title>RubyEventStore::Browser - Swimlane fizz, buzz</title>")
+      end
+
       specify "compare view ignores blank stream params and does not duplicate names" do
         event_store.append(event_at(base_time), stream_name: "fizz")
 
