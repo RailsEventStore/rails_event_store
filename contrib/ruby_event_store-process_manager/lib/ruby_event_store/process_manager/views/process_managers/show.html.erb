@@ -1,0 +1,62 @@
+<div class="py-8 container mx-auto">
+  <h1 class="font-bold text-2xl">Process <%= h(process_class.name) %></h1>
+  <p class="text-gray-500 text-sm mt-1">
+    Instance <span class="font-mono font-medium text-gray-700"><%= h(process_id) %></span>,
+    state rebuilt from <a class="text-red-700 no-underline" href="<%= urls.stream_url(stream_name) %>"><%= h(stream_name) %></a>
+  </p>
+
+  <section class="mt-8">
+    <h2 class="text-gray-500 uppercase font-bold text-xs mb-2">Current state</h2>
+    <div class="overflow-x-auto">
+      <% if current_state.respond_to?(:to_h) -%>
+        <%= render("_json_tree", hash: current_state.to_h) %>
+      <% else -%>
+        <div class="font-mono text-sm"><%= h(current_state.inspect) %></div>
+      <% end -%>
+    </div>
+  </section>
+
+  <section class="mt-8">
+    <h2 class="text-gray-500 uppercase font-bold text-xs mb-2">Step by step</h2>
+    <% if steps.empty? -%>
+      <p class="text-gray-500 text-sm">No events linked to this process stream yet.</p>
+    <% else -%>
+      <div class="overflow-x-scroll sm:overflow-visible w-full">
+        <table class="w-full lg:table-fixed text-left">
+          <thead class="align-bottom leading-tight sticky top-0 bg-white text-gray-500 uppercase text-xs">
+            <tr class="border-gray-400 border-b">
+              <th class="p-4 lg:w-12">#</th>
+              <th class="py-4 pr-4">Event</th>
+              <th class="py-4 pr-4 lg:w-60"><span class="cursor-help" data-timezone-target="zone" title="UTC">Created at</span></th>
+              <th class="py-4 pr-4">State after</th>
+            </tr>
+          </thead>
+          <tbody class="align-top">
+            <% steps.to_enum.with_index(1).reverse_each do |step, number| -%>
+              <% href = urls.event_url(step.event.event_id) -%>
+              <tr class="border-gray-50 border-b hover:bg-gray-100">
+                <td class="p-4 font-mono text-sm text-gray-500"><%= number %></td>
+                <td class="py-4 pr-4">
+                  <a class="text-red-700 no-underline break-words" href="<%= href %>"><%= h(step.event.event_type) %></a>
+                  <div class="font-mono text-sm text-gray-500 break-words"><%= h(step.event.event_id) %></div>
+                </td>
+                <td class="py-4 pr-4 font-mono text-sm">
+                  <span data-timezone-target="time" data-iso="<%= step.event.metadata[:timestamp].utc.iso8601(6) %>" title="UTC"><%= step.event.metadata[:timestamp].utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></span>
+                </td>
+                <td class="py-4 pr-4 text-sm">
+                  <div class="overflow-x-auto">
+                    <% if step.state.respond_to?(:to_h) -%>
+                      <%= render("_json_tree", hash: step.state.to_h) %>
+                    <% else -%>
+                      <span class="font-mono"><%= h(step.state.inspect) %></span>
+                    <% end -%>
+                  </div>
+                </td>
+              </tr>
+            <% end -%>
+          </tbody>
+        </table>
+      </div>
+    <% end -%>
+  </section>
+</div>

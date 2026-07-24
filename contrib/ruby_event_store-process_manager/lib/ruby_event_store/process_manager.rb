@@ -12,10 +12,14 @@ module RubyEventStore
       end
 
       def call(event)
-        @state = initial_state
         @id = fetch_id(event)
         build_state(event)
         act
+      end
+
+      def replay(events)
+        @state = initial_state
+        events.map { |event| @state = apply(event) }
       end
 
       private
@@ -27,7 +31,7 @@ module RubyEventStore
           past_events = event_store.read.stream(stream_name).to_a
           last_stored = past_events.size - 1
           event_store.link(event.event_id, stream_name:, expected_version: last_stored)
-          (past_events + [event]).each { |ev| @state = apply(ev) }
+          replay(past_events + [event])
         end
       end
 
@@ -46,6 +50,22 @@ module RubyEventStore
       end
 
       attr_reader :subscribed_events
+    end
+
+    @registered_process_managers = {}
+
+    def self.register(process_class)
+      @registered_process_managers[process_class.name] = process_class if process_class.name
+    end
+
+    def self.parse_stream_name(stream_name)
+      class_name, separator, id = stream_name.to_s.partition("$")
+      return if separator.empty? || id.empty?
+
+      process_class = @registered_process_managers[class_name]
+      return unless process_class
+
+      [process_class, id]
     end
 
     def self.with_state(&state_class_block)
@@ -76,6 +96,7 @@ module RubyEventStore
           host_class.include(ProcessMethods)
           host_class.include(Retry)
           host_class.extend(Subscriptions)
+          ProcessManager.register(host_class)
         end
       end
     end
