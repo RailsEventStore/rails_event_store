@@ -29,7 +29,9 @@ module RubyEventStore
 
       describe "Context#render" do
         specify "delegates to renderer" do
-          expect(context.render("not_found")).to include("There's no event with given ID")
+          expect(context.render("not_found", message: "There's no event with given ID")).to include(
+            "There&#39;s no event with given ID",
+          )
         end
 
         specify "passes locals to nested render" do
@@ -46,7 +48,9 @@ module RubyEventStore
             File.write(File.join(root, "custom.html.erb"), "custom content")
             renderer = Renderer.new([root, Renderer::VIEWS_ROOT])
             expect(renderer.render("custom")).to eq("custom content")
-            expect(renderer.render("not_found")).to include("There's no event with given ID")
+            expect(renderer.render("not_found", message: "There's no event with given ID")).to include(
+              "There&#39;s no event with given ID",
+            )
           end
         end
 

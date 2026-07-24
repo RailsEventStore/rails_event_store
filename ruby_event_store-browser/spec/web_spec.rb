@@ -29,10 +29,12 @@ module RubyEventStore
       expect(web_client.get("/streams/all").body).to include(event.event_id)
     end
 
-    specify do
+    specify "unknown paths get the styled not found page" do
       response = web_client.post("/")
       expect(response).to be_not_found
-      expect(response.body).to eq("")
+      expect(response.body).to include("Page not found")
+      expect(response.body).to include("<title>RubyEventStore::Browser - Not found</title>")
+      expect(response.body).to include("http://www.example.com")
     end
 
     specify do
@@ -165,7 +167,7 @@ module RubyEventStore
       response = web_client.get("/events/00000000-0000-0000-0000-000000000000")
       expect(response).to be_not_found
       expect(response.content_type).to eq("text/html;charset=utf-8")
-      expect(response.body).to include("There's no event with given ID")
+      expect(response.body).to include("There&#39;s no event with given ID")
       expect(response.body.scan("<!DOCTYPE").size).to eq(1)
     end
 
@@ -336,14 +338,15 @@ module RubyEventStore
         )
         extension =
           Class.new do
+            attr_reader :views_root
+
             def initialize(views_root)
               @views_root = views_root
             end
 
             def register_routes(router, context)
-              views_root = @views_root
               router.add_route("GET", "/rows.json") do |_, urls|
-                context.json(html: context.render_partial("_row", views_root: views_root, urls: urls, name: "<x>"))
+                context.json(html: context.render_partial("_row", urls: urls, name: "<x>"))
               end
             end
           end.new(views_root)
@@ -363,17 +366,18 @@ module RubyEventStore
         File.write(File.join(views_root, "hello.html.erb"), "<p>hello <%= h(name) %> from <%= urls.app_url %></p>")
         extension =
           Class.new do
+            attr_reader :views_root
+
             def initialize(views_root)
               @views_root = views_root
             end
 
             def register_routes(router, context)
-              views_root = @views_root
               router.add_route("GET", "/hello") do |_, urls|
-                context.render("hello", views_root: views_root, urls: urls, title: "Hello page", name: "world")
+                context.render("hello", urls: urls, title: "Hello page", name: "world")
               end
               router.add_route("GET", "/hello_untitled") do |_, urls|
-                context.render("hello", views_root: views_root, urls: urls, name: "world")
+                context.render("hello", urls: urls, name: "world")
               end
             end
 
@@ -403,6 +407,57 @@ module RubyEventStore
 
         untitled = WebClient.new(app, "example.org").get("/hello_untitled")
         expect(untitled.body).to include("<title>RubyEventStore::Browser</title>")
+      end
+    end
+
+    specify "extension can respond with the styled not found page" do
+      extension =
+        Class.new do
+          def register_routes(router, context)
+            router.add_route("GET", "/inspect/:thing") do |params, urls|
+              next context.not_found(urls) unless params.fetch("thing").eql?("known")
+              context.json(thing: "known")
+            end
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+      client = Rack::MockRequest.new(Rack::Lint.new(app))
+
+      response = client.get("/inspect/unknown")
+      expect(response.status).to eq(404)
+      expect(response.headers["content-type"]).to eq("text/html;charset=utf-8")
+      expect(response.body).to include("Page not found")
+      expect(response.body).to include("<title>RubyEventStore::Browser - Not found</title>")
+      expect(response.body.scan("<!DOCTYPE").size).to eq(1)
+      expect(client.get("/inspect/known").status).to eq(200)
+    end
+
+    specify "extension with own not_found template overrides the default one" do
+      Dir.mktmpdir do |views_root|
+        File.write(File.join(views_root, "not_found.html.erb"), "<p>gone: <%= h(message) %></p>")
+        extension =
+          Class.new do
+            attr_reader :views_root
+
+            def initialize(views_root)
+              @views_root = views_root
+            end
+
+            def register_routes(router, context)
+              router.add_route("GET", "/missing") { |_, urls| context.not_found(urls, message: "no such process") }
+            end
+          end.new(views_root)
+        app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+        client = Rack::MockRequest.new(app)
+
+        response = client.get("/missing")
+        expect(response.status).to eq(404)
+        expect(response.body).to include("<p>gone: no such process</p>")
+        expect(response.body.scan("<!DOCTYPE").size).to eq(1)
+
+        core_not_found = client.get("/events/00000000-0000-0000-0000-000000000000")
+        expect(core_not_found.body).to include("There&#39;s no event with given ID")
+        expect(core_not_found.body).not_to include("gone:")
       end
     end
 

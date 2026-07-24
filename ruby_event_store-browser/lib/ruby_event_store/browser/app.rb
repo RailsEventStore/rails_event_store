@@ -78,51 +78,6 @@ module RubyEventStore
         end
       end
 
-      class ExtensionContext
-        attr_reader :event_store
-
-        def initialize(event_store, stylesheets_resolver, scripts_resolver, nav_links_resolver)
-          @event_store = event_store
-          @stylesheets_resolver = stylesheets_resolver
-          @scripts_resolver = scripts_resolver
-          @nav_links_resolver = nav_links_resolver
-        end
-
-        def render(template, views_root:, urls:, title: nil, **locals)
-          renderer = Renderer.new([views_root, Renderer::VIEWS_ROOT])
-          content = renderer.render(template, urls: urls, **locals)
-          [
-            200,
-            { "content-type" => "text/html;charset=utf-8" },
-            [
-              renderer.render(
-                "layout",
-                content: content,
-                urls: urls,
-                title: title,
-                extension_stylesheets: @stylesheets_resolver.call(urls),
-                extension_scripts: @scripts_resolver.call(urls),
-                extension_nav_links: @nav_links_resolver.call(urls),
-              ),
-            ],
-          ]
-        end
-
-        def render_partial(template, views_root:, urls:, **locals)
-          Renderer.new([views_root, Renderer::VIEWS_ROOT]).render(template, urls: urls, **locals)
-        end
-
-        def json(body)
-          [200, { "content-type" => "application/json" }, [JSON.generate(body)]]
-        end
-
-        def serve_asset(router, route_path, file_path)
-          router.add_route("GET", route_path) do |_, _|
-            [200, { "content-type" => Rack::Mime.mime_type(File.extname(file_path)) }, [File.read(file_path)]]
-          end
-        end
-      end
-
       def initialize(event_store_locator:, related_streams_query:, host:, root_path:, extensions: [])
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
@@ -141,19 +96,17 @@ module RubyEventStore
         router.add_route("GET", "/streams/:stream_name") do |params, urls|
           stream_name = params.fetch("stream_name")
           reader = GetEventsFromStream.new(event_store: event_store, stream_name: stream_name, page: params["page"])
-          html render(
-                 "streams/show",
-                 urls: urls,
-                 stream_name: stream_name,
-                 title: "Stream #{stream_name}",
-                 events: reader.events,
-                 pagination:
-                   reader.pagination.transform_values { |cursor|
-                     urls.stream_page_url(stream_name, cursor, reader.count)
-                   },
-                 related_streams: related_streams_query.call(stream_name),
-                 extension_links: stream_extension_links(stream_name, urls),
-               )
+          layout.page(
+            "streams/show",
+            urls: urls,
+            stream_name: stream_name,
+            title: "Stream #{stream_name}",
+            events: reader.events,
+            pagination:
+              reader.pagination.transform_values { |cursor| urls.stream_page_url(stream_name, cursor, reader.count) },
+            related_streams: related_streams_query.call(stream_name),
+            extension_links: stream_extension_links(stream_name, urls),
+          )
         end
 
         router.add_route("GET", "/events/:event_id") do |params, urls|
@@ -162,18 +115,17 @@ module RubyEventStore
           parent_event =
             event_store.read.event(event.metadata.fetch(:causation_id)) if event.metadata.key?(:causation_id)
 
-          html render(
-                 "events/show",
-                 urls: urls,
-                 event: event,
-                 title: "Event #{event.event_id}",
-                 metadata: metadata,
-                 streams: event_store.streams_of(event.event_id).map(&:name).sort,
-                 parent_event: parent_event,
-                 caused_by:
-                   event_store.read.stream("$by_causation_id_#{event.event_id}").backward.limit(PAGE_SIZE).to_a,
-                 extension_links: event_extension_links(event, urls),
-               )
+          layout.page(
+            "events/show",
+            urls: urls,
+            event: event,
+            title: "Event #{event.event_id}",
+            metadata: metadata,
+            streams: event_store.streams_of(event.event_id).map(&:name).sort,
+            parent_event: parent_event,
+            caused_by: event_store.read.stream("$by_causation_id_#{event.event_id}").backward.limit(PAGE_SIZE).to_a,
+            extension_links: event_extension_links(event, urls),
+          )
         end
 
         router.add_route("GET", "/swimlane") do |params, urls|
@@ -181,16 +133,16 @@ module RubyEventStore
           reader = GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names, sort: sort)
           missing_stream_names = reader.missing_stream_names
           stream_names -= missing_stream_names
-          html render(
-                 "swimlane/show",
-                 urls: urls,
-                 stream_names: stream_names,
-                 missing_stream_names: missing_stream_names,
-                 title: "Swimlane #{stream_names.join(', ')}",
-                 events: reader.events,
-                 sort: sort,
-                 more_url: (urls.swimlane_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
-               )
+          layout.page(
+            "swimlane/show",
+            urls: urls,
+            stream_names: stream_names,
+            missing_stream_names: missing_stream_names,
+            title: "Swimlane #{stream_names.join(', ')}",
+            events: reader.events,
+            sort: sort,
+            more_url: (urls.swimlane_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
+          )
         end
 
         router.add_route("GET", "/swimlane/more") do |params, urls|
@@ -204,36 +156,20 @@ module RubyEventStore
             )
           json(
             html:
-              Renderer.new.render(
-                "swimlane/_rows",
-                urls: urls,
-                stream_names: stream_names,
-                events: reader.events,
-                sort: sort,
-              ),
+              layout.partial("swimlane/_rows", urls: urls, stream_names: stream_names, events: reader.events, sort: sort),
             more_url: (urls.swimlane_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
           )
         end
 
         extensions
           .select { |extension| extension.respond_to?(:register_routes) }
-          .each do |extension|
-            extension.register_routes(
-              router,
-              ExtensionContext.new(
-                event_store,
-                method(:extension_stylesheets),
-                method(:extension_scripts),
-                method(:extension_nav_links),
-              ),
-            )
-          end
+          .each { |extension| extension.register_routes(router, extension_context(extension)) }
 
         router.handle(request)
       rescue EventNotFound
-        not_found(routing.with_request(request))
+        layout.not_found(routing.with_request(request), message: "There's no event with given ID")
       rescue Router::NoMatch
-        [404, {}, []]
+        layout.not_found(routing.with_request(request), message: "Page not found")
       end
 
       private
@@ -242,6 +178,18 @@ module RubyEventStore
 
       def event_store
         event_store_locator.call
+      end
+
+      def extension_context(extension)
+        ExtensionContext.new(event_store, extension_layout(extension))
+      end
+
+      def extension_layout(extension)
+        extension.respond_to?(:views_root) ? layout.with_views_root(extension.views_root) : layout
+      end
+
+      def layout
+        Layout.new(method(:extension_stylesheets), method(:extension_scripts), method(:extension_nav_links))
       end
 
       def stream_extension_links(stream_name, urls)
@@ -282,24 +230,6 @@ module RubyEventStore
         end
       end
 
-      def render(template, urls:, title:, **locals)
-        renderer = Renderer.new
-        content = renderer.render(template, urls: urls, **locals)
-        renderer.render(
-          "layout",
-          content: content,
-          urls: urls,
-          title: title,
-          extension_stylesheets: extension_stylesheets(urls),
-          extension_scripts: extension_scripts(urls),
-          extension_nav_links: extension_nav_links(urls),
-        )
-      end
-
-      def html(body)
-        [200, { "content-type" => "text/html;charset=utf-8" }, [body]]
-      end
-
       def json(body)
         [200, { "content-type" => "application/json" }, [JSON.generate(body)]]
       end
@@ -308,26 +238,6 @@ module RubyEventStore
         stream_names = Array(params["streams"]).reject { |name| name.nil? || name.empty? }.uniq
         sort = ("as_of" if params["sort"] == "as_of")
         [stream_names, sort]
-      end
-
-      def not_found(urls)
-        renderer = Renderer.new
-        content = renderer.render("not_found")
-        [
-          404,
-          { "content-type" => "text/html;charset=utf-8" },
-          [
-            renderer.render(
-              "layout",
-              content: content,
-              urls: urls,
-              title: "Not found",
-              extension_stylesheets: extension_stylesheets(urls),
-              extension_scripts: extension_scripts(urls),
-              extension_nav_links: extension_nav_links(urls),
-            ),
-          ],
-        ]
       end
     end
   end
