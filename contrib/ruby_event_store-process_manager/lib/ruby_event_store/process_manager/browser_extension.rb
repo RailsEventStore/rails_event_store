@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "rack"
 require_relative "state_replay"
 
 module RubyEventStore
@@ -10,9 +9,7 @@ module RubyEventStore
       STYLESHEET_PATH = File.expand_path("public/ruby_event_store_process_manager.css", __dir__).freeze
 
       def register_routes(router, context)
-        router.add_route("GET", "/process_manager_assets/stylesheet.css") do |_, _|
-          [200, { "content-type" => "text/css" }, [File.read(STYLESHEET_PATH)]]
-        end
+        context.serve_asset(router, "/process_manager_assets/stylesheet.css", STYLESHEET_PATH)
 
         router.add_route("GET", "/process_managers/:stream_name") do |params, urls|
           stream_name = params.fetch("stream_name")
@@ -36,11 +33,11 @@ module RubyEventStore
       def stream_links(stream_name, urls)
         return [] unless ProcessManager.parse_stream_name(stream_name)
 
-        [{ label: "Process state", url: "#{urls.app_url}/process_managers/#{Rack::Utils.escape(stream_name)}" }]
+        [{ label: "Process state", url: urls.app_url_for("process_managers", stream_name) }]
       end
 
       def stylesheets(urls)
-        ["#{urls.app_url}/process_manager_assets/stylesheet.css"]
+        [urls.app_url_for("process_manager_assets", "stylesheet.css")]
       end
     end
   end
