@@ -113,6 +113,12 @@ module RubyEventStore
         def json(body)
           [200, { "content-type" => "application/json" }, [JSON.generate(body)]]
         end
+
+        def serve_asset(router, route_path, file_path)
+          router.add_route("GET", route_path) do |_, _|
+            [200, { "content-type" => Rack::Mime.mime_type(File.extname(file_path)) }, [File.read(file_path)]]
+          end
+        end
       end
 
       def initialize(event_store_locator:, related_streams_query:, host:, root_path:, extensions: [])

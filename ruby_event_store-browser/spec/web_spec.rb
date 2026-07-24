@@ -341,6 +341,35 @@ module RubyEventStore
       end
     end
 
+    specify "extension can serve its own assets" do
+      Dir.mktmpdir do |assets_root|
+        File.write(File.join(assets_root, "extension.css"), ".swimlane { color: red }")
+        File.write(File.join(assets_root, "extension.js"), "console.log('swimlane')")
+        extension =
+          Class.new do
+            def initialize(assets_root)
+              @assets_root = assets_root
+            end
+
+            def register_routes(router, context)
+              context.serve_asset(router, "/extension_assets/extension.css", File.join(@assets_root, "extension.css"))
+              context.serve_asset(router, "/extension_assets/extension.js", File.join(@assets_root, "extension.js"))
+            end
+          end.new(assets_root)
+        app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+        client = Rack::MockRequest.new(Rack::Lint.new(app))
+
+        stylesheet = client.get("/extension_assets/extension.css")
+        expect(stylesheet.status).to eq(200)
+        expect(stylesheet.headers["content-type"]).to eq("text/css")
+        expect(stylesheet.body).to eq(".swimlane { color: red }")
+
+        script = client.get("/extension_assets/extension.js")
+        expect(script.headers["content-type"]).to eq("application/javascript")
+        expect(script.body).to eq("console.log('swimlane')")
+      end
+    end
+
     specify "extensions without optional hooks leave pages untouched" do
       bare_extension = Object.new
       linking_extension =
