@@ -1,3 +1,7 @@
+### 0.2.1
+
+- Fix: `read.stream(name).as_at.backward` and `as_of.backward` return events in reversed time order instead of reversed position order.
+
 ### 0.2.0
 
 - Change: Allow `ruby_event_store` 3.x by relaxing the dependency bound to `< 4.0`.
