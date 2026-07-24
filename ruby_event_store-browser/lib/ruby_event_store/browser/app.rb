@@ -69,6 +69,10 @@ module RubyEventStore
                   "/#{BROWSER_CSS}" => "ruby_event_store_browser.css",
                 ),
               root: "#{__dir__}/../../../public"
+          extensions.each_with_index do |extension, index|
+            mappings = App.extension_asset_mappings(extension, index)
+            use Rack::Static, urls: mappings, root: extension.assets_root unless mappings.empty?
+          end
           run App.new(
                 event_store_locator: event_store_locator,
                 related_streams_query: related_streams_query,
@@ -78,6 +82,14 @@ module RubyEventStore
                 views_root: views_root,
               )
         end
+      end
+
+      def self.extension_asset_mappings(extension, index)
+        return {} unless extension.respond_to?(:assets_root)
+
+        Dir
+          .glob("**/*", base: extension.assets_root)
+          .to_h { |relative_path| ["/extension_assets/#{index}/#{relative_path}", relative_path] }
       end
 
       def initialize(event_store_locator:, related_streams_query:, host:, root_path:, extensions: [], views_root: nil)
@@ -219,15 +231,21 @@ module RubyEventStore
       end
 
       def extension_stylesheets(urls)
-        extensions
-          .select { |extension| extension.respond_to?(:stylesheets) }
-          .flat_map { |extension| extension.stylesheets(urls) }
+        extension_asset_urls(urls, ".css")
       end
 
       def extension_scripts(urls)
-        extensions
-          .select { |extension| extension.respond_to?(:scripts) }
-          .flat_map { |extension| extension.scripts(urls) }
+        extension_asset_urls(urls, ".js")
+      end
+
+      def extension_asset_urls(urls, extname)
+        extensions.each_with_index.flat_map do |extension, index|
+          App
+            .extension_asset_mappings(extension, index)
+            .keys
+            .select { |path| File.extname(path) == extname }
+            .map { |path| "#{urls.app_url}#{path}" }
+        end
       end
 
       def format_event_metadata(event)

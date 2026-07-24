@@ -14,12 +14,6 @@ module RubyEventStore
         @layout.render(template, urls: urls, title: title, **locals)
       end
 
-      def serve_asset(router, route_path, file_path)
-        router.add_route("GET", route_path) do |_, _|
-          [200, { "content-type" => Rack::Mime.mime_type(File.extname(file_path)) }, [File.read(file_path)]]
-        end
-      end
-
       def not_found(urls, message: "Page not found")
         @layout.not_found(urls, message: message)
       end

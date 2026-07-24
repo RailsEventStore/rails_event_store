@@ -300,108 +300,135 @@ module RubyEventStore
       expect(body).to include("/inspect/x&quot; onmouseover=&quot;alert(1)")
     end
 
-    specify "extensions can contribute stylesheets to the layout" do
-      extension =
-        Class.new do
-          def stylesheets(urls)
-            ["#{urls.app_url}/extension.css"]
-          end
-        end.new
-      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+    specify "extension assets are served and linked in the layout" do
+      Dir.mktmpdir do |assets_root|
+        Dir.mkdir(File.join(assets_root, "nested"))
+        File.write(File.join(assets_root, "extension.css"), ".lane { color: red }")
+        File.write(File.join(assets_root, "nested/extension.js"), "console.log('hi')")
+        File.write(File.join(assets_root, "logo.png"), "not really a png")
+        extension =
+          Class.new do
+            attr_reader :assets_root
 
-      response = Rack::MockRequest.new(app).get("/streams/all")
-      expect(response.status).to eq(200)
-      expect(response.body).to include('href="http://example.org/extension.css"')
+            def initialize(assets_root)
+              @assets_root = assets_root
+            end
+          end.new(assets_root)
+        app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+        client = Rack::MockRequest.new(Rack::Lint.new(app))
+
+        body = client.get("/streams/all").body
+        expect(body).to include('href="http://example.org/extension_assets/0/extension.css"')
+        expect(body).to include(
+          '<script type="module" src="http://example.org/extension_assets/0/nested/extension.js"></script>',
+        )
+        expect(body).not_to include("logo.png")
+
+        stylesheet = client.get("/extension_assets/0/extension.css")
+        expect(stylesheet.status).to eq(200)
+        expect(stylesheet.headers["content-type"]).to eq("text/css")
+        expect(stylesheet.body).to eq(".lane { color: red }")
+
+        script = client.get("/extension_assets/0/nested/extension.js")
+        expect(script.headers["content-type"]).to eq("application/javascript")
+        expect(script.body).to eq("console.log('hi')")
+
+        expect(client.get("/extension_assets/0/logo.png").status).to eq(200)
+        expect(client.get("/extension_assets/0/missing.css").status).to eq(404)
+        expect(client.get("/extension_assets/0/nested").status).to eq(404)
+      end
     end
 
-    specify "extension stylesheets are linked on the not found page" do
-      extension =
-        Class.new do
-          def stylesheets(urls)
-            ["#{urls.app_url}/extension.css"]
-          end
-        end.new
-      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+    specify "extension assets are linked on the not found page" do
+      Dir.mktmpdir do |assets_root|
+        File.write(File.join(assets_root, "extension.css"), "")
+        extension =
+          Class.new do
+            attr_reader :assets_root
 
-      response = Rack::MockRequest.new(app).get("/events/00000000-0000-0000-0000-000000000000")
-      expect(response).to be_not_found
-      expect(response.body).to include('href="http://example.org/extension.css"')
+            def initialize(assets_root)
+              @assets_root = assets_root
+            end
+          end.new(assets_root)
+        app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+
+        response = Rack::MockRequest.new(app).get("/events/00000000-0000-0000-0000-000000000000")
+        expect(response).to be_not_found
+        expect(response.body).to include('href="http://example.org/extension_assets/0/extension.css"')
+      end
     end
 
-    specify "extensions can contribute scripts to the layout" do
-      extension =
-        Class.new do
-          def scripts(urls)
-            ["#{urls.app_url}/extension.js"]
-          end
-        end.new
-      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+    specify "each extension serves assets under its own prefix" do
+      Dir.mktmpdir do |first_root|
+        Dir.mktmpdir do |second_root|
+          File.write(File.join(first_root, "extension.css"), "first")
+          File.write(File.join(second_root, "extension.css"), "second")
+          extension_class =
+            Class.new do
+              attr_reader :assets_root
 
-      response = Rack::MockRequest.new(app).get("/streams/all")
-      expect(response.status).to eq(200)
-      expect(response.body).to include('<script type="module" src="http://example.org/extension.js"></script>')
-    end
+              def initialize(assets_root)
+                @assets_root = assets_root
+              end
+            end
+          app =
+            Browser::App.for(
+              event_store_locator: -> { event_store },
+              extensions: [extension_class.new(first_root), extension_class.new(second_root)],
+            )
+          client = Rack::MockRequest.new(app)
 
-    specify "extension scripts are linked on the not found page" do
-      extension =
-        Class.new do
-          def scripts(urls)
-            ["#{urls.app_url}/extension.js"]
-          end
-        end.new
-      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
-
-      response = Rack::MockRequest.new(app).get("/events/00000000-0000-0000-0000-000000000000")
-      expect(response).to be_not_found
-      expect(response.body).to include('<script type="module" src="http://example.org/extension.js"></script>')
+          expect(client.get("/extension_assets/0/extension.css").body).to eq("first")
+          expect(client.get("/extension_assets/1/extension.css").body).to eq("second")
+        end
+      end
     end
 
     specify "extension can render its own views wrapped in the layout" do
       Dir.mktmpdir do |views_root|
-        File.write(File.join(views_root, "hello.html.erb"), "<p>hello <%= h(name) %> from <%= urls.app_url %></p>")
-        extension =
-          Class.new do
-            attr_reader :views_root
+        Dir.mktmpdir do |assets_root|
+          File.write(File.join(views_root, "hello.html.erb"), "<p>hello <%= h(name) %> from <%= urls.app_url %></p>")
+          File.write(File.join(assets_root, "extension.css"), "")
+          File.write(File.join(assets_root, "extension.js"), "")
+          extension =
+            Class.new do
+              attr_reader :views_root, :assets_root
 
-            def initialize(views_root)
-              @views_root = views_root
-            end
-
-            def register_routes(router, context)
-              router.add_route("GET", "/hello") do |_, urls|
-                context.render("hello", urls: urls, title: "Hello page", name: "world")
+              def initialize(views_root, assets_root)
+                @views_root = views_root
+                @assets_root = assets_root
               end
-              router.add_route("GET", "/hello_untitled") do |_, urls|
-                context.render("hello", urls: urls, name: "world")
+
+              def register_routes(router, context)
+                router.add_route("GET", "/hello") do |_, urls|
+                  context.render("hello", urls: urls, title: "Hello page", name: "world")
+                end
+                router.add_route("GET", "/hello_untitled") do |_, urls|
+                  context.render("hello", urls: urls, name: "world")
+                end
               end
-            end
 
-            def stylesheets(urls)
-              ["#{urls.app_url}/extension.css"]
-            end
+              def nav_links(urls)
+                [{ label: "Hello", url: "#{urls.app_url}/hello" }]
+              end
+            end.new(views_root, assets_root)
+          app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
 
-            def scripts(urls)
-              ["#{urls.app_url}/extension.js"]
-            end
+          response = WebClient.new(app, "example.org").get("/hello")
+          expect(response.status).to eq(200)
+          expect(response.content_type).to eq("text/html;charset=utf-8")
+          expect(response.body).to include("<p>hello world from http://example.org</p>")
+          expect(response.body.scan("<!DOCTYPE").size).to eq(1)
+          expect(response.body).to include('href="http://example.org/extension_assets/0/extension.css"')
+          expect(response.body).to include(
+            '<script type="module" src="http://example.org/extension_assets/0/extension.js"></script>',
+          )
+          expect(response.body).to include(">Hello</a>")
+          expect(response.body).to include("<title>RubyEventStore::Browser - Hello page</title>")
 
-            def nav_links(urls)
-              [{ label: "Hello", url: "#{urls.app_url}/hello" }]
-            end
-          end.new(views_root)
-        app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
-
-        response = WebClient.new(app, "example.org").get("/hello")
-        expect(response.status).to eq(200)
-        expect(response.content_type).to eq("text/html;charset=utf-8")
-        expect(response.body).to include("<p>hello world from http://example.org</p>")
-        expect(response.body.scan("<!DOCTYPE").size).to eq(1)
-        expect(response.body).to include('href="http://example.org/extension.css"')
-        expect(response.body).to include('<script type="module" src="http://example.org/extension.js"></script>')
-        expect(response.body).to include(">Hello</a>")
-        expect(response.body).to include("<title>RubyEventStore::Browser - Hello page</title>")
-
-        untitled = WebClient.new(app, "example.org").get("/hello_untitled")
-        expect(untitled.body).to include("<title>RubyEventStore::Browser</title>")
+          untitled = WebClient.new(app, "example.org").get("/hello_untitled")
+          expect(untitled.body).to include("<title>RubyEventStore::Browser</title>")
+        end
       end
     end
 
@@ -453,35 +480,6 @@ module RubyEventStore
         core_not_found = client.get("/events/00000000-0000-0000-0000-000000000000")
         expect(core_not_found.body).to include("There&#39;s no event with given ID")
         expect(core_not_found.body).not_to include("gone:")
-      end
-    end
-
-    specify "extension can serve its own assets" do
-      Dir.mktmpdir do |assets_root|
-        File.write(File.join(assets_root, "extension.css"), ".swimlane { color: red }")
-        File.write(File.join(assets_root, "extension.js"), "console.log('swimlane')")
-        extension =
-          Class.new do
-            def initialize(assets_root)
-              @assets_root = assets_root
-            end
-
-            def register_routes(router, context)
-              context.serve_asset(router, "/extension_assets/extension.css", File.join(@assets_root, "extension.css"))
-              context.serve_asset(router, "/extension_assets/extension.js", File.join(@assets_root, "extension.js"))
-            end
-          end.new(assets_root)
-        app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
-        client = Rack::MockRequest.new(Rack::Lint.new(app))
-
-        stylesheet = client.get("/extension_assets/extension.css")
-        expect(stylesheet.status).to eq(200)
-        expect(stylesheet.headers["content-type"]).to eq("text/css")
-        expect(stylesheet.body).to eq(".swimlane { color: red }")
-
-        script = client.get("/extension_assets/extension.js")
-        expect(script.headers["content-type"]).to eq("application/javascript")
-        expect(script.body).to eq("console.log('swimlane')")
       end
     end
 
