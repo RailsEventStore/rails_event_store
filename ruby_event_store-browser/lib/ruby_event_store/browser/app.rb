@@ -206,9 +206,14 @@ module RubyEventStore
           )
         end
 
-        extensions.each do |extension|
-          extension.register_routes(router, ExtensionContext.new(event_store, method(:extension_stylesheets), method(:extension_scripts)))
-        end
+        extensions
+          .select { |extension| extension.respond_to?(:register_routes) }
+          .each do |extension|
+            extension.register_routes(
+              router,
+              ExtensionContext.new(event_store, method(:extension_stylesheets), method(:extension_scripts)),
+            )
+          end
 
         router.handle(request)
       rescue EventNotFound

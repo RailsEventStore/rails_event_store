@@ -189,9 +189,6 @@ module RubyEventStore
     specify "extensions can contribute links on the stream page" do
       extension =
         Class.new do
-          def register_routes(router, context)
-          end
-
           def stream_links(stream_name, urls)
             return [] unless stream_name.eql?("special")
             [{ label: "Inspect stream", url: "#{urls.app_url}/inspect/#{stream_name}" }]
@@ -206,9 +203,6 @@ module RubyEventStore
     specify "extensions can contribute stylesheets to the layout" do
       extension =
         Class.new do
-          def register_routes(router, context)
-          end
-
           def stylesheets(urls)
             ["#{urls.app_url}/extension.css"]
           end
@@ -223,9 +217,6 @@ module RubyEventStore
     specify "extension stylesheets are linked on the not found page" do
       extension =
         Class.new do
-          def register_routes(router, context)
-          end
-
           def stylesheets(urls)
             ["#{urls.app_url}/extension.css"]
           end
@@ -240,9 +231,6 @@ module RubyEventStore
     specify "extensions can contribute scripts to the layout" do
       extension =
         Class.new do
-          def register_routes(router, context)
-          end
-
           def scripts(urls)
             ["#{urls.app_url}/extension.js"]
           end
@@ -257,9 +245,6 @@ module RubyEventStore
     specify "extension scripts are linked on the not found page" do
       extension =
         Class.new do
-          def register_routes(router, context)
-          end
-
           def scripts(urls)
             ["#{urls.app_url}/extension.js"]
           end
@@ -357,16 +342,9 @@ module RubyEventStore
     end
 
     specify "extensions without optional hooks leave pages untouched" do
-      bare_extension =
-        Class.new do
-          def register_routes(router, context)
-          end
-        end.new
+      bare_extension = Object.new
       linking_extension =
         Class.new do
-          def register_routes(router, context)
-          end
-
           def stream_links(stream_name, urls)
             [{ label: "Inspect stream", url: "#{urls.app_url}/inspect/#{stream_name}" }]
           end
