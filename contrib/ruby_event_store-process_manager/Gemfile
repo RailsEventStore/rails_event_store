@@ -6,3 +6,11 @@ gemspec
 eval_gemfile "../../support/bundler/Gemfile.shared"
 
 gem "ruby_event_store", path: "../.."
+
+group :test do
+  gem "ruby_event_store-browser", path: "../.."
+  gem "rack", "~> 3.0"
+  gem "rack-test"
+end
+
+gem "tailwindcss-ruby", "~> 4.3", require: false
