@@ -47,6 +47,11 @@ module RubyEventStore
         "#{app_url}/swimlane/more?#{swimlane_query(stream_names, sort, [["cursor", cursor]])}"
       end
 
+      def app_url_for(*segments, query: nil)
+        path = segments.map { |segment| Rack::Utils.escape(segment) }.join("/")
+        query ? "#{app_url}/#{path}?#{URI.encode_www_form(query)}" : "#{app_url}/#{path}"
+      end
+
       def browser_js_url
         "#{app_url}/#{BROWSER_JS}"
       end

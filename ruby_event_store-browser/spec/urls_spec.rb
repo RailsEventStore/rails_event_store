@@ -118,6 +118,25 @@ module RubyEventStore
         )
       end
 
+      specify "app_url_for" do
+        urls = Urls.from_configuration("http://example.com:9393", "/res")
+        expect(urls.app_url_for("process_managers", "Foo$123")).to eq(
+          "http://example.com:9393/res/process_managers/Foo%24123",
+        )
+      end
+
+      specify "app_url_for escapes each segment separately" do
+        urls = Urls.from_configuration("http://example.com:9393", nil)
+        expect(urls.app_url_for("nested", "foo/bar.xml")).to eq("http://example.com:9393/nested/foo%2Fbar.xml")
+      end
+
+      specify "app_url_for with query" do
+        urls = Urls.from_configuration("http://example.com:9393", nil)
+        expect(urls.app_url_for("swimlane", query: [["streams[]", "fizz"], ["streams[]", "buzz"]])).to eq(
+          "http://example.com:9393/swimlane?streams%5B%5D=fizz&streams%5B%5D=buzz",
+        )
+      end
+
       specify "browser_css_url" do
         urls = Urls.from_configuration("http://example.com:9393", "/res")
         expect(urls.browser_css_url).to eq("http://example.com:9393/res/#{BROWSER_CSS}")
