@@ -18,8 +18,11 @@
     <div class="flex flex-col w-full min-h-screen font-sans antialiased leading-relaxed text-gray-800 bg-gray-100" data-controller="search timezone" data-search-base-value="<%= urls.app_url %>" data-action="keydown.meta+k@window->search#open keydown.ctrl+k@window->search#open">
       <header>
         <nav class="sticky flex justify-between h-16 px-8 bg-red-700">
-          <div class="flex items-center">
+          <div class="flex items-center gap-6">
             <a href="<%= urls.app_url %>" class="font-semibold text-gray-100">Ruby Event Store</a>
+            <% extension_nav_links.each do |link| -%>
+            <a href="<%= h(link[:url]) %>" class="text-sm text-red-100 hover:text-white"><%= h(link[:label]) %></a>
+            <% end -%>
           </div>
           <div class="flex items-center gap-2">
             <button class="flex items-center gap-2 px-3 text-sm text-red-100 bg-red-800 rounded outline-none hover:bg-red-900 h-9" data-action="search#open">

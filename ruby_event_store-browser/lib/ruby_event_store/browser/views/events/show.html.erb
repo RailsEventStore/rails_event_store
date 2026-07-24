@@ -9,6 +9,13 @@
           <%= render("_clipboard_icon", classes: "size-4 -translate-y-0.5 opacity-0 group-hover:opacity-100", size: 24) %>
         </button>
       </p>
+      <% if extension_links.any? -%>
+        <div class="flex gap-2">
+          <% extension_links.each do |link| -%>
+            <a class="inline-block text-center text-sm bg-red-700 text-gray-100 border border-red-700 rounded px-2 py-1" href="<%= h(link[:url]) %>"><%= h(link[:label]) %></a>
+          <% end -%>
+        </div>
+      <% end -%>
     </div>
     <div class="space-y-4">
       <%= render("_timestamp", title: "Created at", time: event.metadata[:timestamp], top: true) %>

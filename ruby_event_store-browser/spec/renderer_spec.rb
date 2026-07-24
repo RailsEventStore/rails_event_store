@@ -35,7 +35,7 @@ module RubyEventStore
         specify "passes locals to nested render" do
           urls = Urls.from_configuration("http://example.com", nil)
           expect(
-            context.render("layout", content: "marker-content", urls: urls, extension_stylesheets: [], extension_scripts: []),
+            context.render("layout", content: "marker-content", urls: urls, extension_stylesheets: [], extension_scripts: [], extension_nav_links: []),
           ).to include("marker-content")
         end
       end
@@ -67,7 +67,7 @@ module RubyEventStore
         let(:urls) { Urls.from_configuration("http://example.com", nil) }
 
         specify "makes locals accessible as methods in template" do
-          result = renderer.render("layout", content: "body-text", urls: urls, extension_stylesheets: [], extension_scripts: [])
+          result = renderer.render("layout", content: "body-text", urls: urls, extension_stylesheets: [], extension_scripts: [], extension_nav_links: [])
           expect(result).to include("body-text")
           expect(result).to include("http://example.com")
         end

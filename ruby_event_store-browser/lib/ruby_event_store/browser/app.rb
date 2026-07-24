@@ -81,13 +81,14 @@ module RubyEventStore
       class ExtensionContext
         attr_reader :event_store
 
-        def initialize(event_store, stylesheets_resolver, scripts_resolver)
+        def initialize(event_store, stylesheets_resolver, scripts_resolver, nav_links_resolver)
           @event_store = event_store
           @stylesheets_resolver = stylesheets_resolver
           @scripts_resolver = scripts_resolver
+          @nav_links_resolver = nav_links_resolver
         end
 
-        def render(template, views_root:, urls:, **locals)
+        def render(template, views_root:, urls:, title: nil, **locals)
           renderer = Renderer.new([views_root, Renderer::VIEWS_ROOT])
           content = renderer.render(template, urls: urls, **locals)
           [
@@ -98,9 +99,10 @@ module RubyEventStore
                 "layout",
                 content: content,
                 urls: urls,
-                title: locals[:title],
+                title: title,
                 extension_stylesheets: @stylesheets_resolver.call(urls),
                 extension_scripts: @scripts_resolver.call(urls),
+                extension_nav_links: @nav_links_resolver.call(urls),
               ),
             ],
           ]
@@ -150,7 +152,7 @@ module RubyEventStore
                      urls.stream_page_url(stream_name, cursor, reader.count)
                    },
                  related_streams: related_streams_query.call(stream_name),
-                 extension_links: extension_links(stream_name, urls),
+                 extension_links: stream_extension_links(stream_name, urls),
                )
         end
 
@@ -170,6 +172,7 @@ module RubyEventStore
                  parent_event: parent_event,
                  caused_by:
                    event_store.read.stream("$by_causation_id_#{event.event_id}").backward.limit(PAGE_SIZE).to_a,
+                 extension_links: event_extension_links(event, urls),
                )
         end
 
@@ -217,7 +220,12 @@ module RubyEventStore
           .each do |extension|
             extension.register_routes(
               router,
-              ExtensionContext.new(event_store, method(:extension_stylesheets), method(:extension_scripts)),
+              ExtensionContext.new(
+                event_store,
+                method(:extension_stylesheets),
+                method(:extension_scripts),
+                method(:extension_nav_links),
+              ),
             )
           end
 
@@ -236,10 +244,22 @@ module RubyEventStore
         event_store_locator.call
       end
 
-      def extension_links(stream_name, urls)
+      def stream_extension_links(stream_name, urls)
         extensions
           .select { |extension| extension.respond_to?(:stream_links) }
           .flat_map { |extension| extension.stream_links(stream_name, urls) }
+      end
+
+      def event_extension_links(event, urls)
+        extensions
+          .select { |extension| extension.respond_to?(:event_links) }
+          .flat_map { |extension| extension.event_links(event, urls) }
+      end
+
+      def extension_nav_links(urls)
+        extensions
+          .select { |extension| extension.respond_to?(:nav_links) }
+          .flat_map { |extension| extension.nav_links(urls) }
       end
 
       def extension_stylesheets(urls)
@@ -262,16 +282,17 @@ module RubyEventStore
         end
       end
 
-      def render(template, urls:, **locals)
+      def render(template, urls:, title:, **locals)
         renderer = Renderer.new
         content = renderer.render(template, urls: urls, **locals)
         renderer.render(
           "layout",
           content: content,
           urls: urls,
-          title: locals[:title],
+          title: title,
           extension_stylesheets: extension_stylesheets(urls),
           extension_scripts: extension_scripts(urls),
+          extension_nav_links: extension_nav_links(urls),
         )
       end
 
@@ -303,6 +324,7 @@ module RubyEventStore
               title: "Not found",
               extension_stylesheets: extension_stylesheets(urls),
               extension_scripts: extension_scripts(urls),
+              extension_nav_links: extension_nav_links(urls),
             ),
           ],
         ]

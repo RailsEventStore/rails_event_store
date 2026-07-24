@@ -200,6 +200,45 @@ module RubyEventStore
       expect(Rack::MockRequest.new(app).get("/streams/other").body).not_to include("Inspect stream")
     end
 
+    specify "extensions can contribute links on the event page" do
+      extension =
+        Class.new do
+          def event_links(event, urls)
+            return [] unless event.metadata.key?(:causation_id)
+            [{ label: "Trace causation", url: "#{urls.app_url}/trace/#{event.event_id}" }]
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+      plain = DummyEvent.new
+      caused = DummyEvent.new(metadata: { causation_id: plain.event_id })
+      event_store.append([plain, caused])
+      client = Rack::MockRequest.new(app)
+
+      body = client.get("/events/#{caused.event_id}").body
+      expect(body).to include("Trace causation")
+      expect(body).to include("/trace/#{caused.event_id}")
+      expect(client.get("/events/#{plain.event_id}").body).not_to include("Trace causation")
+    end
+
+    specify "extensions can contribute links to the top navigation" do
+      extension =
+        Class.new do
+          def nav_links(urls)
+            [{ label: "Processes", url: "#{urls.app_url}/processes" }]
+          end
+        end.new
+      app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
+      client = Rack::MockRequest.new(app)
+
+      body = client.get("/streams/all").body
+      expect(body).to include(">Processes</a>")
+      expect(body).to include('href="http://example.org/processes"')
+
+      not_found = client.get("/events/00000000-0000-0000-0000-000000000000")
+      expect(not_found.status).to eq(404)
+      expect(not_found.body).to include(">Processes</a>")
+    end
+
     specify "extension link urls cannot break out of the href attribute" do
       extension =
         Class.new do
@@ -331,6 +370,9 @@ module RubyEventStore
             def register_routes(router, context)
               views_root = @views_root
               router.add_route("GET", "/hello") do |_, urls|
+                context.render("hello", views_root: views_root, urls: urls, title: "Hello page", name: "world")
+              end
+              router.add_route("GET", "/hello_untitled") do |_, urls|
                 context.render("hello", views_root: views_root, urls: urls, name: "world")
               end
             end
@@ -342,6 +384,10 @@ module RubyEventStore
             def scripts(urls)
               ["#{urls.app_url}/extension.js"]
             end
+
+            def nav_links(urls)
+              [{ label: "Hello", url: "#{urls.app_url}/hello" }]
+            end
           end.new(views_root)
         app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [extension])
 
@@ -352,6 +398,11 @@ module RubyEventStore
         expect(response.body.scan("<!DOCTYPE").size).to eq(1)
         expect(response.body).to include('href="http://example.org/extension.css"')
         expect(response.body).to include('<script type="module" src="http://example.org/extension.js"></script>')
+        expect(response.body).to include(">Hello</a>")
+        expect(response.body).to include("<title>RubyEventStore::Browser - Hello page</title>")
+
+        untitled = WebClient.new(app, "example.org").get("/hello_untitled")
+        expect(untitled.body).to include("<title>RubyEventStore::Browser</title>")
       end
     end
 
@@ -393,11 +444,15 @@ module RubyEventStore
           end
         end.new
       app = Browser::App.for(event_store_locator: -> { event_store }, extensions: [bare_extension, linking_extension])
+      client = Rack::MockRequest.new(app)
 
-      response = Rack::MockRequest.new(app).get("/streams/special")
+      response = client.get("/streams/special")
       expect(response.status).to eq(200)
       expect(response.body).to include("Inspect stream")
       expect(response.body).not_to include('href=""')
+
+      event_store.append(event = DummyEvent.new)
+      expect(client.get("/events/#{event.event_id}").status).to eq(200)
     end
 
     specify "uses configured host for generated URLs" do
