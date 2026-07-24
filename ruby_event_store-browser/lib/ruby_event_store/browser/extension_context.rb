@@ -11,11 +11,11 @@ module RubyEventStore
       end
 
       def render(template, urls:, title: nil, **locals)
-        @layout.page(template, urls: urls, title: title, **locals)
+        @layout.render(template, urls: urls, title: title, **locals)
       end
 
       def render_partial(template, urls:, **locals)
-        @layout.partial(template, urls: urls, **locals)
+        @layout.render_partial(template, urls: urls, **locals)
       end
 
       def json(body)

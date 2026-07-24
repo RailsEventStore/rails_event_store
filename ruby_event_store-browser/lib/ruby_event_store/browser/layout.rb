@@ -19,12 +19,12 @@ module RubyEventStore
         )
       end
 
-      def page(template, urls:, title:, **locals)
+      def render(template, urls:, title:, **locals)
         content = renderer.render(template, urls: urls, **locals)
         [200, { "content-type" => "text/html;charset=utf-8" }, [wrap(renderer, content, urls, title)]]
       end
 
-      def partial(template, urls:, **locals)
+      def render_partial(template, urls:, **locals)
         renderer.render(template, urls: urls, **locals)
       end
 

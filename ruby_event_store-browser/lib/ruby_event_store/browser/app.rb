@@ -19,7 +19,7 @@ module RubyEventStore
         views_root: nil
       )
         warn(<<~WARN) if environment
-          Passing :environment to RubyEventStore::Browser::App.for is deprecated.
+          Passing :environment to RubyEjventStore::Browser::App.for is deprecated.
 
           This option is no-op, has no effect and will be removed in next major release.
         WARN
@@ -99,7 +99,7 @@ module RubyEventStore
         router.add_route("GET", "/streams/:stream_name") do |params, urls|
           stream_name = params.fetch("stream_name")
           reader = GetEventsFromStream.new(event_store: event_store, stream_name: stream_name, page: params["page"])
-          layout.page(
+          layout.render(
             "streams/show",
             urls: urls,
             stream_name: stream_name,
@@ -118,7 +118,7 @@ module RubyEventStore
           parent_event =
             event_store.read.event(event.metadata.fetch(:causation_id)) if event.metadata.key?(:causation_id)
 
-          layout.page(
+          layout.render(
             "events/show",
             urls: urls,
             event: event,
@@ -136,7 +136,7 @@ module RubyEventStore
           reader = GetEventsFromStreams.new(event_store: event_store, stream_names: stream_names, sort: sort)
           missing_stream_names = reader.missing_stream_names
           stream_names -= missing_stream_names
-          layout.page(
+          layout.render(
             "swimlane/show",
             urls: urls,
             stream_names: stream_names,
@@ -159,7 +159,7 @@ module RubyEventStore
             )
           json(
             html:
-              layout.partial("swimlane/_rows", urls: urls, stream_names: stream_names, events: reader.events, sort: sort),
+              layout.render_partial("swimlane/_rows", urls: urls, stream_names: stream_names, events: reader.events, sort: sort),
             more_url: (urls.swimlane_more_url(stream_names, reader.next_cursor, sort) if reader.more?),
           )
         end
