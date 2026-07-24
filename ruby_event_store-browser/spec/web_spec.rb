@@ -171,6 +171,51 @@ module RubyEventStore
       expect(response.body.scan("<!DOCTYPE").size).to eq(1)
     end
 
+    specify "app can override chosen browser views, missing ones fall back" do
+      Dir.mktmpdir do |views_root|
+        Dir.mkdir(File.join(views_root, "streams"))
+        File.write(File.join(views_root, "streams/show.html.erb"), "<h1>Custom stream <%= h(stream_name) %></h1>")
+        app = Browser::App.for(event_store_locator: -> { event_store }, views_root: views_root)
+        client = Rack::MockRequest.new(app)
+
+        response = client.get("/streams/all")
+        expect(response.body).to include("<h1>Custom stream all</h1>")
+        expect(response.body.scan("<!DOCTYPE").size).to eq(1)
+
+        event_store.append(event = DummyEvent.new)
+        expect(client.get("/events/#{event.event_id}").body).to include("Raw Data")
+      end
+    end
+
+    specify "app views take precedence over extension views" do
+      Dir.mktmpdir do |app_views|
+        Dir.mktmpdir do |extension_views|
+          File.write(File.join(app_views, "layout.html.erb"), "app chrome <%= content %>")
+          File.write(File.join(app_views, "hello.html.erb"), "app hello")
+          File.write(File.join(extension_views, "hello.html.erb"), "extension hello <%= h(name) %>")
+          extension =
+            Class.new do
+              attr_reader :views_root
+
+              def initialize(views_root)
+                @views_root = views_root
+              end
+
+              def register_routes(router, context)
+                router.add_route("GET", "/hello") { |_, urls| context.render("hello", urls: urls, name: "world") }
+              end
+            end.new(extension_views)
+          app =
+            Browser::App.for(event_store_locator: -> { event_store }, views_root: app_views, extensions: [extension])
+
+          body = Rack::MockRequest.new(app).get("/hello").body
+          expect(body).to include("app hello")
+          expect(body).to include("app chrome")
+          expect(body).not_to include("extension hello")
+        end
+      end
+    end
+
     specify "extensions can register their own routes" do
       extension =
         Class.new do

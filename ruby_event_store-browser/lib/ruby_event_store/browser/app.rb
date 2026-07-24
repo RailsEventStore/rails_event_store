@@ -15,7 +15,8 @@ module RubyEventStore
         api_url: nil,
         environment: nil,
         related_streams_query: DEFAULT_RELATED_STREAMS_QUERY,
-        extensions: []
+        extensions: [],
+        views_root: nil
       )
         warn(<<~WARN) if environment
           Passing :environment to RubyEventStore::Browser::App.for is deprecated.
@@ -74,14 +75,16 @@ module RubyEventStore
                 host: host,
                 root_path: path,
                 extensions: extensions,
+                views_root: views_root,
               )
         end
       end
 
-      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, extensions: [])
+      def initialize(event_store_locator:, related_streams_query:, host:, root_path:, extensions: [], views_root: nil)
         @event_store_locator = event_store_locator
         @related_streams_query = related_streams_query
         @extensions = extensions
+        @views_root = views_root
         @routing = Urls.from_configuration(host, root_path)
       end
 
@@ -174,7 +177,7 @@ module RubyEventStore
 
       private
 
-      attr_reader :event_store_locator, :related_streams_query, :routing, :extensions
+      attr_reader :event_store_locator, :related_streams_query, :routing, :extensions, :views_root
 
       def event_store
         event_store_locator.call
@@ -189,7 +192,12 @@ module RubyEventStore
       end
 
       def layout
-        Layout.new(method(:extension_stylesheets), method(:extension_scripts), method(:extension_nav_links))
+        Layout.new(
+          method(:extension_stylesheets),
+          method(:extension_scripts),
+          method(:extension_nav_links),
+          views_roots: [views_root].compact,
+        )
       end
 
       def stream_extension_links(stream_name, urls)
