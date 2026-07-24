@@ -5,7 +5,14 @@ require "rails/engine"
 
 module RailsEventStore
   class Browser < Rails::Engine
-    endpoint RubyEventStore::Browser::App.for(event_store_locator: -> { Rails.configuration.event_store })
+    endpoint(
+      lambda do |env|
+        RubyEventStore::Browser::App.for(
+          event_store_locator: -> { Rails.configuration.event_store },
+          views_root: Rails.root.join("app/views/ruby_event_store_browser"),
+        ).call(env)
+      end
+    )
 
     railtie_name "ruby_event_store_browser_app"
   end

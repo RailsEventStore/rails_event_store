@@ -24,6 +24,22 @@ module RailsEventStore
       expect(response.body).to include("http://example.org/res/#{RubyEventStore::Browser::BROWSER_JS}")
     end
 
+    specify "app views override browser views" do
+      views_root = Rails.root.join("app/views/ruby_event_store_browser")
+      FileUtils.mkdir_p(views_root.join("streams"))
+      File.write(views_root.join("streams/show.html.erb"), "<h1>Custom <%= h(stream_name) %></h1>")
+
+      response = ::Rack::MockRequest.new(app).get("/res/streams/all")
+      expect(response.status).to eq(200)
+      expect(response.body).to include("<h1>Custom all</h1>")
+    ensure
+      FileUtils.rm_rf(views_root)
+      [Rails.root.join("app/views"), Rails.root.join("app")].each do |dir|
+        Dir.rmdir(dir)
+      rescue SystemCallError
+      end
+    end
+
     specify "browser present at auto-generated path helper" do
       expect(app_session).to respond_to(:ruby_event_store_browser_app_path)
       expect(app_session.ruby_event_store_browser_app_path).to eq("/res")
