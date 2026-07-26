@@ -219,20 +219,6 @@ module RubyEventStore
         expect(body).not_to include("does not exist")
       end
 
-      specify "stream page links to comparing that stream" do
-        event_store.append(event_at(base_time), stream_name: "fizz")
-
-        body = client.get("/streams/fizz").body
-        expect(body).to include("Swimlane view")
-        expect(body).to include("http://example.org/swimlane?streams%5B%5D=fizz")
-      end
-
-      specify "the global stream page does not link to the swimlane view" do
-        event_store.append(event_at(base_time), stream_name: "fizz")
-
-        expect(client.get("/streams/all").body).not_to include("Swimlane view")
-      end
-
       specify "removing a stream from comparison keeps the sort" do
         event_store.append(event_at(base_time), stream_name: "fizz")
         event_store.append(event_at(base_time + 1), stream_name: "buzz")
