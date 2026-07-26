@@ -6,7 +6,7 @@
   <tr>
     <td class="<%= cell %> font-mono text-xs text-gray-500 whitespace-nowrap">
       <% unless same_group -%>
-        <span data-swimlane-target="time" data-iso="<%= event.metadata[time_field].utc.iso8601(6) %>" title="UTC"><%= event.metadata[time_field].utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></span>
+        <span data-swimlane-view-target="time" data-iso="<%= event.metadata[time_field].utc.iso8601(6) %>" title="UTC"><%= event.metadata[time_field].utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></span>
       <% end -%>
     </td>
     <% stream_names.each_with_index do |stream_name, column| -%>

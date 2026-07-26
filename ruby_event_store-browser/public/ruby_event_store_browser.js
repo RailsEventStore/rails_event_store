@@ -93,8 +93,75 @@ application.register(
   },
 )
 
+
 application.register(
   "swimlane",
+  class extends Controller {
+    static targets = ["drawer", "drawerList"]
+    static values = { streams: Array, baseUrl: String }
+    connect() {
+      this.onStorage = this.onStorage.bind(this)
+      window.addEventListener("storage", this.onStorage)
+      this.load()
+      this.list()
+    }
+
+    disconnect() {
+      window.removeEventListener("storage", this.onStorage)
+    }
+
+    load() {
+      const raw = localStorage.getItem("ruby_event_store_browser.swimlane_streams")
+      this.streamsValue = raw ? JSON.parse(raw) : []
+    }
+
+    onStorage(event) {
+      if (event.key !== "ruby_event_store_browser.swimlane_streams") return
+      this.streamsValue = event.newValue ? JSON.parse(event.newValue) : []
+      this.list()
+    }
+
+    async add(event) {
+      event.preventDefault()
+      const streamName = event.target.dataset.streamName
+      if (!streamName) return
+      if (!this.streamsValue.includes(streamName)) {
+        this.streamsValue = [...this.streamsValue, streamName]
+        await localStorage.setItem("ruby_event_store_browser.swimlane_streams", JSON.stringify(this.streamsValue))
+        this.list()
+        this.drawerTarget.setAttribute("data-swimlane-drawer-open", "")
+      }      
+    }
+
+    async remove(event) {
+      event.preventDefault()
+      const streamName = event.target.dataset.streamName
+      if (!streamName) return
+      this.streamsValue = this.streamsValue.filter((s) => s !== streamName)
+      await localStorage.setItem("ruby_event_store_browser.swimlane_streams", JSON.stringify(this.streamsValue))
+      this.list()
+    }
+
+    go() {
+      if (this.streamsValue.length === 0) return
+      const url = new URL(this.baseUrlValue + "/swimlane") 
+      console.log("go to swimlane view", this.streamsValue, url.toString())
+      this.streamsValue.forEach((stream) => url.searchParams.append("streams[]", stream))
+      window.location = url.toString()
+    }
+
+    list() {
+      this.drawerListTarget.innerHTML = this.streamsValue.map((stream) => `<li class="flex items-center justify-between gap-2 py-1.5"><a href="/streams/${encodeURIComponent(stream)}" title="${stream}" class="text-sm text-red-700 no-underline break-all hover:underline">${stream}</a><button data-stream-name="${stream}" data-action="swimlane#remove" aria-label="Remove ${stream}" class="flex items-center justify-center text-lg leading-none text-gray-400 rounded shrink-0 size-6 hover:bg-red-100 hover:text-red-700">&times;</button></li>`).join("")
+    }
+
+    toggleDrawer() {
+      this.drawerTarget.toggleAttribute("data-swimlane-drawer-open")
+    }
+  },
+)
+
+application.register(
+  "swimlane-view",
   class extends Controller {
     static targets = ["tbody", "time"]
     static values = { moreUrl: String }
@@ -170,6 +237,8 @@ application.register(
     }
   },
 )
+
+
 
 application.register(
   "swimlane-add",

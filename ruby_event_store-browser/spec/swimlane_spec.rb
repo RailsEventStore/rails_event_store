@@ -61,14 +61,14 @@ module RubyEventStore
 
         body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=buzz").body
         expect(body).to include(
-          "data-swimlane-more-url-value=\"#{more_url(%w[fizz buzz], base_time + 2)}\"",
+          "data-swimlane-view-more-url-value=\"#{more_url(%w[fizz buzz], base_time + 2)}\"",
         )
       end
 
       specify "compare view has no more-url when everything fits one page" do
         event_store.append(event_at(base_time), stream_name: "fizz")
 
-        expect(client.get("/swimlane?streams%5B%5D=fizz").body).to include(%q[data-swimlane-more-url-value=""])
+        expect(client.get("/swimlane?streams%5B%5D=fizz").body).to include(%q[data-swimlane-view-more-url-value=""])
       end
 
       specify "compare more endpoint returns next rows and cursor as JSON" do
@@ -163,7 +163,7 @@ module RubyEventStore
         event_store.append(events, stream_name: "fizz")
 
         body = client.get("/swimlane?streams%5B%5D=fizz&sort=as_of").body
-        expect(body).to include("data-swimlane-more-url-value=\"#{more_url(%w[fizz], base_time + 81, "as_of")}\"")
+        expect(body).to include("data-swimlane-view-more-url-value=\"#{more_url(%w[fizz], base_time + 81, "as_of")}\"")
       end
 
       specify "compare view shows a notice instead of a column for a stream without events" do
@@ -203,7 +203,7 @@ module RubyEventStore
         event_store.append(events, stream_name: "fizz")
 
         body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=ghost").body
-        expect(body).to include("data-swimlane-more-url-value=\"#{more_url(%w[fizz], base_time + 2)}\"")
+        expect(body).to include("data-swimlane-view-more-url-value=\"#{more_url(%w[fizz], base_time + 2)}\"")
       end
 
       specify "comparing the all stream shows the global timeline" do
