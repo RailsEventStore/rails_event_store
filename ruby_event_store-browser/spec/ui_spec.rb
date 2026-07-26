@@ -102,6 +102,58 @@ module RubyEventStore
       skip exc.message
     end
 
+    specify "add a stream to the swimlane and open the comparison", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      event_store.publish(FooBarEvent.new(data: { foo: :bar }), stream_name: "foo")
+
+      session.visit("/streams/foo")
+      session.click_button("Add to swimlane")
+
+      expect(session).to have_link("foo")
+
+      session.click_button("Go to swimlane view")
+
+      expect(session).to have_content("Comparing foo")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
+    specify "compare streams added from different pages", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      event_store.publish(FooBarEvent.new(data: { foo: :bar }), stream_name: "foo")
+      event_store.publish(FooBarEvent.new(data: { foo: :baz }), stream_name: "bar")
+
+      session.visit("/streams/foo")
+      session.click_button("Add to swimlane")
+
+      session.visit("/streams/bar")
+      session.click_button("Toggle swimlane drawer")
+      expect(session).to have_link("foo")
+
+      session.click_button("Add to swimlane")
+      session.click_button("Go to swimlane view")
+
+      expect(session).to have_content("Comparing foo, bar")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
+    specify "remove a stream from the swimlane drawer", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      event_store.publish(FooBarEvent.new(data: { foo: :bar }), stream_name: "foo")
+
+      session.visit("/streams/foo")
+      session.click_button("Add to swimlane")
+      expect(session).to have_button("Go to swimlane view")
+
+      session.find("button[aria-label='Remove foo']").click
+
+      expect(session).to have_content("Add stream to start")
+      expect(session).to have_no_button("Go to swimlane view")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
     let(:event_store) { Client.new }
 
     def app_builder(event_store)
