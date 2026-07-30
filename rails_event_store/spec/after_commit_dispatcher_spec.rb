@@ -45,6 +45,16 @@ module RailsEventStore
       expect(MyActiveJobAsyncHandler2.received).to eq(serialized_record)
     end
 
+    it "uses ActiveRecord::Base.connection when .lease_connection is not available (ActiveRecord <7.2)" do
+      allow(ActiveRecord::Base).to receive(:lease_connection).and_return(nil)
+      allow(ActiveRecord::Base).to receive(:connection).and_call_original
+
+      dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+
+      expect(ActiveRecord::Base).to have_received(:lease_connection)
+      expect(ActiveRecord::Base).to have_received(:connection)
+    end
+
     context "when transaction is rolledback" do
       it "does not dispatch job" do
         expect_no_enqueued_job(MyActiveJobAsyncHandler2) do
