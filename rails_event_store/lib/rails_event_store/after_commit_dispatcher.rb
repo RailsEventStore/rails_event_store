@@ -11,7 +11,8 @@ module RailsEventStore
     end
 
     def run(&schedule_proc)
-      transaction = ActiveRecord::Base.connection.current_transaction
+      connection = ActiveRecord::Base.try(:lease_connection) || ActiveRecord::Base.connection
+      transaction = connection.current_transaction
 
       if transaction.joinable?
         transaction.add_record(async_record(schedule_proc))
