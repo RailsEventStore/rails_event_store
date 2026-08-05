@@ -76,6 +76,40 @@ module RailsEventStore
       expect(received_notifications).to eq(1)
     end
 
+    describe "defaults from configuration" do
+      let(:configuration) { Configuration.new }
+
+      specify "repository" do
+        repository = RubyEventStore::InMemoryRepository.new
+        configuration.build_repository = -> { repository }
+
+        expect(repository).to receive(:append_to_stream).and_call_original
+
+        Client.new(configuration: configuration).publish(TestEvent.new)
+      end
+
+      specify "request metadata" do
+        configuration.request_metadata = ->(env) { { server_name: env["SERVER_NAME"] } }
+
+        expect(Client.new(configuration: configuration).request_metadata.call({ "SERVER_NAME" => "example.org" })).to eq(
+          { server_name: "example.org" },
+        )
+      end
+
+      specify "dispatcher is still wrapped into instrumentation" do
+        configuration.build_repository = -> { RubyEventStore::InMemoryRepository.new }
+        client = Client.new(configuration: configuration)
+
+        received_notifications = 0
+        ActiveSupport::Notifications.subscribe("call.dispatcher.ruby_event_store") { received_notifications += 1 }
+
+        client.subscribe(->(_) {}, to: [TestEvent])
+        client.publish(TestEvent.new)
+
+        expect(received_notifications).to eq(1)
+      end
+    end
+
     specify "#inspect" do
       client = Client.new
       object_id = client.object_id.to_s(16)

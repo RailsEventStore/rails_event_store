@@ -52,9 +52,10 @@ module RailsEventStore
       subscriptions: nil,
       dispatcher: nil,
       message_broker: nil,
-      clock: default_clock,
-      correlation_id_generator: default_correlation_id_generator,
-      request_metadata: default_request_metadata
+      clock: nil,
+      correlation_id_generator: nil,
+      request_metadata: nil,
+      configuration: RailsEventStore.configuration
     )
       super
     end
