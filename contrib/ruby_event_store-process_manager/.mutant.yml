@@ -16,6 +16,8 @@ matcher:
     - RubyEventStore::ProcessManager*
   ignore:
     - RubyEventStore::ProcessManager.with_state
+    - RubyEventStore::ProcessManager.register
+    - RubyEventStore::ProcessManager.parse_stream_name
     - RubyEventStore::ProcessManager::ProcessMethods#stream_name
     - RubyEventStore::ProcessManager::Subscriptions.extended
     - RubyEventStore::ProcessManager::Subscriptions#subscribes_to
