@@ -17,6 +17,15 @@ module RubyEventStore
   StringsRequired = Class.new(Error)
   InvalidUpcast = Class.new(Error)
 
+  class UnknownDefaults < Error
+    attr_reader :version
+
+    def initialize(version)
+      super("Unknown RubyEventStore defaults version: #{version.inspect}")
+      @version = version
+    end
+  end
+
   class EventNotFound < Error
     attr_reader :event_id
 
