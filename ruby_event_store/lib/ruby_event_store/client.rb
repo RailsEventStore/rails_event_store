@@ -417,13 +417,5 @@ module RubyEventStore
     def metadata=(value)
       @metadata.value = value
     end
-
-    def default_clock
-      RubyEventStore.configuration.clock
-    end
-
-    def default_correlation_id_generator
-      RubyEventStore.configuration.correlation_id_generator
-    end
   end
 end

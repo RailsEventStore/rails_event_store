@@ -33,13 +33,14 @@ module RubyEventStore
     # @param version [String] defaults version, i.e. "3.0"
     # @return [self]
     def load_defaults(version)
-      case series(version)
+      defaults = series(version)
+      case defaults
       when series(VERSION)
         load_upcoming_defaults
       else
         raise UnknownDefaults.new(version)
       end
-      @loaded_defaults = version
+      @loaded_defaults = defaults
       self
     end
 
@@ -54,13 +55,16 @@ module RubyEventStore
         Broker.new(subscriptions: build_subscriptions.call, dispatcher: build_dispatcher.call)
       }
       self.build_event_type_resolver = -> { EventTypeResolver.new }
-      self.clock = -> { Time.now.utc.round(TIMESTAMP_PRECISION) }
-      self.correlation_id_generator = -> { SecureRandom.uuid }
+      self.clock = default_clock
+      self.correlation_id_generator = default_correlation_id_generator
     end
 
     def series(version)
       version.to_s.split(".").take(2).join(".")
     end
+
+    def default_clock = -> { Time.now.utc.round(TIMESTAMP_PRECISION) }
+    def default_correlation_id_generator = -> { SecureRandom.uuid }
   end
 
   class << self

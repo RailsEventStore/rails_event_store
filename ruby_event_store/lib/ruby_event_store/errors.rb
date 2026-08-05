@@ -18,11 +18,8 @@ module RubyEventStore
   InvalidUpcast = Class.new(Error)
 
   class UnknownDefaults < Error
-    attr_reader :version
-
     def initialize(version)
       super("Unknown RubyEventStore defaults version: #{version.inspect}")
-      @version = version
     end
   end
 

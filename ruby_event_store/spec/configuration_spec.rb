@@ -4,10 +4,19 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe Configuration do
-    specify { expect(Configuration.new.loaded_defaults).to eq(VERSION) }
-    specify { expect(Configuration.new.load_defaults(VERSION).loaded_defaults).to eq(VERSION) }
+    let(:current) { VERSION.split(".").take(2).join(".") }
+
+    specify { expect(Configuration.new.loaded_defaults).to eq(current) }
     specify { expect(Configuration.new.load_defaults(VERSION)).to be_a(Configuration) }
     specify { expect { Configuration.new.load_defaults("2.17.0") }.to raise_error(UnknownDefaults, /"2.17.0"/) }
+
+    describe "defaults version is a series" do
+      specify { expect(Configuration.new.load_defaults(current).loaded_defaults).to eq(current) }
+      specify { expect(Configuration.new.load_defaults("#{current}.5").loaded_defaults).to eq(current) }
+      specify { expect(Configuration.new.load_defaults(current.to_sym).loaded_defaults).to eq(current) }
+      specify { expect { Configuration.new.load_defaults(VERSION.split(".").first) }.to raise_error(UnknownDefaults) }
+      specify { expect { Configuration.new.load_defaults(current.delete(".")) }.to raise_error(UnknownDefaults) }
+    end
 
     describe "current defaults" do
       let(:config) { Configuration.new.load_defaults(VERSION) }
@@ -39,6 +48,7 @@ module RubyEventStore
 
     describe "global configuration" do
       around do |example|
+        RubyEventStore.instance_variable_set(:@configuration, nil)
         example.call
       ensure
         RubyEventStore.instance_variable_set(:@configuration, Configuration.new)
@@ -53,7 +63,7 @@ module RubyEventStore
           config.build_dispatcher = -> { ImmediateDispatcher.new(scheduler: SyncScheduler.new) }
         end
 
-        expect(RubyEventStore.configuration.loaded_defaults).to eq(VERSION)
+        expect(RubyEventStore.configuration.loaded_defaults).to eq(current)
         expect(RubyEventStore.configuration.build_dispatcher.call).to be_a(ImmediateDispatcher)
       end
     end

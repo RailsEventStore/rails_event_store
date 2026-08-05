@@ -950,14 +950,29 @@ module RubyEventStore
         expect(subscriptions.all_for(TestEvent.to_s)).to eq([handler])
       end
 
-      specify "subscriptions and dispatcher are used with deprecated arguments" do
+      specify "dispatcher, when only deprecated subscriptions argument is given" do
+        subscriptions = Subscriptions.new
         dispatcher = SyncScheduler.new
         configuration.build_dispatcher = -> { dispatcher }
+        client = silence_warnings { Client.new(configuration: configuration, subscriptions: subscriptions) }
+        client.subscribe(handler = ->(_) {}, to: [TestEvent])
 
+        expect(subscriptions.all_for(TestEvent.to_s)).to eq([handler])
         expect(dispatcher).to receive(:call).and_call_original
 
-        client = silence_warnings { Client.new(configuration: configuration, subscriptions: Subscriptions.new) }
-        client.subscribe(->(_) {}, to: [TestEvent])
+        client.publish(TestEvent.new)
+      end
+
+      specify "subscriptions, when only deprecated dispatcher argument is given" do
+        subscriptions = Subscriptions.new
+        dispatcher = SyncScheduler.new
+        configuration.build_subscriptions = -> { subscriptions }
+        client = silence_warnings { Client.new(configuration: configuration, dispatcher: dispatcher) }
+        client.subscribe(handler = ->(_) {}, to: [TestEvent])
+
+        expect(subscriptions.all_for(TestEvent.to_s)).to eq([handler])
+        expect(dispatcher).to receive(:call).and_call_original
+
         client.publish(TestEvent.new)
       end
 

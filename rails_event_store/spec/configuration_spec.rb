@@ -5,8 +5,10 @@ require "action_controller/railtie"
 
 module RailsEventStore
   ::RSpec.describe Configuration do
-    specify { expect(Configuration.new.loaded_defaults).to eq(RubyEventStore::VERSION) }
-    specify { expect(Configuration.new.load_defaults(RubyEventStore::VERSION).loaded_defaults).to eq(RubyEventStore::VERSION) }
+    let(:current) { RubyEventStore::VERSION.split(".").take(2).join(".") }
+
+    specify { expect(Configuration.new.loaded_defaults).to eq(current) }
+    specify { expect(Configuration.new.load_defaults(RubyEventStore::VERSION).loaded_defaults).to eq(current) }
     specify { expect { Configuration.new.load_defaults("2.17.0") }.to raise_error(RubyEventStore::UnknownDefaults) }
 
     describe "current defaults" do
@@ -44,10 +46,35 @@ module RailsEventStore
 
         config.build_dispatcher.call
       end
+
+      specify "subscriptions keep subscribers and report adding them" do
+        subscriptions = config.build_subscriptions.call
+        received_notifications = 0
+        ActiveSupport::Notifications.subscribe("add.subscriptions.ruby_event_store") { received_notifications += 1 }
+
+        subscriptions.add_subscription(handler = ->(_) {}, ["SomeEventType"])
+
+        expect(subscriptions.all_for("SomeEventType")).to eq([handler])
+        expect(received_notifications).to eq(1)
+      end
+
+      specify "dispatcher falls back to synchronous dispatch and reports it" do
+        dispatcher = config.build_dispatcher.call
+        received_notifications = 0
+        ActiveSupport::Notifications.subscribe("call.dispatcher.ruby_event_store") { received_notifications += 1 }
+
+        event = RubyEventStore::Event.new
+        received = []
+        dispatcher.call(->(published) { received << published }, event, nil)
+
+        expect(received).to eq([event])
+        expect(received_notifications).to eq(1)
+      end
     end
 
     describe "global configuration" do
       around do |example|
+        RailsEventStore.instance_variable_set(:@configuration, nil)
         example.call
       ensure
         RailsEventStore.instance_variable_set(:@configuration, Configuration.new)
@@ -62,7 +89,7 @@ module RailsEventStore
           config.build_repository = -> { RubyEventStore::InMemoryRepository.new }
         end
 
-        expect(RailsEventStore.configuration.loaded_defaults).to eq(RubyEventStore::VERSION)
+        expect(RailsEventStore.configuration.loaded_defaults).to eq(current)
         expect(RailsEventStore.configuration.build_repository.call).to be_a(RubyEventStore::InMemoryRepository)
       end
     end
