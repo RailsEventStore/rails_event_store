@@ -157,6 +157,8 @@ class CI
         "ruby_event_store-process_manager",
         matrix: sparse(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
       ),
+      contrib_mutate("ruby_event_store-process_manager"),
+      contrib_coverage("ruby_event_store-process_manager"),
       contrib_test("ruby_event_store-profiler"),
       contrib_mutate("ruby_event_store-profiler"),
       contrib_coverage("ruby_event_store-profiler"),
