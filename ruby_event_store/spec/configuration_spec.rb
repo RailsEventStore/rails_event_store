@@ -5,12 +5,12 @@ require "spec_helper"
 module RubyEventStore
   ::RSpec.describe Configuration do
     specify { expect(Configuration.new.loaded_defaults).to eq(VERSION) }
-    specify { expect(Configuration.new.load_defaults("3.0").loaded_defaults).to eq("3.0") }
-    specify { expect(Configuration.new.load_defaults("3.0")).to be_a(Configuration) }
+    specify { expect(Configuration.new.load_defaults(VERSION).loaded_defaults).to eq(VERSION) }
+    specify { expect(Configuration.new.load_defaults(VERSION)).to be_a(Configuration) }
     specify { expect { Configuration.new.load_defaults("2.17.0") }.to raise_error(UnknownDefaults, /"2.17.0"/) }
 
-    describe "3.0 defaults" do
-      let(:config) { Configuration.new.load_defaults("3.0") }
+    describe "current defaults" do
+      let(:config) { Configuration.new.load_defaults(VERSION) }
 
       specify { expect(config.build_repository.call).to be_a(InMemoryRepository) }
       specify { expect(config.build_mapper.call).to be_a(Mappers::BatchMapper) }
@@ -49,11 +49,11 @@ module RubyEventStore
 
       specify do
         RubyEventStore.configure do |config|
-          config.load_defaults("3.0")
+          config.load_defaults(VERSION)
           config.build_dispatcher = -> { ImmediateDispatcher.new(scheduler: SyncScheduler.new) }
         end
 
-        expect(RubyEventStore.configuration.loaded_defaults).to eq("3.0")
+        expect(RubyEventStore.configuration.loaded_defaults).to eq(VERSION)
         expect(RubyEventStore.configuration.build_dispatcher.call).to be_a(ImmediateDispatcher)
       end
     end

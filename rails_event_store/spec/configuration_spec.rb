@@ -6,11 +6,11 @@ require "action_controller/railtie"
 module RailsEventStore
   ::RSpec.describe Configuration do
     specify { expect(Configuration.new.loaded_defaults).to eq(RubyEventStore::VERSION) }
-    specify { expect(Configuration.new.load_defaults("3.0").loaded_defaults).to eq("3.0") }
+    specify { expect(Configuration.new.load_defaults(RubyEventStore::VERSION).loaded_defaults).to eq(RubyEventStore::VERSION) }
     specify { expect { Configuration.new.load_defaults("2.17.0") }.to raise_error(RubyEventStore::UnknownDefaults) }
 
-    describe "3.0 defaults" do
-      let(:config) { Configuration.new.load_defaults("3.0") }
+    describe "current defaults" do
+      let(:config) { Configuration.new.load_defaults(RubyEventStore::VERSION) }
 
       specify { expect(config.serializer).to eq(RubyEventStore::Serializers::YAML) }
       specify { expect(config.build_repository.call).to be_a(RubyEventStore::ActiveRecord::EventRepository) }
@@ -58,11 +58,11 @@ module RailsEventStore
 
       specify do
         RailsEventStore.configure do |config|
-          config.load_defaults("3.0")
+          config.load_defaults(RubyEventStore::VERSION)
           config.build_repository = -> { RubyEventStore::InMemoryRepository.new }
         end
 
-        expect(RailsEventStore.configuration.loaded_defaults).to eq("3.0")
+        expect(RailsEventStore.configuration.loaded_defaults).to eq(RubyEventStore::VERSION)
         expect(RailsEventStore.configuration.build_repository.call).to be_a(RubyEventStore::InMemoryRepository)
       end
     end
