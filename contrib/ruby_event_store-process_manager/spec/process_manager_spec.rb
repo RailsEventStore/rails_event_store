@@ -153,4 +153,12 @@ RSpec.describe RubyEventStore::ProcessManager do
   specify "subscribes_to registers event classes" do
     expect(OrderDeliveryProcess.subscribed_events).to eq([OrderPaid, OrderAddressSet])
   end
+
+  specify "updates subscriptions" do
+    process_class = Class.new
+
+    process_class.extend(RubyEventStore::ProcessManager::Subscriptions)
+    process_class.subscribes_to(OrderPaid, OrderAddressSet)
+    expect(process_class.subscribed_events).to eq([OrderPaid, OrderAddressSet])
+  end
 end
