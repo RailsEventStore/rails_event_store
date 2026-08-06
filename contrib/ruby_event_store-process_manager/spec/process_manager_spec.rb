@@ -95,6 +95,10 @@ RSpec.describe RubyEventStore::ProcessManager do
   class RegisterableProcess
   end
 
+  class ProcessStreamName
+    def to_s = "OrderDeliveryProcess$1"
+  end
+
   specify "issues command when all conditions are met" do
     process = OrderDeliveryProcess.new(event_store, command_bus)
     order_id = "order-123"
@@ -180,5 +184,9 @@ RSpec.describe RubyEventStore::ProcessManager do
 
   specify "does not register anonymous process managers" do
     expect(described_class.register(Class.new)).to be_nil
+  end
+
+  specify "coerces process stream names to strings" do
+    expect(described_class.parse_stream_name(ProcessStreamName.new)).to eq([OrderDeliveryProcess, "1"])
   end
 end

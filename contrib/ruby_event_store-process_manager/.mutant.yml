@@ -16,4 +16,3 @@ matcher:
     - RubyEventStore::ProcessManager*
   ignore:
     - RubyEventStore::ProcessManager.with_state
-    - RubyEventStore::ProcessManager.parse_stream_name

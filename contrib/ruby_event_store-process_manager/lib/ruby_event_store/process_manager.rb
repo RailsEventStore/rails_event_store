@@ -59,8 +59,8 @@ module RubyEventStore
     end
 
     def self.parse_stream_name(stream_name)
-      class_name, separator, id = stream_name.to_s.partition("$")
-      return if separator.empty? || id.empty?
+      class_name, _, id = stream_name.to_s.partition("$")
+      return if id.empty?
 
       process_class = @registered_process_managers[class_name]
       return unless process_class
