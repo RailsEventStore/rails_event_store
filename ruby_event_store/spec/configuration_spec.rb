@@ -9,6 +9,8 @@ module RubyEventStore
     specify { expect(Configuration.new.loaded_defaults).to eq(current) }
     specify { expect(Configuration.new.load_defaults(VERSION)).to be_a(Configuration) }
     specify { expect { Configuration.new.load_defaults("2.17.0") }.to raise_error(UnknownDefaults, /"2.17.0"/) }
+    specify { expect(Configuration.new.variant).to be_nil }
+    specify { expect(Configuration.new(:json).variant).to eq(:json) }
 
     describe "version without defaults of its own" do
       specify "loads the ones of the last version which changed them" do
@@ -64,6 +66,8 @@ module RubyEventStore
 
       specify { expect(RubyEventStore.configuration).to be_a(Configuration) }
       specify { expect(RubyEventStore.configuration).to be(RubyEventStore.configuration) }
+      specify { expect(RubyEventStore.configuration.variant).to be_nil }
+      specify { expect(RubyEventStore.configuration(:json).variant).to eq(:json) }
 
       specify do
         RubyEventStore.configure do |config|
