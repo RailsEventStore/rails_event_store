@@ -4,18 +4,26 @@ require "spec_helper"
 
 module RubyEventStore
   ::RSpec.describe Configuration do
-    let(:current) { VERSION.split(".").take(2).join(".") }
+    let(:current) { Gem::Version.new(VERSION).segments.take(2).join(".") }
 
     specify { expect(Configuration.new.loaded_defaults).to eq(current) }
     specify { expect(Configuration.new.load_defaults(VERSION)).to be_a(Configuration) }
     specify { expect { Configuration.new.load_defaults("2.17.0") }.to raise_error(UnknownDefaults, /"2.17.0"/) }
 
-    describe "defaults version is a series" do
-      specify { expect(Configuration.new.load_defaults(current).loaded_defaults).to eq(current) }
-      specify { expect(Configuration.new.load_defaults("#{current}.5").loaded_defaults).to eq(current) }
-      specify { expect(Configuration.new.load_defaults(current.to_sym).loaded_defaults).to eq(current) }
-      specify { expect { Configuration.new.load_defaults(VERSION.split(".").first) }.to raise_error(UnknownDefaults) }
-      specify { expect { Configuration.new.load_defaults(current.delete(".")) }.to raise_error(UnknownDefaults) }
+    describe "version without defaults of its own" do
+      specify "loads the ones of the last version which changed them" do
+        expect(Configuration.new.load_defaults("99.9.9").loaded_defaults).to eq(current)
+      end
+
+      specify "patch versions never change the defaults" do
+        major, minor = Gem::Version.new(VERSION).segments
+
+        expect(Configuration.new.load_defaults("#{major}.#{minor}.99").loaded_defaults).to eq(current)
+      end
+
+      specify "version older than any known defaults is rejected" do
+        expect { Configuration.new.load_defaults("0.1.0") }.to raise_error(UnknownDefaults)
+      end
     end
 
     describe "current defaults" do

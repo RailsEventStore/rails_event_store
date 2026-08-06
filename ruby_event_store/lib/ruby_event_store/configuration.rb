@@ -27,26 +27,32 @@ module RubyEventStore
     #     config.build_dispatcher = -> { RubyEventStore::ImmediateDispatcher.new }
     #   end
     #
-    # The branch of the version being worked on is matched dynamically and gets
-    # frozen to the released number when the release is made — see RELEASE.md.
+    # Defaults belong to a major.minor version — a patch release never changes
+    # them and a major or minor one only may. Branches are matched from the
+    # newest down, so a version which brought no changes of its own loads the
+    # defaults of the last version which did — loaded_defaults tells which one
+    # that was. The branch of the version being worked on is matched by VERSION
+    # and gets frozen to the released number when the release is made — see
+    # RELEASE.md.
     #
     # @param version [String] defaults version, i.e. "3.0"
     # @return [self]
     def load_defaults(version)
-      defaults = series(version)
-      case defaults
-      when series(VERSION)
+      case Gem::Version.new(version)
+      when Gem::Requirement.new(">= #{upcoming_defaults_version}")
         load_upcoming_defaults
       else
         raise UnknownDefaults.new(version)
       end
-      @loaded_defaults = defaults
       self
     end
 
     private
 
+    def upcoming_defaults_version = Gem::Version.new(VERSION).segments.take(2).join(".")
+
     def load_upcoming_defaults
+      @loaded_defaults = upcoming_defaults_version
       self.build_repository = -> { InMemoryRepository.new }
       self.build_mapper = -> { Mappers::BatchMapper.new }
       self.build_subscriptions = -> { Subscriptions.new }
@@ -57,10 +63,6 @@ module RubyEventStore
       self.build_event_type_resolver = -> { EventTypeResolver.new }
       self.clock = default_clock
       self.correlation_id_generator = default_correlation_id_generator
-    end
-
-    def series(version)
-      version.to_s.split(".").take(2).join(".")
     end
 
     def default_clock = -> { Time.now.utc.round(TIMESTAMP_PRECISION) }

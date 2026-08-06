@@ -2,8 +2,6 @@ UPSTREAM_REV = `git rev-parse upstream/master`
 ORIGIN_REV   = `git rev-parse origin/master`
 CURRENT_REV  = `git rev-parse HEAD`
 RES_VERSION  ?= $(shell cat RES_VERSION)
-RES_SERIES   =  $(shell echo $(RES_VERSION) | cut -d. -f1,2)
-RES_SERIES_ID = $(subst .,_,$(RES_SERIES))
 CONFIGURATIONS = ruby_event_store/lib/ruby_event_store/configuration.rb \
                  rails_event_store/lib/rails_event_store/configuration.rb
 NIX_TYPE     =  $(shell uname -s)
@@ -79,7 +77,7 @@ set-version: git-check-clean git-check-committed
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-browser\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@find . -path ./contrib -prune -o -name *.gemspec -exec sed $(SED_OPTS) "s/\(\"ruby_event_store-rspec\", \)\(.*\)/\1\"= $(RES_VERSION)\"/" {} \;
 	@sed $(SED_OPTS) "s/\(gem \"rails_event_store\", \"~>\)\(.*\)/\1 $(RES_VERSION)\"/" APP_TEMPLATE
-	@sed $(SED_OPTS) -e "s/when series(VERSION)/when \"$(RES_SERIES)\"/" -e "s/load_upcoming_defaults/load_$(RES_SERIES_ID)_defaults/g" $(CONFIGURATIONS)
+	@ruby support/release/freeze_defaults $(RES_VERSION)
 	@sed $(SED_OPTS) "s/compare\/v.*\.\.\.master/compare\/v$(RES_VERSION)...master/" RELEASE.md
 	@sed $(SED_OPTS) "s/rails_event_store\/v.*\/APP_TEMPLATE/rails_event_store\/v$(RES_VERSION)\/APP_TEMPLATE/" netlify.toml
 	@make -j8 install-all

@@ -5,7 +5,7 @@ require "action_controller/railtie"
 
 module RailsEventStore
   ::RSpec.describe Configuration do
-    let(:current) { RubyEventStore::VERSION.split(".").take(2).join(".") }
+    let(:current) { Gem::Version.new(RubyEventStore::VERSION).segments.take(2).join(".") }
 
     specify { expect(Configuration.new.loaded_defaults).to eq(current) }
     specify { expect(Configuration.new.load_defaults(RubyEventStore::VERSION).loaded_defaults).to eq(current) }
