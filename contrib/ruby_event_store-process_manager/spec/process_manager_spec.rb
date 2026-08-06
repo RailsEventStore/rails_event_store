@@ -80,6 +80,18 @@ RSpec.describe RubyEventStore::ProcessManager do
     end
   end
 
+  class ProcessWithCustomToS
+    include RubyEventStore::ProcessManager.with_state { OrderDeliveryState }
+
+    def self.to_s = "A different representation"
+
+    private
+
+    def fetch_id(event) = event.data.fetch(:order_id)
+    def apply(_event) = state
+    def act = nil
+  end
+
   specify "issues command when all conditions are met" do
     process = OrderDeliveryProcess.new(event_store, command_bus)
     order_id = "order-123"
@@ -126,6 +138,16 @@ RSpec.describe RubyEventStore::ProcessManager do
     process.call(paid_event)
 
     expect(command_bus.commands).to eq([DeliverOrder.new(order_id: order_id)])
+  end
+
+  specify "builds stream names from the process class name" do
+    process = ProcessWithCustomToS.new(event_store, command_bus)
+    paid_event = OrderPaid.new(data: { order_id: "order-123" })
+    event_store.append(paid_event)
+
+    process.call(paid_event)
+
+    expect(event_store.read.stream("ProcessWithCustomToS$order-123").to_a).to eq([paid_event])
   end
 
   specify "subscribes_to registers event classes" do
