@@ -212,6 +212,22 @@ module RailsEventStore
       specify { expect(RailsEventStore.configuration.variant).to be_nil }
       specify { expect(RailsEventStore.configuration(:json).variant).to eq(:json) }
 
+      specify "configure yields the configuration" do
+        yielded = nil
+        RailsEventStore.configure { |config| yielded = config }
+
+        expect(yielded).to be(RailsEventStore.configuration)
+        expect(yielded.variant).to be_nil
+      end
+
+      specify "configure yields the configuration of the variant it was asked for" do
+        yielded = nil
+        RailsEventStore.configure(:json) { |config| yielded = config }
+
+        expect(yielded).to be(RailsEventStore.configuration(:json))
+        expect(yielded.variant).to eq(:json)
+      end
+
       specify do
         RailsEventStore.configure do |config|
           config.load_defaults(RubyEventStore::VERSION)

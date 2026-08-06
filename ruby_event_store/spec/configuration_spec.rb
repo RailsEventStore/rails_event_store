@@ -69,6 +69,22 @@ module RubyEventStore
       specify { expect(RubyEventStore.configuration.variant).to be_nil }
       specify { expect(RubyEventStore.configuration(:json).variant).to eq(:json) }
 
+      specify "configure yields the configuration" do
+        yielded = nil
+        RubyEventStore.configure { |config| yielded = config }
+
+        expect(yielded).to be(RubyEventStore.configuration)
+        expect(yielded.variant).to be_nil
+      end
+
+      specify "configure yields the configuration of the variant it was asked for" do
+        yielded = nil
+        RubyEventStore.configure(:json) { |config| yielded = config }
+
+        expect(yielded).to be(RubyEventStore.configuration(:json))
+        expect(yielded.variant).to eq(:json)
+      end
+
       specify do
         RubyEventStore.configure do |config|
           config.load_defaults(VERSION)

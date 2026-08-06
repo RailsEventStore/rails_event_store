@@ -75,8 +75,8 @@ module RubyEventStore
       @configuration ||= Configuration.new(variant)
     end
 
-    def configure
-      yield(configuration)
+    def configure(variant = nil)
+      yield(configuration(variant))
     end
   end
 end
