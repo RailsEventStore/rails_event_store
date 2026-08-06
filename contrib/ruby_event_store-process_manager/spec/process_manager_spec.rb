@@ -154,6 +154,13 @@ RSpec.describe RubyEventStore::ProcessManager do
     expect(OrderDeliveryProcess.subscribed_events).to eq([OrderPaid, OrderAddressSet])
   end
 
+  specify "initializes subscriptions" do
+    process_class = Class.new
+
+    process_class.extend(RubyEventStore::ProcessManager::Subscriptions)
+    expect(process_class.subscribed_events).to eq([])
+  end
+
   specify "updates subscriptions" do
     process_class = Class.new
 
