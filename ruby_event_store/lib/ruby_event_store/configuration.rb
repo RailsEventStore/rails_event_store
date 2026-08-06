@@ -2,11 +2,12 @@
 
 module RubyEventStore
   class Configuration
-    def initialize
+    def initialize(variant = nil)
+      @variant = variant
       load_defaults(VERSION)
     end
 
-    attr_reader :loaded_defaults
+    attr_reader :loaded_defaults, :variant
 
     attr_accessor :build_repository,
                   :build_mapper,
@@ -70,8 +71,8 @@ module RubyEventStore
   end
 
   class << self
-    def configuration
-      @configuration ||= Configuration.new
+    def configuration(variant = nil)
+      @configuration ||= Configuration.new(variant)
     end
 
     def configure

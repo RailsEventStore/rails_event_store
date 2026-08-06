@@ -16,7 +16,8 @@ module RailsEventStore
     def load_upcoming_defaults
       super
       self.serializer = RubyEventStore::Serializers::YAML
-      self.build_repository = -> { RubyEventStore::ActiveRecord::EventRepository.new(serializer: serializer) }
+      self.build_repository = -> { RubyEventStore::ActiveRecord::EventRepository.new(serializer: variant == :json ? JSON : serializer) }
+      self.build_mapper = -> { preconfigured_json_mapper } if variant == :json
       self.build_subscriptions = -> {
         RubyEventStore::InstrumentedSubscriptions.new(RubyEventStore::Subscriptions.new, ActiveSupport::Notifications)
       }
@@ -34,11 +35,57 @@ module RailsEventStore
         { remote_ip: request.remote_ip, request_id: request.uuid }
       end
     end
+
+    def preconfigured_json_mapper
+      RubyEventStore::Mappers::BatchMapper.new(
+        RubyEventStore::Mappers::PipelineMapper.new(
+          RubyEventStore::Mappers::Pipeline.new(
+            {
+              Symbol => {
+                serializer: ->(v) { v.to_s },
+                deserializer: ->(v) { v.to_sym },
+              },
+              Time => {
+                serializer: ->(v) { v.iso8601(RubyEventStore::TIMESTAMP_PRECISION) },
+                deserializer: ->(v) { Time.iso8601(v) },
+              },
+              ActiveSupport::TimeWithZone => {
+                serializer: ->(v) { v.iso8601(RubyEventStore::TIMESTAMP_PRECISION) },
+                deserializer: ->(v) { Time.iso8601(v).in_time_zone },
+                stored_type: ->(*) { "ActiveSupport::TimeWithZone" },
+              },
+              Date => {
+                serializer: ->(v) { v.iso8601 },
+                deserializer: ->(v) { Date.iso8601(v) },
+              },
+              DateTime => {
+                serializer: ->(v) { v.iso8601 },
+                deserializer: ->(v) { DateTime.iso8601(v) },
+              },
+              BigDecimal => {
+                serializer: ->(v) { v.to_s },
+                deserializer: ->(v) { BigDecimal(v) },
+              },
+            }.merge(
+                if defined?(OpenStruct)
+                  { OpenStruct => { serializer: ->(v) { v.to_h }, deserializer: ->(v) { OpenStruct.new(v) } } }
+                else
+                  {}
+                end,
+              )
+              .reduce(RubyEventStore::Mappers::Transformation::PreserveTypes.new) do |preserve_types, (klass, options)|
+                preserve_types.register(klass, **options)
+              end,
+            RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new,
+          ),
+        ),
+      )
+    end
   end
 
   class << self
-    def configuration
-      @configuration ||= Configuration.new
+    def configuration(variant = nil)
+      @configuration ||= Configuration.new(variant)
     end
 
     def configure
