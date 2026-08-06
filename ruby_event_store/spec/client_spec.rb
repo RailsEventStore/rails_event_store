@@ -921,6 +921,73 @@ module RubyEventStore
       expect(client.inspect).to eq("#<RubyEventStore::Client:0x#{object_id}>")
     end
 
+    describe "defaults from configuration" do
+      let(:configuration) { Configuration.new }
+
+      specify "repository, mapper and event type resolver" do
+        repository = InMemoryRepository.new
+        mapper = Mappers::BatchMapper.new
+        event_type_resolver = ->(klass) { klass.to_s }
+        configuration.build_repository = -> { repository }
+        configuration.build_mapper = -> { mapper }
+        configuration.build_event_type_resolver = -> { event_type_resolver }
+        client = Client.new(configuration: configuration)
+
+        expect(repository).to receive(:append_to_stream).and_call_original
+        expect(mapper).to receive(:events_to_records).and_call_original
+        expect(event_type_resolver).to receive(:call).and_call_original
+
+        client.subscribe(->(_) {}, to: [TestEvent])
+        client.publish(TestEvent.new)
+      end
+
+      specify "message broker" do
+        subscriptions = Subscriptions.new
+        configuration.build_message_broker = -> { Broker.new(subscriptions: subscriptions) }
+
+        Client.new(configuration: configuration).subscribe(handler = ->(_) {}, to: [TestEvent])
+
+        expect(subscriptions.all_for(TestEvent.to_s)).to eq([handler])
+      end
+
+      specify "dispatcher, when only deprecated subscriptions argument is given" do
+        subscriptions = Subscriptions.new
+        dispatcher = SyncScheduler.new
+        configuration.build_dispatcher = -> { dispatcher }
+        client = silence_warnings { Client.new(configuration: configuration, subscriptions: subscriptions) }
+        client.subscribe(handler = ->(_) {}, to: [TestEvent])
+
+        expect(subscriptions.all_for(TestEvent.to_s)).to eq([handler])
+        expect(dispatcher).to receive(:call).and_call_original
+
+        client.publish(TestEvent.new)
+      end
+
+      specify "subscriptions, when only deprecated dispatcher argument is given" do
+        subscriptions = Subscriptions.new
+        dispatcher = SyncScheduler.new
+        configuration.build_subscriptions = -> { subscriptions }
+        client = silence_warnings { Client.new(configuration: configuration, dispatcher: dispatcher) }
+        client.subscribe(handler = ->(_) {}, to: [TestEvent])
+
+        expect(subscriptions.all_for(TestEvent.to_s)).to eq([handler])
+        expect(dispatcher).to receive(:call).and_call_original
+
+        client.publish(TestEvent.new)
+      end
+
+      specify "clock and correlation id generator" do
+        configuration.clock = -> { Time.utc(2020, 1, 1) }
+        configuration.correlation_id_generator = -> { "some-correlation-id" }
+        client = Client.new(configuration: configuration)
+
+        client.publish(TestEvent.new)
+
+        expect(client.read.first.metadata[:timestamp]).to eq(Time.utc(2020, 1, 1))
+        expect(client.read.first.metadata[:correlation_id]).to eq("some-correlation-id")
+      end
+    end
+
     specify "transform Record to SerializedRecord is only once when using the same serializer" do
       serializer = Serializers::YAML
       expect(serializer).to receive(:dump).and_call_original.exactly(2)
