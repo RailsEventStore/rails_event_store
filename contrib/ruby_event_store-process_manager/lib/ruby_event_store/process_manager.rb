@@ -81,7 +81,7 @@ module RubyEventStore
           raise "State definition block not found on #{self.class}" unless block
 
           state_class = block.call
-          raise "State definition block did not return a Class" unless state_class.is_a?(Class)
+          raise "State definition block did not return a Class" unless state_class.instance_of?(Class)
 
           state_class.new
         end

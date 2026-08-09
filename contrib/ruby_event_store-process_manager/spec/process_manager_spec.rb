@@ -99,6 +99,9 @@ RSpec.describe RubyEventStore::ProcessManager do
     def to_s = "OrderDeliveryProcess$1"
   end
 
+  class ProcessConfiguredAtRuntime
+  end
+
   specify "issues command when all conditions are met" do
     process = OrderDeliveryProcess.new(event_store, command_bus)
     order_id = "order-123"
@@ -188,5 +191,56 @@ RSpec.describe RubyEventStore::ProcessManager do
 
   specify "coerces process stream names to strings" do
     expect(described_class.parse_stream_name(ProcessStreamName.new)).to eq([OrderDeliveryProcess, "1"])
+  end
+
+  specify "requires a state class block" do
+    expect { described_class.with_state }.to raise_error(
+      ArgumentError,
+      "A block returning the state class is required.",
+    )
+  end
+
+  specify "configures a process class with state" do
+    state_module = described_class.with_state { OrderDeliveryState }
+    ProcessConfiguredAtRuntime.include(state_module)
+
+    process = ProcessConfiguredAtRuntime.new(event_store, command_bus)
+
+    expect(process.initial_state).to eq(OrderDeliveryState.new)
+    process.replay([])
+    expect(process.state).to eq(OrderDeliveryState.new)
+    expect(ProcessConfiguredAtRuntime.subscribed_events).to eq([])
+    expect(ProcessConfiguredAtRuntime.ancestors.take(4)).to eq(
+      [
+        ProcessConfiguredAtRuntime,
+        RubyEventStore::ProcessManager::Retry,
+        RubyEventStore::ProcessManager::ProcessMethods,
+        state_module,
+      ],
+    )
+    expect(described_class.parse_stream_name("ProcessConfiguredAtRuntime$1")).to eq(
+      [ProcessConfiguredAtRuntime, "1"],
+    )
+  end
+
+  specify "rejects a state definition that does not return a class" do
+    process_class = Class.new
+    process_class.include(described_class.with_state { Object.new })
+
+    expect { process_class.new(event_store, command_bus).initial_state }.to raise_error(
+      RuntimeError,
+      "State definition block did not return a Class",
+    )
+  end
+
+  specify "reports a missing inherited state definition" do
+    process_class = Class.new
+    process_class.include(described_class.with_state { OrderDeliveryState })
+    inherited_process_class = Class.new(process_class)
+
+    expect { inherited_process_class.new(event_store, command_bus).initial_state }.to raise_error(
+      RuntimeError,
+      "State definition block not found on #{inherited_process_class}",
+    )
   end
 end

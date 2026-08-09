@@ -14,5 +14,3 @@ coverage_criteria:
 matcher:
   subjects:
     - RubyEventStore::ProcessManager*
-  ignore:
-    - RubyEventStore::ProcessManager.with_state
