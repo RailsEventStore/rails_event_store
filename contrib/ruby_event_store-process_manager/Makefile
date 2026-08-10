@@ -3,7 +3,6 @@ GEM_NAME     = ruby_event_store-process_manager
 CSS_OUTFILE  = lib/ruby_event_store/process_manager/public/ruby_event_store_process_manager.css
 
 include ../../support/make/install.mk
-include ../../support/make/test.mk
 include ../../support/make/mutant.mk
 include ../../support/make/gem.mk
 include ../../support/make/help.mk
@@ -12,3 +11,8 @@ build: css
 
 css: ## Build the browser extension stylesheet from the templates with Tailwind
 	@bundle exec tailwindcss --minify --input tailwind.css --output $(CSS_OUTFILE)
+
+test: ## Run unit tests
+	@bundle exec ruby -Itest -e 'Dir["test/**/*_test.rb"].sort.each { |file| require File.expand_path(file) }'
+
+.PHONY: test

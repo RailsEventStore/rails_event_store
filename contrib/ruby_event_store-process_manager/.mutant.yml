@@ -6,7 +6,7 @@ requires:
 includes:
   - lib
 integration:
-  name: rspec
+  name: minitest
 mutation:
   operators: light
 coverage_criteria:
