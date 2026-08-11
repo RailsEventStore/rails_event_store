@@ -151,7 +151,27 @@ application.register(
     }
 
     list() {
-      this.drawerListTarget.innerHTML = this.streamsValue.map((stream) => `<li class="flex items-center justify-between gap-2 py-1.5"><a href="/streams/${encodeURIComponent(stream)}" title="${stream}" class="text-sm text-red-700 no-underline break-all hover:underline">${stream}</a><button data-stream-name="${stream}" data-action="swimlane#remove" aria-label="Remove ${stream}" class="flex items-center justify-center text-lg leading-none text-gray-400 rounded shrink-0 size-6 hover:bg-red-100 hover:text-red-700">&times;</button></li>`).join("")
+      const items = this.streamsValue.map((stream) => {
+        const item = document.createElement("li")
+        item.className = "flex items-center justify-between gap-2 py-1.5"
+
+        const link = document.createElement("a")
+        link.href = `/streams/${encodeURIComponent(stream)}`
+        link.title = stream
+        link.className = "text-sm text-red-700 no-underline break-all hover:underline"
+        link.textContent = stream
+
+        const remove = document.createElement("button")
+        remove.dataset.streamName = stream
+        remove.dataset.action = "swimlane#remove"
+        remove.setAttribute("aria-label", `Remove ${stream}`)
+        remove.className = "flex items-center justify-center text-lg leading-none text-gray-400 rounded shrink-0 size-6 hover:bg-red-100 hover:text-red-700"
+        remove.textContent = "×"
+
+        item.append(link, remove)
+        return item
+      })
+      this.drawerListTarget.replaceChildren(...items)
     }
 
     toggleDrawer() {

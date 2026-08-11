@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>RubyEventStore::Browser<% if defined?(title) && title %> - <%= title %><% end %></title>
+    <title>RubyEventStore::Browser<% if defined?(title) && title %> - <%= h(title) %><% end %></title>
     <link type="text/css" rel="stylesheet" href="<%= urls.browser_css_url %>">
     <% extension_stylesheets.each do |href| -%>
       <link type="text/css" rel="stylesheet" href="<%= href %>">

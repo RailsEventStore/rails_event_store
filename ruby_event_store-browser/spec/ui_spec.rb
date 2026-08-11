@@ -154,6 +154,24 @@ module RubyEventStore
       skip exc.message
     end
 
+    specify "treat stored swimlane stream names as text", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      stream_name = %q[<img data-injection-marker src=x onerror="window.swimlaneInjected=true">]
+
+      session.visit("/")
+      session.execute_script(
+        "localStorage.setItem('ruby_event_store_browser.swimlane_streams', arguments[0])",
+        JSON.generate([stream_name]),
+      )
+      session.refresh
+
+      expect(session).to have_css("a", text: stream_name, exact_text: true, visible: :all)
+      expect(session).to have_no_css("[data-injection-marker]")
+      expect(session.evaluate_script("window.swimlaneInjected")).to be_nil
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
     let(:event_store) { Client.new }
 
     def app_builder(event_store)
