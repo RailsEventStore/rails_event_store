@@ -50,6 +50,17 @@ module RubyEventStore
       expect(response.body).to include("valid_at")
     end
 
+    specify "event page escapes HTML in event data keys and values" do
+      malicious_key = "<img data-xss-key src=x>"
+      malicious_value = "<script>document.body.dataset.xss=1</script>"
+      event_store.append(event = DummyEvent.new(data: { malicious_key => malicious_value }))
+
+      body = web_client.get("/events/#{event.event_id}").body
+
+      expect(body).not_to include(malicious_key, malicious_value)
+      expect(body).to include("&lt;img data-xss-key src=x&gt;", "&lt;script&gt;document.body.dataset.xss=1&lt;/script&gt;")
+    end
+
     specify "event page lists streams the event belongs to" do
       event_store.append(event = DummyEvent.new, stream_name: "my-stream")
       expect(web_client.get("/events/#{event.event_id}").body).to include("my-stream")

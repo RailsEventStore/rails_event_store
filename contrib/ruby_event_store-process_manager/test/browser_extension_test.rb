@@ -9,6 +9,7 @@ class BrowserExtensionTest < Minitest::Test
 
   BrowserOrderPaid = Class.new(RubyEventStore::Event)
   BrowserOrderAddressSet = Class.new(RubyEventStore::Event)
+  BrowserDynamicStateChanged = Class.new(RubyEventStore::Event)
 
   BrowserOrderState = Data.define(:paid, :address_set) do
     def initialize(paid: false, address_set: false)
@@ -37,6 +38,21 @@ class BrowserExtensionTest < Minitest::Test
         state
       end
     end
+
+    def act
+    end
+  end
+
+  class BrowserDynamicStateProcess
+    include RubyEventStore::ProcessManager.with_state { Hash }
+
+    subscribes_to BrowserDynamicStateChanged
+
+    private
+
+    def fetch_id(event) = event.data.fetch(:process_id)
+
+    def apply(event) = state.merge(event.data.fetch(:state))
 
     def act
     end
@@ -72,6 +88,26 @@ class BrowserExtensionTest < Minitest::Test
     assert_equal(200, response.status)
     assert_includes(response.body, "No events linked to this process stream yet")
     assert_includes(response.body, "paid")
+  end
+
+  def test_escapes_html_in_process_state_keys_and_values
+    malicious_key = "<img data-xss-key src=x>"
+    malicious_value = "<script>document.body.dataset.xss=1</script>"
+    event = BrowserDynamicStateChanged.new(
+      data: { process_id: "process-1", state: { malicious_key => malicious_value } },
+    )
+    @event_store.append(event)
+    BrowserDynamicStateProcess.new(@event_store, ->(_command) {}).call(event)
+
+    body =
+      @web_client.get(
+        "/process_managers/BrowserExtensionTest%3A%3ABrowserDynamicStateProcess%24process-1",
+      ).body
+
+    refute_includes(body, malicious_key)
+    refute_includes(body, malicious_value)
+    assert_includes(body, "&lt;img data-xss-key src=x&gt;")
+    assert_includes(body, "&lt;script&gt;document.body.dataset.xss=1&lt;/script&gt;")
   end
 
   def test_responds_with_the_styled_not_found_page_for_streams_not_following_the_convention
