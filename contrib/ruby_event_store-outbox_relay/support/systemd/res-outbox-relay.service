@@ -1,0 +1,27 @@
+[Unit]
+Description=Rails Event Store transactional outbox relay
+# Niezależny proces -- NIE podproces Pumy/aplikacji webowej, osobny cykl życia.
+# Po restarcie relay dogania zaległości przez published_at IS NULL, więc kolejność
+# uruchamiania względem aplikacji webowej nie ma znaczenia.
+After=network.target postgresql.service mysql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/app/current
+Environment=RAILS_ENV=production
+ExecStart=/usr/bin/env bundle exec res_outbox_relay \
+  --require=config/outbox_relay.rb \
+  --database-url=${DATABASE_URL} \
+  --batch-size=100 \
+  --poll-interval=1.0
+
+# Wiele instancji tej samej usługi (np. na kilku hostach) jest bezpieczne dzięki
+# FOR UPDATE SKIP LOCKED w relayu -- nie trzeba pilnować, że działa dokładnie jedna.
+Restart=always
+RestartSec=5
+
+User=deploy
+Group=deploy
+
+[Install]
+WantedBy=multi-user.target
