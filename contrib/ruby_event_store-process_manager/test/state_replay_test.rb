@@ -83,7 +83,7 @@ class StateReplayTest < Minitest::Test
   end
 
   def test_replay_returns_successive_states_without_acting
-    process = ReplayOrderProcess.new(@event_store, @command_bus)
+    process = ReplayOrderProcess.new.with(event_store: @event_store, command_bus: @command_bus)
     paid = ReplayOrderPaid.new(data: { order_id: "order-1" })
     address = ReplayOrderAddressSet.new(data: { order_id: "order-1" })
 
@@ -94,7 +94,7 @@ class StateReplayTest < Minitest::Test
   end
 
   def test_replay_starts_from_the_initial_state_on_every_invocation
-    process = ReplayOrderProcess.new(@event_store, @command_bus)
+    process = ReplayOrderProcess.new.with(event_store: @event_store, command_bus: @command_bus)
     paid = ReplayOrderPaid.new(data: { order_id: "order-1" })
 
     process.replay([paid])
@@ -104,7 +104,7 @@ class StateReplayTest < Minitest::Test
   end
 
   def test_call_rebuilds_state_step_by_step_from_the_process_stream
-    process = ReplayOrderProcess.new(@event_store, @command_bus)
+    process = ReplayOrderProcess.new.with(event_store: @event_store, command_bus: @command_bus)
     paid = ReplayOrderPaid.new(data: { order_id: "order-1" })
     address = ReplayOrderAddressSet.new(data: { order_id: "order-1" })
     @event_store.append(paid)

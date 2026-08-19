@@ -107,7 +107,7 @@ class ProcessManagerTest < Minitest::Test
   end
 
   def test_issues_command_when_all_conditions_are_met
-    process = OrderDeliveryProcess.new(@event_store, @command_bus)
+    process = OrderDeliveryProcess.new.with(event_store: @event_store, command_bus: @command_bus)
     order_id = "order-123"
 
     paid_event = OrderPaid.new(data: { order_id: })
@@ -124,7 +124,7 @@ class ProcessManagerTest < Minitest::Test
   end
 
   def test_works_regardless_of_event_order
-    process = OrderDeliveryProcess.new(@event_store, @command_bus)
+    process = OrderDeliveryProcess.new.with(event_store: @event_store, command_bus: @command_bus)
     order_id = "order-456"
 
     address_event = OrderAddressSet.new(data: { order_id: })
@@ -147,7 +147,7 @@ class ProcessManagerTest < Minitest::Test
     @event_store.append(paid_event)
     @event_store.append(address_event)
     concurrent_event_store = EventStoreWithConcurrentLink.new(@event_store, address_event)
-    process = OrderDeliveryProcess.new(concurrent_event_store, @command_bus)
+    process = OrderDeliveryProcess.new.with(event_store: concurrent_event_store, command_bus: @command_bus)
 
     process.call(paid_event)
 
@@ -155,7 +155,7 @@ class ProcessManagerTest < Minitest::Test
   end
 
   def test_builds_stream_names_from_the_process_class_name
-    process = ProcessWithCustomToS.new(@event_store, @command_bus)
+    process = ProcessWithCustomToS.new.with(event_store: @event_store, command_bus: @command_bus)
     paid_event = OrderPaid.new(data: { order_id: "order-123" })
     @event_store.append(paid_event)
 
@@ -215,7 +215,7 @@ class ProcessManagerTest < Minitest::Test
     state_module = RubyEventStore::ProcessManager.with_state { OrderDeliveryState }
     ProcessConfiguredAtRuntime.include(state_module)
 
-    process = ProcessConfiguredAtRuntime.new(@event_store, @command_bus)
+    process = ProcessConfiguredAtRuntime.new.with(event_store: @event_store, command_bus: @command_bus)
 
     assert_equal(OrderDeliveryState.new, process.initial_state)
     process.replay([])
@@ -240,7 +240,7 @@ class ProcessManagerTest < Minitest::Test
     process_class = Class.new
     process_class.include(RubyEventStore::ProcessManager.with_state { Object.new })
 
-    error = assert_raises(RuntimeError) { process_class.new(@event_store, @command_bus).initial_state }
+    error = assert_raises(RuntimeError) { process_class.new.with(event_store: @event_store, command_bus: @command_bus).initial_state }
 
     assert_equal("State definition block did not return a Class", error.message)
   end
@@ -250,7 +250,7 @@ class ProcessManagerTest < Minitest::Test
     process_class.include(RubyEventStore::ProcessManager.with_state { OrderDeliveryState })
     inherited_process_class = Class.new(process_class)
 
-    error = assert_raises(RuntimeError) { inherited_process_class.new(@event_store, @command_bus).initial_state }
+    error = assert_raises(RuntimeError) { inherited_process_class.new.with(event_store: @event_store, command_bus: @command_bus).initial_state }
 
     assert_equal("State definition block not found on #{inherited_process_class}", error.message)
   end

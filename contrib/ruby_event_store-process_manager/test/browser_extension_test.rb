@@ -97,7 +97,7 @@ class BrowserExtensionTest < Minitest::Test
       data: { process_id: "process-1", state: { malicious_key => malicious_value } },
     )
     @event_store.append(event)
-    BrowserDynamicStateProcess.new(@event_store, ->(_command) {}).call(event)
+    BrowserDynamicStateProcess.new.with(event_store: @event_store, command_bus: ->(_command) {}).call(event)
 
     body =
       @web_client.get(
@@ -158,7 +158,7 @@ class BrowserExtensionTest < Minitest::Test
   private
 
   def run_process(*events)
-    process = BrowserOrderProcess.new(@event_store, ->(_command) {})
+    process = BrowserOrderProcess.new.with(event_store: @event_store, command_bus: ->(_command) {})
     events.each do |event|
       @event_store.append(event)
       process.call(event)

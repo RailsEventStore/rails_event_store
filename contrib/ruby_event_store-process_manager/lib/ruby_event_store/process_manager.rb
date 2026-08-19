@@ -6,12 +6,8 @@ require_relative "process_manager/retry"
 module RubyEventStore
   module ProcessManager
     module ProcessMethods
-      def initialize(event_store, command_bus)
-        @event_store = event_store
-        @command_bus = command_bus
-      end
-
       def call(event)
+        ensure_configured!
         @id = fetch_id(event)
         build_state(event)
         act
@@ -22,9 +18,24 @@ module RubyEventStore
         events.map { |event| @state = apply(event) }
       end
 
+      def with(event_store:, command_bus:)
+        @event_store = event_store
+        @command_bus = command_bus
+        self
+      end
+
       private
 
       attr_reader :event_store, :command_bus, :id
+
+      def ensure_configured!
+        missing = []
+        missing << "event_store" unless @event_store
+        missing << "command_bus" unless @command_bus
+        return if missing.empty?
+
+        raise "#{self.class} is missing #{missing.join(" and ")}, call #with(event_store:, command_bus:) first"
+      end
 
       def build_state(event)
         with_retry do

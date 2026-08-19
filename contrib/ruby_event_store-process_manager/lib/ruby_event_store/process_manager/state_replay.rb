@@ -11,7 +11,7 @@ module RubyEventStore
       end
 
       def call(process_class, stream_name)
-        process = process_class.new(@event_store, nil)
+        process = process_class.new.with(event_store: @event_store, command_bus: nil)
         events = @event_store.read.stream(stream_name).to_a
         states = process.replay(events)
         Result.new(
