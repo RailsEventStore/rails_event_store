@@ -60,7 +60,7 @@ end
 Subscribe it to the event store:
 
 ```ruby
-process = ReleasePaymentOnOrderExpiration.new(event_store, command_bus)
+process = ReleasePaymentOnOrderExpiration.new.with(event_store:, command_bus:)
 
 event_store.subscribe(
   process,
@@ -69,6 +69,22 @@ event_store.subscribe(
 ```
 
 `fetch_id` identifies the process instance, `apply` evolves its state, and `act` issues commands based on the rebuilt state. The state class must support a no-argument constructor. `apply` must always return the next state, including for events that do not change it.
+
+A process manager class has no constructor of its own, so it can be subclassed from frameworks that instantiate it without arguments — for example a Rails `ActiveJob`, whose infrastructure calls `Job.new` with no arguments when deserializing a job:
+
+```ruby
+class ReleasePaymentOnOrderExpirationJob < ActiveJob::Base
+  include RubyEventStore::ProcessManager.with_state { ProcessState }
+
+  def perform(event)
+    with(event_store: Rails.configuration.event_store, command_bus: Rails.configuration.command_bus).call(event)
+  end
+
+  # ... fetch_id, apply, act, ProcessState as above
+end
+```
+
+Forgetting to call `with` before `call` is reported with a clear error naming the missing dependencies.
 
 ## Browser integration
 
