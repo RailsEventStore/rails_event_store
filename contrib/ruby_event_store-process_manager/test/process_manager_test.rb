@@ -101,6 +101,37 @@ class ProcessManagerTest < Minitest::Test
   class ProcessConfiguredAtRuntime
   end
 
+  class FrameworkBaseClass
+    def initialize
+      @constructed_without_dependencies = true
+    end
+  end
+
+  class AsyncOrderDeliveryProcess < FrameworkBaseClass
+    include RubyEventStore::ProcessManager.with_state { OrderDeliveryState }
+
+    subscribes_to OrderPaid, OrderAddressSet
+
+    private
+
+    def fetch_id(event) = event.data.fetch(:order_id)
+
+    def apply(event)
+      case event
+      when OrderPaid
+        state.with(paid: true)
+      when OrderAddressSet
+        state.with(address_set: true)
+      else
+        state
+      end
+    end
+
+    def act
+      command_bus.call(DeliverOrder.new(order_id: id)) if state.ready_to_deliver?
+    end
+  end
+
   def setup
     @event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
     @command_bus = FakeCommandBus.new
@@ -253,5 +284,47 @@ class ProcessManagerTest < Minitest::Test
     error = assert_raises(RuntimeError) { inherited_process_class.new.with(event_store: @event_store, command_bus: @command_bus).initial_state }
 
     assert_equal("State definition block not found on #{inherited_process_class}", error.message)
+  end
+
+  def test_can_be_instantiated_without_arguments_by_a_host_framework_and_configured_afterwards
+    process = AsyncOrderDeliveryProcess.new
+    assert(process.instance_variable_get(:@constructed_without_dependencies))
+
+    order_id = "order-async-1"
+    paid_event = OrderPaid.new(data: { order_id: })
+    address_event = OrderAddressSet.new(data: { order_id: })
+    @event_store.append(paid_event)
+    @event_store.append(address_event)
+
+    process.with(event_store: @event_store, command_bus: @command_bus)
+    process.call(paid_event)
+    process.call(address_event)
+
+    assert_equal([DeliverOrder.new(order_id:)], @command_bus.commands)
+  end
+
+  def test_raises_a_clear_error_upfront_when_call_happens_before_with
+    process = OrderDeliveryProcess.new
+    paid_event = OrderPaid.new(data: { order_id: "order-1" })
+
+    error = assert_raises(RuntimeError) { process.call(paid_event) }
+
+    assert_equal(
+      "ProcessManagerTest::OrderDeliveryProcess is missing event_store and command_bus, " \
+        "call #with(event_store:, command_bus:) first",
+      error.message,
+    )
+  end
+
+  def test_raises_a_clear_error_upfront_when_only_the_command_bus_is_missing
+    process = OrderDeliveryProcess.new.with(event_store: @event_store, command_bus: nil)
+    paid_event = OrderPaid.new(data: { order_id: "order-1" })
+
+    error = assert_raises(RuntimeError) { process.call(paid_event) }
+
+    assert_equal(
+      "ProcessManagerTest::OrderDeliveryProcess is missing command_bus, call #with(event_store:, command_bus:) first",
+      error.message,
+    )
   end
 end
