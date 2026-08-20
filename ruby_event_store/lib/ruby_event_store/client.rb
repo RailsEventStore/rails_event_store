@@ -5,24 +5,24 @@ require "concurrent"
 module RubyEventStore
   class Client
     def initialize(
-      repository: InMemoryRepository.new,
-      mapper: Mappers::BatchMapper.new,
+      repository: nil,
+      mapper: nil,
       subscriptions: nil,
       dispatcher: nil,
       message_broker: nil,
-      clock: default_clock,
-      correlation_id_generator: default_correlation_id_generator,
-      event_type_resolver: EventTypeResolver.new
+      clock: nil,
+      correlation_id_generator: nil,
+      event_type_resolver: nil,
+      configuration: RubyEventStore.configuration
     )
-      @repository = repository
+      @repository = repository || configuration.build_repository.call
+      mapper ||= configuration.build_mapper.call
       @mapper = batch_mapper?(mapper) ? mapper : Mappers::BatchMapper.new(mapper)
-      @broker =
-        message_broker ||
-          Broker.new(subscriptions: subscriptions || Subscriptions.new, dispatcher: dispatcher || SyncScheduler.new)
-      @clock = clock
+      @broker = build_broker(configuration, message_broker, subscriptions, dispatcher)
+      @clock = clock || configuration.clock
       @metadata = Concurrent::ThreadLocalVar.new
-      @correlation_id_generator = correlation_id_generator
-      @event_type_resolver = event_type_resolver
+      @correlation_id_generator = correlation_id_generator || configuration.correlation_id_generator
+      @event_type_resolver = event_type_resolver || configuration.build_event_type_resolver.call
 
       if (subscriptions || dispatcher)
         msg = <<~EOW
@@ -398,6 +398,16 @@ module RubyEventStore
       @repository.append_to_stream(records, Stream.new(stream_name), ExpectedVersion.new(expected_version))
     end
 
+    def build_broker(configuration, message_broker, subscriptions, dispatcher)
+      return message_broker if message_broker
+      return configuration.build_message_broker.call unless subscriptions || dispatcher
+
+      Broker.new(
+        subscriptions: subscriptions || configuration.build_subscriptions.call,
+        dispatcher: dispatcher || configuration.build_dispatcher.call,
+      )
+    end
+
     protected
 
     def batch_mapper?(mapper)
@@ -406,14 +416,6 @@ module RubyEventStore
 
     def metadata=(value)
       @metadata.value = value
-    end
-
-    def default_clock
-      -> { Time.now.utc.round(TIMESTAMP_PRECISION) }
-    end
-
-    def default_correlation_id_generator
-      -> { SecureRandom.uuid }
     end
   end
 end

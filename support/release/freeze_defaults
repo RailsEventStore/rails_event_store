@@ -1,0 +1,79 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+# Freezes the upcoming configuration defaults under the released version and
+# leaves a fresh, empty upcoming branch behind for the next one. Does nothing
+# for a patch release — defaults belong to a major.minor version. See RELEASE.md.
+
+class FreezeDefaults
+  ROOT = File.expand_path("../..", __dir__)
+  RUBY_EVENT_STORE = File.join(ROOT, "ruby_event_store/lib/ruby_event_store/configuration.rb")
+  RAILS_EVENT_STORE = File.join(ROOT, "rails_event_store/lib/rails_event_store/configuration.rb")
+
+  UPCOMING_VERSION = "upcoming_defaults_version"
+  UPCOMING_LOADER = "load_upcoming_defaults"
+
+  def initialize(version)
+    @version = version
+    @series = version.split(".").take(2).join(".")
+  end
+
+  def call
+    unless "#{series}.0" == version
+      puts "#{version} is a patch release — configuration defaults left untouched"
+      return
+    end
+
+    File.write(RUBY_EVENT_STORE, with_upcoming_branch(frozen(File.read(RUBY_EVENT_STORE))))
+    # RailsEventStore has an upcoming loader only when a default of its own changed
+    File.write(RAILS_EVENT_STORE, renamed_loader(File.read(RAILS_EVENT_STORE), optional: true))
+    puts "Configuration defaults frozen as #{series}"
+  end
+
+  private
+
+  attr_reader :version, :series
+
+  def frozen(content)
+    content = renamed_loader(content)
+    content = replace(content, "\#{#{UPCOMING_VERSION}}", series)
+    content = replace(content, /^ *def #{UPCOMING_VERSION} = .*\n\n/, "")
+    replace(content, /\b#{UPCOMING_VERSION}\b/, %("#{series}"))
+  end
+
+  def renamed_loader(content, optional: false) = replace(content, /\b#{UPCOMING_LOADER}\b/, loader, optional: optional)
+
+  def with_upcoming_branch(content)
+    content =
+      replace(content, /^( *)when Gem::Requirement\.new\(">= #{Regexp.escape(series)}"\)$/, <<~RUBY.chomp)
+        \\1when Gem::Requirement.new(">= \#{#{UPCOMING_VERSION}}")
+        \\1  #{UPCOMING_LOADER}
+        \\1when Gem::Requirement.new(">= #{series}")
+      RUBY
+
+    replace(content, /^( *)private\n\n/, <<~RUBY)
+      \\1private
+
+      \\1def #{UPCOMING_VERSION} = Gem::Version.new(VERSION).segments.take(2).join(".")
+
+      \\1def #{UPCOMING_LOADER}
+      \\1  #{loader}
+      \\1  @loaded_defaults = #{UPCOMING_VERSION}
+      \\1end
+
+    RUBY
+  end
+
+  def loader = "load_#{series.tr(".", "_")}_defaults"
+
+  def replace(content, pattern, replacement, optional: false)
+    unless content.match?(pattern)
+      return content if optional
+      raise "#{pattern.inspect} not found — configuration.rb no longer looks as expected"
+    end
+    content.gsub(pattern, replacement)
+  end
+end
+
+FreezeDefaults.new(ARGV.fetch(0)).call

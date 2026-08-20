@@ -10,6 +10,18 @@ module RailsEventStore
   ::RSpec.describe JSONClient do
     let(:client) { JSONClient.new(repository: RubyEventStore::InMemoryRepository.new(serializer: JSON)) }
 
+    specify "arguments reach the client the json defaults are built for" do
+      client =
+        JSONClient.new(
+          repository: RubyEventStore::InMemoryRepository.new(serializer: JSON),
+          clock: -> { Time.utc(2021, 8, 5, 12, 0, 0) },
+        )
+      event = DummyEvent.new
+      client.append(event)
+
+      expect(client.read.event(event.event_id).metadata[:timestamp]).to eql(Time.utc(2021, 8, 5, 12, 0, 0))
+    end
+
     specify "reads type of ActiveSupport::TimeWithZone" do
       time_zone = Time.zone
       Time.zone = "Europe/Warsaw"

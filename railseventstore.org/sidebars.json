@@ -8,6 +8,7 @@
       "items": [
         "getting-started/introduction",
         "getting-started/install",
+        "getting-started/upgrade",
         "getting-started/api"
       ]
     },

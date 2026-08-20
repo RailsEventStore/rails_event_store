@@ -1,0 +1,111 @@
+---
+title: Upgrading RailsEventStore
+---
+
+## Why upgrading does not change behaviour
+
+Defaults change between releases — a better dispatcher, a different serializer, a mapper which stores more. Adopting them all at once, on the day you bump the gem, is the part that makes upgrades risky.
+
+RailsEventStore keeps the two apart. The defaults are versioned, and the version your application runs on is the one you name:
+
+```ruby
+# config/initializers/rails_event_store.rb
+
+RailsEventStore.configure do |config|
+  config.load_defaults("3.1")
+end
+```
+
+Bumping `rails_event_store` in your `Gemfile` now gets you the new code with the old behaviour. The behaviour changes when — and only when — you raise the number above.
+
+Without Rails the same applies to `RubyEventStore`:
+
+```ruby
+RubyEventStore.configure do |config|
+  config.load_defaults("3.1")
+end
+```
+
+## How to upgrade
+
+1. **Bump the gem, leave the number alone.** Run your test suite. Anything that breaks here is a change in the code itself, not in the defaults — which makes it a much smaller thing to look at.
+
+2. **Raise the number.** One release at a time if you're several behind:
+
+   ```ruby
+   config.load_defaults("3.2")
+   ```
+
+   Run the suite again. Now you're looking only at what the new defaults changed.
+
+3. **Or adopt them one at a time.** Keep the old number and set individual entries to the new values, so each change lands on its own:
+
+   ```ruby
+   RailsEventStore.configure do |config|
+     config.load_defaults("3.1")
+     config.build_dispatcher = -> { RubyEventStore::ImmediateDispatcher.new }
+   end
+   ```
+
+   Once every entry you care about has been moved over, replace the whole block with `config.load_defaults("3.2")`.
+
+The configuration is global and read when a client is built, so the initializer has to run before `RailsEventStore::Client.new`.
+
+## Which defaults are in effect
+
+`loaded_defaults` reports the version whose defaults are actually loaded:
+
+```ruby
+RailsEventStore.configuration.loaded_defaults # => "3.1"
+```
+
+It does not always echo back what you passed. Defaults belong to a `major.minor` version — a patch release never changes them, and a major or minor one only may. Versions are matched from the newest down, so naming a version which brought no defaults of its own loads the last one which did:
+
+```ruby
+config.load_defaults("3.1.4") # => loaded_defaults is "3.1"
+config.load_defaults("3.2")   # => still "3.1", if 3.2 changed nothing
+```
+
+`3.1` is the oldest version there are defaults for — it is the release which introduced them. Naming anything before it raises, rather than quietly falling back to something else:
+
+```ruby
+config.load_defaults("3.0")
+# => RubyEventStore::UnknownDefaults: Unknown RubyEventStore defaults version: "3.0"
+```
+
+This makes a typo an error instead of an accidental opt-out. It also means an application coming from `3.0` or earlier has no number to keep: whatever it was doing before was not configured, so start at `3.1` and read what changed.
+
+## What you can override
+
+Everything the defaults set can be overridden after `load_defaults`, in the same block. Stateful collaborators are configured as factories, so every client gets its own instances:
+
+| Entry                        | What it builds                                             |
+| ---------------------------- | ---------------------------------------------------------- |
+| `build_repository`           | the event repository                                        |
+| `build_mapper`               | the Event ↔ Record mapper                                   |
+| `build_subscriptions`        | the subscriptions store                                     |
+| `build_dispatcher`           | the dispatcher                                              |
+| `build_message_broker`       | the broker combining subscriptions and dispatcher           |
+| `build_event_type_resolver`  | the event type resolver                                     |
+| `clock`                      | source of `timestamp` metadata                              |
+| `correlation_id_generator`   | source of `correlation_id` metadata                         |
+| `serializer`                 | serializer used by the repository and the ActiveJob scheduler (RailsEventStore only) |
+| `request_metadata`           | metadata taken off the Rack env (RailsEventStore only)      |
+
+```ruby
+RailsEventStore.configure do |config|
+  config.load_defaults("3.1")
+  config.serializer = JSON
+  config.correlation_id_generator = -> { SecureRandom.hex(16) }
+end
+```
+
+## Defaults of `JSONClient`
+
+[`RailsEventStore::JSONClient`](./install/#client-for-jsonb-data-type) is built from its own set of defaults — the JSON serializer and a mapper which preserves types `jsonb` would otherwise flatten. Pass the variant to reach them:
+
+```ruby
+RailsEventStore.configure(:json) do |config|
+  config.load_defaults("3.1")
+end
+```

@@ -19,4 +19,20 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.before(:each) { RubyEventStore::Deprecations.reset! if defined?(RubyEventStore::Deprecations) }
+
+  # The global configuration is memoized on first use and its variant is
+  # decided then. Leaving it around would make the outcome of an example
+  # depend on which kind of client another example happened to build first.
+  reset_configuration = -> do
+    %w[RubyEventStore RailsEventStore].each do |name|
+      Object.const_get(name).instance_variable_set(:@configuration, nil) if Object.const_defined?(name)
+    end
+  end
+
+  config.around do |example|
+    reset_configuration.call
+    example.run
+  ensure
+    reset_configuration.call
+  end
 end
