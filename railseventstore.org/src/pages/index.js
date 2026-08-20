@@ -2,6 +2,52 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import HomepageFeatures from "@site/src/components/HomepageFeatures";
 import HomepageCompanies from "@site/src/components/HomepageCompanies";
+import getYoutubeId from "@site/src/helpers/getYoutubeId";
+
+const RES_CAMP_2026_VIDEO_URL = "https://www.youtube.com/watch?v=tF9cQVk1OKY";
+
+function HomepageVideoPromo() {
+  const youtubeId = getYoutubeId(RES_CAMP_2026_VIDEO_URL);
+  return (
+    <div class="container">
+      <a
+        href={RES_CAMP_2026_VIDEO_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="relative overflow-hidden md:rounded-3xl mx-auto mb-12 md:ring-1 md:bg-gradient-to-tr from-[#ededed]/90 to-[#ededed]/20 ring-[#141414]/5 dark:from-transparent dark:to-transparent dark:md:bg-white/5 dark:ring-white/10 flex flex-col md:flex-row items-center gap-6 p-4 md:p-8 !no-underline group"
+      >
+        <div class="relative w-full md:w-80 shrink-0 rounded-xl overflow-hidden aspect-video">
+          <img
+            src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+            alt="RES Camp 2026"
+            loading="lazy"
+            class="block w-full h-full object-cover"
+          />
+          <div class="absolute inset-0 grid place-items-center bg-black/30 group-hover:bg-black/40 transition-colors">
+            <div class="size-14 rounded-full bg-[#CA3A31] grid place-items-center shadow-lg">
+              <svg viewBox="0 0 24 24" class="size-6 fill-white ml-1">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="text-left">
+          <span class="inline-block mb-2 text-xs font-semibold uppercase tracking-wide text-[#CA3A31]">
+            RES Camp 2026
+          </span>
+          <h2 class="text-xl lg:text-2xl font-bold !text-[#141414] dark:!text-white mb-2">
+            What's next for Rails Event Store, straight from the people
+            building it
+          </h2>
+          <p class="text-base lg:text-lg !text-[#141414]/70 dark:!text-white/70">
+            Watch the recap and see the ideas, decisions, and changes headed
+            into the next releases.
+          </p>
+        </div>
+      </a>
+    </div>
+  );
+}
 
 function HomepageHeader() {
   return (
@@ -56,6 +102,7 @@ export default function Home() {
     >
       <main>
         <HomepageHeader />
+        <HomepageVideoPromo />
         <HomepageFeatures />
         <HomepageCompanies />
       </main>
