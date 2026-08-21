@@ -65,3 +65,7 @@ jobs:
       working-directory: "${{ env.WORKING_DIRECTORY }}"
       env:
         RUBYOPT: "--enable-frozen-string-literal"
+    - run: make verify-assets
+      working-directory: "${{ env.WORKING_DIRECTORY }}"
+      env:
+        RUBYOPT: "--enable-frozen-string-literal"

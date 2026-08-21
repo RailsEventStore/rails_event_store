@@ -20,6 +20,10 @@ css: ## Build the stylesheet from the templates with Tailwind
 css-watch: ## Watch the stylesheet for changes and rebuild
 	@bundle exec tailwindcss --watch --input tailwind.css --output $(CSS_OUTFILE)
 
+verify-assets: css $(STIMULUS_JS) ## Verify committed public/ assets match a fresh build
+	@git diff --exit-code -- public/ \
+		|| (echo "public/ assets drifted from a fresh build — run 'make build' and commit"; exit 1)
+
 $(STIMULUS_JS): ## Vendor the pinned Stimulus runtime from the CDN
 	@echo "Downloading @hotwired/stimulus $(STIMULUS_VERSION)"
 	@curl -sL "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@$(STIMULUS_VERSION)/+esm" | sed '/^\/\/#[[:space:]]*sourceMappingURL=/d' > $(STIMULUS_JS)

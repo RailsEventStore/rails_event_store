@@ -54,7 +54,7 @@ class CI
       release_coverage("ruby_event_store-rspec"),
       release_test(
         "ruby_event_store-browser",
-        steps: [checkout, verify_lockfile, setup_ruby, make("test")],
+        steps: [checkout, verify_lockfile, setup_ruby, make("test"), make("verify-assets")],
         matrix: sparse(ruby_version(RUBY_VERSIONS), bundle_gemfile(GEMFILE, "Gemfile.rack_2_0")),
       ),
       release_mutate("ruby_event_store-browser"),
