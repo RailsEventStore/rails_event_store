@@ -86,6 +86,7 @@ GEM
       prism (>= 1.5.1)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin
   x86_64-darwin
   x86_64-linux
@@ -101,4 +102,4 @@ DEPENDENCIES
   ruby_event_store-cli!
 
 BUNDLED WITH
-   2.7.1
+  4.0.16

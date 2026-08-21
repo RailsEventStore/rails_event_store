@@ -87,8 +87,10 @@ GEM
       prism (>= 1.5.1)
 
 PLATFORMS
-  arm64-darwin-23
-  ruby
+  aarch64-linux
+  arm64-darwin
+  x86_64-darwin
+  x86_64-linux
 
 DEPENDENCIES
   irb
@@ -101,4 +103,4 @@ DEPENDENCIES
   ruby_event_store-mcp!
 
 BUNDLED WITH
-   2.7.1
+  4.0.16
