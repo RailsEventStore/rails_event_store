@@ -211,6 +211,7 @@ module RubyEventStore
             MSG
           else
             event_model.include(SkipJsonSerialization)
+            event_model.reset_column_information
           end
         end
       end
