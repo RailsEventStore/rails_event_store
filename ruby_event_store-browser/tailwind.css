@@ -1,5 +1,3 @@
-@config "./tailwind.config.js";
-@import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(none);
+@source "./lib/**/*.erb";
+@source "./public/ruby_event_store_browser.js";
