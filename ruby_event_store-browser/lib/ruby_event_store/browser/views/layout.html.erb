@@ -58,11 +58,10 @@
     <% extension_scripts.each do |src| -%>
       <script type="module" src="<%= src %>"></script>
     <% end -%>
-    <div data-swimlane-target="drawer" class="fixed z-10 flex flex-col items-end justify-end gap-4 bottom-8 right-8">
-      <div data-swimlane-target="drawer-content" class="hidden group [[data-swimlane-drawer-open]_&]:flex flex-col items-stretch gap-3 p-4 bg-white rounded-md shadow-md w-72 max-w-[90vw]">
-        <p class="text-sm text-center text-gray-500 group-has-[li]:hidden">Add stream to start</p>
+    <div data-swimlane-target="drawer" class="fixed z-10 hidden has-[li]:flex flex-col items-end justify-end gap-4 bottom-8 right-8">
+      <div data-swimlane-target="drawer-content" class="hidden [[data-swimlane-drawer-open]_&]:flex flex-col items-stretch gap-3 p-4 bg-white rounded-md shadow-md w-72 max-w-[90vw]">
         <ul data-swimlane-target="drawerList" class="flex flex-col divide-y divide-gray-100"></ul>
-        <button data-action="swimlane#go" title="Go to swimlane view" class="hidden group-has-[li]:inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm text-gray-100 bg-red-700 rounded hover:bg-red-800">
+        <button data-action="swimlane#go" title="Go to swimlane view" class="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm text-gray-100 bg-red-700 rounded hover:bg-red-800">
           <span>Go to swimlane view</span>
           <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>

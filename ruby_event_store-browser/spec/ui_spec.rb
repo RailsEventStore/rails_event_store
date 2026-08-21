@@ -148,8 +148,8 @@ module RubyEventStore
 
       session.find("button[aria-label='Remove foo']").click
 
-      expect(session).to have_content("Add stream to start")
       expect(session).to have_no_button("Go to swimlane view")
+      expect(session).to have_no_button("Toggle swimlane drawer")
     rescue Ferrum::BinaryNotFoundError => exc
       skip exc.message
     end
