@@ -145,7 +145,6 @@ application.register(
     go() {
       if (this.streamsValue.length === 0) return
       const url = new URL(this.baseUrlValue + "/swimlane") 
-      console.log("go to swimlane view", this.streamsValue, url.toString())
       this.streamsValue.forEach((stream) => url.searchParams.append("streams[]", stream))
       window.location = url.toString()
     }
