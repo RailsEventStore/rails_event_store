@@ -162,9 +162,9 @@ class Order
     ->(aggregate, event) do
       case event
       when OrderExpired
-        order_has_expired
+        order_has_expired(event)
       when OrderSubmitted
-        order_has_been_submitted
+        order_has_been_submitted(event)
       else
         raise
       end
@@ -189,9 +189,9 @@ The `case` statement is one way to implement such a dispatch. The following exam
 def apply_strategy
     ->(aggregate, event) do
       {
-        'OrderExpired' => method(:order_has_been_submitted),
-        'OrderSubmitted' => method(:order_has_expired),
-      }.fetch(event.event_type , ->(event) { raise }).call(event)
+        'OrderExpired' => method(:order_has_expired),
+        'OrderSubmitted' => method(:order_has_been_submitted),
+      }.fetch(event.event_type, ->(event) { raise }).call(event)
     end
   end
 
