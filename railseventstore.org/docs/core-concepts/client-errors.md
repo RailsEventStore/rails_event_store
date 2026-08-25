@@ -28,14 +28,14 @@ client.publish(order_placed, stream_name: 'Order$1', expected_version: 0)
 
 expect do
   client.publish(order_placed, stream_name: 'Order$1', expected_version: 1)
-end.to raise_error(WrongExpectedEventVersion)
+end.to raise_error(EventDuplicatedInStream)
 ```
 
 If you want to have an event present in multiple streams, you have to link it with `link`.
 
 ### RubyEventStore::InvalidExpectedVersion
 
-Occurs when invalid `exception_version` is passed in `append_to_stream`, `link_to_stream` or `publish`.
+Occurs when invalid `expected_version` is passed in `append`, `link` or `publish`.
 Valid values are `Integer` or one of `:any`, `:none`, `:auto`.
 
 ```ruby
@@ -56,7 +56,7 @@ end.to raise_error(IncorrectStreamData)
 
 ### RubyEventStore::EventNotFound
 
-Occurs when event of given id cannot be found. This can happen either when looking for particular event details via `read_event` or when reading stream, starting from given event.
+Occurs when event of given id cannot be found. This can happen either when looking for particular event details via `read.event!` or when reading stream, starting from given event.
 
 ```ruby
 none_such_id = SecureRandom.uuid
@@ -123,3 +123,4 @@ Occurs when passing stream name of `all` when using `RubyEventStore::ActiveRecor
 ### RubyEventStore::ProtobufEncodingFailed
 
 Raised when event's `data` is not serializable by `RubyEventStore::Mappers::Protobuf`.
+Defined by the `ruby_event_store-protobuf` gem — only available when it is required.
