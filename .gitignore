@@ -34,3 +34,4 @@ devenv.local.nix
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.swp
