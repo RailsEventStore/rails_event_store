@@ -165,7 +165,7 @@ event_store = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRep
 expect {
   event_store.publish(event = OrderPlaced.new(data: { order_id: 42 }), stream_name: "Order$42")
   event_store.link(event.event_id, stream_name: "SalesReport2021")
-}.to publish(an_event(OrderPlaced)).in(event_store).in_streams(["Order$42", "SalesReport2021")
+}.to publish(an_event(OrderPlaced)).in(event_store).in_streams(["Order$42", "SalesReport2021"])
 ```
 
 It is sometimes important to ensure that specific amount of events of given type have been published. Luckily there's a modifier to cover that usecase.
