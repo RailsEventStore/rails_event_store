@@ -36,7 +36,7 @@ You can also instrument your own repository, mapper or dispatcher components the
 
 The `aggregate_root` gem is not integrated with any particular instrumenter implementation — same as with `ruby_event_store`.
 
-Instrumentation is provided by `AggregateRoot::InstrumentedReposiory` decorator. In order to enable instrumentation, wrap the aggregate root repository with its instrumented decorator and the instrumenter of your choice:
+Instrumentation is provided by `AggregateRoot::InstrumentedRepository` decorator. In order to enable instrumentation, wrap the aggregate root repository with its instrumented decorator and the instrumenter of your choice:
 
 ```ruby
 instrumenter = ActiveSupport::Notifications
