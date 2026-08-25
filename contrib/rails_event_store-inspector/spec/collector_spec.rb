@@ -127,6 +127,34 @@ module RailsEventStore
         end
       end
 
+      describe "streams" do
+        def append(records, stream_name)
+          stream = Struct.new(:name).new(stream_name)
+          watching do
+            notifications.instrument("append_to_stream.repository.ruby_event_store", records: records, stream: stream) {}
+          end
+        end
+
+        specify "records which stream an event was written to" do
+          append([Struct.new(:event_id).new("evt-1")], "Ordering::Order$123")
+
+          expect(entries_of(:stream).first).to include(event_id: "evt-1", stream: "Ordering::Order$123")
+        end
+
+        specify "records one entry per record in the batch" do
+          record = Struct.new(:event_id)
+          append([record.new("evt-1"), record.new("evt-2")], "Ordering::Order$123")
+
+          expect(entries_of(:stream).map { |e| e[:event_id] }).to eq(["evt-1", "evt-2"])
+        end
+
+        specify "carries no request of its own — the event it belongs to has one" do
+          append([Struct.new(:event_id).new("evt-1")], "some-stream")
+
+          expect(entries_of(:stream).first).not_to have_key(:request_id)
+        end
+      end
+
       specify "gathers nothing while the inspector is switched off" do
         publish_now(fake_event, subscribers: [String])
 

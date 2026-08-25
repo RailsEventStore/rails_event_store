@@ -22,6 +22,15 @@ module RailsEventStore
         @notifications.subscribe("call.broker.ruby_event_store", broker_subscriber)
         @notifications.subscribe("call.dispatcher.ruby_event_store", dispatcher_subscriber)
 
+        @notifications.subscribe("append_to_stream.repository.ruby_event_store") do |_n, _s, _f, _i, payload|
+          next unless Inspector.active?
+          guarded do
+          name = payload[:stream].respond_to?(:name) ? payload[:stream].name : payload[:stream].to_s
+          Array(payload[:records]).each do |record|
+            @buffer.push(kind: :stream, scope: Inspector.scope, started_at: now, event_id: record.event_id, stream: name)
+          end
+          end
+        end
 
         @notifications.subscribe("enqueue.active_job") do |_name, _start, _finish, _id, payload|
           next unless Inspector.active?
