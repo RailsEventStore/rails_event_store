@@ -7,9 +7,16 @@ require_relative "inspector/buffer"
 require_relative "inspector/frames"
 require_relative "inspector/collector"
 require_relative "inspector/browser_links"
+require_relative "inspector/assets"
+require_relative "inspector/renderer"
+require_relative "inspector/tree"
 
 module RailsEventStore
   module Inspector
+    RESET_PATH = "/__res_inspector/reset"
+    PANEL_PATH = "/__res_inspector/panel"
+    COUNT_HEADER = "X-Res-Inspector-Count"
+
     ACTIVE = :res_inspector_active
     SCOPE = :res_inspector_scope
 
