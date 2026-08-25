@@ -2,6 +2,7 @@
 
 require_relative "inspector/version"
 require_relative "inspector/buffer"
+require_relative "inspector/frames"
 
 module RailsEventStore
   module Inspector
