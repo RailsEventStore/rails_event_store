@@ -413,7 +413,9 @@ end
 event_store = RailsEventStore::Client.new(
   message_broker: RubyEventStore::Broker.new(
     dispatcher: RubyEventStore::ComposedDispatcher.new(
-      RubyEventStore::ImmediateDispatcher.new(scheduler: RailsEventStore::ActiveJobScheduler.new),
+      RubyEventStore::ImmediateDispatcher.new(
+        scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+      ),
       RubyEventStore::SyncScheduler.new
     )
   )
