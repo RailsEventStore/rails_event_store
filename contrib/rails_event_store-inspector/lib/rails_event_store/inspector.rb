@@ -2,6 +2,7 @@
 
 require_relative "inspector/version"
 require_relative "inspector/configuration"
+require_relative "inspector/scope"
 require_relative "inspector/buffer"
 require_relative "inspector/frames"
 
