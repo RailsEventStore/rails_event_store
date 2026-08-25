@@ -78,7 +78,7 @@ class OrderPlacedReport
 end
 
 subscriber = OrderPlacedReport.new
-event_store.subscribe(subscriber, [OrderPlaced])
+event_store.subscribe(subscriber, to: [OrderPlaced])
 ```
 
 It is worth remembering that linking an event does not trigger event handlers and you cannot link same event more than once in a given stream.
