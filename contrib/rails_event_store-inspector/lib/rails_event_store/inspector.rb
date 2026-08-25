@@ -11,6 +11,8 @@ require_relative "inspector/assets"
 require_relative "inspector/renderer"
 require_relative "inspector/tree"
 require_relative "inspector/panel"
+require_relative "inspector/insertion"
+require_relative "inspector/middleware"
 
 module RailsEventStore
   module Inspector
@@ -41,6 +43,16 @@ module RailsEventStore
       def buffer
         @buffer ||= Buffer.new
       end
+
+      def browser_links
+        @browser_links ||= BrowserLinks.from_rails
+      end
+
+      def reset_browser_links!
+        @browser_links = nil
+      end
     end
   end
 end
+
+require_relative "inspector/railtie" if defined?(::Rails::Railtie)
