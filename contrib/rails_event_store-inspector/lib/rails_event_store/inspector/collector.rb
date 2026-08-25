@@ -7,6 +7,9 @@ module RailsEventStore
     class Collector
       HANDLER_FRAMES = :res_inspector_handlers
       BROKER_FRAMES = :res_inspector_brokers
+      CURRENT_REQUEST = :res_inspector_request_id
+
+      INFRA_PREFIXES = %w[RubyEventStore:: RailsEventStore::].freeze
 
       def initialize(buffer, notifications)
         @buffer = buffer
@@ -19,6 +22,19 @@ module RailsEventStore
         @notifications.subscribe("call.broker.ruby_event_store", broker_subscriber)
         @notifications.subscribe("call.dispatcher.ruby_event_store", dispatcher_subscriber)
 
+
+        @notifications.subscribe("enqueue.active_job") do |_name, _start, _finish, _id, payload|
+          next unless Inspector.active?
+          guarded do
+            @buffer.push(
+              kind: :enqueued,
+              scope: Inspector.scope,
+              started_at: now,
+              request_id: Thread.current[CURRENT_REQUEST],
+              job: payload[:job].class.name,
+            )
+          end
+        end
       end
 
       private
@@ -31,6 +47,7 @@ module RailsEventStore
               lambda do |payload|
               frame = @brokers.pop or return
               event = payload[:event]
+              Thread.current[CURRENT_REQUEST] = metadata(event)[:request_id]
               @buffer.push(
                 kind: :event,
                 scope: Inspector.scope,
@@ -55,7 +72,7 @@ module RailsEventStore
               lambda do |payload|
               subscriber = payload[:subscriber]
               label = label_for(subscriber)
-              @handlers.push(label: label, started_at: now)
+              @handlers.push(label: label, started_at: now, infra: infra?(label), async: async?(subscriber))
             end,
             ),
           finish:
@@ -71,6 +88,8 @@ module RailsEventStore
                 request_id: metadata(event)[:request_id],
                 event_id: event.event_id,
                 subscriber: frame[:label],
+                infra: frame[:infra],
+                async: frame[:async],
               )
             end,
             ),
@@ -117,6 +136,17 @@ module RailsEventStore
         event.metadata
       rescue StandardError
         {}
+      end
+
+      def infra?(label)
+        INFRA_PREFIXES.any? { |prefix| label.to_s.start_with?(prefix) }
+      end
+
+      def async?(subscriber)
+        return false unless subscriber.is_a?(Class)
+        return false unless defined?(::ActiveJob::Base)
+
+        !!(subscriber < ::ActiveJob::Base)
       end
 
       def label_for(subscriber)

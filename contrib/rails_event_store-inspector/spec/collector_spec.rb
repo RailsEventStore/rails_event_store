@@ -79,6 +79,53 @@ module RailsEventStore
         expect(producers).to eq("inner" => "String", "outer" => nil)
       end
 
+      specify "marks RES built-in subscribers as infrastructure" do
+        stub_const("RubyEventStore::LinkByEventType", Class.new)
+        publish(fake_event, subscribers: [RubyEventStore::LinkByEventType, String])
+
+        infra, own = entries_of(:handler).partition { |e| e[:infra] }
+
+        expect(infra.map { |e| e[:subscriber] }).to eq(["RubyEventStore::LinkByEventType"])
+        expect(own.map { |e| e[:subscriber] }).to eq(["String"])
+      end
+
+      describe "asynchronous handlers" do
+        before { stub_const("ActiveJob::Base", Class.new) }
+
+        specify "an ActiveJob class is marked as asynchronous" do
+          job = Class.new(ActiveJob::Base)
+          stub_const("MailerJob", job)
+
+          publish(fake_event, subscribers: [MailerJob])
+
+          expect(entries_of(:handler).first).to include(subscriber: "MailerJob", async: true)
+        end
+
+        specify "an ordinary subscriber is not" do
+          publish(fake_event, subscribers: [String])
+
+          expect(entries_of(:handler).first[:async]).to be(false)
+        end
+
+        specify "reaching the queue is recorded separately" do
+          job = Struct.new(:x).new(1)
+          stub_const("MailerJob", job.class)
+
+          watching { notifications.instrument("enqueue.active_job", job: job) {} }
+
+          expect(entries_of(:enqueued).first).to include(job: job.class.name)
+        end
+
+        specify "a scheduled job that never reached the queue leaves no enqueue entry" do
+          job = Class.new(ActiveJob::Base)
+          stub_const("MailerJob", job)
+
+          publish(fake_event, subscribers: [MailerJob])
+
+          expect(entries_of(:handler).first[:async]).to be(true)
+          expect(entries_of(:enqueued)).to be_empty
+        end
+      end
 
       specify "gathers nothing while the inspector is switched off" do
         publish_now(fake_event, subscribers: [String])
