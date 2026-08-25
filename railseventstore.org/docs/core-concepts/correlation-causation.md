@@ -155,8 +155,8 @@ You can use `RailsEventStore::LinkByCorrelationId` (`RubyEventStore::LinkByCorre
 Rails.application.configure do
   config.to_prepare do
     Rails.configuration.event_store = event_store = RailsEventStore::Client.new
-    event_store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new)
-    event_store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new)
+    event_store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new(event_store: event_store))
+    event_store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new(event_store: event_store))
   end
 end
 ```

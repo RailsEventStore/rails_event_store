@@ -102,7 +102,7 @@ In order to link by metadata you need to provide a metadata key that you're inte
 link all events by the `tenant_id` metadata key:
 
 ```ruby
-  event_store.subscribe_to_all_events(LinkByMetadata.new(event_store: event_store, key: :tenant_id))
+  event_store.subscribe_to_all_events(RailsEventStore::LinkByMetadata.new(event_store: event_store, key: :tenant_id))
 ```
 
 The resulting stream for tenant with id = 123 would be `$by_tenant_id_123`
@@ -112,8 +112,8 @@ The resulting stream for tenant with id = 123 would be `$by_tenant_id_123`
 In order to link by correlation and causation ids you simply call
 
 ```ruby
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new)
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new)
+  event_store.subscribe_to_all_events(RailsEventStore::LinkByCorrelationId.new(event_store: event_store))
+  event_store.subscribe_to_all_events(RailsEventStore::LinkByCausationId.new(event_store: event_store))
 ```
 
 The resulting streams would be `$by_correlation_id_123` and `$by_causation_id_123` respectively.
@@ -123,7 +123,7 @@ The resulting streams would be `$by_correlation_id_123` and `$by_causation_id_12
 In order to link by events types use following code:
 
 ```ruby
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new)
+  event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new(event_store: event_store))
 ```
 
 The resulting stream for `OrderPlaced` event would be `$by_event_type_OrderPlaced`
@@ -132,7 +132,7 @@ The resulting stream for `OrderPlaced` event would be `$by_event_type_OrderPlace
 Instead of using `$by_{class}` prefix you can use your own prefix by passing it as an argument to the linking class:
 
 ```ruby
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new(prefix: 'my_prefix'))
+  event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new(event_store: event_store, prefix: 'my_prefix'))
 ```
 
 The resulting stream for `OrderPlaced` event would be `my_prefix_OrderPlaced`.
