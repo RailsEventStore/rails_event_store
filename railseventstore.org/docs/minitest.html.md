@@ -40,7 +40,7 @@ assert_published(@event_store, DummyEvent, with_data: { "foo" => "bar" })
 assert_published(@event_store, DummyEvent, with_metadata: { "foo" => "bar" })
 ```
 
-### assert_not_published(event_store, event_type, with_data: nil, with_metadata: nil, within_stream: nil, &block)
+### assert_not_published(event_store, event_type, within_stream: nil, &block)
 Verifies that an event of certain type was not published to the event store.
 
 ```ruby
@@ -123,7 +123,7 @@ new_events.each { |event| @event_store.publish(event) }
 end
 ```
 
-### assert_equal_event(expected_event, actual_event, verify_id = false)
+### assert_equal_event(expected_event, actual_event, verify_id: false)
 Verify that two events are equal. If verify_id is true, the event ids are also verified.
 
 ```ruby
@@ -143,7 +143,7 @@ actual_event = @event_store.read.backward.first
 assert_equal_event(event, actual_event, verify_id: true) # passes, because ids are equal
 ```
 
-### assert_equal_events(expected_events, actual_events, verify_id = false)
+### assert_equal_events(expected_events, actual_events, verify_id: false)
 Verify that two arrays of events are equal. If verify_id is true, the event ids are also verified.
 
 ```ruby
