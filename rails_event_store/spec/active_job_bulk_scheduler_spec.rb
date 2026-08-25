@@ -26,6 +26,20 @@ module RailsEventStore
       ActiveJob::Base.queue_adapter.enqueued_jobs
     end
 
+    def serialized_event(event)
+      timestamp = event.metadata[:timestamp].iso8601(RubyEventStore::TIMESTAMP_PRECISION)
+
+      {
+        "event_id" => event.event_id,
+        "event_type" => "RubyEventStore::Event",
+        "data" => "--- {}\n",
+        "metadata" => "--- {}\n",
+        "timestamp" => timestamp,
+        "valid_at" => timestamp,
+        "_aj_symbol_keys" => [],
+      }
+    end
+
     describe "#bulk_call" do
       specify "enqueues every job with a single perform_all_later" do
         expect(ActiveJob).to receive(:perform_all_later).once.and_call_original
@@ -42,17 +56,7 @@ module RailsEventStore
         expect(enqueued_jobs.size).to eq(1)
         expect(enqueued_jobs[0]).to include(
           job: MyBulkAsyncHandler,
-          args: [
-            {
-              "event_id" => "83c3187f-84f6-4da7-8206-73af5aca7cc8",
-              "event_type" => "RubyEventStore::Event",
-              "data" => "--- {}\n",
-              "metadata" => "--- {}\n",
-              "timestamp" => "2026-08-25T00:00:00.000000Z",
-              "valid_at" => "2026-08-25T00:00:00.000000Z",
-              "_aj_symbol_keys" => [],
-            },
-          ],
+          args: [serialized_event(event)],
           queue: "default",
         )
       end
@@ -62,8 +66,18 @@ module RailsEventStore
           [[MyBulkAsyncHandler.set(queue: "specific"), record], [MyBulkAsyncHandler, other_record]],
         )
 
-        expect(enqueued_jobs.size).to eq(2)
-        expect(enqueued_jobs.map { |job| job[:queue] }).to match_array(%w[specific default])
+        expect(enqueued_jobs).to match([
+          hash_including(
+            job: MyBulkAsyncHandler,
+            args: [serialized_event(event)],
+            queue: "specific",
+          ),
+          hash_including(
+            job: MyBulkAsyncHandler,
+            args: [serialized_event(other_event)],
+            queue: "default",
+          ),
+        ])
       end
 
       specify "does nothing when there is nothing to enqueue" do
