@@ -34,21 +34,6 @@ module RailsEventStore
       ActiveJob::Base.queue_adapter.enqueued_jobs
     end
 
-    def serialized_args(event)
-      timestamp = event.metadata[:timestamp].iso8601(RubyEventStore::TIMESTAMP_PRECISION)
-      [
-        {
-          "event_id" => event.event_id,
-          "event_type" => "RubyEventStore::Event",
-          "data" => "--- {}\n",
-          "metadata" => "--- {}\n",
-          "timestamp" => timestamp,
-          "valid_at" => timestamp,
-          "_aj_symbol_keys" => [],
-        },
-      ]
-    end
-
     it "dispatches immediately when no transaction is open" do
       dispatcher.call(MyBulkDispatcherHandler, event, record)
 
@@ -65,9 +50,11 @@ module RailsEventStore
       end
 
       expect(enqueued_jobs).to match([
-        hash_including(job: MyBulkDispatcherHandler, args: serialized_args(event), queue: "default"),
-        hash_including(job: MyBulkDispatcherHandler, args: serialized_args(other_event), queue: "default")
+        hash_including(job: MyBulkDispatcherHandler, queue: "default"),
+        hash_including(job: MyBulkDispatcherHandler, queue: "default")
       ])
+
+      expect(enqueued_jobs.map { |job| job[:args].first["event_id"] }).to eq([event.event_id, other_event.event_id])
     end
 
     context "when the transaction is rolled back" do

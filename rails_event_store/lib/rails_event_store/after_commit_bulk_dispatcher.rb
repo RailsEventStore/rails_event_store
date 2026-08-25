@@ -46,7 +46,7 @@ module RailsEventStore
 
       def initialize(scheduler, &on_finalize)
         @scheduler = scheduler
-        @on_finalize = on_finalize || -> {}
+        @on_finalize = on_finalize
         @subscribers_and_records = []
       end
 
