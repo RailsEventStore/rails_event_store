@@ -91,8 +91,8 @@ Using the `RubyEventStore::NULL` serializer will prevent the event store from se
   <p class="text-base font-bold">Note that <code>JSON</code> converts symbols to strings. Ensure your code accounts for this when retrieving events.</p>
   
 ```ruby
-JSON.load(JSON.dump({foo: :bar}))
-=> {"foo"=>"bar"}
+JSON.load(JSON.dump({ foo: :bar }))
+# => {"foo" => "bar"}
 ```
 
 One way to approach this is to have your own event adapter, specific for the project you're working on.
@@ -115,10 +115,10 @@ event_store.publish(OrderPlaced.new(event_id: 'e34fc19a-a92f-4c21-8932-a10f6fb26
 event = event_store.read.event('e34fc19a-a92f-4c21-8932-a10f6fb2602b')
 
 event.data[:foo]
-\# => "bar"
+# => "bar"
 
 event.data['foo']
-\# => "bar"
+# => "bar"
 ```
 
 Another way to achieve that could be define your own <a href="../advanced-topics/mappers#custom-mapper">custom mapper and transformation</a>
