@@ -23,8 +23,14 @@ In your event store configuration, use `RubyEventStore::ImmediateDispatcher` wit
 
 ```ruby
 RailsEventStore::Client.new(
-  dispatcher: RubyEventStore::ImmediateDispatcher.new(scheduler: RubyEventStore::Outbox::SidekiqScheduler.new),
-  ...
+  message_broker:
+    RubyEventStore::Broker.new(
+      dispatcher:
+        RubyEventStore::ComposedDispatcher.new(
+          RubyEventStore::ImmediateDispatcher.new(scheduler: RubyEventStore::Outbox::SidekiqScheduler.new),
+          RubyEventStore::SyncScheduler.new,
+        ),
+    ),
 )
 ```
 
