@@ -13,8 +13,11 @@ The `ruby_event_store` gem is not integrated with any particular instrumenter im
 Instrumentation is provided by repository, mapper and dispatcher decorators:
 
 - `RubyEventStore::InstrumentedRepository`
-- `RubyEventStore::Mappers::InstrumentedMapper`
+- `RubyEventStore::Mappers::InstrumentedMapper` (single-event mappers) and
+  `RubyEventStore::Mappers::InstrumentedBatchMapper` (batch mappers)
 - `RubyEventStore::InstrumentedDispatcher`
+- `RubyEventStore::InstrumentedBroker`
+- `RubyEventStore::InstrumentedSubscriptions`
 
 In order to enable it, wrap the components you intend to instrument with corresponding decorators and instrumenter of your choice:
 
@@ -187,6 +190,101 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
 }
 ```
 
+### event_to_record.mapper.ruby_event_store
+
+Emitted by `InstrumentedMapper` — the single-event counterpart of `events_to_records`.
+
+| Key    | Value                                    |
+| ------ | ---------------------------------------- |
+| :event | An event instance being mapped to a record |
+
+```ruby
+{ event: #<MyEvent:0x000000010e786658> }
+```
+
+### record_to_event.mapper.ruby_event_store
+
+Emitted by `InstrumentedMapper` — the single-event counterpart of `records_to_events`.
+
+| Key     | Value                                       |
+| ------- | ------------------------------------------- |
+| :record | A `RubyEventStore::Record` being mapped to an event |
+
+```ruby
+{ record: #<RubyEventStore::Record:0x0000000104b51f30> }
+```
+
+### call.broker.ruby_event_store
+
+| Key     | Value                                                |
+| ------- | ---------------------------------------------------- |
+| :topic  | A topic the event is published to (event type by default) |
+| :event  | An event instance being published                    |
+| :record | A record of the published event                      |
+
+```ruby
+{
+  topic: "MyEvent",
+  event: #<MyEvent:0x000000010e786658>,
+  record: #<RubyEventStore::Record:0x0000000104b51f30>
+}
+```
+
+### add_subscription.broker.ruby_event_store
+
+Also emitted as `add_thread_subscription.broker.ruby_event_store` for thread-local subscriptions.
+
+| Key         | Value                              |
+| ----------- | ---------------------------------- |
+| :subscriber | A subscriber being registered      |
+| :topics     | An array of topics subscribed to   |
+
+```ruby
+{
+  subscriber: #<Proc:0x00000001123ecb10>,
+  topics: ["MyEvent"]
+}
+```
+
+### add_global_subscription.broker.ruby_event_store
+
+Also emitted as `add_thread_global_subscription.broker.ruby_event_store` for thread-local subscriptions.
+
+| Key         | Value                         |
+| ----------- | ----------------------------- |
+| :subscriber | A subscriber being registered |
+
+```ruby
+{ subscriber: #<Proc:0x00000001123ecb10> }
+```
+
+### all_subscriptions_for.broker.ruby_event_store
+
+| Key    | Value                                |
+| ------ | ------------------------------------ |
+| :topic | A topic subscriptions are queried for |
+
+```ruby
+{ topic: "MyEvent" }
+```
+
+### add.subscriptions.ruby_event_store
+
+Emitted by `InstrumentedSubscriptions`. The matching `remove.subscriptions.ruby_event_store`
+is emitted with the same payload when the returned unsubscribe proc is called.
+
+| Key          | Value                                                          |
+| ------------ | -------------------------------------------------------------- |
+| :subscriber  | A subscriber being registered                                  |
+| :event_types | An array of subscribed types; absent for global subscriptions |
+
+```ruby
+{
+  subscriber: #<Proc:0x00000001123ecb10>,
+  event_types: ["MyEvent"]
+}
+```
+
 ### load.repository.aggregate_root
 
 | Key        | Value                                                                |
@@ -219,5 +317,43 @@ The aggregate root repository instrumentation is not enabled automaticly here. T
     #<Orders::Events::OrderCreated:0x000000011428a950>,
     #<Orders::Events::OrderExpired:0x000000011428a2c0>
   ]
+}
+```
+
+### error_occured.repository.aggregate_root
+
+Emitted by `AggregateRoot::InstrumentedRepository` when the decorated repository exposes an `error_handler=` writer.
+
+| Key               | Value                                        |
+| ----------------- | -------------------------------------------- |
+| :exception        | A `[class name, message]` pair               |
+| :exception_object | The exception instance                       |
+
+### apply.aggregate_root
+
+Emitted by `AggregateRoot::InstrumentedApplyStrategy`, which has to be wired in explicitly:
+
+```ruby
+class Order
+  include AggregateRoot.with(
+    strategy: -> do
+      AggregateRoot::InstrumentedApplyStrategy.new(
+        AggregateRoot::DefaultApplyStrategy.new,
+        ActiveSupport::Notifications,
+      )
+    end,
+  )
+end
+```
+
+| Key        | Value                                     |
+| ---------- | ----------------------------------------- |
+| :aggregate | An aggregate the event is applied on      |
+| :event     | An event being applied                    |
+
+```ruby
+{
+  aggregate: #<Order:0x00000001141f97c0>,
+  event: #<Orders::Events::OrderCreated:0x000000011428a950>
 }
 ```
