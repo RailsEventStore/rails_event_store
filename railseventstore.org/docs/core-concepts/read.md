@@ -23,6 +23,7 @@ The available specification methods are:
    RailsEventStore never reads all domain events at once. Even if you don't specify
    a batch size, the read operation will be performed in batches of 100.
 * `of_type(types)` - read only specified types of domain events, ignoring all others.
+* `with_id(event_ids)` - read only domain events of given ids.
 * `older_than(time)` - read events that occurred before given time
 * `older_than_or_equal(time)` - read events that occurred on or before given time
 * `newer_than(time)` - read events that occurred later than given time
@@ -50,7 +51,7 @@ When the read scope is defined, several methods can be used to get the data:
 * `last` - returns the last domain event from the read scope.
 * `event(event_id)` - return an event of a given id if found in the read scope, otherwise `nil`.
 * `event!(event_id)` - return an event of a given id if found in the read scope,
-   otherwise raises `RubyEventStore::EventNotfound` error.
+   otherwise raises `RubyEventStore::EventNotFound` error.
 * `events(event_ids)` - returns a list of domain events of given ids found in the read scope.
    If there is no event for one or more provided event id, that id will be ignored (not all domain events must be found).
 
