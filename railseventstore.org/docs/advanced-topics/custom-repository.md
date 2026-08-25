@@ -34,28 +34,19 @@ RubyEventStore comes with `RubyEventStore::InMemoryRepository` that you can use 
 
 ```ruby
 RSpec.configure do |c|
-  c.around(:each)
+  c.around(:each) do |example|
     Rails.configuration.event_store = RailsEventStore::Client.new(
       repository: RubyEventStore::InMemoryRepository.new
     )
     # add subscribers here
+    example.run
   end
 end
 ```
 
-If you want even faster tests you can additionally skip event's serialization.
-
-```ruby
-RSpec.configure do |c|
-  c.around(:each)
-    Rails.configuration.event_store = RailsEventStore::Client.new(
-      repository: RubyEventStore::InMemoryRepository.new,
-      mapper: RubyEventStore::Mappers::Default.new,
-    )
-    # add subscribers here
-  end
-end
-```
+`InMemoryRepository` defaults to the `RubyEventStore::NULL` serializer, so event `data` and `metadata` are kept
+as-is instead of being dumped and loaded on every write and read. That is what makes it fast — no extra
+configuration is needed for it.
 
 We don't recommend using `InMemoryRepository` in production even if you don't need to persist events because the repository keeps all published events in memory. This is acceptable in testing because you can throw the instance away for every test and garbage collector reclaims the memory. In production, your memory would keep growing until you restart the application server.
 
