@@ -135,7 +135,9 @@ expect(event_store).to have_published(an_event(OrderExpired)).from(order_placed.
 If there's a usecase not covered by examples above or you need a different set of events to make expectations on you can always resort to a more verbose approach and skip `have_published`.
 
 ```ruby
-expect(event_store.read.stream("OrderAuditLog$42").limit(2)).to eq([an_event(OrderPlaced), an_event(OrderExpired)])
+expect(event_store.read.stream("OrderAuditLog$42").limit(2).to_a).to match(
+  [an_event(OrderPlaced), an_event(OrderExpired)],
+)
 ```
 
 ### publish
