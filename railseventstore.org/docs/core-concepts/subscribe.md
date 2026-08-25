@@ -330,9 +330,9 @@ The sample `CustomScheduler` could be implemented as:
 
 ```ruby
 class CustomScheduler
-  # method doing actual schedule
-  def call(klass, serialized_record)
-    klass.perform_async(serialized_record.to_h)
+  # method doing actual schedule; record is a RubyEventStore::Record
+  def call(klass, record)
+    klass.perform_async(record.serialize(RubyEventStore::Serializers::YAML).to_h)
   end
 
   # method which is checking whether given subscriber is correct for this scheduler
