@@ -5,6 +5,20 @@ sidebar_class_name: hidden
 
 ## Installation
 
+Add this line to your application's `Gemfile`:
+
+```ruby
+group :test do
+  gem "minitest-ruby_event_store"
+end
+```
+
+and require it from your test helper — the assertions are mixed into `Minitest::Assertions`:
+
+```ruby
+require "minitest/ruby_event_store"
+```
+
 ## Event assertions
 
 ### assert_dispatched(event_store, expected_events, &block)
