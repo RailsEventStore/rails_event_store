@@ -93,7 +93,6 @@ Path to the database directory can be provided through `DATABASE_DIR` environmen
 ```bash
 DATABASE_DIR=path/to/database/directory
 ```
-```
 
 Similarly, path to the directory containing migration files can be provided through `MIGRATION_DIR` environment variable.
 
