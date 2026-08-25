@@ -48,8 +48,105 @@ module RailsEventStore
         expect(html).to include(%(<span id="res-inspector-count">1</span>))
       end
 
+      describe "reset" do
+        def reset(env = {})
+          app = ->(_e) { raise "the application must not be reached" }
+          Middleware
+            .new(app, buffer: buffer, configuration: configuration)
+            .call({ "PATH_INFO" => Inspector::RESET_PATH, "HTTP_COOKIE" => "res_inspector_id=abc" }.merge(env))
+        end
 
+        specify "empties the visitor's history without the application ever seeing the request" do
+          buffer.push(entry(:event, scope: "abc", event_id: "e1"))
 
+          reset
+
+          expect(buffer.to_a).to be_empty
+        end
+
+        specify "sends the visitor back where they came from" do
+          status, headers, _body = reset("HTTP_REFERER" => "/orders")
+
+          expect(status).to eq(302)
+          expect(headers["location"]).to eq("/orders")
+        end
+
+        specify "falls back to the root when there is no referer" do
+          expect(reset[1]["location"]).to eq("/")
+        end
+      end
+
+      specify "the panel offers the reset" do
+        app = ->(_env) { raise "the application must not be reached" }
+
+        _status, _headers, body =
+          Middleware.new(app, buffer: buffer, configuration: configuration).call("PATH_INFO" => Inspector::PANEL_PATH)
+
+        expect(body.to_ary.join).to include(%(href="#{Inspector::RESET_PATH}"))
+      end
+
+      describe "serving the panel" do
+        def fetch_panel(query: nil, cookie: nil)
+          env = { "PATH_INFO" => Inspector::PANEL_PATH }
+          env["QUERY_STRING"] = query if query
+          env["HTTP_COOKIE"] = "res_inspector_id=#{cookie}" if cookie
+          app = ->(_env) { raise "the application must not be reached" }
+          Middleware.new(app, buffer: buffer, configuration: configuration).call(env)
+        end
+
+        specify "answers with the tree, not with a whole page" do
+          buffer.push(entry(:event, scope: "abc", event_id: "e1", event_type: "SomeEvent"))
+
+          status, headers, body = fetch_panel(cookie: "abc")
+
+          expect(status).to eq(200)
+          expect(headers["content-type"]).to eq("text/html; charset=utf-8")
+          expect(body.to_ary.join).to include("SomeEvent")
+          expect(body.to_ary.join).not_to include("<script")
+        end
+
+        specify "shows only this visitor's events" do
+          buffer.push(entry(:event, scope: "abc", event_id: "e1", event_type: "MyEvent"))
+          buffer.push(entry(:event, scope: "other", event_id: "e2", event_type: "TheirEvent"))
+
+          html = fetch_panel(cookie: "abc")[2].to_ary.join
+
+          expect(html).to include("MyEvent")
+          expect(html).not_to include("TheirEvent")
+        end
+
+        specify "carries the count in a header" do
+          buffer.push(entry(:event, scope: "abc", event_id: "e1"))
+          buffer.push(entry(:handler, scope: "abc", event_id: "e1"))
+
+          _status, headers, _body = fetch_panel(cookie: "abc")
+
+          expect(headers[Inspector::COUNT_HEADER]).to eq("1")
+        end
+
+        specify "a closed panel asks for the count alone and gets no tree" do
+          buffer.push(entry(:event, scope: "abc", event_id: "e1", event_type: "SomeEvent"))
+
+          _status, headers, body = fetch_panel(query: "count=1", cookie: "abc")
+
+          expect(headers[Inspector::COUNT_HEADER]).to eq("1")
+          expect(body.to_ary.join).to be_empty
+        end
+
+        specify "is never cached, so the panel does not go stale" do
+          expect(fetch_panel[1]["cache-control"]).to eq("no-store")
+        end
+
+        specify "is not served when the inspector may not watch this request" do
+          configuration.enabled = ->(_env) { false }
+          app = ->(_env) { [200, { "content-type" => "text/plain" }, ["application answered"]] }
+
+          _status, _headers, body =
+            Middleware.new(app, buffer: buffer, configuration: configuration).call("PATH_INFO" => Inspector::PANEL_PATH)
+
+          expect(body.to_ary.join).to eq("application answered")
+        end
+      end
 
       describe "scoping" do
         def visit(cookie: nil)
@@ -112,7 +209,28 @@ module RailsEventStore
           expect(headers["set-cookie"]).to be_nil
         end
 
+        specify "a scope that raises does not fall back to everyone's data" do
+          configuration.scope = ->(_env) { raise "badly written scope" }
+          buffer.push(entry(:event, scope: "abc", event_id: "theirs", event_type: "TheirEvent"))
+          app = ->(_env) { raise "the application must not be reached" }
 
+          _status, _headers, body =
+            Middleware.new(app, buffer: buffer, configuration: configuration).call("PATH_INFO" => Inspector::PANEL_PATH)
+
+          expect(body.to_ary.join).not_to include("TheirEvent")
+        end
+
+        specify "reset clears only the visitor's own history" do
+          buffer.push(entry(:event, scope: "abc", event_id: "mine"))
+          buffer.push(entry(:event, scope: "someone-else", event_id: "theirs"))
+          app = ->(_env) { raise "the application must not be reached" }
+
+          Middleware
+            .new(app, buffer: buffer, configuration: configuration)
+            .call("PATH_INFO" => Inspector::RESET_PATH, "HTTP_COOKIE" => "res_inspector_id=abc")
+
+          expect(buffer.to_a.map { |e| e[:event_id] }).to eq(["theirs"])
+        end
       end
 
       describe "when it may not watch this request" do
@@ -171,7 +289,50 @@ module RailsEventStore
         end
       end
 
+      describe "content security policy" do
+        specify "carries over the nonce Rails generated for this request" do
+          html = body_of(response(env: { "action_dispatch.content_security_policy_nonce" => "abc123" }))
 
+          expect(html).to include(%(<style id="res-inspector-style" nonce="abc123">))
+          expect(html).to include(%(<script nonce="abc123">))
+        end
+
+        specify "leaves the tags bare when the application sets no policy" do
+          html = body_of(response)
+
+          expect(html).to include(%(<style id="res-inspector-style">))
+          expect(html).to include("<script>")
+        end
+
+        specify "asks Rails for one when the env does not have it yet" do
+          request = double(content_security_policy_nonce: "generated")
+          stub_const("ActionDispatch::Request", double(new: request))
+
+          expect(body_of(response)).to include(%(nonce="generated"))
+        end
+
+        specify "survives a Rails that cannot answer" do
+          stub_const("ActionDispatch::Request", double).tap { |d| allow(d).to receive(:new).and_raise("nope") }
+
+          expect(body_of(response)).to include("res-inspector")
+        end
+      end
+
+      describe "an already compressed response" do
+        let(:compressed) { response(headers: { "content-encoding" => "gzip" }, body: ["\x1f\x8bcompressed"]) }
+
+        specify "is handed back untouched rather than corrupted" do
+          expect(body_of(compressed)).to eq("\x1f\x8bcompressed")
+        end
+
+        specify "says out loud that the panel could not be attached" do
+          expect { compressed }.to output(/arrive compressed/).to_stderr
+        end
+
+        specify "an identity encoding is not treated as compression" do
+          expect(body_of(response(headers: { "content-encoding" => "identity" }))).to include("res-inspector")
+        end
+      end
 
       describe "what it will not touch" do
         specify "a page without a closing body tag" do
