@@ -268,14 +268,16 @@ client.read.between(Time.utc(2021,10,01)...Time.utc(2021,12,10)).to_a # includes
 
 Sometimes you might be interested in the position of an event in the stream. There are two query methods available:
 
-* `position_in_stream(event_id, stream)` - returns the position of given event in stream 
+* `position_in_stream(event_id, stream_name)` - returns the position of given event in stream.
+   It is `nil` when the event has no specific position — that is the case for events appended
+   with `expected_version: :any`, which does not assign positions
 * `global_position(event_id)` - returns the global position of given event
-* `event_in_stream?(event_id, stream)` - returns true if the event exists in the stream, false otherwise
+* `event_in_stream?(event_id, stream_name)` - returns true if the event exists in the stream, false otherwise
 
 ### Usage
 
 ```ruby
-client.position_in_stream("stream_name", "event_id") # Raises RubyEventStore::EventNotFoundInStream if event is not found in the specified stream
+client.position_in_stream("event_id", "stream_name") # Raises RubyEventStore::EventNotFoundInStream if event is not found in the specified stream
 client.global_position("event_id") # Raises RubyEventStore::EventNotFound if event doesn't exist
 client.event_in_stream?("event_id", "stream_name")
 ```
