@@ -126,13 +126,13 @@ In order to link by events types use following code:
   event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new(event_store: event_store))
 ```
 
-The resulting stream for `OrderPlaced` event would be `$by_event_type_OrderPlaced`
+The resulting stream for `OrderPlaced` event would be `$by_type_OrderPlaced`
 
 #### Custom prefix
-Instead of using `$by_{class}` prefix you can use your own prefix by passing it as an argument to the linking class:
+Instead of the default prefix you can use your own by passing it as an argument to the linking class. The prefix is concatenated with the value verbatim — include the trailing separator yourself:
 
 ```ruby
-  event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new(event_store: event_store, prefix: 'my_prefix'))
+  event_store.subscribe_to_all_events(RailsEventStore::LinkByEventType.new(event_store: event_store, prefix: 'my_prefix_'))
 ```
 
 The resulting stream for `OrderPlaced` event would be `my_prefix_OrderPlaced`.
