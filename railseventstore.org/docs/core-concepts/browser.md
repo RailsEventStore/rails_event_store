@@ -30,7 +30,7 @@ gem "ruby_event_store-browser"
 
 Add this to your `config.ru` or wherever you mount your Rack apps to enable web interface. Check the appropriate environment variable (e.g. `ENV['RACK_ENV']`) to only mount the browser in the appropriate environment such as `development`.
 
-There is a helper method on the Rack app to configure options `event_store_locator`, `host` and `path`.
+There is a helper method on the Rack app taking `event_store_locator`, `related_streams_query`, `extensions` and `views_root` options. Host and mount point are recognized from the Rack environment — the legacy `host:` and `path:` options are deprecated and warn when used.
 
 ```ruby
 # e.g. config.ru
