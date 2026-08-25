@@ -398,6 +398,31 @@ end
 # Async handlers such as SendOrderEmail scheduled here, after transaction is committed
 ```
 
+#### Bulk enqueuing async handlers
+
+Rails 7.1 provides the `perform_all_later` API to enqueue many jobs in a single call.
+If parts of your application publish many events at once, especially events with many
+subscribers, you can optimize how async handlers are enqueued with `RailsEventStore::AfterCommitBulkDispatcher`.
+It buffers the async handlers scheduled within a database transaction and enqueues them all with one
+`perform_all_later` call after the transaction commits.
+
+```ruby
+event_store = RailsEventStore::Client.new(
+  message_broker: RubyEventStore::Broker.new(
+    dispatcher: RubyEventStore::ComposedDispatcher.new(
+      RailsEventStore::AfterCommitBulkDispatcher.new(
+        scheduler: RailsEventStore::ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+      ),
+      RubyEventStore::SyncScheduler.new
+    )
+  )
+)
+```
+
+Note that jobs enqueued with `perform_all_later` do not run their `before_enqueue` or
+`after_enqueue` callbacks. If your subscribers rely on these callbacks, do not use
+`RailsEventStore::AfterCommitBulkDispatcher`.
+
 ### Scheduling async handlers immediately
 
 You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateDispatcher` instead of `RailsEventStore::AfterCommitDispatcher`.
