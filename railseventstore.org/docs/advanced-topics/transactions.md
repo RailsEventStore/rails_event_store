@@ -35,7 +35,7 @@ Note the `start_transaction` block.
 ```ruby
 def add_to_stream(event_ids, stream, expected_version)
   last_stream_version = ->(stream_) do
-    @stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position)
+    stream_klass.where(stream: stream_.name).order("position DESC").first.try(:position)
   end
   resolved_version = expected_version.resolve_for(stream, last_stream_version)
 
@@ -43,9 +43,14 @@ def add_to_stream(event_ids, stream, expected_version)
     yield if block_given?
     in_stream =
       event_ids.map.with_index do |event_id, index|
-        { stream: stream.name, position: compute_position(resolved_version, index), event_id: event_id }
+        {
+          stream: stream.name,
+          position: compute_position(resolved_version, index),
+          event_id: event_id,
+          created_at: Time.now.utc,
+        }
       end
-    @stream_klass.import(in_stream) unless stream.global?
+    stream_klass.insert_all!(in_stream) unless stream.global?
   end
   self
 rescue ::ActiveRecord::RecordNotUnique => e
