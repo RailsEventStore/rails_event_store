@@ -10,6 +10,7 @@ require_relative "inspector/browser_links"
 require_relative "inspector/assets"
 require_relative "inspector/renderer"
 require_relative "inspector/tree"
+require_relative "inspector/panel"
 
 module RailsEventStore
   module Inspector

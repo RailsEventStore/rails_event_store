@@ -10,6 +10,10 @@ def fake_event(id: "evt-1", type: "SomethingHappened", **metadata)
   FakeEvent.new(id, type, metadata)
 end
 
+def entry(kind, **attrs)
+  { kind: kind, started_at: 0.0, duration: 0.001 }.merge(attrs)
+end
+
 RSpec.configure do |config|
   config.disable_monkey_patching!
   config.order = :random
