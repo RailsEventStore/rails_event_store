@@ -156,7 +156,7 @@ module MetadataHandler
 end
 
 class OrderHandler < ActiveJob::Base
-  prepend RubyEventStore::AsyncHandler
+  prepend RailsEventStore::AsyncHandler
   prepend MetadataHandler
 
   def perform(event)
