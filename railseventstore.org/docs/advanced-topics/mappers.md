@@ -11,14 +11,15 @@ strings nad symbols.
 There is set of available mappers that you can use out of the box. They work with certain types of events, described in
 the table below.
 
-| Compatible with \ Mapper | `Default` | `Protobuf` | `Null` | `Encryption` |
-| :-: | :---------: | :----------: | :------: | :------------: |
-| `RubyEventStore::Event` | ✅ | ❌ | ✅ | ✅ |
-| `RubyEventStore::Proto`| ❌ | ✅ | ❌ | ❌ |
+| Compatible with \ Mapper | `Default` | `Protobuf` | `Encryption` |
+| :-: | :---------: | :----------: | :------------: |
+| `RubyEventStore::Event` | ✅ | ❌ | ✅ |
+| `RubyEventStore::Proto`| ❌ | ✅ | ❌ |
 
 ### [RubyEventStore::Mappers::Default](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/mappers/default.rb)
 
-- Default mapper for `RubyEventStore::Client` and `RailsEventStore::Client`
+- Default mapper for `RubyEventStore::Client` and `RailsEventStore::Client`. The client wraps whatever
+  single-event mapper it is given in `RubyEventStore::Mappers::BatchMapper`, which is what the repository talks to
 - Transforms an event into a record (and back). Additionally it symbolizes metadata keys
 - To transform events on read without rewriting stored data, use [upcasting](../advanced-topics/migrating-existing-events#upcasting)
 
@@ -152,7 +153,6 @@ end
 event_store = Rails.configuration.event_store
 
 event_store.publish(OrderPlaced.new(data: {
-  'event_id' => SecureRandom.uuid,
   'order_id' => 1,
   'order_amount' => BigDecimal('120.55'),
 }), stream_name: 'Order$1')
