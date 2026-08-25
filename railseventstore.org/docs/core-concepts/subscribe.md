@@ -289,7 +289,7 @@ In that case async handlers are just background jobs implemented as:
 ```ruby
 class SendOrderEmail < ActiveJob::Base
   def perform(payload)
-    event = event_store.deserialize(payload.symbolize_keys)
+    event = event_store.deserialize(serializer: RubyEventStore::Serializers::YAML, **payload.symbolize_keys)
     email = event.data.fetch(:customer_email)
     OrderMailer.notify_customer(email).deliver_now!
   end
