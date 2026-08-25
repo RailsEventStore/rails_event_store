@@ -6,6 +6,7 @@ require_relative "inspector/scope"
 require_relative "inspector/buffer"
 require_relative "inspector/frames"
 require_relative "inspector/collector"
+require_relative "inspector/browser_links"
 
 module RailsEventStore
   module Inspector
