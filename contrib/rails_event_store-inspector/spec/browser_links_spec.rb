@@ -23,6 +23,44 @@ module RailsEventStore
         end
       end
 
+      describe "swimlane" do
+        let(:links) { BrowserLinks.new("/res") }
+
+        specify "offered when the installed Browser serves that route" do
+          allow(links).to receive(:swimlane_available?).and_return(true)
+
+          expect(links.swimlane(["a", "b"])).to eq("/res/swimlane?streams[]=a&streams[]=b")
+        end
+
+        specify "withheld when the installed Browser does not know it" do
+          allow(links).to receive(:swimlane_available?).and_return(false)
+
+          expect(links.swimlane(["a"])).to be_nil
+        end
+
+        specify "withheld when there are no streams to show" do
+          allow(links).to receive(:swimlane_available?).and_return(true)
+
+          expect(links.swimlane([])).to be_nil
+        end
+
+        specify "withheld when the Browser is not mounted" do
+          expect(BrowserLinks.new(nil).swimlane(["a"])).to be_nil
+        end
+
+        specify "detected from the gem rather than from a version number" do
+          stub_const("RubyEventStore::Browser::Urls", Class.new { def swimlane_url(*) = nil })
+
+          expect(BrowserLinks.new("/res").swimlane_available?).to be(true)
+        end
+
+        specify "absent when the Browser has no such helper" do
+          stub_const("RubyEventStore::Browser::Urls", Class.new)
+
+          expect(BrowserLinks.new("/res").swimlane_available?).to be(false)
+        end
+      end
+
       describe "discovering the mount point" do
         specify "gives nothing when Rails is absent" do
           expect(BrowserLinks.discover_root).to be_nil

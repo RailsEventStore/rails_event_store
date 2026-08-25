@@ -38,6 +38,20 @@ module RailsEventStore
         build("streams", "$by_correlation_id_#{correlation_id}")
       end
 
+      def swimlane(stream_names)
+        return nil if @root.nil? || stream_names.empty? || !swimlane_available?
+
+        query = stream_names.map { |name| "streams[]=#{CGI.escape(name)}" }.join("&")
+        "#{@root}/swimlane?#{query}"
+      end
+
+      def swimlane_available?
+        return @swimlane_available if defined?(@swimlane_available)
+
+        @swimlane_available =
+          defined?(::RubyEventStore::Browser::Urls) &&
+            ::RubyEventStore::Browser::Urls.method_defined?(:swimlane_url)
+      end
 
       private
 
