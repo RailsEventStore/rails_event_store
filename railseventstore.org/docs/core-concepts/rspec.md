@@ -58,9 +58,14 @@ expect(domain_event).to be_an_event(OrderPlaced).with_data(order_id: 42).strict
 Mind that `strict` makes both `with_data` and `with_metadata` behave in a stricter way. If you need to mix both, i.e. strict data but non-strict metadata then consider composing matchers.
 
 ```ruby
-expect(domain_event)
-  .to(be_event(OrderPlaced).with_data(order_id: 42, net_value: BigDecimal.new("1999.0")).strict
-    .and(an_event(OrderPlaced).with_metadata(timestamp: kind_of(Time)))
+domain_event = event_store.read.last # published, so metadata carries a timestamp
+
+expect(domain_event).to(
+  be_event(OrderPlaced)
+    .with_data(order_id: 42, net_value: BigDecimal.new("1999.0"))
+    .strict
+    .and(an_event(OrderPlaced).with_metadata(timestamp: kind_of(Time))),
+)
 ```
 
 You may have noticed the same matcher being referenced as `be_event`, `be_an_event` and `an_event`. There's also just `event`. Use whichever reads better grammatically.
