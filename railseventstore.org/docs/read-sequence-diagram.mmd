@@ -5,6 +5,7 @@ sequenceDiagram
   participant s as Specification
   participant sr as SpecificationReader
   box Mappers (all in RubyEventStore::Mappers namespace)
+    participant bm as BatchMapper
     participant m as Default
     participant pip as Pipeline
     participant det as Transformation::DomainEvent
@@ -32,18 +33,20 @@ sequenceDiagram
             yaml->>-r: Record
           end
         r->>-sr: [Record]
-        loop each record in batch
-          rect rgb(240, 240, 240) 
-            note right of sr: transform
-            r->>+m: record_to_event(record)
-              m->>+pip: load(record)
-                pip->>+smk: load(record)
-                smk->>-pip: Record
-                pip->>+det: load(record)
-                det->>-pip: Event
-              pip->>-m: Event
-            m->>-sr: Event
-          end
+        rect rgb(240, 240, 240) 
+          note right of sr: transform
+          sr->>+bm: records_to_events(records)
+            loop each record in batch
+              bm->>+m: record_to_event(record)
+                m->>+pip: load(record)
+                  pip->>+smk: load(record)
+                  smk->>-pip: Record
+                  pip->>+det: load(record)
+                  det->>-pip: Event
+                pip->>-m: Event
+              m->>-bm: Event
+            end
+          bm->>-sr: [Event]
         end
       end
     sr->>-s: [Event]
