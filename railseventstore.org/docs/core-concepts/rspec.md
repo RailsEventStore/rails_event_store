@@ -21,11 +21,11 @@ The `be_event` matcher enables you to make expectations on a domain event. It ex
 ```ruby
 OrderPlaced = Class.new(RubyEventStore::Event)
 domain_event =
-  OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal.new("1999.0") }, metadata: { remote_ip: "1.2.3.4" })
+  OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal("1999.0") }, metadata: { remote_ip: "1.2.3.4" })
 
 expect(domain_event).to(
   be_an_event(OrderPlaced)
-    .with_data(order_id: 42, net_value: BigDecimal.new("1999.0"))
+    .with_data(order_id: 42, net_value: BigDecimal("1999.0"))
     .with_metadata(remote_ip: "1.2.3.4"),
 )
 ```
@@ -33,7 +33,7 @@ expect(domain_event).to(
 By default the behaviour of `with_data` and `with_metadata` is not strict, that is the expectation is met when all specified values for keys match. Additional data or metadata that is not specified to be expected does not change the outcome.
 
 ```ruby
-domain_event = OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal.new("1999.0") })
+domain_event = OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal("1999.0") })
 
 # this would pass even though data contains also net_value
 expect(domain_event).to be_an_event(OrderPlaced).with_data(order_id: 42)
@@ -49,7 +49,7 @@ expect([domain_event]).to include(an_event(OrderPlaced))
 If you depend on matching the exact data or metadata, there's a `strict` modifier.
 
 ```ruby
-domain_event = OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal.new("1999.0") })
+domain_event = OrderPlaced.new(data: { order_id: 42, net_value: BigDecimal("1999.0") })
 
 # this would fail as data contains unexpected net_value
 expect(domain_event).to be_an_event(OrderPlaced).with_data(order_id: 42).strict
@@ -62,7 +62,7 @@ domain_event = event_store.read.last # published, so metadata carries a timestam
 
 expect(domain_event).to(
   be_event(OrderPlaced)
-    .with_data(order_id: 42, net_value: BigDecimal.new("1999.0"))
+    .with_data(order_id: 42, net_value: BigDecimal("1999.0"))
     .strict
     .and(an_event(OrderPlaced).with_metadata(timestamp: kind_of(Time))),
 )
