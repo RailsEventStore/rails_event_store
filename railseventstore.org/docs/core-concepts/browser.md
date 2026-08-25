@@ -119,10 +119,10 @@ class RelatedStreamsQuery
   def call(stream_name)
     prefix, suffix = stream_name.split("$")
     if prefix == "Ordering::Order"
-      transaction_id = # some way to fetch transaction id for that order
-        return ["Payments::Transaction$#{transaction_id}"]
+      transaction_id = transaction_id_for(suffix) # some way to fetch transaction id for that order
+      return ["Payments::Transaction$#{transaction_id}"]
     end
-    return []
+    []
   end
 end
 
