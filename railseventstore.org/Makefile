@@ -35,6 +35,7 @@ release: ## Release new docs version (VERSION=x.y.z)
 	@cp -r docs versioned_docs/version-$(VERSION)
 	@cp sidebars.json versioned_sidebars/version-$(VERSION)-sidebars.json
 	@ruby bin/add_version.rb $(VERSION)
+	@sed $(SED_OPTS) "s|releases/tag/v[0-9][0-9.]*|releases/tag/v$(VERSION)|g" docusaurus.config.js
 .PHONY: release
 
 include ../support/make/help.mk

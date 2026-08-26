@@ -104,7 +104,7 @@ const config = {
             label: "Support",
           },
           {
-            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v3.0.0",
+            href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v3.1.0",
             label: "Changelog",
             position: "right",
           },
@@ -128,7 +128,7 @@ const config = {
               },
               {
                 label: "Changelog",
-                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v3.0.0",
+                href: "https://github.com/RailsEventStore/rails_event_store/releases/tag/v3.1.0",
               },
               {
                 label: "GitHub",
