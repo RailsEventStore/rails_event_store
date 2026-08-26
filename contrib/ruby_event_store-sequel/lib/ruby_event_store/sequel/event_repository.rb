@@ -142,7 +142,7 @@ module RubyEventStore
       end
 
       def update_messages(records)
-        hashes = records.map { |record| upsert_hash(record, record.serialize(@serializer)) }
+        hashes = records.map { |record| upsert_hash(record.serialize(@serializer)) }
         for_update = records.map(&:event_id)
         @db.transaction do
           existing =
@@ -354,7 +354,7 @@ module RubyEventStore
         specification.time_sort_by_as_of? ? coalesced_date : "event_store_events.created_at"
       end
 
-      def upsert_hash(record, serialized_record)
+      def upsert_hash(serialized_record)
         {
           event_id: serialized_record.event_id,
           data: serialized_record.data,
