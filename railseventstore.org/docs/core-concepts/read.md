@@ -195,7 +195,7 @@ can be found, it will return an empty collection.
 
 ## Reading events by time
 
-RailsEventStore lets you read events that occured in certain periods of time.
+RailsEventStore lets you read events that occurred in certain periods of time.
 You need to specify the date or dates that are interesting to you.
 
 ### Reading events newer than specific date
