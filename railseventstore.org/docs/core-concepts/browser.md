@@ -131,6 +131,8 @@ RubyEventStore::Browser::App.for(related_streams_query: RelatedStreamsQuery.new)
 
 ## Customizing views
 
+**This is an [experimental](../contributing/maintenance_policy#experimental-features) feature — its API may change between minor releases.**
+
 Every page of the browser is rendered from an ERB template. You can replace any of them with your own — the browser resolves each template separately, so you copy and edit only the views you want to change and everything else keeps falling back to the templates built into the gem. Templates are read on every render, so changes take effect without restarting the server.
 
 ### Rails
@@ -159,6 +161,8 @@ This is the same option the Rails engine sets by convention.
 A copied template freezes its locals — a gem upgrade may change them, which is another reason to keep only the overrides you need.
 
 ## Browser extensions
+
+**This is an [experimental](../contributing/maintenance_policy#experimental-features) feature — its API may change between minor releases.**
 
 An extension is an object passed to the browser, plugging new pages and links into the UI — for example [ruby_event_store-process_manager](https://github.com/RailsEventStore/rails_event_store/tree/master/contrib) renders process manager state next to its streams. There is no base class: every hook is optional and discovered with `respond_to?`.
 
