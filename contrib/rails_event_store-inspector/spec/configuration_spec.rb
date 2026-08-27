@@ -34,6 +34,38 @@ module RailsEventStore
 
         expect(Inspector.configuration.enabled.call({})).to eq(:marker)
       end
+
+      describe "whether to install at all" do
+        specify "installs in development, where it is on by default" do
+          stub_const("Rails", double(env: double(development?: true)))
+          cfg = Configuration.new
+
+          expect(cfg.install?).to be(true)
+        end
+
+        specify "stays out of the stack elsewhere, where it could show nothing anyway" do
+          stub_const("Rails", double(env: double(development?: false)))
+          cfg = Configuration.new
+
+          expect(cfg.install?).to be(false)
+        end
+
+        specify "installs anywhere once somebody says who may look" do
+          stub_const("Rails", double(env: double(development?: false)))
+          cfg = Configuration.new
+          cfg.enabled = ->(_env) { true }
+
+          expect(cfg.install?).to be(true)
+        end
+
+        specify "an explicit answer wins over both" do
+          stub_const("Rails", double(env: double(development?: true)))
+          cfg = Configuration.new
+          cfg.install = -> { false }
+
+          expect(cfg.install?).to be(false)
+        end
+      end
     end
   end
 end

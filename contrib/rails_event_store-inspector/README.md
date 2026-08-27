@@ -88,6 +88,9 @@ whether you may look. That is what `enabled` is for.
 
 ## Before running it anywhere but development
 
+- **`install` decides whether it is there at all**, `enabled` decides whether
+  it may watch this request. Setting only the second is enough; setting only
+  the first is not.
 - **One process only.** The buffer lives in memory, so with several workers a
   request lands in one of them and the panel shows that worker's history.
 - **`enabled` is the whole of the access control.** Set it to something real.
@@ -95,6 +98,21 @@ whether you may look. That is what `enabled` is for.
   shows their slice.
 
 ## What it costs
+
+Nothing at all where it is not wanted. The middleware is not added to the stack
+and the collector does not subscribe, so no notification of yours is delivered
+anywhere. That is decided once, at boot:
+
+```ruby
+config.install = -> { Rails.env.development? || ENV["RES_INSPECTOR"] }
+```
+
+The default needs no setting. It installs in development, and anywhere else as
+soon as `enabled` says who may look — configuring one without the other would
+otherwise leave the tool silently absent.
+
+Where it is installed but a request is refused, the cost is one predicate call
+plus a thread-local read per notification.
 
 Pages carry a shell — styles, a badge, a script — a few hundred bytes that do
 not grow with how much has been collected. The tree is built only when somebody

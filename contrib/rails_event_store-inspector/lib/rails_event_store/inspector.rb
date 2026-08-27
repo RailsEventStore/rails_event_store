@@ -32,6 +32,10 @@ module RailsEventStore
         yield(configuration)
       end
 
+      def install?
+        configuration.install?
+      end
+
       def active?
         Thread.current[ACTIVE] == true
       end
