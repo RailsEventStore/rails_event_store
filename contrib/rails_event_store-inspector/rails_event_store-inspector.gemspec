@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
     "rubygems_mfa_required" => "true"
   }
 
-  spec.required_ruby_version = ">= 3.1"
+  spec.required_ruby_version = ">= 3.3"
 
   spec.add_dependency "rails_event_store", ">= 3.0.0"
   spec.add_dependency "railties", ">= 7.0"
