@@ -4,6 +4,26 @@ require "concurrent"
 
 module RubyEventStore
   class Client
+    Deprecations.register(
+      :ruby_client_metadata_event_type_routing,
+      <<~EOW,
+        Dispatching published events by metadata[:event_type] has been deprecated.
+
+        Subscriptions are registered under event_type_resolver.call(event_klass),
+        so an event carrying metadata[:event_type] different from
+        event_type_resolver.call(event.class) is not delivered to handlers
+        subscribed to its class. For now such an event is still dispatched under
+        metadata[:event_type], but that fallback will be removed in a future
+        release and the resolver output will be used instead.
+
+        Configure the resolver to produce the topic you need. For example:
+
+        event_store = RubyEventStore::Client.new(
+          event_type_resolver: ->(event_klass) { EVENT_TYPE_MAPPING.fetch(event_klass, event_klass.to_s) }
+        )
+      EOW
+    )
+
     def initialize(
       repository: InMemoryRepository.new,
       mapper: Mappers::BatchMapper.new,
@@ -64,7 +84,7 @@ module RubyEventStore
       enriched_events.zip(records) do |event, record|
         with_metadata(correlation_id: event.metadata.fetch(:correlation_id), causation_id: event.event_id) do
           if @broker.public_method(:call).arity == 3
-            @broker.call(topic || event.event_type, event, record)
+            @broker.call(topic || dispatch_topic(event), event, record)
           else
             warn <<~EOW
               Message broker shall support topics.
@@ -376,6 +396,14 @@ module RubyEventStore
     private_constant :EMPTY_HASH
 
     private
+
+    def dispatch_topic(event)
+      resolved = @event_type_resolver.call(event.class)
+      declared = event.metadata[:event_type]
+      return resolved if declared.nil? || declared.eql?(resolved)
+      Deprecations.warn(:ruby_client_metadata_event_type_routing)
+      declared
+    end
 
     def transform(events)
       @mapper.events_to_records(events)

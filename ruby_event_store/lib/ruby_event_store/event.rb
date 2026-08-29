@@ -27,7 +27,11 @@ module RubyEventStore
       event_id
     end
 
-    # Type of event. Used when matching with subscribed handlers.
+    # Type of event, derived from metadata[:event_type] or the class name.
+    # Used by the AggregateRoot apply strategy to look up on-handlers.
+    # Note: RubyEventStore subscriptions route via the event_type_resolver.
+    # Dispatch still falls back to metadata[:event_type] when it differs from
+    # the resolver output, but that fallback is deprecated.
     # @return [String]
     def event_type
       metadata[:event_type] || self.class.name
