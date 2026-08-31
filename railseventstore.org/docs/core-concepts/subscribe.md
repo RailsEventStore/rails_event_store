@@ -398,6 +398,34 @@ end
 # Async handlers such as SendOrderEmail scheduled here, after transaction is committed
 ```
 
+#### Enqueuing async handlers in bulk
+
+Each async handler is enqueued with its own `perform_later` call. When a single action publishes many events, or publishes events with many subscribers, those calls fan out — and with a relational database behind ActiveJob each of them is a separate `INSERT`.
+
+`RailsEventStore::ActiveJobBulkScheduler` buffers the handlers scheduled within one database transaction and enqueues all of them with a single [`ActiveJob.perform_all_later`](https://api.rubyonrails.org/classes/ActiveJob.html#method-c-perform_all_later) call once the transaction commits. Under the hood `perform_all_later` uses Sidekiq's bulk push API, or `insert_all` on backends like Solid Queue and GoodJob.
+
+Opting in means swapping the scheduler — the dispatcher stays the same:
+
+```ruby
+event_store = RailsEventStore::Client.new(
+  message_broker: RubyEventStore::Broker.new(
+    dispatcher: RubyEventStore::ComposedDispatcher.new(
+      RailsEventStore::AfterCommitDispatcher.new(
+        scheduler: RailsEventStore::ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML)
+      ),
+      RubyEventStore::SyncScheduler.new
+    )
+  )
+)
+```
+
+Before you switch, mind the trade-offs:
+
+- It only works with `RailsEventStore::AfterCommitDispatcher`, which tells the scheduler when the transaction ends. Paired with `RubyEventStore::ImmediateDispatcher`, or with a custom dispatcher, the buffered jobs are never enqueued.
+- Jobs enqueued with `perform_all_later` do not run their `before_enqueue`, `around_enqueue` or `after_enqueue` callbacks. If your subscribers rely on them, stay with `RailsEventStore::ActiveJobScheduler`.
+- A subscriber registered with `.set(...)` cannot be enqueued in bulk and still costs one `perform_later` call.
+- `perform_all_later` requires ActiveJob 7.1 or newer, and the after-commit boundary it relies on requires Rails 7.2 or newer.
+
 ### Scheduling async handlers immediately
 
 You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateDispatcher` instead of `RailsEventStore::AfterCommitDispatcher`.
@@ -438,6 +466,8 @@ It means that when your `ActiveJob` adapter (such as sidekiq or resque) is using
 ### Transactional outbox
 
 Both `AfterCommitDispatcher` and `ImmediateDispatcher` enqueue jobs directly to Redis. If the network call to Redis fails after the database transaction commits, the job is lost. To guarantee that jobs are never lost, use the [transactional outbox](../advanced-topics/outbox) pattern: jobs are written to the same database within the same transaction, and a separate process drains them to Redis.
+
+This is worth keeping in mind with `ActiveJobBulkScheduler` in particular: a failed enqueue is recorded on the job as `enqueue_error` rather than raised, and `perform_all_later` does not report back how many jobs made it.
 
 ## Removing subscriptions
 
