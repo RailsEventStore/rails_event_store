@@ -18,8 +18,7 @@ module RailsEventStore
     end
 
     def run(&schedule_proc)
-      connection = ActiveRecord::Base.try(:lease_connection) || ActiveRecord::Base.connection
-      transaction = connection.current_transaction
+      transaction = current_transaction
 
       if transaction.joinable?
         transaction.add_record(async_record(schedule_proc))
@@ -67,6 +66,11 @@ module RailsEventStore
 
     def supported_rails_version?
       ActiveRecord.gem_version >= MINIMUM_RAILS_VERSION
+    end
+
+    def current_transaction
+      connection = ActiveRecord::Base.try(:lease_connection) || ActiveRecord::Base.connection
+      connection.current_transaction
     end
   end
 end
