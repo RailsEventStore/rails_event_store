@@ -72,6 +72,93 @@ module RailsEventStore
       specify { expect(dispatcher.verify(MyActiveJobAsyncHandler2)).to be(true) }
     end
 
+    it "does not reach for transaction callbacks when the scheduler does not buffer" do
+      ActiveRecord::Base.transaction do
+        expect(ActiveRecord::Base.connection.current_transaction).not_to receive(:after_commit)
+
+        dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+      end
+    end
+
+    describe "flushing a buffering scheduler" do
+      let(:scheduler) { BufferingScheduler.new }
+      let(:dispatcher) { AfterCommitDispatcher.new(scheduler: scheduler) }
+
+      it "hands everything buffered within one transaction over in a single flush" do
+        ActiveRecord::Base.transaction do
+          dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+          dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+          expect(scheduler.flushed).to be_empty
+        end
+
+        expect(scheduler.flushed.size).to eq(1)
+        expect(scheduler.flushed.first.size).to eq(2)
+      end
+
+      it "flushes immediately when no transaction is open" do
+        dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+
+        expect(scheduler.flushed.size).to eq(1)
+        expect(scheduler.flushed.first.size).to eq(1)
+      end
+
+      it "still flushes once when a nested transaction commits" do
+        ActiveRecord::Base.transaction do
+          dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+          ActiveRecord::Base.transaction(requires_new: true) do
+            dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+          end
+        end
+
+        expect(scheduler.flushed.size).to eq(1)
+        expect(scheduler.flushed.first.size).to eq(2)
+      end
+
+      it "does not flush when the transaction is rolled back" do
+        ActiveRecord::Base.transaction do
+          dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+          raise ::ActiveRecord::Rollback
+        end
+
+        expect(scheduler.flushed).to be_empty
+      end
+
+      it "does not flush when a nested transaction is rolled back" do
+        ActiveRecord::Base.transaction do
+          ActiveRecord::Base.transaction(requires_new: true) do
+            dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+            raise ::ActiveRecord::Rollback
+          end
+        end
+
+        expect(scheduler.flushed).to be_empty
+      end
+    end
+
+    class BufferingScheduler
+      attr_reader :flushed
+
+      def initialize
+        @buffer = []
+        @flushed = []
+      end
+
+      def call(subscriber, record)
+        @buffer << [subscriber, record]
+      end
+
+      def flush
+        return if @buffer.empty?
+
+        @flushed << @buffer.dup
+        @buffer.clear
+      end
+
+      def verify(_)
+        true
+      end
+    end
+
     describe "AsyncRecord" do
       let(:schedule_proc) { -> {} }
       let(:async_record) { AfterCommitDispatcher::AsyncRecord.new(schedule_proc) }

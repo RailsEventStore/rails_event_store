@@ -16,8 +16,10 @@ module RailsEventStore
 
       if transaction.joinable?
         transaction.add_record(async_record(schedule_proc))
+        transaction.after_commit { @scheduler.flush } if buffering_scheduler?
       else
         yield
+        @scheduler.flush if buffering_scheduler?
       end
     end
 
@@ -48,6 +50,12 @@ module RailsEventStore
       end
 
       attr_reader :schedule_proc
+    end
+
+    private
+
+    def buffering_scheduler?
+      @scheduler.respond_to?(:flush)
     end
   end
 end
