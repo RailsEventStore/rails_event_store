@@ -72,6 +72,14 @@ module RailsEventStore
       specify { expect(dispatcher.verify(MyActiveJobAsyncHandler2)).to be(true) }
     end
 
+    it "does not reach for transaction callbacks when the scheduler does not buffer" do
+      ActiveRecord::Base.transaction do
+        expect(ActiveRecord::Base.connection.current_transaction).not_to receive(:after_commit)
+
+        dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+      end
+    end
+
     describe "flushing a buffering scheduler" do
       let(:scheduler) { BufferingScheduler.new }
       let(:dispatcher) { AfterCommitDispatcher.new(scheduler: scheduler) }
