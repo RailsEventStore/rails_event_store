@@ -9,7 +9,7 @@ module RailsEventStore
     end
 
     def call(klass, record)
-      klass.perform_later(serialized(record))
+      klass.perform_later(payload_for(record))
     end
 
     def verify(subscriber)
@@ -22,7 +22,7 @@ module RailsEventStore
 
     private
 
-    def serialized(record)
+    def payload_for(record)
       record.serialize(serializer).to_h.transform_keys(&:to_s)
     end
 
