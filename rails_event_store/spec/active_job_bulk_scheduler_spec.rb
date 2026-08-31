@@ -57,7 +57,9 @@ module RailsEventStore
         scheduler.call(MyBulkAsyncHandler, record)
         scheduler.flush
 
-        expect(enqueued_jobs).to match([hash_including(job: MyBulkAsyncHandler, args: [serialized_event(event)], queue: "default")])
+        expect(enqueued_jobs).to match(
+          [hash_including(job: MyBulkAsyncHandler, args: [serialized_event(event)], queue: "default")],
+        )
       end
 
       specify "keeps buffers of separate scheduler instances apart" do
@@ -130,9 +132,7 @@ module RailsEventStore
             expect(enqueued_jobs).to be_empty
           end
 
-          expect(enqueued_jobs.map { |job| job[:args].first["event_id"] }).to eq(
-            [event.event_id, other_event.event_id],
-          )
+          expect(enqueued_jobs.map { |job| job[:args].first["event_id"] }).to eq([event.event_id, other_event.event_id])
         end
 
         specify "enqueues nothing when the transaction is rolled back" do
