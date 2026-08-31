@@ -192,17 +192,17 @@ module RailsEventStore
         expect(enqueued_jobs.dig(0, :args, 0)).to include("data" => "{}")
       end
 
-      specify "accepts the very version that introduced perform_all_later" do
-        with_active_job_version("7.1.0")
+      specify "accepts the very version that introduced Transaction#after_commit" do
+        with_active_job_version("7.2.0")
 
         expect { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }.not_to raise_error
       end
 
-      specify "rejects ActiveJob older than the one introducing perform_all_later" do
-        with_active_job_version("7.0.8")
+      specify "rejects a Rails that has perform_all_later but no Transaction#after_commit" do
+        with_active_job_version("7.1.5")
 
         expect { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }.to raise_error(
-          "RailsEventStore::ActiveJobBulkScheduler requires ActiveJob 7.1 or newer",
+          "RailsEventStore::ActiveJobBulkScheduler requires Rails 7.2 or newer",
         )
       end
     end

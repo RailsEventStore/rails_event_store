@@ -424,7 +424,7 @@ Before you switch, mind the trade-offs:
 - It only works with `RailsEventStore::AfterCommitDispatcher`, which tells the scheduler when the transaction ends. Paired with `RubyEventStore::ImmediateDispatcher`, or with a custom dispatcher, the buffered jobs are never enqueued.
 - Jobs enqueued with `perform_all_later` do not run their `before_enqueue`, `around_enqueue` or `after_enqueue` callbacks. If your subscribers rely on them, stay with `RailsEventStore::ActiveJobScheduler`.
 - A subscriber registered with `.set(...)` cannot be enqueued in bulk and still costs one `perform_later` call.
-- `perform_all_later` requires ActiveJob 7.1 or newer, and the after-commit boundary it relies on requires Rails 7.2 or newer.
+- It requires Rails 7.2 or newer. `RailsEventStore::ActiveJobScheduler` keeps working on every Rails version the gem supports.
 
 ### Scheduling async handlers immediately
 
