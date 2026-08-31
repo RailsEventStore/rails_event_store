@@ -69,6 +69,26 @@ module RailsEventStore
 
         expect(enqueued_jobs.map { |job| job[:args].first["event_id"] }).to eq([event.event_id])
       end
+
+      specify "enqueues an ActiveJob::ConfiguredJob on its own, as perform_all_later cannot carry its options" do
+        scheduler.call(MyBulkAsyncHandler.set(queue: "specific"), record)
+
+        expect(enqueued_jobs).to match(
+          [hash_including(job: MyBulkAsyncHandler, args: [serialized_event(event)], queue: "specific")],
+        )
+      end
+
+      specify "flushes the buffer before an ActiveJob::ConfiguredJob, so it does not overtake it" do
+        scheduler.call(MyBulkAsyncHandler, record)
+        scheduler.call(MyBulkAsyncHandler.set(queue: "specific"), other_record)
+
+        expect(enqueued_jobs).to match(
+          [
+            hash_including(job: MyBulkAsyncHandler, args: [serialized_event(event)], queue: "default"),
+            hash_including(job: MyBulkAsyncHandler, args: [serialized_event(other_event)], queue: "specific"),
+          ],
+        )
+      end
     end
 
     describe "#flush" do
@@ -97,26 +117,38 @@ module RailsEventStore
 
         expect(enqueued_jobs.size).to eq(1)
       end
-    end
 
-    describe "ActiveJob::ConfiguredJob" do
-      specify "is enqueued on its own, since perform_all_later cannot carry its options" do
-        scheduler.call(MyBulkAsyncHandler.set(queue: "specific"), record)
+      context "driven by AfterCommitDispatcher" do
+        let(:dispatcher) { AfterCommitDispatcher.new(scheduler: scheduler) }
 
-        expect(enqueued_jobs).to match([hash_including(job: MyBulkAsyncHandler, args: [serialized_event(event)], queue: "specific")])
-      end
+        specify "enqueues a whole transaction with a single perform_all_later" do
+          expect(ActiveJob).to receive(:perform_all_later).once.and_call_original
 
-      specify "does not overtake handlers buffered before it" do
-        scheduler.call(MyBulkAsyncHandler, record)
-        scheduler.call(MyBulkAsyncHandler.set(queue: "specific"), other_record)
-        scheduler.flush
+          ActiveRecord::Base.transaction do
+            dispatcher.call(MyBulkAsyncHandler, event, record)
+            dispatcher.call(MyBulkAsyncHandler, other_event, other_record)
+            expect(enqueued_jobs).to be_empty
+          end
 
-        expect(enqueued_jobs).to match(
-          [
-            hash_including(job: MyBulkAsyncHandler, args: [serialized_event(event)], queue: "default"),
-            hash_including(job: MyBulkAsyncHandler, args: [serialized_event(other_event)], queue: "specific"),
-          ],
-        )
+          expect(enqueued_jobs.map { |job| job[:args].first["event_id"] }).to eq(
+            [event.event_id, other_event.event_id],
+          )
+        end
+
+        specify "enqueues nothing when the transaction is rolled back" do
+          ActiveRecord::Base.transaction do
+            dispatcher.call(MyBulkAsyncHandler, event, record)
+            raise ::ActiveRecord::Rollback
+          end
+
+          expect(enqueued_jobs).to be_empty
+        end
+
+        specify "enqueues immediately when no transaction is open" do
+          dispatcher.call(MyBulkAsyncHandler, event, record)
+
+          expect(enqueued_jobs.size).to eq(1)
+        end
       end
     end
 
@@ -143,43 +175,35 @@ module RailsEventStore
     end
 
     describe "#initialize" do
+      def with_active_job_version(version)
+        allow(ActiveJob).to receive(:gem_version).and_return(Gem::Version.new(version))
+      end
+
+      specify "accepts the ActiveJob version in use" do
+        expect { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }.not_to raise_error
+      end
+
+      specify "hands the serializer over to ActiveJobScheduler" do
+        bulk_scheduler = ActiveJobBulkScheduler.new(serializer: JSON)
+
+        bulk_scheduler.call(MyBulkAsyncHandler, record)
+        bulk_scheduler.flush
+
+        expect(enqueued_jobs.dig(0, :args, 0)).to include("data" => "{}")
+      end
+
+      specify "accepts the very version that introduced perform_all_later" do
+        with_active_job_version("7.1.0")
+
+        expect { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }.not_to raise_error
+      end
+
       specify "rejects ActiveJob older than the one introducing perform_all_later" do
-        allow(ActiveJob).to receive(:gem_version).and_return(Gem::Version.new("7.0.8"))
+        with_active_job_version("7.0.8")
 
         expect { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }.to raise_error(
-          /requires ActiveJob 7.1 or newer/,
+          "RailsEventStore::ActiveJobBulkScheduler requires ActiveJob 7.1 or newer",
         )
-      end
-    end
-
-    describe "dispatched by AfterCommitDispatcher" do
-      let(:dispatcher) { AfterCommitDispatcher.new(scheduler: scheduler) }
-
-      specify "enqueues a whole transaction with a single perform_all_later" do
-        expect(ActiveJob).to receive(:perform_all_later).once.and_call_original
-
-        ActiveRecord::Base.transaction do
-          dispatcher.call(MyBulkAsyncHandler, event, record)
-          dispatcher.call(MyBulkAsyncHandler, other_event, other_record)
-          expect(enqueued_jobs).to be_empty
-        end
-
-        expect(enqueued_jobs.map { |job| job[:args].first["event_id"] }).to eq([event.event_id, other_event.event_id])
-      end
-
-      specify "enqueues nothing when the transaction is rolled back" do
-        ActiveRecord::Base.transaction do
-          dispatcher.call(MyBulkAsyncHandler, event, record)
-          raise ::ActiveRecord::Rollback
-        end
-
-        expect(enqueued_jobs).to be_empty
-      end
-
-      specify "enqueues immediately when no transaction is open" do
-        dispatcher.call(MyBulkAsyncHandler, event, record)
-
-        expect(enqueued_jobs.size).to eq(1)
       end
     end
 
