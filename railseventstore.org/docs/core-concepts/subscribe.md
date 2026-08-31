@@ -402,7 +402,7 @@ end
 
 `RailsEventStore::AfterCommitDispatcher` looks for the transaction to join on `ActiveRecord::Base`. If you keep the event store on a separate database, tell it which connection to watch — otherwise it finds no open transaction there and schedules handlers immediately, before the events are committed and without a way to take them back on rollback.
 
-Pass the same abstract class you gave to the repository's model factory:
+Pass the same abstract class you gave to [the repository's model factory](../advanced-topics/custom-repository#storing-events-on-another-database):
 
 ```ruby
 class EventStoreRecord < ActiveRecord::Base
