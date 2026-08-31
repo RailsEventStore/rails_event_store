@@ -72,6 +72,57 @@ module RailsEventStore
       specify { expect(dispatcher.verify(MyActiveJobAsyncHandler2)).to be(true) }
     end
 
+    context "with events stored on another connection" do
+      before { EventStoreRecord.establish_connection(adapter: "sqlite3", database: ":memory:") }
+
+      let(:dispatcher) do
+        AfterCommitDispatcher.new(
+          scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+          model: EventStoreRecord,
+        )
+      end
+
+      it "joins the transaction of the connection it was given" do
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+          EventStoreRecord.transaction do
+            expect_no_enqueued_job(MyActiveJobAsyncHandler2) do
+              dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+            end
+          end
+        end
+      end
+
+      it "does not dispatch when that transaction is rolled back" do
+        expect_no_enqueued_job(MyActiveJobAsyncHandler2) do
+          EventStoreRecord.transaction do
+            dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+            raise ::ActiveRecord::Rollback
+          end
+        end
+      end
+
+      it "ignores a transaction open on another connection" do
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+          ActiveRecord::Base.transaction { dispatcher.call(MyActiveJobAsyncHandler2, event, record) }
+        end
+      end
+
+      it "defaults to ActiveRecord::Base, which cannot see that transaction" do
+        default_dispatcher =
+          AfterCommitDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML))
+
+        EventStoreRecord.transaction do
+          expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+            default_dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+          end
+        end
+      end
+    end
+
+    class EventStoreRecord < ActiveRecord::Base
+      self.abstract_class = true
+    end
+
     describe "AsyncRecord" do
       let(:schedule_proc) { -> {} }
       let(:async_record) { AfterCommitDispatcher::AsyncRecord.new(schedule_proc) }

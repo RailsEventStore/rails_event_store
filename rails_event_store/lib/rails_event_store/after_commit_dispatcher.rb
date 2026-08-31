@@ -2,8 +2,9 @@
 
 module RailsEventStore
   class AfterCommitDispatcher
-    def initialize(scheduler:)
+    def initialize(scheduler:, model: ActiveRecord::Base)
       @scheduler = scheduler
+      @model = model
     end
 
     def call(subscriber, _, record)
@@ -11,8 +12,7 @@ module RailsEventStore
     end
 
     def run(&schedule_proc)
-      connection = ActiveRecord::Base.try(:lease_connection) || ActiveRecord::Base.connection
-      transaction = connection.current_transaction
+      transaction = current_transaction
 
       if transaction.joinable?
         transaction.add_record(async_record(schedule_proc))
@@ -48,6 +48,13 @@ module RailsEventStore
       end
 
       attr_reader :schedule_proc
+    end
+
+    private
+
+    def current_transaction
+      connection = @model.try(:lease_connection) || @model.connection
+      connection.current_transaction
     end
   end
 end
