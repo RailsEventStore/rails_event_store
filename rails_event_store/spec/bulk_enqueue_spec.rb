@@ -116,6 +116,24 @@ module RailsEventStore
 
           expect(enqueued_jobs.size).to eq(1)
         end
+
+        specify "enqueues handlers opted into ActiveJob's own after-commit enqueuing" do
+          # Rails only wires this in through a railtie, and the flag is tri-state
+          # before 8.0. Handlers left at the default are unaffected by the include.
+          original = MyBulkEnqueueHandler.enqueue_after_transaction_commit
+          ActiveJob::Base.include(ActiveJob::EnqueueAfterTransactionCommit)
+          MyBulkEnqueueHandler.enqueue_after_transaction_commit =
+            ActiveJob.gem_version >= Gem::Version.new("8.0") ? true : :always
+
+          ActiveRecord::Base.transaction do
+            dispatcher.call(MyBulkEnqueueHandler, event, record)
+            dispatcher.call(MyBulkEnqueueHandler, other_event, other_record)
+          end
+
+          expect(enqueued_event_ids).to eq([event.event_id, other_event.event_id])
+        ensure
+          MyBulkEnqueueHandler.enqueue_after_transaction_commit = original
+        end
       end
     end
 
