@@ -426,6 +426,10 @@ Before you switch, mind the trade-offs:
 - A subscriber registered with `.set(...)` cannot be enqueued in bulk and still costs one `perform_later` call.
 - It requires Rails 7.2 or newer. `RailsEventStore::ActiveJobScheduler` keeps working on every Rails version the gem supports.
 
+Buffering is not limited to this scheduler. `RailsEventStore::AfterCommitDispatcher` calls `#flush` on any scheduler that responds to it, once the transaction commits, so a [custom scheduler](#custom-scheduler) can batch its own backend the same way — collect in `#call`, ship in `#flush`. Make `#flush` idempotent: it is called once per scheduled handler, and every call after the first one should do nothing.
+
+Such a scheduler requires Rails 7.2 or newer, because the dispatcher signals the end of a transaction through `ActiveRecord`'s `Transaction#after_commit`, added in that version. Below 7.2 a scheduler responding to `#flush` raises `NoMethodError` when the first handler is dispatched. Schedulers without `#flush` are unaffected and keep working on older versions.
+
 ### Scheduling async handlers immediately
 
 You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateDispatcher` instead of `RailsEventStore::AfterCommitDispatcher`.
