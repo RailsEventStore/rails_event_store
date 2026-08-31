@@ -398,6 +398,37 @@ end
 # Async handlers such as SendOrderEmail scheduled here, after transaction is committed
 ```
 
+#### Events stored on another database
+
+`RailsEventStore::AfterCommitDispatcher` looks for the transaction to join on `ActiveRecord::Base`. If you keep the event store on a separate database, tell it which connection to watch — otherwise it finds no open transaction there and schedules handlers immediately, before the events are committed and without a way to take them back on rollback.
+
+Pass the same abstract class you gave to the repository's model factory:
+
+```ruby
+class EventStoreRecord < ActiveRecord::Base
+  self.abstract_class = true
+  connects_to database: { writing: :events }
+end
+
+event_store = RailsEventStore::Client.new(
+  repository: RubyEventStore::ActiveRecord::EventRepository.new(
+    model_factory: RubyEventStore::ActiveRecord::WithAbstractBaseClass.new(EventStoreRecord),
+    serializer: RubyEventStore::Serializers::YAML
+  ),
+  message_broker: RubyEventStore::Broker.new(
+    dispatcher: RubyEventStore::ComposedDispatcher.new(
+      RailsEventStore::AfterCommitDispatcher.new(
+        scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+        model: EventStoreRecord
+      ),
+      RubyEventStore::SyncScheduler.new
+    )
+  )
+)
+```
+
+The two have to agree. The repository opens its transaction on the model factory's class, and the dispatcher joins the transaction on the class given as `model` — naming different connections leaves you with the immediate scheduling described above.
+
 ### Scheduling async handlers immediately
 
 You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateDispatcher` instead of `RailsEventStore::AfterCommitDispatcher`.
