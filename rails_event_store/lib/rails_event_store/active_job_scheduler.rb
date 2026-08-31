@@ -9,7 +9,7 @@ module RailsEventStore
     end
 
     def call(klass, record)
-      klass.perform_later(record.serialize(serializer).to_h.transform_keys(&:to_s))
+      klass.perform_later(serialized(record))
     end
 
     def verify(subscriber)
@@ -21,6 +21,10 @@ module RailsEventStore
     end
 
     private
+
+    def serialized(record)
+      record.serialize(serializer).to_h.transform_keys(&:to_s)
+    end
 
     attr_reader :serializer
   end
