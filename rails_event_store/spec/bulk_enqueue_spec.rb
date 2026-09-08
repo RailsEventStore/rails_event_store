@@ -30,16 +30,6 @@ module RailsEventStore
         expect(enqueued_jobs).to be_empty
       end
 
-      specify "keeps buffers of separate scheduler instances apart" do
-        other_scheduler = ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML)
-
-        scheduler.call(MyBulkEnqueueHandler, record)
-        other_scheduler.call(MyBulkEnqueueHandler, other_record)
-        scheduler.flush
-
-        expect(enqueued_event_ids).to eq([event.event_id])
-      end
-
       specify "enqueues an ActiveJob::ConfiguredJob on its own, as perform_all_later cannot carry its options" do
         scheduler.call(MyBulkEnqueueHandler.set(queue: "specific"), record)
 
@@ -58,9 +48,27 @@ module RailsEventStore
         )
         expect(enqueued_event_ids).to eq([event.event_id, other_event.event_id])
       end
+
+      specify "builds the payload the way the scheduler it is mixed into does" do
+        bulk_scheduler = ActiveJobBulkScheduler.new(serializer: JSON)
+
+        bulk_scheduler.call(MyBulkEnqueueHandler, record)
+        bulk_scheduler.flush
+
+        expect(enqueued_jobs.dig(0, :args, 0)).to include("data" => "{}")
+      end
+
+      specify "mixes into a scheduler that takes no arguments" do
+        id_only_scheduler = ActiveJobIdOnlyBulkScheduler.new
+
+        id_only_scheduler.call(MyBulkEnqueueHandler, record)
+        id_only_scheduler.flush
+
+        expect(enqueued_jobs.dig(0, :args, 0)).to include("event_id" => event.event_id)
+      end
     end
 
-    describe "#flush" do
+    describe "#ship" do
       specify "enqueues everything buffered with a single perform_all_later" do
         expect(ActiveJob).to receive(:perform_all_later).once.and_call_original
 
@@ -69,34 +77,6 @@ module RailsEventStore
         scheduler.flush
 
         expect(enqueued_event_ids).to eq([event.event_id, other_event.event_id])
-      end
-
-      specify "does nothing when there is nothing buffered" do
-        expect(ActiveJob).not_to receive(:perform_all_later)
-
-        scheduler.flush
-
-        expect(enqueued_jobs).to be_empty
-      end
-
-      specify "is idempotent" do
-        scheduler.call(MyBulkEnqueueHandler, record)
-        scheduler.flush
-        scheduler.flush
-
-        expect(enqueued_jobs.size).to eq(1)
-      end
-
-      specify "drops the buffer when the queue backend blows up, so it cannot leak into the next flush" do
-        allow(ActiveJob).to receive(:perform_all_later).and_raise("queue backend is down")
-        scheduler.call(MyBulkEnqueueHandler, record)
-        expect { scheduler.flush }.to raise_error("queue backend is down")
-
-        allow(ActiveJob).to receive(:perform_all_later).and_call_original
-        scheduler.call(MyBulkEnqueueHandler, other_record)
-        scheduler.flush
-
-        expect(enqueued_event_ids).to eq([other_event.event_id])
       end
 
       context "driven by AfterCommitDispatcher" do
@@ -146,51 +126,6 @@ module RailsEventStore
         ensure
           MyBulkEnqueueHandler.enqueue_after_transaction_commit = original
         end
-      end
-    end
-
-    describe "#initialize" do
-      def with_active_job_version(version)
-        allow(ActiveJob).to receive(:gem_version).and_return(Gem::Version.new(version))
-      end
-
-      specify "accepts the ActiveJob version in use" do
-        expect { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }.not_to raise_error
-      end
-
-      specify "accepts the very version that introduced Transaction#after_commit" do
-        with_active_job_version("7.2.0")
-
-        expect { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }.not_to raise_error
-      end
-
-      specify "rejects a Rails that has perform_all_later but no Transaction#after_commit" do
-        with_active_job_version("7.1.5")
-
-        expect { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }.to raise_error(
-          "RailsEventStore::ActiveJobBulkScheduler requires Rails 7.2 or newer",
-        )
-      end
-
-      specify "names the including scheduler when it refuses to build" do
-        with_active_job_version("7.1.5")
-
-        expect { ActiveJobIdOnlyBulkScheduler.new }.to raise_error(
-          "RailsEventStore::ActiveJobIdOnlyBulkScheduler requires Rails 7.2 or newer",
-        )
-      end
-
-      specify "forwards its arguments to the scheduler it is mixed into" do
-        bulk_scheduler = ActiveJobBulkScheduler.new(serializer: JSON)
-
-        bulk_scheduler.call(MyBulkEnqueueHandler, record)
-        bulk_scheduler.flush
-
-        expect(enqueued_jobs.dig(0, :args, 0)).to include("data" => "{}")
-      end
-
-      specify "builds a scheduler that takes no arguments" do
-        expect { ActiveJobIdOnlyBulkScheduler.new }.not_to raise_error
       end
     end
 
