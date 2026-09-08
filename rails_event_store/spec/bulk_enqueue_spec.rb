@@ -87,6 +87,18 @@ module RailsEventStore
         expect(enqueued_jobs.size).to eq(1)
       end
 
+      specify "drops the buffer when the queue backend blows up, so it cannot leak into the next flush" do
+        allow(ActiveJob).to receive(:perform_all_later).and_raise("queue backend is down")
+        scheduler.call(MyBulkEnqueueHandler, record)
+        expect { scheduler.flush }.to raise_error("queue backend is down")
+
+        allow(ActiveJob).to receive(:perform_all_later).and_call_original
+        scheduler.call(MyBulkEnqueueHandler, other_record)
+        scheduler.flush
+
+        expect(enqueued_event_ids).to eq([other_event.event_id])
+      end
+
       context "driven by AfterCommitDispatcher" do
         let(:dispatcher) { AfterCommitDispatcher.new(scheduler: scheduler) }
 

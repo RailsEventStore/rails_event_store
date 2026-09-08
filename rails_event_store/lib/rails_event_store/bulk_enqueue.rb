@@ -28,10 +28,11 @@ module RailsEventStore
     end
 
     def flush
-      return if buffer.empty?
+      jobs = buffer.dup
+      return if jobs.empty?
 
-      ActiveJob.perform_all_later(buffer)
       buffer.clear
+      ActiveJob.perform_all_later(jobs)
     end
 
     private
