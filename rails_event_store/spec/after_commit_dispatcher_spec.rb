@@ -80,8 +80,44 @@ module RailsEventStore
       end
     end
 
+    it "leaves a scheduler that merely happens to respond to #flush alone" do
+      scheduler = UndeclaredFlushScheduler.new
+
+      ActiveRecord::Base.transaction do
+        AfterCommitDispatcher.new(scheduler: scheduler).call(MyActiveJobAsyncHandler2, event, record)
+      end
+
+      expect(scheduler.flushes).to eq(0)
+    end
+
+    describe "#initialize" do
+      def with_active_record_version(version)
+        allow(ActiveRecord).to receive(:gem_version).and_return(Gem::Version.new(version))
+      end
+
+      specify "accepts a buffering scheduler on the very version that introduced Transaction#after_commit" do
+        with_active_record_version("7.2.0")
+
+        expect { AfterCommitDispatcher.new(scheduler: FakeBufferingScheduler.new) }.not_to raise_error
+      end
+
+      specify "refuses to flush a buffering scheduler without Transaction#after_commit" do
+        with_active_record_version("7.1.5")
+
+        expect { AfterCommitDispatcher.new(scheduler: FakeBufferingScheduler.new) }.to raise_error(
+          "RailsEventStore::FakeBufferingScheduler requires Rails 7.2 or newer",
+        )
+      end
+
+      specify "takes a scheduler that does not buffer on any supported version" do
+        with_active_record_version("6.0.0")
+
+        expect { AfterCommitDispatcher.new(scheduler: ActiveJobIdOnlyScheduler.new) }.not_to raise_error
+      end
+    end
+
     describe "flushing a buffering scheduler" do
-      let(:scheduler) { BufferingScheduler.new }
+      let(:scheduler) { FakeBufferingScheduler.new }
       let(:dispatcher) { AfterCommitDispatcher.new(scheduler: scheduler) }
 
       it "hands everything buffered within one transaction over in a single flush" do
@@ -135,7 +171,28 @@ module RailsEventStore
       end
     end
 
-    class BufferingScheduler
+    class UndeclaredFlushScheduler
+      attr_reader :flushes
+
+      def initialize
+        @flushes = 0
+      end
+
+      def call(_, _)
+      end
+
+      def flush
+        @flushes += 1
+      end
+
+      def verify(_)
+        true
+      end
+    end
+
+    class FakeBufferingScheduler
+      include BufferingScheduler
+
       attr_reader :flushed
 
       def initialize

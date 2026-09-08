@@ -424,7 +424,7 @@ Before you switch, mind the trade-offs:
 - It only works with `RailsEventStore::AfterCommitDispatcher`, which tells the scheduler when the transaction ends. Paired with `RubyEventStore::ImmediateDispatcher`, or with a custom dispatcher, the buffered jobs are never enqueued.
 - Jobs enqueued with `perform_all_later` do not run their `before_enqueue`, `around_enqueue` or `after_enqueue` callbacks. If your subscribers rely on them, stay with `RailsEventStore::ActiveJobScheduler`.
 - A subscriber registered with `.set(...)` cannot be enqueued in bulk and still costs one `perform_later` call.
-- It requires Rails 7.2 or newer. `RailsEventStore::ActiveJobScheduler` keeps working on every Rails version the gem supports.
+- It requires Rails 7.2 or newer, and `RailsEventStore::AfterCommitDispatcher` refuses to take it below that. `RailsEventStore::ActiveJobScheduler` keeps working on every Rails version the gem supports.
 
 If your handlers reload the event themselves and only need its id, `RailsEventStore::ActiveJobIdOnlyBulkScheduler` batches the same way while enqueuing the payload of `RailsEventStore::ActiveJobIdOnlyScheduler`. It takes no serializer, and since it rejects subscribers registered with `.set(...)` outright, every handler it accepts is batched:
 
@@ -432,9 +432,45 @@ If your handlers reload the event themselves and only need its id, `RailsEventSt
 RailsEventStore::AfterCommitDispatcher.new(scheduler: RailsEventStore::ActiveJobIdOnlyBulkScheduler.new)
 ```
 
-Buffering is not limited to these two schedulers. `RailsEventStore::AfterCommitDispatcher` calls `#flush` on any scheduler that responds to it, once the transaction commits, so a [custom scheduler](#custom-scheduler) can batch its own backend the same way — collect in `#call`, ship in `#flush`. Make `#flush` idempotent: it is called once per scheduled handler, and every call after the first one should do nothing.
+Buffering is not limited to these two schedulers. A [custom scheduler](#custom-scheduler) can batch its own backend by including `RailsEventStore::BufferingScheduler`, collecting into `#buffer` and shipping in `#ship`:
 
-Such a scheduler requires Rails 7.2 or newer, because the dispatcher signals the end of a transaction through `ActiveRecord`'s `Transaction#after_commit`, added in that version. Below 7.2 a scheduler responding to `#flush` raises `NoMethodError` when the first handler is dispatched. Schedulers without `#flush` are unaffected and keep working on older versions.
+```ruby
+class MyBatchingScheduler
+  include RailsEventStore::BufferingScheduler
+
+  def call(klass, record)
+    buffer << [klass, record]
+  end
+
+  def verify(subscriber)
+    true
+  end
+
+  private
+
+  def ship(entries)
+    MyBackend.push_bulk(entries)
+  end
+end
+```
+
+`RailsEventStore::AfterCommitDispatcher` calls `#flush` on such a scheduler once the transaction commits. The module is what marks the scheduler as buffering — defining a `#flush` of your own changes nothing, so a scheduler that already has one for unrelated reasons keeps working untouched.
+
+`#flush` comes from the module rather than being yours to write, because getting it right is easy to get wrong: it has to do nothing when the buffer is empty, stay idempotent across the one call it gets per scheduled handler, and empty the buffer *before* shipping it, so a backend that raises does not leave the entries behind for the next transaction to ship a second time. `#ship` is only reached with a non-empty set of entries.
+
+Such a scheduler requires Rails 7.2 or newer, because the dispatcher signals the end of a transaction through `ActiveRecord`'s `Transaction#after_commit`, added in that version. Below 7.2 `RailsEventStore::AfterCommitDispatcher` refuses to take a buffering scheduler at all, rather than letting it collect handlers nothing will ever ship.
+
+Each instance buffers on its own, keyed by identity, so schedulers that compare equal do not drain each other. The buffer is per thread as well, and a flush drops it whole — nothing of the scheduler is left behind on a thread that goes on to serve the next request. What lingers instead is a buffer nobody ever flushes: pair the scheduler with a dispatcher that never signals the commit, and it collects on a long-lived thread and holds on.
+
+The `rails_event_store` gem ships a lint for the contract, alongside the [scheduler lint](#custom-scheduler):
+
+```ruby
+require "rails_event_store/spec/buffering_scheduler_lint"
+
+RSpec.describe MyBatchingScheduler do
+  it_behaves_like "buffering scheduler", MyBatchingScheduler.new
+end
+```
 
 ### Scheduling async handlers immediately
 

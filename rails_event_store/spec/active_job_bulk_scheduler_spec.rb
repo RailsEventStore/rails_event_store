@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "ruby_event_store/spec/scheduler_lint"
+require "rails_event_store/spec/buffering_scheduler_lint"
 
 module RailsEventStore
   ::RSpec.describe ActiveJobBulkScheduler do
@@ -10,6 +11,8 @@ module RailsEventStore
     it_behaves_like "scheduler", ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML)
     it_behaves_like "scheduler", ActiveJobBulkScheduler.new(serializer: RubyEventStore::NULL)
     it_behaves_like "scheduler", ActiveJobBulkScheduler.new(serializer: JSON)
+
+    it_behaves_like "buffering scheduler", ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML)
 
     let(:scheduler) { ActiveJobBulkScheduler.new(serializer: RubyEventStore::Serializers::YAML) }
 

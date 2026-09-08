@@ -2,8 +2,15 @@
 
 module RailsEventStore
   class AfterCommitDispatcher
+    # Flushing a buffering scheduler leans on Transaction#after_commit, which
+    # ActiveRecord grew in 7.2.
+    MINIMUM_RAILS_VERSION = Gem::Version.new("7.2")
+
     def initialize(scheduler:)
       @scheduler = scheduler
+      if buffering_scheduler? && !supported_rails_version?
+        raise "#{scheduler.class} requires Rails #{MINIMUM_RAILS_VERSION} or newer"
+      end
     end
 
     def call(subscriber, _, record)
@@ -55,7 +62,11 @@ module RailsEventStore
     private
 
     def buffering_scheduler?
-      @scheduler.respond_to?(:flush)
+      BufferingScheduler === @scheduler
+    end
+
+    def supported_rails_version?
+      ActiveRecord.gem_version >= MINIMUM_RAILS_VERSION
     end
   end
 end

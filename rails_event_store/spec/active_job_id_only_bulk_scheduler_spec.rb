@@ -2,12 +2,15 @@
 
 require "spec_helper"
 require "ruby_event_store/spec/scheduler_lint"
+require "rails_event_store/spec/buffering_scheduler_lint"
 
 module RailsEventStore
   ::RSpec.describe ActiveJobIdOnlyBulkScheduler do
     around { |example| ActiveJob::Base.with(logger: nil, queue_adapter: :test) { example.run } }
 
     it_behaves_like "scheduler", ActiveJobIdOnlyBulkScheduler.new
+
+    it_behaves_like "buffering scheduler", ActiveJobIdOnlyBulkScheduler.new
 
     let(:scheduler) { ActiveJobIdOnlyBulkScheduler.new }
 
