@@ -44,7 +44,7 @@ Rails.configuration.event_store = RailsEventStore::Client.new(
 
 The class has to be abstract and inherit from `ActiveRecord::Base`, otherwise the factory raises `ArgumentError`.
 
-This covers writing and reading, and nothing else has to follow. In particular `RailsEventStore::AfterCommitDispatcher` needs no matching setting for this — it joins the transaction wrapping your unit of work, which the repository's connection knows nothing about. It does need telling when your own models use `connects_to`, which is a [separate concern](./../core-concepts/subscribe#applications-using-connects-to).
+This covers writing and reading, and nothing else has to follow. In particular `RailsEventStore::AfterCommitDispatcher` needs no matching setting for this — it joins the transaction wrapping your unit of work, which the repository's connection knows nothing about. It does need telling when your own models use `connects_to`, which is a [separate concern](./../core-concepts/subscribe#applications-using-connects_to).
 
 ## Writing your own repository
 
