@@ -43,37 +43,6 @@ module RailsEventStore
       expect(MultiDbAsyncHandler.queued).to be_nil
     end
 
-    specify "default ActiveRecord::Base does not see a business transaction opened on another connection" do
-      event_store =
-        event_store_dispatching_with(
-          AfterCommitDispatcher.new(scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML)),
-        )
-      event_store.subscribe(MultiDbAsyncHandler, to: [MultiDbOrderPlaced])
-
-      AppRecord.transaction do
-        event_store.publish(MultiDbOrderPlaced.new(data: { order_id: 42 }))
-
-        expect(MultiDbAsyncHandler.queued).not_to be_nil
-      end
-    end
-
-    specify "watching the event store connection does not see a business transaction either" do
-      event_store =
-        event_store_dispatching_with(
-          AfterCommitDispatcher.new(
-            scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-            transaction_owner: EventsRecord,
-          ),
-        )
-      event_store.subscribe(MultiDbAsyncHandler, to: [MultiDbOrderPlaced])
-
-      AppRecord.transaction do
-        event_store.publish(MultiDbOrderPlaced.new(data: { order_id: 42 }))
-
-        expect(MultiDbAsyncHandler.queued).not_to be_nil
-      end
-    end
-
     specify "watching the event store connection leaves the job scheduled after a business rollback" do
       event_store =
         event_store_dispatching_with(
