@@ -43,7 +43,7 @@ module RailsEventStore
       expect(MultiDbAsyncHandler.queued).to be_nil
     end
 
-    specify "watching the event store connection leaves the job scheduled after a business rollback" do
+    specify "watching the event store connection leaves both the job and the event behind when the order rolls back" do
       event_store =
         event_store_dispatching_with(
           AfterCommitDispatcher.new(
