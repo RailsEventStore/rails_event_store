@@ -93,6 +93,23 @@ module RailsEventStore
       end
     end
 
+    specify "transaction_owner joins the transaction connects_to made invisible" do
+      connect_both_to_one_database
+      owning_dispatcher =
+        AfterCommitDispatcher.new(
+          scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+          transaction_owner: SharedDatabaseRecord,
+        )
+
+      expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+        SharedDatabaseRecord.transaction do
+          expect_no_enqueued_job(MyActiveJobAsyncHandler2) do
+            owning_dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+          end
+        end
+      end
+    end
+
     def connect_both_to_one_database
       @database_dir = Dir.mktmpdir
       database = File.join(@database_dir, "one.sqlite3")
