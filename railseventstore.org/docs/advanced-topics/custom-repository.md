@@ -44,7 +44,7 @@ Rails.configuration.event_store = RailsEventStore::Client.new(
 
 The class has to be abstract and inherit from `ActiveRecord::Base`, otherwise the factory raises `ArgumentError`.
 
-This covers writing and reading. Scheduling async handlers does not follow automatically — `RailsEventStore::AfterCommitDispatcher` watches `ActiveRecord::Base` for the transaction to join unless told otherwise, and left at that default it schedules handlers before your events are committed. See [Events stored on another database](./../core-concepts/subscribe#events-stored-on-another-database) for the matching dispatcher configuration.
+This covers writing and reading, and nothing else has to follow. In particular `RailsEventStore::AfterCommitDispatcher` needs no matching setting for this — it joins the transaction wrapping your unit of work, which the repository's connection knows nothing about. It does need telling when your own models use `connects_to`, which is a [separate concern](./../core-concepts/subscribe#applications-using-connects-to).
 
 ## Writing your own repository
 
