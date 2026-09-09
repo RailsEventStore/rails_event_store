@@ -44,6 +44,8 @@ Rails.configuration.event_store = RailsEventStore::Client.new(
 
 The class has to be abstract and inherit from `ActiveRecord::Base`, otherwise the factory raises `ArgumentError`.
 
+This covers writing and reading, and nothing else in the Rails Event Store setup has to follow. In particular `RailsEventStore::AfterCommitDispatcher` needs no matching setting for this — it joins the transaction wrapping your unit of work, which the repository's connection knows nothing about. It does need telling when your own models use `connects_to`, which is a [separate concern](./../core-concepts/subscribe#applications-using-connects_to).
+
 A second database costs you atomicity, and it is worth knowing before you reach for one. The repository opens and commits its own transaction on the event store connection, so events are durable the moment `publish` returns. A business transaction rolling back afterwards takes your records with it and leaves the events behind:
 
 ```ruby
@@ -57,8 +59,6 @@ end
 ```
 
 On one database the two share a transaction and roll back together. On two there is nothing to make them agree, so treat the events as published the moment they are written.
-
-This covers writing and reading, and nothing else has to follow. In particular `RailsEventStore::AfterCommitDispatcher` needs no matching setting for this — it joins the transaction wrapping your unit of work, which the repository's connection knows nothing about. It does need telling when your own models use `connects_to`, which is a [separate concern](./../core-concepts/subscribe#applications-using-connects_to).
 
 ## Writing your own repository
 
