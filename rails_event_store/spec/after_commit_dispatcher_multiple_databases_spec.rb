@@ -9,7 +9,7 @@ module RailsEventStore
         event_store_dispatching_with(
           AfterCommitDispatcher.new(
             scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-            model: AppRecord,
+            transaction_owner: AppRecord,
           ),
         )
       event_store.subscribe(MultiDbAsyncHandler, to: [MultiDbOrderPlaced])
@@ -29,7 +29,7 @@ module RailsEventStore
         event_store_dispatching_with(
           AfterCommitDispatcher.new(
             scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-            model: AppRecord,
+            transaction_owner: AppRecord,
           ),
         )
       event_store.subscribe(MultiDbAsyncHandler, to: [MultiDbOrderPlaced])
@@ -62,7 +62,7 @@ module RailsEventStore
         event_store_dispatching_with(
           AfterCommitDispatcher.new(
             scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-            model: EventsRecord,
+            transaction_owner: EventsRecord,
           ),
         )
       event_store.subscribe(MultiDbAsyncHandler, to: [MultiDbOrderPlaced])
@@ -79,7 +79,7 @@ module RailsEventStore
         event_store_dispatching_with(
           AfterCommitDispatcher.new(
             scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-            model: EventsRecord,
+            transaction_owner: EventsRecord,
           ),
         )
       event_store.subscribe(MultiDbAsyncHandler, to: [MultiDbOrderPlaced])
