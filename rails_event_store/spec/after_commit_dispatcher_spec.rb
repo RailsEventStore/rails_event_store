@@ -93,23 +93,6 @@ module RailsEventStore
       end
     end
 
-    specify "transaction_owner joins the transaction connects_to made invisible" do
-      connect_both_to_one_database
-      owning_dispatcher =
-        AfterCommitDispatcher.new(
-          scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-          transaction_owner: SharedDatabaseRecord,
-        )
-
-      expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
-        SharedDatabaseRecord.transaction do
-          expect_no_enqueued_job(MyActiveJobAsyncHandler2) do
-            owning_dispatcher.call(MyActiveJobAsyncHandler2, event, record)
-          end
-        end
-      end
-    end
-
     def connect_both_to_one_database
       @database_dir = Dir.mktmpdir
       database = File.join(@database_dir, "one.sqlite3")
@@ -187,6 +170,31 @@ module RailsEventStore
         with_active_record_version("6.0.0")
 
         expect { AfterCommitDispatcher.new(scheduler: ActiveJobIdOnlyScheduler.new) }.not_to raise_error
+      end
+
+      specify "watches the transaction ActiveRecord::Base owns when no transaction_owner is given" do
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+          ActiveRecord::Base.transaction do
+            expect_no_enqueued_job(MyActiveJobAsyncHandler2) { dispatcher.call(MyActiveJobAsyncHandler2, event, record) }
+          end
+        end
+      end
+
+      specify "transaction_owner joins the transaction connects_to made invisible" do
+        connect_both_to_one_database
+        owning_dispatcher =
+          AfterCommitDispatcher.new(
+            scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+            transaction_owner: SharedDatabaseRecord,
+          )
+
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+          SharedDatabaseRecord.transaction do
+            expect_no_enqueued_job(MyActiveJobAsyncHandler2) do
+              owning_dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+            end
+          end
+        end
       end
     end
 
