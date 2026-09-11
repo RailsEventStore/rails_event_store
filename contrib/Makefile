@@ -9,10 +9,10 @@ GEMS = minitest-ruby_event_store \
        ruby_event_store-sequel \
        ruby_event_store-sidekiq_scheduler \
        ruby_event_store-transformations \
+       ruby_event_store-cli \
        ruby_event_store-mcp \
-			 dres_rails \
-			 dres_client
-
+       dres_rails \
+       dres_client
 
 define substf
   $(shell echo $(3) | sed -e 's/$(1)/$(2)/')
