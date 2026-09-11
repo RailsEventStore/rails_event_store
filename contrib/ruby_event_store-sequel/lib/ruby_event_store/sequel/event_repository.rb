@@ -4,6 +4,7 @@ module RubyEventStore
   module Sequel
     class EventRepository
       UPSERT_COLUMNS = %i[event_type data metadata valid_at].freeze
+      LAST_IN_STREAM_ORDER = %i[position id].freeze
 
       def initialize(sequel:, serializer:)
         @serializer = serializer
@@ -33,8 +34,8 @@ module RubyEventStore
               @db[:event_store_events_in_streams].insert(
                 event_id: serialized_record.event_id,
                 stream: stream.name,
-                created_at: Time.now.utc,
-                position: resolved_version ? resolved_version + index + 1 : nil,
+                created_at: Time.now,
+                position: resolved_version && resolved_version + index + 1,
               )
             end
           end
@@ -51,18 +52,18 @@ module RubyEventStore
             @db[:event_store_events]
               .select(::Sequel[:event_store_events][:event_id])
               .where(::Sequel[:event_store_events][:event_id] => event_ids)
-              .map { |e| e[:event_id] }
+              .map { |e| e.fetch(:event_id) }
         ).each { |id| raise EventNotFound.new(id) }
 
         resolved_version = resolved_version(expected_version, stream)
 
         @db.transaction do
-          event_ids.map.with_index do |event_id, index|
+          event_ids.each.with_index do |event_id, index|
             @db[:event_store_events_in_streams].insert(
               event_id: event_id,
               stream: stream.name,
-              created_at: Time.now.utc,
-              position: resolved_version ? resolved_version + index + 1 : nil,
+              created_at: Time.now,
+              position: resolved_version && resolved_version + index + 1,
             )
           end
         end
@@ -81,8 +82,8 @@ module RubyEventStore
               ::Sequel[:event_store_events_in_streams][:stream] => stream.name,
             )
             .first
-        raise EventNotFoundInStream.new if record.nil?
-        record[:position]
+        raise EventNotFoundInStream if record.nil?
+        record.fetch(:position)
       end
 
       def global_position(event_id)
@@ -92,7 +93,7 @@ module RubyEventStore
             .where(::Sequel[:event_store_events][:event_id] => event_id)
             .first
         raise EventNotFound.new(event_id) if record.nil?
-        record[:id] - 1
+        record.fetch(:id) - 1
       end
 
       def event_in_stream?(event_id, stream)
@@ -108,24 +109,15 @@ module RubyEventStore
       end
 
       def last_stream_event(stream)
-        row = @db[:event_store_events_in_streams].where(stream: stream.name).order(:position, :id).last
-        return row if row.nil?
-        event = @db[:event_store_events].where(event_id: row[:event_id]).first
-        SerializedRecord.new(
-          event_id: event[:event_id],
-          event_type: event[:event_type],
-          data: event[:data],
-          metadata: event[:metadata],
-          timestamp: event[:created_at].iso8601(TIMESTAMP_PRECISION),
-          valid_at: (event[:valid_at] || event[:created_at]).iso8601(TIMESTAMP_PRECISION),
-        ).deserialize(@serializer)
+        row = @db[:event_store_events_in_streams].where(stream: stream.name).order(*LAST_IN_STREAM_ORDER).last
+        record(@db[:event_store_events].where(event_id: row.fetch(:event_id)).first) if row
       end
 
       def read(specification)
         if specification.batched?
           stream = read_(specification)
           batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }
-          RubyEventStore::BatchEnumerator.new(specification.batch_size, specification.limit, batch_reader).each
+          BatchEnumerator.new(specification.batch_size, specification.limit, batch_reader).each
         elsif specification.first?
           record_ = read_(specification).first
           record(record_) if record_
@@ -142,34 +134,24 @@ module RubyEventStore
       end
 
       def update_messages(records)
-        hashes = records.map { |record| upsert_hash(record.serialize(@serializer)) }
         for_update = records.map(&:event_id)
         @db.transaction do
           existing =
             @db[:event_store_events]
               .where(event_id: for_update)
-              .select(:event_id, :id, :created_at, :valid_at)
-              .reduce({}) do |acc, record|
-                acc.merge(record[:event_id] => [record[:id], record[:created_at], record[:valid_at]])
-              end
+              .select(:event_id, :created_at, :valid_at)
+              .as_hash(:event_id)
 
           (for_update - existing.keys).each { |id| raise EventNotFound.new(id) }
-          hashes.each do |h|
-            h[:id] = existing.fetch(h.fetch(:event_id)).at(0)
-            h[:created_at] = existing.fetch(h.fetch(:event_id)).at(1)
-            h[:valid_at] = existing.fetch(h.fetch(:event_id)).at(2)
-          end
 
-          if supports_on_duplicate_key_update?
-            commit_on_duplicate_key_update(hashes)
-          else
-            commit_insert_conflict_update(hashes)
-          end
+          commit(
+            records.map { |record| existing.fetch(record.event_id).merge(upsert_hash(record.serialize(@serializer))) },
+          )
         end
       end
 
       def streams_of(event_id)
-        @db[:event_store_events_in_streams].where(event_id: event_id).map { |h| Stream.new(h[:stream]) }
+        @db[:event_store_events_in_streams].where(event_id: event_id).map { |h| Stream.new(h.fetch(:stream)) }
       end
 
       private
@@ -180,12 +162,12 @@ module RubyEventStore
 
       def record(h)
         SerializedRecord.new(
-          event_id: h[:event_id],
-          event_type: h[:event_type],
-          data: h[:data],
-          metadata: h[:metadata],
-          timestamp: h[:created_at].iso8601(TIMESTAMP_PRECISION),
-          valid_at: (h[:valid_at].nil? ? h[:created_at] : h[:valid_at]).iso8601(TIMESTAMP_PRECISION),
+          event_id: h.fetch(:event_id),
+          event_type: h.fetch(:event_type),
+          data: h.fetch(:data),
+          metadata: h.fetch(:metadata),
+          timestamp: h.fetch(:created_at).iso8601(TIMESTAMP_PRECISION),
+          valid_at: (h.fetch(:valid_at) || h.fetch(:created_at)).iso8601(TIMESTAMP_PRECISION),
         ).deserialize(@serializer)
       end
 
@@ -285,14 +267,14 @@ module RubyEventStore
             .first
         raise EventNotFound.new(specification_event_id) unless event
 
-        event[:id]
+        event.fetch(:id)
       end
 
       def find_event_id_globally(specification_event_id)
         event = @db[:event_store_events].select(:id).where(event_id: specification_event_id).first
         raise EventNotFound.new(specification_event_id) unless event
 
-        event[:id]
+        event.fetch(:id)
       end
 
       def read_from_global_stream(specification)
@@ -337,10 +319,15 @@ module RubyEventStore
             )
         end
 
-        dataset = dataset.order(::Sequel[:event_store_events][:created_at]) if specification.time_sort_by_as_at?
-        dataset = dataset.order(::Sequel.lit(coalesced_date)) if specification.time_sort_by_as_of?
+        dataset =
+          if specification.time_sort_by_as_at?
+            dataset.order(::Sequel[:event_store_events][:created_at])
+          elsif specification.time_sort_by_as_of?
+            dataset.order(::Sequel.lit(coalesced_date))
+          else
+            dataset.order(::Sequel[:event_store_events][:id])
+          end
         dataset = dataset.limit(specification.limit) if specification.limit?
-        dataset = dataset.order(::Sequel[:event_store_events][:id]) unless specification.time_sort_by
         dataset = dataset.reverse if specification.backward?
 
         dataset
@@ -355,16 +342,19 @@ module RubyEventStore
       end
 
       def upsert_hash(serialized_record)
-        {
-          event_id: serialized_record.event_id,
-          data: serialized_record.data,
-          metadata: serialized_record.metadata,
-          event_type: serialized_record.event_type,
-        }
+        { data: serialized_record.data, metadata: serialized_record.metadata, event_type: serialized_record.event_type }
       end
 
       def supports_on_duplicate_key_update?
         @db.adapter_scheme =~ /mysql/
+      end
+
+      def commit(hashes)
+        if supports_on_duplicate_key_update?
+          commit_on_duplicate_key_update(hashes)
+        else
+          commit_insert_conflict_update(hashes)
+        end
       end
 
       def commit_on_duplicate_key_update(hashes)

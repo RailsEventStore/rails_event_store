@@ -138,14 +138,14 @@ module RubyEventStore
         )
 
         expect { repository.position_in_stream(event0.event_id, stream) }.to match_query(
-          /SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams.*/,
+          /SELECT\s+.event_store_events_in_streams.\..position. FROM .event_store_events_in_streams. WHERE \(\(.event_store_events_in_streams.\..event_id. = .*\) AND \(.event_store_events_in_streams.\..stream. = .*\)\)/,
         )
       end
 
       specify do
         repository.append_to_stream([event = SRecord.new], Stream.new("stream"), ExpectedVersion.any)
         expect { repository.global_position(event.event_id) }.to match_query(
-          /SELECT\s+.event_store_events.\..id. FROM .event_store_events.*/,
+          /SELECT\s+.event_store_events.\..id. FROM .event_store_events. WHERE \(.event_store_events.\..event_id. = .*\)/,
         )
       end
 
@@ -185,6 +185,106 @@ module RubyEventStore
         expect { repository.read(specification.in_batches.as_of.result).to_a }.to match_query(
           /SELECT.*FROM .*event_store_events.* ORDER BY COALESCE.*event_store_events.*valid_at.*event_store_events.*created_at.*LIMIT \d+ OFFSET \d+/,
         )
+      end
+
+      specify "global stream read selects mapped columns and orders by qualified id" do
+        repository.append_to_stream([SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
+
+        expect { repository.read(specification.result).to_a }.to match_query(
+          /SELECT .event_id., .event_type., .data., .metadata., .created_at., .valid_at. FROM .event_store_events. ORDER BY .event_store_events.\..id./,
+        )
+      end
+
+      specify "resolving expected version reads position column only" do
+        repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
+
+        expect do
+          repository.append_to_stream([SRecord.new], Stream.new("stream"), ExpectedVersion.auto)
+        end.to match_query(
+          /SELECT .position. FROM .event_store_events_in_streams. WHERE \(.stream. = .stream.\) ORDER BY .position. DESC LIMIT 1/,
+        )
+      end
+
+      specify "last stream event is the one with the greatest position, not the greatest id" do
+        helper.sequel[:event_store_events].insert(
+          event_id: last_in_stream = SecureRandom.uuid,
+          data: "{}",
+          metadata: "{}",
+          event_type: "TestDomainEvent",
+          created_at: with_precision(Time.now.utc),
+        )
+        helper.sequel[:event_store_events].insert(
+          event_id: first_in_stream = SecureRandom.uuid,
+          data: "{}",
+          metadata: "{}",
+          event_type: "TestDomainEvent",
+          created_at: with_precision(Time.now.utc),
+        )
+        helper.sequel[:event_store_events_in_streams].insert(
+          stream: "stream",
+          position: 1,
+          event_id: last_in_stream,
+          created_at: with_precision(Time.now.utc),
+        )
+        helper.sequel[:event_store_events_in_streams].insert(
+          stream: "stream",
+          position: 0,
+          event_id: first_in_stream,
+          created_at: with_precision(Time.now.utc),
+        )
+
+        expect(repository.last_stream_event(Stream.new("stream")).event_id).to eq(last_in_stream)
+      end
+
+      specify "nothing is linked when one of the events is already in the stream" do
+        repository.append_to_stream(
+          [event = SRecord.new, already_linked = SRecord.new],
+          Stream.new("stream"),
+          ExpectedVersion.any,
+        )
+        repository.link_to_stream([already_linked.event_id], Stream.new("flow"), ExpectedVersion.any)
+
+        expect do
+          repository.link_to_stream([event.event_id, already_linked.event_id], Stream.new("flow"), ExpectedVersion.any)
+        end.to raise_error(EventDuplicatedInStream)
+
+        expect(repository.read(specification.stream("flow").result).map(&:event_id)).to eq([already_linked.event_id])
+      end
+
+      specify "update_messages preserves valid-at of the updated event" do
+        repository.append_to_stream(
+          [record = SRecord.new(timestamp: t1 = with_precision(Time.at(0)), valid_at: t2 = with_precision(Time.at(1)))],
+          Stream.new(GLOBAL_STREAM),
+          ExpectedVersion.any,
+        )
+
+        repository.update_messages([SRecord.new(event_id: record.event_id, event_type: "ChangedTestDomainEvent")])
+
+        updated = repository.read(specification.result).first
+        expect(updated.event_type).to eq("ChangedTestDomainEvent")
+        expect(updated.timestamp).to eq(t1)
+        expect(updated.valid_at).to eq(t2)
+      end
+
+      specify "update_messages reads only the timestamps it has to preserve" do
+        repository.append_to_stream([record = SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
+
+        expect do
+          repository.update_messages([SRecord.new(event_id: record.event_id, event_type: "ChangedTestDomainEvent")])
+        end.to match_query(
+          /SELECT .event_id., .created_at., .valid_at. FROM .event_store_events. WHERE \(.event_id. IN \(.*\)\)/,
+        )
+      end
+
+      specify "update_messages reads and rewrites events within a single transaction" do
+        repository.append_to_stream([record = SRecord.new], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
+
+        statements = []
+        ActiveSupport::Notifications.subscribed(->(_, _, _, _, payload) { statements << payload[:sql] }, /^sql\./) do
+          repository.update_messages([SRecord.new(event_id: record.event_id, event_type: "ChangedTestDomainEvent")])
+        end
+
+        expect(statements.first).to eq("BEGIN")
       end
 
       private
