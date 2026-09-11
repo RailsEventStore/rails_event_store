@@ -24,6 +24,42 @@ Rails.application.configure do
 end
 ```
 
+## Storing events on another database
+
+By default the ActiveRecord repository reads and writes through models connected the same way as `ActiveRecord::Base`. To keep the event store on a separate database, define an abstract class with its own connection and hand it to the repository through `RubyEventStore::ActiveRecord::WithAbstractBaseClass`, which builds the event models on top of it.
+
+```ruby
+class EventStoreRecord < ActiveRecord::Base
+  self.abstract_class = true
+  connects_to database: { writing: :events }
+end
+
+Rails.configuration.event_store = RailsEventStore::Client.new(
+  repository: RubyEventStore::ActiveRecord::EventRepository.new(
+    model_factory: RubyEventStore::ActiveRecord::WithAbstractBaseClass.new(EventStoreRecord),
+    serializer: RubyEventStore::Serializers::YAML
+  )
+)
+```
+
+The class has to be abstract and inherit from `ActiveRecord::Base`, otherwise the factory raises `ArgumentError`.
+
+This covers writing and reading, and nothing else in the Rails Event Store setup has to follow. In particular `RailsEventStore::AfterCommitDispatcher` needs no matching setting for this — it joins the transaction wrapping your unit of work, which the repository's connection knows nothing about. It does need telling when your own models use `connects_to`, which is a [separate concern](./../core-concepts/subscribe#applications-using-connects_to).
+
+A second database costs you atomicity, and it is worth knowing before you reach for one. The repository opens and commits its own transaction on the event store connection, so events are durable the moment `publish` returns. A business transaction rolling back afterwards takes your records with it and leaves the events behind:
+
+```ruby
+ApplicationRecord.transaction do
+  order.save!
+  event_store.publish(OrderPlaced.new(data: { order_id: order.id }))
+  raise ActiveRecord::Rollback
+end
+
+# the order is gone, OrderPlaced is not
+```
+
+On one database the two share a transaction and roll back together. On two there is nothing to make them agree, so treat the events as published the moment they are written.
+
 ## Writing your own repository
 
 If you want to write your own repository, we provide [a suite of tests that you can re-use](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store/lib/ruby_event_store/spec/event_repository_lint.rb). Just [require](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store-active_record/spec/event_repository_spec.rb#L5) and [include it](https://github.com/RailsEventStore/rails_event_store/blob/master/ruby_event_store-active_record/spec/event_repository_spec.rb#L23) in your repository spec. Make sure to meditate on which [expected_version option](./../core-concepts/expected-version/) you are going to support and how.

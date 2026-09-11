@@ -19,9 +19,12 @@ class Migrator
     @template_root = template_root
   end
 
-  def run_migration(name, template_name = nil)
+  def run_migration(name, template_name = nil, connection: nil)
     eval(migration_code(template_name || name))
-    migration_class(name).new.change
+    migration = migration_class(name).new
+    return migration.change unless connection
+
+    migration.exec_migration(connection, :up)
   end
 
   def migration_code(name)

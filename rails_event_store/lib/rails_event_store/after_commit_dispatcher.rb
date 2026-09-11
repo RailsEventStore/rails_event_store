@@ -6,8 +6,9 @@ module RailsEventStore
     # ActiveRecord grew in 7.2.
     MINIMUM_RAILS_VERSION = Gem::Version.new("7.2")
 
-    def initialize(scheduler:)
+    def initialize(scheduler:, transaction_owner: ActiveRecord::Base)
       @scheduler = scheduler
+      @transaction_owner = transaction_owner
       if buffering_scheduler? && !supported_rails_version?
         raise "#{scheduler.class} requires Rails #{MINIMUM_RAILS_VERSION} or newer"
       end
@@ -18,8 +19,7 @@ module RailsEventStore
     end
 
     def run(&schedule_proc)
-      connection = ActiveRecord::Base.try(:lease_connection) || ActiveRecord::Base.connection
-      transaction = connection.current_transaction
+      transaction = current_transaction
 
       if transaction.joinable?
         transaction.add_record(async_record(schedule_proc))
@@ -67,6 +67,11 @@ module RailsEventStore
 
     def supported_rails_version?
       ActiveRecord.gem_version >= MINIMUM_RAILS_VERSION
+    end
+
+    def current_transaction
+      connection = @transaction_owner.try(:lease_connection) || @transaction_owner.connection
+      connection.current_transaction
     end
   end
 end

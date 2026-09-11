@@ -472,6 +472,28 @@ RSpec.describe MyBatchingScheduler do
 end
 ```
 
+#### Applications using connects_to
+
+`RailsEventStore::AfterCommitDispatcher` joins the transaction that wraps your unit of work — the one you open around saving your records and publishing events. It looks for it on `ActiveRecord::Base`.
+
+In a default Rails application that is the right place to look. `ApplicationRecord` without `connects_to` has no connection of its own, so it resolves to `ActiveRecord::Base`'s pool and `ApplicationRecord.transaction` is that same transaction.
+
+The moment an abstract class calls `connects_to`, Active Record gives it its own connection pool — even when it points at the same database. A transaction opened on that class is then invisible to `ActiveRecord::Base`, which reports none open, and the dispatcher schedules handlers immediately instead of after the commit. A rollback no longer takes the job back. Tell it which class owns the transaction:
+
+```ruby
+class ApplicationRecord < ActiveRecord::Base
+  self.abstract_class = true
+  connects_to database: { writing: :primary, reading: :primary_replica }
+end
+
+RailsEventStore::AfterCommitDispatcher.new(
+  scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+  transaction_owner: ApplicationRecord
+)
+```
+
+This is independent of where the events themselves are stored. Keeping the event store on [its own database](../advanced-topics/custom-repository#storing-events-on-another-database) changes nothing here — by the time handlers are dispatched the repository has already committed its own transaction, so there is nothing on the event store connection left to join. Pass the class your application opens transactions on, not the one you gave to the repository.
+
 ### Scheduling async handlers immediately
 
 You can configure your dispatcher slightly different, to schedule async handlers immediately after events are stored in the database. Note the usage of `RubyEventStore::ImmediateDispatcher` instead of `RailsEventStore::AfterCommitDispatcher`.

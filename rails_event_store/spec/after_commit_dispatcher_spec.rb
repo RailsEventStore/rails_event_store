@@ -2,6 +2,8 @@
 
 require "spec_helper"
 require "ruby_event_store/spec/dispatcher_lint"
+require "tmpdir"
+require "fileutils"
 
 module RailsEventStore
   ::RSpec.describe AfterCommitDispatcher do
@@ -68,6 +70,61 @@ module RailsEventStore
       end
     end
 
+    specify "an abstract class without connects_to shares ActiveRecord::Base's transaction" do
+      expect(PlainApplicationRecord.connection_pool).to equal(ActiveRecord::Base.connection_pool)
+
+      expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+        PlainApplicationRecord.transaction do
+          expect_no_enqueued_job(MyActiveJobAsyncHandler2) { dispatcher.call(MyActiveJobAsyncHandler2, event, record) }
+        end
+      end
+    end
+
+    specify "connects_to hides the transaction from ActiveRecord::Base even on the very same database" do
+      connect_both_to_one_database
+
+      expect(SharedDatabaseRecord.connection_pool).not_to equal(ActiveRecord::Base.connection_pool)
+      expect(SharedDatabaseRecord.lease_connection.pool.db_config.database).to eq(
+        ActiveRecord::Base.lease_connection.pool.db_config.database,
+      )
+
+      expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+        SharedDatabaseRecord.transaction { dispatcher.call(MyActiveJobAsyncHandler2, event, record) }
+      end
+    end
+
+    def connect_both_to_one_database
+      @database_dir = Dir.mktmpdir
+      database = File.join(@database_dir, "one.sqlite3")
+      @configurations = ActiveRecord::Base.configurations
+      ActiveRecord::Base.configurations = {
+        ActiveRecord::ConnectionHandling::DEFAULT_ENV.call => {
+          "primary" => {
+            "adapter" => "sqlite3",
+            "database" => database,
+          },
+        },
+      }
+      ActiveRecord::Base.establish_connection(:primary)
+      SharedDatabaseRecord.connects_to(database: { writing: :primary })
+    end
+
+    after do
+      next unless @database_dir
+
+      SharedDatabaseRecord.remove_connection
+      ActiveRecord::Base.configurations = @configurations
+      FileUtils.remove_entry(@database_dir)
+    end
+
+    class PlainApplicationRecord < ActiveRecord::Base
+      self.abstract_class = true
+    end
+
+    class SharedDatabaseRecord < ActiveRecord::Base
+      self.abstract_class = true
+    end
+
     describe "#verify" do
       specify { expect(dispatcher.verify(MyActiveJobAsyncHandler2)).to be(true) }
     end
@@ -113,6 +170,31 @@ module RailsEventStore
         with_active_record_version("6.0.0")
 
         expect { AfterCommitDispatcher.new(scheduler: ActiveJobIdOnlyScheduler.new) }.not_to raise_error
+      end
+
+      specify "watches the transaction ActiveRecord::Base owns when no transaction_owner is given" do
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+          ActiveRecord::Base.transaction do
+            expect_no_enqueued_job(MyActiveJobAsyncHandler2) { dispatcher.call(MyActiveJobAsyncHandler2, event, record) }
+          end
+        end
+      end
+
+      specify "transaction_owner joins the transaction connects_to made invisible" do
+        connect_both_to_one_database
+        owning_dispatcher =
+          AfterCommitDispatcher.new(
+            scheduler: ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+            transaction_owner: SharedDatabaseRecord,
+          )
+
+        expect_to_have_enqueued_job(MyActiveJobAsyncHandler2) do
+          SharedDatabaseRecord.transaction do
+            expect_no_enqueued_job(MyActiveJobAsyncHandler2) do
+              owning_dispatcher.call(MyActiveJobAsyncHandler2, event, record)
+            end
+          end
+        end
       end
     end
 
