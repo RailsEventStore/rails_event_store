@@ -472,36 +472,27 @@ RSpec.describe MyBatchingScheduler do
 end
 ```
 
-#### Events stored on another database
+#### Applications using connects_to
 
-`RailsEventStore::AfterCommitDispatcher` looks for the transaction to join on `ActiveRecord::Base`. If you keep the event store on a separate database, tell it which connection to watch — otherwise it finds no open transaction there and schedules handlers immediately, before the events are committed and without a way to take them back on rollback.
+`RailsEventStore::AfterCommitDispatcher` joins the transaction that wraps your unit of work — the one you open around saving your records and publishing events. It looks for it on `ActiveRecord::Base`.
 
-Pass the same abstract class you gave to [the repository's model factory](../advanced-topics/custom-repository#storing-events-on-another-database):
+In a default Rails application that is the right place to look. `ApplicationRecord` without `connects_to` has no connection of its own, so it resolves to `ActiveRecord::Base`'s pool and `ApplicationRecord.transaction` is that same transaction.
+
+The moment an abstract class calls `connects_to`, Active Record gives it its own connection pool — even when it points at the same database. A transaction opened on that class is then invisible to `ActiveRecord::Base`, which reports none open, and the dispatcher schedules handlers immediately instead of after the commit. A rollback no longer takes the job back. Tell it which class owns the transaction:
 
 ```ruby
-class EventStoreRecord < ActiveRecord::Base
+class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
-  connects_to database: { writing: :events }
+  connects_to database: { writing: :primary, reading: :primary_replica }
 end
 
-event_store = RailsEventStore::Client.new(
-  repository: RubyEventStore::ActiveRecord::EventRepository.new(
-    model_factory: RubyEventStore::ActiveRecord::WithAbstractBaseClass.new(EventStoreRecord),
-    serializer: RubyEventStore::Serializers::YAML
-  ),
-  message_broker: RubyEventStore::Broker.new(
-    dispatcher: RubyEventStore::ComposedDispatcher.new(
-      RailsEventStore::AfterCommitDispatcher.new(
-        scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
-        model: EventStoreRecord
-      ),
-      RubyEventStore::SyncScheduler.new
-    )
-  )
+RailsEventStore::AfterCommitDispatcher.new(
+  scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: RubyEventStore::Serializers::YAML),
+  transaction_owner: ApplicationRecord
 )
 ```
 
-The two have to agree. The repository opens its transaction on the model factory's class, and the dispatcher joins the transaction on the class given as `model` — naming different connections leaves you with the immediate scheduling described above.
+This is independent of where the events themselves are stored. Keeping the event store on [its own database](../advanced-topics/custom-repository#storing-events-on-another-database) changes nothing here — by the time handlers are dispatched the repository has already committed its own transaction, so there is nothing on the event store connection left to join. Pass the class your application opens transactions on, not the one you gave to the repository.
 
 ### Scheduling async handlers immediately
 
