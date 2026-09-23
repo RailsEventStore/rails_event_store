@@ -478,11 +478,13 @@ end
 
 In a default Rails application that is the right place to look. `ApplicationRecord` without `connects_to` has no connection of its own, so it resolves to `ActiveRecord::Base`'s pool and `ApplicationRecord.transaction` is that same transaction.
 
-The moment an abstract class calls `connects_to`, Active Record gives it its own connection pool — even when it points at the same database. A transaction opened on that class is then invisible to `ActiveRecord::Base`, which reports none open, and the dispatcher schedules handlers immediately instead of after the commit. A rollback no longer takes the job back. Tell it which class owns the transaction:
+The same holds when `ApplicationRecord` is declared with `primary_abstract_class`, as the Rails generator does, and calls `connects_to` — for example to add a read replica. Active Record registers the primary abstract class's pool under `ActiveRecord::Base`, so the transaction is still the one the dispatcher finds.
+
+Any other abstract class calling `connects_to` gets a connection pool of its own — even when it points at the same database. A transaction opened on that class is then invisible to `ActiveRecord::Base`, which reports none open, and the dispatcher schedules handlers immediately instead of after the commit. A rollback no longer takes the job back. This is the case for an `ApplicationRecord` marked only with `self.abstract_class = true`, common in applications created before Rails 7.0, or for a separate abstract class your unit of work runs on. Tell the dispatcher which class owns the transaction:
 
 ```ruby
 class ApplicationRecord < ActiveRecord::Base
-  self.abstract_class = true
+  self.abstract_class = true # not primary_abstract_class
   connects_to database: { writing: :primary, reading: :primary_replica }
 end
 
@@ -491,6 +493,8 @@ RailsEventStore::AfterCommitDispatcher.new(
   transaction_owner: ApplicationRecord
 )
 ```
+
+The dispatcher watches one class. If your application opens transactions on several classes with pools of their own, only the one passed as `transaction_owner:` defers handlers to its commit.
 
 This is independent of where the events themselves are stored. Keeping the event store on [its own database](../advanced-topics/custom-repository#storing-events-on-another-database) changes nothing here — by the time handlers are dispatched the repository has already committed its own transaction, so there is nothing on the event store connection left to join. Pass the class your application opens transactions on, not the one you gave to the repository.
 
