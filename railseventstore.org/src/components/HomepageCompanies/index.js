@@ -83,6 +83,11 @@ const CompaniesList = [
     name: "wrapbook",
     img: "/images/wrapbook.svg",
     link: "https://www.wrapbook.com",
+  },
+  {
+    name: "SonarHome",
+    img: "/images/sonarhome.svg",
+    link: "https://sonarhome.pl",
   }
 ];
 
