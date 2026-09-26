@@ -16,5 +16,9 @@ matcher:
     - RailsEventStore*
   ignore:
     - RailsEventStore::Client#initialize
-    - RailsEventStore::JSONClient#initialize
+    - RailsEventStore::Client#default_mapper
+    - RailsEventStore::Serialization::JSON#preserve_types
+    - RailsEventStore::Encryption#initialize
+    - RailsEventStore::Encryption#transformations
+    - RailsEventStore::Encoding::Base64#transformations
     - RailsEventStore::AsyncHandler.with
