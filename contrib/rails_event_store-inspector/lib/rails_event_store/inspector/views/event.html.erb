@@ -1,0 +1,25 @@
+<div style="padding-left:<%= depth * 14 %>px">
+  <% if node.url -%>
+    <a href="<%= h node.url %>" title="open this event in Browser" style="color:#cdd3e0;text-decoration:underline dotted"><%= h node.type %></a>
+  <% else -%>
+    <span style="color:#cdd3e0"><%= h node.type %></span>
+  <% end -%>
+  <span style="opacity:.45"><%= node.duration %></span>
+  <% if node.handler_count.zero? -%>
+    <span style="color:#ff7b6b">⚠ no handlers</span>
+  <% else -%>
+    <span style="color:#8fd694"><%= node.handler_count %> <%= node.handler_count == 1 ? "handler" : "handlers" %></span>
+  <% end -%>
+  <% if node.chain_url -%>
+    <a href="<%= h node.chain_url %>" title="whole correlated chain" class="res-inspector-action">⛓</a>
+  <% end -%>
+</div>
+<% node.handlers.each do |handler| -%>
+  <%= render "handler", node: handler, depth: depth + 1 %>
+<% end -%>
+<% if node.infra.any? -%>
+  <div style="padding-left:<%= (depth + 1) * 14 %>px;opacity:.3">└ <%= node.infra.size %> × RES (<%= h node.infra.join(", ") %>)</div>
+<% end -%>
+<% node.orphans.each do |orphan| -%>
+  <%= render "event", node: orphan, depth: depth + 1 %>
+<% end -%>
