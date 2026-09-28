@@ -8,16 +8,27 @@ module RubyEventStore
     # RailsEventStore::Client) without modifying ruby_event_store itself, and makes
     # every published event pass through the outbox relay.
     #
-    # Included onto RubyEventStore::Client at gem-load time (see
-    # ruby_event_store/outbox_relay.rb), so every client -- including subclasses --
-    # is extended automatically. Internally this prepends InstanceMethods rather than
-    # relying on plain `include` semantics, so its #initialize wins over the one
-    # RubyEventStore::Client defines. For a subclass with its own #initialize (e.g.
-    # RailsEventStore::Client), InstanceMethods#initialize is reached through that
-    # subclass's `super` chain, which is why an explicit `async_broker:` argument is
-    # accepted by RubyEventStore::Client.new but not by RailsEventStore::Client.new
-    # (whose fixed signature forwards no such keyword) -- the latter always builds the
-    # default async broker.
+    # Included onto both RubyEventStore::Client and RailsEventStore::Client at
+    # gem-load time (see ruby_event_store/outbox_relay.rb) -- not just the
+    # former, even though the latter is a subclass of it. Internally this
+    # prepends InstanceMethods rather than relying on plain `include`
+    # semantics, so its #initialize wins over the including class's own.
+    # RailsEventStore::Client#initialize has a fixed keyword list that never
+    # forwards an `async_broker:` argument to `super`, so without prepending
+    # InstanceMethods directly onto RailsEventStore::Client too (not just
+    # inherited from RubyEventStore::Client), passing `async_broker:` to
+    # RailsEventStore::Client.new would raise ArgumentError before ever
+    # reaching RubyEventStore::Client's own prepended #initialize. This is why
+    # `async_broker:` works identically on both classes, as documented in the
+    # README.
+    #
+    # The tradeoff: for RailsEventStore::Client, #initialize is thus reached
+    # twice per .new call (once directly, once again via
+    # RailsEventStore::Client#initialize's own `super` chain reaching
+    # RubyEventStore::Client's separately prepended copy) -- #initialize
+    # guards against that with @async_broker_initializer_reentrant, so the
+    # second, nested call skips building (and immediately discarding) an
+    # unused default_async_broker.
     #
     # The decision of how an event gets delivered moves from the event to the subscriber:
     # #subscribe_sync (aliased as #subscribe, unchanged) delivers synchronously and
@@ -42,10 +53,18 @@ module RubyEventStore
         #   RailsEventStore::ActiveJobScheduler, reusing the repository's own
         #   serializer when it exposes one publicly, falling back to
         #   RubyEventStore::Serializers::YAML otherwise (e.g. InMemoryRepository,
-        #   whose #serializer is private).
+        #   whose #serializer is private). Works identically whether called on
+        #   RubyEventStore::Client or RailsEventStore::Client -- see the class
+        #   comment for why RailsEventStore::Client needs InstanceMethods
+        #   prepended a second time to make that so, and how this method
+        #   avoids doing the underlying work twice because of it.
         def initialize(async_broker: nil, **kwargs)
+          reentrant = defined?(@async_broker_initializer_reentrant)
+          @async_broker_initializer_reentrant = true
+
           super(**kwargs)
-          @async_broker = async_broker || default_async_broker
+
+          @async_broker = async_broker || default_async_broker unless reentrant
         end
 
         # @return [Object] the repository configured on this client (typically
