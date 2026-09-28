@@ -18,6 +18,10 @@ module RubyEventStore
 
       private
 
+      # Must always assign :published_at explicitly, even to nil: super's hash
+      # has no :published_at at all, and insert_all! turns an absent key into
+      # an omitted column, falling back to its DB default (CURRENT_TIMESTAMP on
+      # some adapters) instead of persisting NULL. mutant:disable
       def insert_hash(record, serialized_record)
         super.tap { |hash| hash[:published_at] = WithoutRelay.active? ? Time.now.utc : nil }
       end
