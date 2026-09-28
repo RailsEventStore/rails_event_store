@@ -15,16 +15,17 @@ module RubyEventStore
       #   RubyEventStore::OutboxRelay::ClientExtension -- broker, mapper, and
       #   serializer are all read from it (client.async_broker, client.mapper,
       #   client.repository.serializer)
-      # @param event_klass [Class] the ActiveRecord model backed by event_store_events.
-      #   Defaults via Module#const_get rather than a direct constant reference,
-      #   since RubyEventStore::ActiveRecord::Event is a private_constant and Relay
-      #   is not lexically nested inside RubyEventStore::ActiveRecord.
+      # @param event_klass [Class] the ActiveRecord model backed by
+      #   event_store_events. Defaults to client.repository.model_factory's own
+      #   event model, so a repository configured with a custom model_factory
+      #   (e.g. a non-default table) is honored automatically instead of always
+      #   pointing at RubyEventStore::ActiveRecord::Event.
       # @param batch_size [Integer] how many events to fetch per batch
       # @param poll_interval [Numeric] how long to sleep after an empty batch
       # @param logger [Logger]
       def initialize(
         client:,
-        event_klass: RubyEventStore::ActiveRecord.const_get(:Event),
+        event_klass: client.repository.model_factory.call.first,
         batch_size: 100,
         poll_interval: 1,
         logger: Logger.new($stdout)

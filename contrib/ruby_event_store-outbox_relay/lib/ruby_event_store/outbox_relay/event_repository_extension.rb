@@ -16,6 +16,12 @@ module RubyEventStore
       # build a scheduler that serializes the same way the repository does.
       attr_reader :serializer
 
+      # Public on purpose -- Relay's default event_klass reuses this, instead of
+      # hard-coding RubyEventStore::ActiveRecord::Event, so a repository
+      # configured with a custom model_factory (e.g. a non-default table) still
+      # gets the relay pointed at the right table by default.
+      attr_reader :model_factory
+
       private
 
       # Must always assign :published_at explicitly, even to nil: super's hash

@@ -32,6 +32,17 @@ module RubyEventStore
         expect(repository.serializer).to equal(helper.serializer)
       end
 
+      specify "exposes the configured model_factory publicly" do
+        custom_factory = double(:model_factory)
+        repository = RubyEventStore::ActiveRecord::EventRepository.new(model_factory: custom_factory, serializer: helper.serializer)
+
+        expect(repository.model_factory).to equal(custom_factory)
+      end
+
+      specify "defaults model_factory to WithDefaultModels when none is given" do
+        expect(repository.model_factory).to be_a(RubyEventStore::ActiveRecord::WithDefaultModels)
+      end
+
       specify "writes published_at as nil in the same insert, by default" do
         record = build_record(TestEvent.new)
 

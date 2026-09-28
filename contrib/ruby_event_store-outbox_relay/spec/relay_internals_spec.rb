@@ -38,8 +38,22 @@ module RubyEventStore
           expect(logger.instance_variable_get(:@logdev).dev).to equal($stdout)
         end
 
-        specify "defaults event_klass to the real ActiveRecord::Event model" do
-          relay = Relay.new(client: double(:client))
+        specify "defaults event_klass to the repository's own model_factory, so a custom factory's model is honored" do
+          event_klass = double(:event_klass)
+          model_factory = double(:model_factory, call: [event_klass, double(:stream_klass)])
+          repository = double(:repository, model_factory: model_factory)
+          client = double(:client, repository: repository)
+
+          relay = Relay.new(client: client)
+
+          expect(relay.instance_variable_get(:@event_klass)).to equal(event_klass)
+        end
+
+        specify "resolves to the real ActiveRecord::Event model for a repository using the default model_factory" do
+          repository = RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML)
+          client = double(:client, repository: repository)
+
+          relay = Relay.new(client: client)
 
           expect(relay.instance_variable_get(:@event_klass)).to equal(RubyEventStore::ActiveRecord.const_get(:Event))
         end
