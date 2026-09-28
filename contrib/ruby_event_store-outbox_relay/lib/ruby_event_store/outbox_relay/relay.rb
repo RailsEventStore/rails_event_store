@@ -52,26 +52,21 @@ module RubyEventStore
       end
 
       # Fetches and processes a single batch of pending events. Public because it
-      # is called directly from tests. Returns the number of events processed.
+      # is called directly from tests. Returns the number of events successfully
+      # processed (which can be less than the batch size -- see #process_row).
       #
-      # The whole operation (SELECT ... FOR UPDATE SKIP LOCKED, broker.call, UPDATE)
-      # happens in one SQL transaction. If broker.call raises, the transaction rolls
-      # back -- published_at stays NULL and the event is picked up by the next batch.
+      # The batch is fetched with SELECT ... FOR UPDATE SKIP LOCKED inside one SQL
+      # transaction, held for the duration of the whole batch so no other relay
+      # instance can grab the same rows. Each row is then deserialized, dispatched,
+      # and marked published in its own nested transaction (#process_row), so one
+      # event failing doesn't roll back or block the rest of the batch.
       # @return [Integer]
       def process_batch
         ensure_skip_json_serialization!
 
         event_klass.transaction do
           rows = fetch_batch
-          next 0 if rows.empty?
-
-          records = rows.map { |row| to_record(row) }
-          events = mapper.records_to_events(records)
-
-          events.zip(records) { |event, record| dispatch(event, record) }
-
-          event_klass.where(id: rows.map(&:id)).update_all(published_at: Time.now.utc)
-          rows.size
+          rows.count { |row| process_row(row) }
         end
       end
 
@@ -124,6 +119,25 @@ module RubyEventStore
         scope = event_klass.where(published_at: nil).order(:id).limit(batch_size)
         scope = scope.lock(lock_clause) if lock_clause
         scope.to_a
+      end
+
+      # Deserializes, dispatches, and marks a single row published, inside its own
+      # nested transaction (SAVEPOINT) so a failure here only rolls back this row,
+      # not the rest of the batch. Returns true on success; on any StandardError
+      # (bad data, a raising subscriber, a missing correlation_id, ...) it logs the
+      # error, leaves published_at NULL for retry on a later batch, and returns
+      # false.
+      def process_row(row)
+        event_klass.transaction(requires_new: true) do
+          record = to_record(row)
+          event = mapper.records_to_events([record]).first
+          dispatch(event, record)
+          event_klass.where(id: row.id).update_all(published_at: Time.now.utc)
+        end
+        true
+      rescue StandardError => e
+        logger.error("Error while processing outbox event #{row.event_id} (#{row.event_type}): #{e.class}: #{e.message}")
+        false
       end
 
       def lock_clause
