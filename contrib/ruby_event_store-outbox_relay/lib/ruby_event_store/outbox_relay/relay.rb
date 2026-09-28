@@ -59,6 +59,8 @@ module RubyEventStore
       # back -- published_at stays NULL and the event is picked up by the next batch.
       # @return [Integer]
       def process_batch
+        ensure_skip_json_serialization!
+
         event_klass.transaction do
           rows = fetch_batch
           next 0 if rows.empty?
@@ -87,6 +89,28 @@ module RubyEventStore
 
       def serializer
         client.repository.serializer
+      end
+
+      # RubyEventStore::ActiveRecord::EventRepository only mixes
+      # SkipJsonSerialization into event_klass as a side effect of the app
+      # process using the repository (#model_klasses, called from e.g.
+      # #append_to_stream). The relay runs in its own process and never calls
+      # the repository, so without this, ActiveRecord auto-deserializes a
+      # json/jsonb data or metadata column into a Hash on read, which then
+      # fails to (re)deserialize through the configured serializer.
+      #
+      # Mirrors EventRepository#model_klasses: include unconditionally for any
+      # non-NULL serializer (harmless for non-json columns -- the module only
+      # affects json/jsonb cast types) rather than checking column types first,
+      # since inspecting a column's type resolves and caches the class's
+      # attribute types, and including the module afterwards would then be too
+      # late to affect that already-cached type.
+      def ensure_skip_json_serialization!
+        return if @skip_json_serialization_ensured
+        @skip_json_serialization_ensured = true
+        return if serializer == RubyEventStore::NULL
+
+        event_klass.include(RubyEventStore::ActiveRecord.const_get(:SkipJsonSerialization))
       end
 
       def process_batch_safely
