@@ -22,10 +22,14 @@ module RubyEventStore
     # The decision of how an event gets delivered moves from the event to the subscriber:
     # #subscribe_sync (aliased as #subscribe, unchanged) delivers synchronously and
     # in-process exactly as before; #subscribe_async delivers exclusively through
-    # the outbox relay. #publish itself is not overridden here at all -- every event
-    # is persisted with published_at: nil unconditionally, by EventRepositoryExtension,
+    # the outbox relay. #publish itself is not overridden here at all -- every
+    # published event is persisted with published_at: nil by EventRepositoryExtension,
     # since any event may have async subscribers -- so synchronous dispatch for
-    # sync/Within subscribers is untouched.
+    # sync/Within subscribers is untouched. #append is overridden, to keep its own
+    # documented contract of not notifying any subscribed handlers: it wraps its
+    # (otherwise unmodified) super call in WithoutRelay.call, so
+    # EventRepositoryExtension persists those rows already marked published --
+    # the relay will never pick them up.
     module ClientExtension
       def self.included(base)
         base.prepend(InstanceMethods)
@@ -59,6 +63,16 @@ module RubyEventStore
         # @return [Object] broker used for #subscribe_async subscribers; the relay
         #   dispatches through this broker
         attr_reader :async_broker
+
+        # Persists new event(s) without notifying any subscribed handlers -- sync
+        # or async. Otherwise identical to RubyEventStore::Client#append; only
+        # wrapped so EventRepositoryExtension knows this insert needs no relay
+        # delivery.
+        #
+        # @param (see RubyEventStore::Client#append)
+        def append(events, stream_name: GLOBAL_STREAM, expected_version: :any)
+          WithoutRelay.call { super }
+        end
 
         # Subscribes a handler invoked synchronously, in-process -- identical
         # behavior to the original #subscribe, kept below as a working alias for

@@ -32,13 +32,21 @@ module RubyEventStore
         expect(repository.serializer).to equal(helper.serializer)
       end
 
-      specify "writes published_at as nil in the same insert, unconditionally" do
+      specify "writes published_at as nil in the same insert, by default" do
         record = build_record(TestEvent.new)
 
         repository.append_to_stream([record], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)
 
         row = event_klass.find_by!(event_id: record.event_id)
         expect(row.published_at).to be_nil
+      end
+
+      specify "writes published_at as already set inside WithoutRelay.call" do
+        record = build_record(TestEvent.new)
+
+        WithoutRelay.call { repository.append_to_stream([record], Stream.new(GLOBAL_STREAM), ExpectedVersion.any) }
+
+        expect(event_klass.find_by!(event_id: record.event_id).published_at).not_to be_nil
       end
 
       specify "every event written through this repository is affected, not just the first" do
