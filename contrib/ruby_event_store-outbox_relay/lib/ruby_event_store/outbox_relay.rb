@@ -9,6 +9,7 @@ require_relative "outbox_relay/client_extension"
 require_relative "outbox_relay/event_repository_extension"
 require_relative "outbox_relay/relay"
 require_relative "outbox_relay/generators/migration_generator"
+require_relative "outbox_relay/railtie"
 
 RubyEventStore::Client.include(RubyEventStore::OutboxRelay::ClientExtension)
 RailsEventStore::Client.include(RubyEventStore::OutboxRelay::ClientExtension)

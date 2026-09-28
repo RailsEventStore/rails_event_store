@@ -4,7 +4,7 @@ require_relative "../ruby_event_store/outbox_relay/generators/migration_generato
 
 namespace :ruby_event_store do
   desc "Generate migration adding published_at to event_store_events"
-  task "outbox_relay:install_migration" do
+  task "outbox_relay:install_migration" => :environment do
     ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"]) if ENV["DATABASE_URL"]
     database_adapter =
       RubyEventStore::ActiveRecord::DatabaseAdapter.from_string(::ActiveRecord::Base.connection.adapter_name)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "erb"
+require "ruby_event_store/active_record"
 
 module RubyEventStore
   module OutboxRelay
