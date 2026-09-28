@@ -54,10 +54,11 @@ module RubyEventStore
       end
 
       specify "publish forwards topic, stream_name, and expected_version, exactly like the original publish" do
-        SpecHelper.new.run_lifecycle do
+        helper = SpecHelper.new
+        helper.run_lifecycle do
           client =
             client_class.new(
-              repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
+              repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: helper.serializer),
               async_broker: double(:async_broker),
             )
           handler = spy(:handler)
@@ -171,8 +172,9 @@ module RubyEventStore
 
         specify "dispatches through RailsEventStore::ActiveJobScheduler using the repository's serializer" do
           TestAsyncJob.reset!
-          SpecHelper.new.run_lifecycle do
-            repository = RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML)
+          helper = SpecHelper.new
+          helper.run_lifecycle do
+            repository = RubyEventStore::ActiveRecord::EventRepository.new(serializer: helper.serializer)
             client = client_class.new(repository: repository)
             client.subscribe_async(TestAsyncJob, to: [TestEvent])
             event_klass = RubyEventStore::ActiveRecord::WithDefaultModels.new.call.first

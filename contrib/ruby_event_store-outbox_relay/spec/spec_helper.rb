@@ -20,8 +20,14 @@ module RubyEventStore
     class SpecHelper
       include SchemaHelper
 
+      # The serializer matching ENV["DATA_TYPE"]: YAML output isn't valid JSON,
+      # so a json/jsonb column needs the JSON serializer instead.
       def serializer
-        RubyEventStore::Serializers::YAML
+        json_data_type? ? JSON : RubyEventStore::Serializers::YAML
+      end
+
+      def json_data_type?
+        %w[json jsonb].include?(ENV["DATA_TYPE"])
       end
 
       def run_lifecycle
