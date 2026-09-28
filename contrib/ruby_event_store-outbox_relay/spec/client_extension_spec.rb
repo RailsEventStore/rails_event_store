@@ -157,6 +157,18 @@ module RubyEventStore
       end
 
       describe "default async_broker" do
+        specify "builds successfully for a repository with no public #serializer, such as InMemoryRepository" do
+          client = client_class.new
+
+          expect(client.async_broker).to be_a(RubyEventStore::Broker)
+        end
+
+        specify "builds successfully for a repository responding to methods but not #serializer" do
+          client = client_class.new(repository: repository)
+
+          expect(client.async_broker).to be_a(RubyEventStore::Broker)
+        end
+
         specify "dispatches through RailsEventStore::ActiveJobScheduler using the repository's serializer" do
           TestAsyncJob.reset!
           SpecHelper.new.run_lifecycle do

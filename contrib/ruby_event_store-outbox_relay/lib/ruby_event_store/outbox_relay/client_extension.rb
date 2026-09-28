@@ -36,7 +36,9 @@ module RubyEventStore
         #   #subscribe_async subscribers and read by Relay. Defaults to
         #   RubyEventStore::ImmediateDispatcher scheduling through
         #   RailsEventStore::ActiveJobScheduler, reusing the repository's own
-        #   serializer.
+        #   serializer when it exposes one publicly, falling back to
+        #   RubyEventStore::Serializers::YAML otherwise (e.g. InMemoryRepository,
+        #   whose #serializer is private).
         def initialize(async_broker: nil, **kwargs)
           super(**kwargs)
           @async_broker = async_broker || default_async_broker
@@ -82,9 +84,13 @@ module RubyEventStore
         def default_async_broker
           Broker.new(
             dispatcher: ImmediateDispatcher.new(
-              scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: repository.serializer),
+              scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: async_serializer),
             ),
           )
+        end
+
+        def async_serializer
+          repository.respond_to?(:serializer) ? repository.serializer : Serializers::YAML
         end
       end
     end
