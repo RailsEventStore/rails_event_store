@@ -123,17 +123,29 @@ class CI
             generate(
               ruby_version(MRI_RUBY),
               bundle_gemfile(GEMFILE),
-              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7, POSTGRES_14, POSTGRES_18),
+              join(
+                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                generate(database_url(POSTGRES_14, POSTGRES_18), data_type(DATA_TYPES_IN_AR)),
+                generate(database_url(MYSQL_8_4, MYSQL_9_7), data_type(DATA_TYPES_IN_AR.take(2))),
+              ),
             ),
             generate(
               ruby_version(RUBY_4_0),
               bundle_gemfile(GEMFILE),
-              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7, POSTGRES_14, POSTGRES_18),
+              join(
+                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                generate(database_url(POSTGRES_14, POSTGRES_18), data_type(DATA_TYPES_IN_AR)),
+                generate(database_url(MYSQL_8_4, MYSQL_9_7), data_type(DATA_TYPES_IN_AR.take(2))),
+              ),
             ),
             generate(
               ruby_version(RUBY_3_4),
               bundle_gemfile(GEMFILE),
-              database_url(SQLITE3, MYSQL_8_4, MYSQL_9_7, POSTGRES_14, POSTGRES_18),
+              join(
+                generate(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+                generate(database_url(POSTGRES_14, POSTGRES_18), data_type(DATA_TYPES_IN_AR)),
+                generate(database_url(MYSQL_8_4, MYSQL_9_7), data_type(DATA_TYPES_IN_AR.take(2))),
+              ),
             ),
           )
       ),

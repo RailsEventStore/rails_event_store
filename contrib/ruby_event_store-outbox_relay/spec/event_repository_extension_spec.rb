@@ -10,7 +10,7 @@ module RubyEventStore
 
       around { |example| helper.run_lifecycle { example.run } }
 
-      let(:repository) { RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML) }
+      let(:repository) { RubyEventStore::ActiveRecord::EventRepository.new(serializer: helper.serializer) }
 
       def build_record(event)
         now = Time.now.utc
@@ -29,7 +29,7 @@ module RubyEventStore
       end
 
       specify "exposes the configured serializer publicly" do
-        expect(repository.serializer).to equal(RubyEventStore::Serializers::YAML)
+        expect(repository.serializer).to equal(helper.serializer)
       end
 
       specify "writes published_at as nil in the same insert, unconditionally" do

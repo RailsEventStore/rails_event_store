@@ -29,6 +29,7 @@ jobs:
       RUBY_VERSION: "${{ matrix.ruby_version }}"
       BUNDLE_GEMFILE: "${{ matrix.bundle_gemfile }}"
       DATABASE_URL: "${{ matrix.database_url }}"
+      DATA_TYPE: "${{ matrix.data_type }}"
     services:
       mysql_8_4:
         image: mysql:8.4
@@ -69,36 +70,71 @@ jobs:
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
           database_url: sqlite3:db.sqlite3
+          data_type: binary
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: sqlite3:db.sqlite3
+          data_type: binary
         - ruby_version: ruby-3.3
           bundle_gemfile: Gemfile
           database_url: sqlite3:db.sqlite3
-        - ruby_version: ruby-4.0
-          bundle_gemfile: Gemfile
-          database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
-        - ruby_version: ruby-4.0
-          bundle_gemfile: Gemfile
-          database_url: mysql2://root:secret@127.0.0.1:10097/rails_event_store
+          data_type: binary
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10014/rails_event_store
+          data_type: binary
         - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10018/rails_event_store
-        - ruby_version: ruby-3.4
+          data_type: binary
+        - ruby_version: ruby-4.0
+          bundle_gemfile: Gemfile
+          database_url: postgres://postgres:secret@localhost:10014/rails_event_store
+          data_type: json
+        - ruby_version: ruby-4.0
+          bundle_gemfile: Gemfile
+          database_url: postgres://postgres:secret@localhost:10014/rails_event_store
+          data_type: jsonb
+        - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
           database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
-        - ruby_version: ruby-3.4
+          data_type: binary
+        - ruby_version: ruby-4.0
           bundle_gemfile: Gemfile
           database_url: mysql2://root:secret@127.0.0.1:10097/rails_event_store
+          data_type: binary
+        - ruby_version: ruby-4.0
+          bundle_gemfile: Gemfile
+          database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
+          data_type: json
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10014/rails_event_store
+          data_type: binary
         - ruby_version: ruby-3.4
           bundle_gemfile: Gemfile
           database_url: postgres://postgres:secret@localhost:10018/rails_event_store
+          data_type: binary
+        - ruby_version: ruby-3.4
+          bundle_gemfile: Gemfile
+          database_url: postgres://postgres:secret@localhost:10014/rails_event_store
+          data_type: json
+        - ruby_version: ruby-3.4
+          bundle_gemfile: Gemfile
+          database_url: postgres://postgres:secret@localhost:10014/rails_event_store
+          data_type: jsonb
+        - ruby_version: ruby-3.4
+          bundle_gemfile: Gemfile
+          database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
+          data_type: binary
+        - ruby_version: ruby-3.4
+          bundle_gemfile: Gemfile
+          database_url: mysql2://root:secret@127.0.0.1:10097/rails_event_store
+          data_type: binary
+        - ruby_version: ruby-3.4
+          bundle_gemfile: Gemfile
+          database_url: mysql2://root:secret@127.0.0.1:10084/rails_event_store
+          data_type: json
     steps:
     - uses: actions/checkout@v4
       with:
