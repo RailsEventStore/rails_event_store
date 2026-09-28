@@ -140,8 +140,13 @@ module RubyEventStore
         false
       end
 
+      # RubyEventStore::ActiveRecord::DatabaseAdapter normalizes adapter names the
+      # same way the migration generator does (e.g. postgis -> PostgreSQL,
+      # trilogy -> MySQL), so those aliases get locked too, unlike a bare
+      # /postgres|mysql/i match against the raw adapter name.
       def lock_clause
-        "FOR UPDATE SKIP LOCKED" if event_klass.connection.adapter_name.match?(/postgres|mysql/i)
+        adapter = RubyEventStore::ActiveRecord::DatabaseAdapter.from_string(event_klass.connection.adapter_name)
+        "FOR UPDATE SKIP LOCKED" unless adapter.is_a?(RubyEventStore::ActiveRecord::DatabaseAdapter::SQLite)
       end
 
       def dispatch(event, record)
