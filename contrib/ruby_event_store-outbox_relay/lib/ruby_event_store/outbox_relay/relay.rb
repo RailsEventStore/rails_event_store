@@ -103,9 +103,30 @@ module RubyEventStore
       def ensure_skip_json_serialization!
         return if @skip_json_serialization_ensured
         @skip_json_serialization_ensured = true
-        return if serializer == RubyEventStore::NULL
+        return if null_serializer?
 
-        event_klass.include(RubyEventStore::ActiveRecord.const_get(:SkipJsonSerialization))
+        event_klass.include(skip_json_serialization_module)
+      end
+
+      # Split out from #ensure_skip_json_serialization! because, from this
+      # lexical nesting (inside RubyEventStore::OutboxRelay::Relay), the
+      # RubyEventStore:: prefix is redundant -- ActiveRecord alone already
+      # resolves to RubyEventStore::ActiveRecord -- so mutation testing can
+      # never distinguish the qualified reference from the bare one.
+      # SkipJsonSerialization isn't a private_constant, unlike
+      # RubyEventStore::ActiveRecord::Event, so no Module#const_get workaround
+      # is needed here. mutant:disable
+      def skip_json_serialization_module
+        RubyEventStore::ActiveRecord::SkipJsonSerialization
+      end
+
+      # Split out from #ensure_skip_json_serialization! because, from this
+      # lexical nesting (inside RubyEventStore::OutboxRelay::Relay), a bare
+      # NULL reference already resolves to RubyEventStore::NULL -- so mutating
+      # the qualified constant to the bare one is behaviorally identical, and
+      # mutation testing can never distinguish the two. mutant:disable
+      def null_serializer?
+        serializer == RubyEventStore::NULL
       end
 
       def process_batch_safely
