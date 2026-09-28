@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "logger"
 
 module RubyEventStore
   module OutboxRelay
@@ -51,6 +52,49 @@ module RubyEventStore
         client.publish(event = TestEvent.new)
 
         expect(handler).to have_received(:call).with(event)
+      end
+
+      describe "#append" do
+        specify "forwards records/stream/expected_version to the repository unchanged" do
+          client = client_class.new(repository: repository, async_broker: double(:async_broker))
+
+          result = client.append(event = TestEvent.new)
+
+          expect(result).to eq(client)
+          expect(calls.size).to eq(1)
+          expect(calls.first[:records].map(&:event_id)).to eq([event.event_id])
+          expect(calls.first[:stream]).to eq(Stream.new(GLOBAL_STREAM))
+          expect(calls.first[:expected_version]).to eq(ExpectedVersion.any)
+        end
+
+        specify "does not dispatch to sync subscribers, same as the original append" do
+          handler = spy(:handler)
+          client = client_class.new(repository: repository, async_broker: double(:async_broker))
+          client.subscribe(handler, to: [TestEvent])
+
+          client.append(TestEvent.new)
+
+          expect(handler).not_to have_received(:call)
+        end
+
+        specify "persists the row already marked published, so the relay never picks it up for async subscribers" do
+          TestAsyncJob.reset!
+          helper = SpecHelper.new
+          helper.run_lifecycle do
+            repository = RubyEventStore::ActiveRecord::EventRepository.new(serializer: helper.serializer)
+            client = client_class.new(repository: repository)
+            client.subscribe_async(TestAsyncJob, to: [TestEvent])
+            event_klass = RubyEventStore::ActiveRecord::WithDefaultModels.new.call.first
+            relay = Relay.new(client: client, event_klass: event_klass, logger: Logger.new(File::NULL))
+
+            event = TestEvent.new
+            client.append(event)
+
+            expect(event_klass.find_by!(event_id: event.event_id).published_at).not_to be_nil
+            expect(relay.process_batch).to eq(0)
+            expect(TestAsyncJob.received).to be_empty
+          end
+        end
       end
 
       specify "publish forwards topic, stream_name, and expected_version, exactly like the original publish" do
