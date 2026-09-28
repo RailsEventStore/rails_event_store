@@ -97,6 +97,27 @@ module RubyEventStore
           expect(calls).to eq([[:where, [{ published_at: nil }]], [:order, [:id]], [:limit, [55]], [:to_a]])
           expect(result).to eq([])
         end
+
+        %w[PostGIS Trilogy].each do |adapter_name|
+          specify "locks for #{adapter_name}, an alias RubyEventStore::ActiveRecord::DatabaseAdapter normalizes" do
+            calls = []
+            final_scope = scope_double
+            ordered_scope = scope_double
+            limited_scope = scope_double
+            event_klass = double(:event_klass)
+            allow(event_klass).to receive(:where) { |*a| calls << [:where, a]; ordered_scope }
+            allow(ordered_scope).to receive(:order) { |*a| calls << [:order, a]; limited_scope }
+            allow(limited_scope).to receive(:limit) { |*a| calls << [:limit, a]; final_scope }
+            allow(final_scope).to receive(:lock) { |*a| calls << [:lock, a]; final_scope }
+            allow(final_scope).to receive(:to_a) { calls << [:to_a]; [] }
+            allow(event_klass).to receive(:connection).and_return(double(:connection, adapter_name: adapter_name))
+
+            relay = Relay.new(client: double(:client), event_klass: event_klass, batch_size: 55)
+            relay.send(:fetch_batch)
+
+            expect(calls).to include([:lock, ["FOR UPDATE SKIP LOCKED"]])
+          end
+        end
       end
 
       describe "#dispatch (private)" do
