@@ -66,14 +66,56 @@ module RubyEventStore
         expect(received.size).to eq(1)
       end
 
-      specify "leaves published_at NULL when broker.call raises, so the event is retried" do
+      specify "leaves published_at NULL when broker.call raises, so the event is retried, without raising itself" do
         async_broker.add_global_subscription(->(_event) { raise "boom" })
         event = publish_async.first
 
-        expect { relay.process_batch }.to raise_error("boom")
+        processed = relay.process_batch
 
+        expect(processed).to eq(0)
         expect(event_klass.find_by!(event_id: event.event_id).published_at).to be_nil
       end
+
+      specify "one event raising does not roll back or block the others in the same batch" do
+        received = []
+        poisoned_id = nil
+        async_broker.add_global_subscription(
+          lambda do |event|
+            raise "boom" if event.event_id == poisoned_id
+            received << event
+          end,
+        )
+        first, poisoned, third = Array.new(3) { TestEvent.new }.each { |event| client.publish(event) }
+        poisoned_id = poisoned.event_id
+
+        processed = Relay.new(client: client, event_klass: event_klass, batch_size: 3, logger: Logger.new(File::NULL)).process_batch
+
+        expect(processed).to eq(2)
+        expect(received.map(&:event_id)).to eq([first.event_id, third.event_id])
+        expect(event_klass.find_by!(event_id: first.event_id).published_at).not_to be_nil
+        expect(event_klass.find_by!(event_id: third.event_id).published_at).not_to be_nil
+        expect(event_klass.find_by!(event_id: poisoned.event_id).published_at).to be_nil
+      end
+
+      # Requires content that's invalid for the active serializer yet still fits
+      # the column unchanged -- only possible when the column has no format of
+      # its own to enforce, i.e. not a json/jsonb column (where storable content
+      # is by definition valid JSON, which the JSON serializer would then load
+      # successfully anyway).
+      specify "a row that fails to deserialize does not block the rest of the batch" do
+        received = []
+        async_broker.add_global_subscription(->(event) { received << event })
+        first, corrupted, third = Array.new(3) { TestEvent.new }.each { |event| client.publish(event) }
+        event_klass.where(event_id: corrupted.event_id).update_all(data: "not: valid: yaml: [")
+
+        processed = Relay.new(client: client, event_klass: event_klass, batch_size: 3, logger: Logger.new(File::NULL)).process_batch
+
+        expect(processed).to eq(2)
+        expect(received.map(&:event_id)).to eq([first.event_id, third.event_id])
+        expect(event_klass.find_by!(event_id: first.event_id).published_at).not_to be_nil
+        expect(event_klass.find_by!(event_id: third.event_id).published_at).not_to be_nil
+        expect(event_klass.find_by!(event_id: corrupted.event_id).published_at).to be_nil
+      end unless helper.json_data_type?
 
       specify "processes events in id order and respects batch_size" do
         received = []
