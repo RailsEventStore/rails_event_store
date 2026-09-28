@@ -17,8 +17,6 @@ module RubyEventStore
       end
 
       specify "existing rows become published (published_at NOT NULL) after migrating" do
-        skip "SQLite can't ADD COLUMN with a non-constant default on a non-empty table" unless helper.postgres? || helper.mysql?
-
         event_klass.insert({
           event_id: SecureRandom.uuid,
           event_type: "PreExisting",
