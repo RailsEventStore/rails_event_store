@@ -57,11 +57,13 @@ module RubyEventStore
           end
         end
 
-        specify "renders the sqlite-specific default and composite index" do
+        specify "renders the sqlite-specific staged default (no inline default, backfill, then change_column_default) and composite index" do
           Dir.mktmpdir do |dir|
             _, content = generator.generate(sqlite_adapter, dir)
 
-            expect(content).to include('default: -> { "CURRENT_TIMESTAMP" }')
+            expect(content).to include("add_column :event_store_events, :published_at, :datetime, precision: 6, null: true")
+            expect(content).to include("UPDATE event_store_events SET published_at = CURRENT_TIMESTAMP WHERE published_at IS NULL")
+            expect(content).to include('change_column_default :event_store_events, :published_at, -> { "CURRENT_TIMESTAMP" }')
             expect(content).not_to include("CURRENT_TIMESTAMP(6)")
             expect(content).to include(
               'add_index :event_store_events, %i[published_at id], name: "index_event_store_events_unpublished"',
