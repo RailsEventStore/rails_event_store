@@ -14,7 +14,7 @@ module RubyEventStore
       let(:async_broker) { RubyEventStore::Broker.new }
       let(:client) do
         helper.extended_client_class.new(
-          repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
+          repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: helper.serializer),
           async_broker: async_broker,
         )
       end

@@ -12,7 +12,7 @@ module RubyEventStore
 
       def build_client
         SpecHelper.new.extended_client_class.new(
-          repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
+          repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: SpecHelper.new.serializer),
         )
       end
 
