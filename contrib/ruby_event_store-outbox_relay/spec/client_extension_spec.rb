@@ -266,6 +266,25 @@ module RubyEventStore
         specify "still builds the default async_broker when none is given" do
           SpecHelper.new.run_lifecycle { expect(RailsEventStore::Client.new.async_broker).to be_a(RubyEventStore::Broker) }
         end
+
+        specify "InstanceMethods is prepended twice -- once directly, once inherited via RubyEventStore::Client -- intentionally" do
+          expect(RailsEventStore::Client.ancestors.count { |m| m == ClientExtension::InstanceMethods }).to eq(2)
+        end
+
+        specify "builds the default async_broker only once despite #initialize being reached twice per .new call" do
+          SpecHelper.new.run_lifecycle do
+            calls = 0
+            client = RailsEventStore::Client.allocate
+            client.define_singleton_method(:default_async_broker) do
+              calls += 1
+              super()
+            end
+
+            client.send(:initialize)
+
+            expect(calls).to eq(1)
+          end
+        end
       end
     end
   end
