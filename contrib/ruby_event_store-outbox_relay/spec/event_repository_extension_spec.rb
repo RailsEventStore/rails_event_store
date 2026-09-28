@@ -49,6 +49,15 @@ module RubyEventStore
         expect(event_klass.find_by!(event_id: record.event_id).published_at).not_to be_nil
       end
 
+      specify "the published_at it assigns inside WithoutRelay.call is in UTC" do
+        record = build_record(TestEvent.new)
+        serialized_record = record.serialize(repository.serializer)
+
+        hash = WithoutRelay.call { repository.send(:insert_hash, record, serialized_record) }
+
+        expect(hash[:published_at]).to be_utc
+      end
+
       specify "every event written through this repository is affected, not just the first" do
         first = build_record(TestEvent.new)
         repository.append_to_stream([first], Stream.new(GLOBAL_STREAM), ExpectedVersion.any)

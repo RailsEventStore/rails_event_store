@@ -218,6 +218,85 @@ module RubyEventStore
         end
       end
 
+      describe "#process_row (private)" do
+        specify "deserializes, maps, dispatches, and marks the row published inside a nested transaction (SAVEPOINT), returning true" do
+          calls = []
+          row = double(:row, id: 42, event_id: "e-1", event_type: "TestEvent")
+          record = double(:record)
+          event = double(:event)
+          where_scope = double(:where_scope)
+          event_klass = double(:event_klass)
+          allow(event_klass).to receive(:transaction) { |**kwargs, &block| calls << [:transaction, kwargs]; block.call }
+          allow(event_klass).to receive(:where) { |*a| calls << [:where, a]; where_scope }
+          allow(where_scope).to receive(:update_all) { |*a| calls << [:update_all, a] }
+          mapper = double(:mapper, events_to_records: nil)
+          allow(mapper).to receive(:records_to_events).with([record]).and_return([event])
+          client = client_class.new(mapper: mapper, async_broker: double(:async_broker))
+          relay = build_relay(client: client, event_klass: event_klass)
+          allow(relay).to receive(:to_record).with(row).and_return(record)
+          allow(relay).to receive(:dispatch)
+
+          result = relay.send(:process_row, row)
+
+          expect(result).to eq(true)
+          expect(relay).to have_received(:dispatch).with(event, record)
+          expect(calls[0]).to eq([:transaction, { requires_new: true }])
+          expect(calls[1]).to eq([:where, [{ id: 42 }]])
+          expect(calls[2].first).to eq(:update_all)
+          published_at = calls[2].last.first.fetch(:published_at)
+          expect(published_at).to be_utc
+        end
+
+        specify "returns false and logs the event's id, type, and the exception's message, without raising, when any step fails" do
+          error_class =
+            Class.new(StandardError) do
+              def message = "custom message"
+              def to_s = "not this one"
+            end
+          row = double(:row, id: 42, event_id: "e-1", event_type: "TestEvent")
+          event_klass = double(:event_klass)
+          allow(event_klass).to receive(:transaction) { |**, &block| block.call }
+          logger = double(:logger)
+          allow(logger).to receive(:error)
+          relay = build_relay(event_klass: event_klass, logger: logger)
+          allow(relay).to receive(:to_record).with(row).and_raise(error_class)
+
+          result = relay.send(:process_row, row)
+
+          expect(result).to eq(false)
+          expect(logger).to have_received(:error).with("Error while processing outbox event e-1 (TestEvent): #{error_class}: custom message")
+        end
+      end
+
+      describe "#ensure_skip_json_serialization! (private)" do
+        def build_relay_with_serializer(serializer, event_klass:)
+          repository = double(:repository, serializer: serializer)
+          client = client_class.new(repository: repository, async_broker: double(:async_broker))
+          build_relay(client: client, event_klass: event_klass)
+        end
+
+        specify "mixes SkipJsonSerialization into event_klass exactly once, however many times it's called, for a non-NULL serializer" do
+          event_klass = double(:event_klass)
+          allow(event_klass).to receive(:include)
+          relay = build_relay_with_serializer(RubyEventStore::Serializers::YAML, event_klass: event_klass)
+
+          relay.send(:ensure_skip_json_serialization!)
+          relay.send(:ensure_skip_json_serialization!)
+
+          expect(event_klass).to have_received(:include).once.with(RubyEventStore::ActiveRecord::SkipJsonSerialization)
+        end
+
+        specify "does not mix in SkipJsonSerialization for a NULL serializer" do
+          event_klass = double(:event_klass)
+          allow(event_klass).to receive(:include)
+          relay = build_relay_with_serializer(RubyEventStore::NULL, event_klass: event_klass)
+
+          relay.send(:ensure_skip_json_serialization!)
+
+          expect(event_klass).not_to have_received(:include)
+        end
+      end
+
       describe "#run" do
         specify "installs signal handlers, logs start/stop, and loops until shutting down, sleeping only on empty batches" do
           logger = double(:logger, info: nil)

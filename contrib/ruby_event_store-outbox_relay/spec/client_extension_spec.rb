@@ -214,6 +214,21 @@ module RubyEventStore
           expect(client.async_broker).to be_a(RubyEventStore::Broker)
         end
 
+        describe "#async_serializer (private)" do
+          specify "returns exactly the repository's own serializer when it responds to #serializer" do
+            sentinel = Object.new
+            client = client_class.new(repository: double(:repository, serializer: sentinel), async_broker: double(:async_broker))
+
+            expect(client.send(:async_serializer)).to equal(sentinel)
+          end
+
+          specify "falls back to exactly RubyEventStore::Serializers::YAML otherwise" do
+            client = client_class.new(repository: Object.new, async_broker: double(:async_broker))
+
+            expect(client.send(:async_serializer)).to equal(RubyEventStore::Serializers::YAML)
+          end
+        end
+
         specify "dispatches through RailsEventStore::ActiveJobScheduler using the repository's serializer" do
           TestAsyncJob.reset!
           helper = SpecHelper.new
