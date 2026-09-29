@@ -90,6 +90,16 @@ module RubyEventStore
         )
       end
 
+      # Makes claimed messages due again at once, instead of when their lease
+      # runs out, without counting an attempt: for messages that were claimed but
+      # not tried.
+      #
+      # @param ids [Array<Integer>]
+      # @param now [Time]
+      def release(ids, now:)
+        message_klass.where(id: ids).update_all(next_attempt_at: now)
+      end
+
       # @param ids [Array<Integer>]
       def delete(ids)
         message_klass.where(id: ids).delete_all unless ids.empty?
