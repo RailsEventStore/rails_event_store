@@ -4,200 +4,198 @@ require "logger"
 
 module RubyEventStore
   module OutboxRelay
-    # Independent process that dispatches events to async subscribers
-    # (Client#subscribe_async) via the client's async_broker.
+    # Independent process delivering outbox messages to async subscribers
+    # (Client#subscribe_async).
     #
-    # The relay never writes anything to the database other than a single
-    # published_at UPDATE -- it does not append, it does not call publish.
-    # Only: fetch a batch -> deserialize -> call the broker -> UPDATE.
+    # Each batch is claimed in a short transaction that leases the messages
+    # (see Outbox), then delivered with no transaction open, so a slow or
+    # failing subscriber never holds database locks, and a job enqueued by the
+    # dispatcher is never deferred until after the message is gone. Delivered
+    # messages are deleted in one statement per batch.
+    #
+    # A message whose event can't be read or deserialized, or whose subscriber
+    # is not registered in this process, can never be delivered and goes to the
+    # dead letters right away. A failed dispatch is retried according to the
+    # RetryPolicy and dead-lettered once it gives up. Delivery is at least once:
+    # a relay that crashes after dispatching, but before deleting, redelivers
+    # once the lease runs out.
     class Relay
+      # Outcome of one #process_batch call.
+      BatchResult =
+        Data.define(:claimed, :delivered, :retried, :dead) do
+          def self.empty
+            new(claimed: 0, delivered: 0, retried: 0, dead: 0)
+          end
+        end
+
+      # Raised for a message whose event is not in the event store.
+      class MissingEvent < StandardError; end
+
+      # Raised for a message whose subscriber is not subscribed in this process.
+      class UnknownSubscriber < StandardError; end
+
+      Prepared = Data.define(:event, :record, :correlation_id)
+      private_constant :Prepared
+
       # @param client [Object] the application's Client, extended with
-      #   RubyEventStore::OutboxRelay::ClientExtension -- broker, mapper, and
-      #   serializer are all read from it (client.async_broker, client.mapper,
-      #   client.repository.serializer)
-      # @param event_klass [Class] the ActiveRecord model backed by
-      #   event_store_events. Defaults to client.repository.model_factory's own
-      #   event model, so a repository configured with a custom model_factory
-      #   (e.g. a non-default table) is honored automatically instead of always
-      #   pointing at RubyEventStore::ActiveRecord::Event.
-      # @param batch_size [Integer] how many events to fetch per batch
-      # @param poll_interval [Numeric] how long to sleep after an empty batch
+      #   ClientExtension; async subscriptions, the outbox, the mapper and
+      #   the event store are all read from it
+      # @param batch_size [Integer] how many messages to claim per batch
+      # @param poll_interval [Numeric] how long to sleep when nothing was due
+      # @param lease_duration [Numeric] seconds a claimed message stays hidden
+      #   from other relays; must comfortably exceed the time to deliver a batch
+      # @param retry_policy [RetryPolicy]
+      # @param clock [#call] returns the current time
       # @param logger [Logger]
       def initialize(
         client:,
-        event_klass: client.repository.model_factory.call.first,
         batch_size: 100,
         poll_interval: 1,
+        lease_duration: 300,
+        retry_policy: RetryPolicy.new,
+        clock: -> { Time.now.utc },
         logger: Logger.new($stdout)
       )
         @client = client
-        @event_klass = event_klass
         @batch_size = batch_size
         @poll_interval = poll_interval
+        @lease_duration = lease_duration
+        @retry_policy = retry_policy
+        @clock = clock
         @logger = logger
         @shutting_down = false
       end
 
-      # Runs the relay loop until SIGINT/SIGTERM. Sleeps poll_interval after an
-      # empty batch.
+      # Runs the relay loop until SIGINT/SIGTERM. Sleeps poll_interval whenever
+      # no message was due.
       def run
         install_signal_handlers
         logger.info("Starting RubyEventStore::OutboxRelay")
 
         until @shutting_down
-          processed = process_batch_safely
-          sleep(poll_interval) if processed.zero?
+          result = process_batch_safely
+          sleep(poll_interval) if result.claimed.zero?
         end
 
         logger.info("Gracefully shutting down")
       end
 
-      # Fetches and processes a single batch of pending events. Public because it
-      # is called directly from tests. Returns the number of events successfully
-      # processed (which can be less than the batch size -- see #process_row).
+      # Claims and delivers a single batch of due messages.
       #
-      # The batch is fetched with SELECT ... FOR UPDATE SKIP LOCKED inside one SQL
-      # transaction, held for the duration of the whole batch so no other relay
-      # instance can grab the same rows. Each row is then deserialized, dispatched,
-      # and marked published in its own nested transaction (#process_row), so one
-      # event failing doesn't roll back or block the rest of the batch.
-      # @return [Integer]
+      # @return [BatchResult]
       def process_batch
-        ensure_skip_json_serialization!
+        now = clock.call
+        messages = outbox.claim(batch_size, now: now, lease_until: now + lease_duration)
+        return BatchResult.empty if messages.empty?
 
-        event_klass.transaction do
-          rows = fetch_batch
-          rows.count { |row| process_row(row) }
-        end
+        prepared = prepare_events(messages.map(&:event_id).uniq)
+        outcomes = messages.group_by { |message| deliver(message, prepared.fetch(message.event_id)) }
+        delivered = outcomes.fetch(:delivered, [])
+        outbox.delete(delivered.map(&:outbox_id))
+
+        BatchResult.new(
+          claimed: messages.size,
+          delivered: delivered.size,
+          retried: outcomes.fetch(:retried, []).size,
+          dead: outcomes.fetch(:dead, []).size,
+        )
       end
 
       private
 
-      attr_reader :client, :event_klass, :batch_size, :poll_interval, :logger
+      attr_reader :client, :batch_size, :poll_interval, :lease_duration, :retry_policy, :clock, :logger
 
-      def broker
-        client.async_broker
+      def outbox
+        client.outbox
       end
 
-      def mapper
-        client.mapper
-      end
-
-      def serializer
-        client.repository.serializer
-      end
-
-      # RubyEventStore::ActiveRecord::EventRepository only mixes
-      # SkipJsonSerialization into event_klass as a side effect of the app
-      # process using the repository (#model_klasses, called from e.g.
-      # #append_to_stream). The relay runs in its own process and never calls
-      # the repository, so without this, ActiveRecord auto-deserializes a
-      # json/jsonb data or metadata column into a Hash on read, which then
-      # fails to (re)deserialize through the configured serializer.
-      #
-      # Mirrors EventRepository#model_klasses: include unconditionally for any
-      # non-NULL serializer (harmless for non-json columns -- the module only
-      # affects json/jsonb cast types) rather than checking column types first,
-      # since inspecting a column's type resolves and caches the class's
-      # attribute types, and including the module afterwards would then be too
-      # late to affect that already-cached type.
-      def ensure_skip_json_serialization!
-        return if @skip_json_serialization_ensured
-        @skip_json_serialization_ensured = true
-        return if null_serializer?
-
-        event_klass.include(skip_json_serialization_module)
-      end
-
-      # Split out from #ensure_skip_json_serialization! because, from this
-      # lexical nesting (inside RubyEventStore::OutboxRelay::Relay), the
-      # RubyEventStore:: prefix is redundant -- ActiveRecord alone already
-      # resolves to RubyEventStore::ActiveRecord -- so mutation testing can
-      # never distinguish the qualified reference from the bare one.
-      # SkipJsonSerialization isn't a private_constant, unlike
-      # RubyEventStore::ActiveRecord::Event, so no Module#const_get workaround
-      # is needed here. mutant:disable
-      def skip_json_serialization_module
-        RubyEventStore::ActiveRecord::SkipJsonSerialization
-      end
-
-      # Split out from #ensure_skip_json_serialization! because, from this
-      # lexical nesting (inside RubyEventStore::OutboxRelay::Relay), a bare
-      # NULL reference already resolves to RubyEventStore::NULL -- so mutating
-      # the qualified constant to the bare one is behaviorally identical, and
-      # mutation testing can never distinguish the two. mutant:disable
-      def null_serializer?
-        serializer == RubyEventStore::NULL
+      def subscriptions
+        client.async_subscriptions
       end
 
       def process_batch_safely
         process_batch
       rescue StandardError => e
         logger.error("Error while processing outbox batch: #{e.class}: #{e.message}")
-        0
+        BatchResult.empty
       end
 
-      def fetch_batch
-        scope = event_klass.where(published_at: nil).order(:id).limit(batch_size)
-        scope = scope.lock(lock_clause) if lock_clause
-        scope.to_a
+      def prepare_events(event_ids)
+        events = read_events(event_ids)
+        event_ids.to_h { |event_id| [event_id, prepare_event(event_id, events)] }
       end
 
-      # Deserializes, dispatches, and marks a single row published, inside its own
-      # nested transaction (SAVEPOINT) so a failure here only rolls back this row,
-      # not the rest of the batch. Returns true on success; on any StandardError
-      # (bad data, a raising subscriber, a missing correlation_id, ...) it logs the
-      # error, leaves published_at NULL for retry on a later batch, and returns
-      # false.
-      def process_row(row)
-        event_klass.transaction(requires_new: true) do
-          record = to_record(row)
-          event = mapper.records_to_events([record]).first
-          dispatch(event, record)
-          event_klass.where(id: row.id).update_all(published_at: Time.now.utc)
-        end
-        true
+      def read_events(event_ids)
+        client.read.events(event_ids).to_h { |event| [event.event_id, event] }
+      rescue StandardError
+        event_ids.to_h { |event_id| [event_id, read_event(event_id)] }
+      end
+
+      def read_event(event_id)
+        client.read.event(event_id)
       rescue StandardError => e
-        logger.error("Error while processing outbox event #{row.event_id} (#{row.event_type}): #{e.class}: #{e.message}")
-        false
+        e
       end
 
-      # RubyEventStore::ActiveRecord::DatabaseAdapter normalizes adapter names the
-      # same way the migration generator does (e.g. postgis -> PostgreSQL,
-      # trilogy -> MySQL), so those aliases get locked too, unlike a bare
-      # /postgres|mysql/i match against the raw adapter name.
-      def lock_clause
-        adapter = RubyEventStore::ActiveRecord::DatabaseAdapter.from_string(event_klass.connection.adapter_name)
-        "FOR UPDATE SKIP LOCKED" unless adapter.is_a?(RubyEventStore::ActiveRecord::DatabaseAdapter::SQLite)
-      end
-
-      def dispatch(event, record)
-        client.with_metadata(
+      def prepare_event(event_id, events)
+        event = events[event_id]
+        raise event if event.is_a?(StandardError)
+        raise MissingEvent, "event #{event_id} not found" unless event
+        Prepared.new(
+          event: event,
+          record: client.mapper.events_to_records([event]).first,
           correlation_id: event.metadata.fetch(:correlation_id),
-          causation_id: event.event_id,
-        ) do
-          if broker.public_method(:call).arity == 3
-            broker.call(event.event_type, event, record)
-          else
-            warn <<~EOW
-              Message broker shall support topics.
-              Topic WILL BE IGNORED in the current broker.
-              Modify the broker implementation to pass topic as an argument to broker.call method.
-            EOW
-            broker.call(event, record)
-          end
+        )
+      rescue StandardError => e
+        e
+      end
+
+      def deliver(message, prepared)
+        subscriber = resolve_subscriber(message, prepared)
+      rescue StandardError => e
+        bury(message, e)
+      else
+        dispatch_or_retry(message, subscriber, prepared)
+      end
+
+      def resolve_subscriber(message, prepared)
+        raise prepared if prepared.is_a?(StandardError)
+        subscriptions.resolve(message.topic, message.subscriber) or
+          raise UnknownSubscriber, "#{message.subscriber} is not subscribed to #{message.topic}"
+      end
+
+      def dispatch_or_retry(message, subscriber, prepared)
+        dispatch(subscriber, prepared)
+        :delivered
+      rescue StandardError => e
+        attempts = message.attempts + 1
+        retry_policy.retry?(e, attempts) ? reschedule(message, attempts, e) : bury(message, e)
+      end
+
+      def dispatch(subscriber, prepared)
+        client.with_metadata(correlation_id: prepared.correlation_id, causation_id: prepared.event.event_id) do
+          subscriptions.dispatch(subscriber, prepared.event, prepared.record)
         end
       end
 
-      def to_record(row)
-        RubyEventStore::SerializedRecord.new(
-          event_id: row.event_id,
-          metadata: row.metadata,
-          data: row.data,
-          event_type: row.event_type,
-          timestamp: row.created_at.iso8601(RubyEventStore::TIMESTAMP_PRECISION),
-          valid_at: (row.valid_at || row.created_at).iso8601(RubyEventStore::TIMESTAMP_PRECISION),
-        ).deserialize(serializer)
+      def reschedule(message, attempts, error)
+        next_attempt_at = retry_policy.next_attempt_at(attempts, clock.call)
+        outbox.reschedule(message, attempts: attempts, next_attempt_at: next_attempt_at, error: error)
+        logger.warn(
+          "Outbox message #{message.outbox_id} (event #{message.event_id}, #{message.subscriber}) failed " \
+            "attempt #{attempts}/#{retry_policy.max_attempts}, next at #{next_attempt_at.iso8601}: #{error.class}",
+        )
+        :retried
+      end
+
+      def bury(message, error)
+        attempts = message.attempts + 1
+        outbox.bury(message, attempts: attempts, error: error, now: clock.call)
+        logger.error(
+          "Outbox message #{message.outbox_id} (event #{message.event_id}, #{message.subscriber}) moved to dead letters " \
+            "after #{attempts} attempt(s): #{error.class}",
+        )
+        :dead
       end
 
       def install_signal_handlers
