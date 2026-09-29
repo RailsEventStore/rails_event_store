@@ -225,6 +225,25 @@ module RubyEventStore
           expect(results.sole.message).to eq("BulkJob was not enqueued")
         end
 
+        specify "reports a delivery whose job can't be built, and carries on with the others, enqueueing nothing twice" do
+          bulk = job_class("BulkJob")
+          hooked = job_class("HookedJob", callbacks: true)
+          picky = Class.new do
+            def self.dump(value)
+              raise ArgumentError, "cannot serialize" if value == { "bad" => true }
+              ::YAML.dump(value)
+            end
+          end
+          dispatcher = ActiveJobDispatcher.new(serializer: picky)
+          bad = RubyEventStore::Record.new(event_id: SecureRandom.uuid, data: { "bad" => true }, metadata: {}, event_type: "TestEvent", timestamp: Time.utc(2026, 9, 29), valid_at: Time.utc(2026, 9, 29))
+
+          results = dispatcher.call_all([delivery(bulk), delivery(hooked, bad), delivery(bulk, bad), delivery(hooked), delivery(bulk)])
+
+          expect(results.map { |result| result&.message }).to eq([nil, "cannot serialize", "cannot serialize", nil, nil])
+          expect(bulk.queue_adapter.enqueued_jobs.size).to eq(2)
+          expect(hooked.queue_adapter.enqueued_jobs.size).to eq(1)
+        end
+
         specify "does nothing for no deliveries" do
           allow(ActiveJob).to receive(:perform_all_later)
 

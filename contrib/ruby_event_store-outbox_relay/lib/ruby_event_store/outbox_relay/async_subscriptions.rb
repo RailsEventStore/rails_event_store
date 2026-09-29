@@ -65,6 +65,11 @@ module RubyEventStore
       # takes an Array of Delivery and returns, for each, the error that kept it
       # from being delivered, or nil.
       #
+      # A batch mixes events, so it isn't delivered inside Client#with_metadata,
+      # as a single delivery through #dispatch is. A dispatcher that runs handlers
+      # in the process derives the correlation from each delivery's event: its
+      # correlation_id, and its event_id as the causation_id.
+      #
       # @param deliveries [Array<Delivery>]
       # @return [Array<Exception, nil>]
       def dispatch_all(deliveries)
