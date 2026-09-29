@@ -6,19 +6,23 @@ require "logger"
 module RubyEventStore
   module OutboxRelay
     ::RSpec.describe ClientExtension do
+      helper = SpecHelper.new
+
+      around { |example| helper.run_lifecycle { example.run } }
+
       let(:client_class) { Class.new(RubyEventStore::Client) }
-      let(:calls) { [] }
-      let(:repository) do
-        recorded_calls = calls
-        Object.new.tap do |repo|
-          repo.define_singleton_method(:append_to_stream) do |records, stream, expected_version|
-            recorded_calls << { records: records, stream: stream, expected_version: expected_version }
-          end
-        end
-      end
+      let(:subscriptions) { helper.sync_subscriptions }
+      let(:client) { client_class.new(repository: helper.repository, async_subscriptions: subscriptions) }
 
       specify "is included onto RubyEventStore::Client at gem-load time, so every client is extended" do
         expect(RubyEventStore::Client.ancestors).to include(ClientExtension::InstanceMethods)
+      end
+
+      specify "does not touch the event repository" do
+        expect(RubyEventStore::ActiveRecord::EventRepository.ancestors.first).to eq(RubyEventStore::ActiveRecord::EventRepository)
+        expect(RubyEventStore::ActiveRecord::EventRepository.instance_method(:append_to_stream).owner).to eq(
+          RubyEventStore::ActiveRecord::EventRepository,
+        )
       end
 
       describe ".included" do
@@ -31,99 +35,202 @@ module RubyEventStore
         end
       end
 
-      specify "publish forwards records/stream/expected_version to the repository unchanged (#publish is not overridden)" do
-        client = client_class.new(repository: repository, async_broker: double(:async_broker))
+      describe "#publish" do
+        specify "writes one outbox message per async subscriber, with the event, in one transaction" do
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+          client.subscribe_async(recording_handler("Second"), to: [TestEvent])
 
-        result = client.publish(event = TestEvent.new)
+          client.publish(event = TestEvent.new)
 
-        expect(result).to eq(client)
-        expect(calls.size).to eq(1)
-        expect(calls.first[:records].map(&:event_id)).to eq([event.event_id])
-        expect(calls.first[:records].first).to be_a(RubyEventStore::Record)
-        expect(calls.first[:stream]).to eq(Stream.new(GLOBAL_STREAM))
-        expect(calls.first[:expected_version]).to eq(ExpectedVersion.any)
-      end
+          expect(client.read.to_a.map(&:event_id)).to eq([event.event_id])
+          expect(Message.order(:id).pluck(:event_id, :topic, :subscriber)).to eq(
+            [[event.event_id, "TestEvent", "First"], [event.event_id, "TestEvent", "Second"]],
+          )
+        end
 
-      specify "publish always dispatches synchronously through the sync broker (#publish is not overridden)" do
-        handler = spy(:handler)
-        client = client_class.new(repository: repository, async_broker: double(:async_broker))
-        client.subscribe(handler, to: [TestEvent])
+        specify "writes the messages due immediately" do
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
 
-        client.publish(event = TestEvent.new)
+          client.publish(TestEvent.new)
 
-        expect(handler).to have_received(:call).with(event)
+          message = Message.sole
+          expect(message.next_attempt_at).to eq(message.created_at)
+          expect(message.attempts).to eq(0)
+        end
+
+        specify "writes no message for an event type without async subscribers" do
+          client.subscribe_async(recording_handler("Other"), to: [AnotherTestEvent])
+
+          client.publish(TestEvent.new)
+
+          expect(Message.count).to eq(0)
+        end
+
+        specify "writes messages for each event of a batch, by its own type" do
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+          client.subscribe_async(recording_handler("Other"), to: [AnotherTestEvent])
+
+          client.publish([test_event = TestEvent.new, other_event = AnotherTestEvent.new])
+
+          expect(Message.order(:id).pluck(:event_id, :subscriber)).to eq(
+            [[test_event.event_id, "First"], [other_event.event_id, "Other"]],
+          )
+        end
+
+        specify "writes messages under the given topic, and notifies sync subscribers of that topic" do
+          sync = spy(:sync)
+          client.subscribe_sync(sync, to: ["custom.topic"])
+          client.subscribe_async(recording_handler("Custom"), to: ["custom.topic"])
+          client.subscribe_async(recording_handler("Typed"), to: [TestEvent])
+
+          client.publish(event = TestEvent.new, topic: "custom.topic")
+
+          expect(Message.pluck(:topic, :subscriber)).to eq([%w[custom.topic Custom]])
+          expect(sync).to have_received(:call).with(event)
+        end
+
+        specify "persists nothing, neither event nor messages, when the write fails" do
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+          client.publish(TestEvent.new, stream_name: "s", expected_version: :none)
+
+          expect do
+            client.publish(TestEvent.new, stream_name: "s", expected_version: :none)
+          end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+
+          expect(client.read.count).to eq(1)
+          expect(Message.count).to eq(1)
+        end
+
+        specify "rolls the event back when writing the messages fails" do
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+          allow(Message).to receive(:insert_all!).and_raise(::ActiveRecord::StatementInvalid, "boom")
+
+          expect { client.publish(TestEvent.new) }.to raise_error(::ActiveRecord::StatementInvalid)
+
+          expect(client.read.count).to eq(0)
+        end
+
+        specify "does not notify sync subscribers when the write fails" do
+          sync = spy(:sync)
+          client.subscribe_sync(sync, to: [TestEvent])
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+          allow(Message).to receive(:insert_all!).and_raise(::ActiveRecord::StatementInvalid, "boom")
+
+          expect { client.publish(TestEvent.new) }.to raise_error(::ActiveRecord::StatementInvalid)
+
+          expect(sync).not_to have_received(:call)
+        end
+
+        specify "notifies sync subscribers immediately, with the event, reproducing correlation and causation ids" do
+          observed = nil
+          client.subscribe_sync(->(_event) { observed = client.metadata.slice(:correlation_id, :causation_id) }, to: [TestEvent])
+
+          client.publish(event = TestEvent.new)
+
+          expect(observed).to eq(correlation_id: event.metadata[:correlation_id], causation_id: event.event_id)
+          expect(client.metadata).to eq({})
+        end
+
+        specify "notifies sync subscribers only after the transaction committed" do
+          transaction_open = nil
+          client.subscribe_sync(->(_event) { transaction_open = Message.connection.transaction_open? }, to: [TestEvent])
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+
+          client.publish(TestEvent.new)
+
+          expect(transaction_open).to eq(false)
+        end
+
+        specify "does not deliver to async subscribers itself" do
+          handler = recording_handler("First")
+          client.subscribe_async(handler, to: [TestEvent])
+
+          client.publish(TestEvent.new)
+
+          expect(handler.received).to be_empty
+        end
+
+        specify "forwards stream_name and expected_version" do
+          client.publish(TestEvent.new, stream_name: "custom-stream", expected_version: :none)
+
+          expect(client.read.stream("custom-stream").count).to eq(1)
+        end
+
+        specify "falls back to a 2-arity broker, warning that topics are ignored" do
+          calls = []
+          broker = Object.new
+          broker.define_singleton_method(:call) { |event, record| calls << [event, record] }
+          client = client_class.new(repository: helper.repository, message_broker: broker, async_subscriptions: subscriptions)
+
+          event = TestEvent.new
+
+          expect { client.publish(event) }.to output(
+            a_string_including("Message broker shall support topics").and(a_string_including("Topic WILL BE IGNORED")),
+          ).to_stderr
+
+          expect(calls.map { |e, _| e }).to eq([event])
+          expect(calls.map { |_, record| record.event_id }).to eq([event.event_id])
+        end
+
+        specify "passes the topic, event and record to a 3-arity broker" do
+          calls = []
+          broker = Object.new
+          broker.define_singleton_method(:call) { |topic, event, record| calls << [topic, event, record] }
+          client = client_class.new(repository: helper.repository, message_broker: broker, async_subscriptions: subscriptions)
+          event = TestEvent.new
+
+          client.publish(event)
+
+          expect(calls.map { |topic, e, record| [topic, e, record.event_id] }).to eq([["TestEvent", event, event.event_id]])
+        end
+
+        specify "returns the client" do
+          expect(client.publish(TestEvent.new)).to equal(client)
+        end
       end
 
       describe "#append" do
-        specify "forwards records/stream/expected_version to the repository unchanged" do
-          client = client_class.new(repository: repository, async_broker: double(:async_broker))
-
-          result = client.append(event = TestEvent.new)
-
-          expect(result).to eq(client)
-          expect(calls.size).to eq(1)
-          expect(calls.first[:records].map(&:event_id)).to eq([event.event_id])
-          expect(calls.first[:stream]).to eq(Stream.new(GLOBAL_STREAM))
-          expect(calls.first[:expected_version]).to eq(ExpectedVersion.any)
-        end
-
-        specify "does not dispatch to sync subscribers, same as the original append" do
-          handler = spy(:handler)
-          client = client_class.new(repository: repository, async_broker: double(:async_broker))
-          client.subscribe(handler, to: [TestEvent])
-
-          client.append(TestEvent.new)
-
-          expect(handler).not_to have_received(:call)
-        end
-
-        specify "persists the row already marked published, so the relay never picks it up for async subscribers" do
-          TestAsyncJob.reset!
-          helper = SpecHelper.new
-          helper.run_lifecycle do
-            repository = RubyEventStore::ActiveRecord::EventRepository.new(serializer: helper.serializer)
-            client = client_class.new(repository: repository)
-            client.subscribe_async(TestAsyncJob, to: [TestEvent])
-            event_klass = RubyEventStore::ActiveRecord::WithDefaultModels.new.call.first
-            relay = Relay.new(client: client, event_klass: event_klass, logger: Logger.new(File::NULL))
-
-            event = TestEvent.new
-            client.append(event)
-
-            expect(event_klass.find_by!(event_id: event.event_id).published_at).not_to be_nil
-            expect(relay.process_batch).to eq(0)
-            expect(TestAsyncJob.received).to be_empty
+        specify "an append suspended in one fiber doesn't affect a publish in another fiber of the same thread" do
+          repository = helper.repository
+          suspending_repository = Object.new
+          suspend_next = true
+          suspending_repository.define_singleton_method(:append_to_stream) do |*args|
+            was_suspending = suspend_next
+            suspend_next = false
+            Fiber.yield if was_suspending
+            repository.append_to_stream(*args)
           end
+          suspending_repository.define_singleton_method(:method_missing) { |name, *args, &block| repository.public_send(name, *args, &block) }
+          suspending_repository.define_singleton_method(:respond_to_missing?) { |name, include_private| repository.respond_to?(name, include_private) }
+          client = client_class.new(repository: suspending_repository, async_subscriptions: subscriptions)
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+          appended, published = TestEvent.new, TestEvent.new
+
+          appending = Fiber.new { client.append(appended) }
+          appending.resume
+          client.publish(published)
+          appending.resume
+
+          expect(client.read.count).to eq(2)
+          expect(Message.pluck(:event_id)).to eq([published.event_id])
         end
-      end
 
-      specify "publish forwards topic, stream_name, and expected_version, exactly like the original publish" do
-        helper = SpecHelper.new
-        helper.run_lifecycle do
-          client =
-            client_class.new(
-              repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: helper.serializer),
-              async_broker: double(:async_broker),
-            )
-          handler = spy(:handler)
-          client.subscribe_sync(handler, to: ["CustomTopic"])
+        specify "persists the event without notifying anyone, and writes no message" do
+          sync = spy(:sync)
+          client.subscribe_sync(sync, to: [TestEvent])
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
 
-          event = TestEvent.new
-          client.publish(event, topic: "CustomTopic", stream_name: "custom-stream", expected_version: :none)
+          client.append(event = TestEvent.new)
 
-          expect(handler).to have_received(:call).with(event)
-          expect(client.read.stream("custom-stream").to_a.map(&:event_id)).to eq([event.event_id])
-          expect do
-            client.publish(TestEvent.new, stream_name: "custom-stream", expected_version: :none)
-          end.to raise_error(RubyEventStore::WrongExpectedEventVersion)
+          expect(client.read.to_a.map(&:event_id)).to eq([event.event_id])
+          expect(Message.count).to eq(0)
+          expect(sync).not_to have_received(:call)
         end
       end
 
       describe "#subscribe_sync" do
-        specify "has the same signature and behavior as #subscribe (kept as a working alias)" do
-          client = client_class.new(repository: repository, async_broker: double(:async_broker))
-          via_subscribe = spy(:via_subscribe)
-          via_subscribe_sync = spy(:via_subscribe_sync)
+        specify "has the same signature and behavior as #subscribe" do
+          via_subscribe, via_subscribe_sync = spy(:via_subscribe), spy(:via_subscribe_sync)
           client.subscribe(via_subscribe, to: [TestEvent])
           client.subscribe_sync(via_subscribe_sync, to: [TestEvent])
 
@@ -133,17 +240,7 @@ module RubyEventStore
           expect(via_subscribe_sync).to have_received(:call).with(event)
         end
 
-        specify "still supports Within (temporary subscriptions), unchanged" do
-          client = client_class.new(repository: repository, async_broker: double(:async_broker))
-          received = []
-
-          client.within { client.publish(TestEvent.new) }.subscribe(->(event) { received << event }, to: [TestEvent]).call
-
-          expect(received.size).to eq(1)
-        end
-
         specify "accepts a subscriber given only as a block" do
-          client = client_class.new(repository: repository, async_broker: double(:async_broker))
           received = []
 
           client.subscribe_sync(to: [TestEvent]) { |event| received << event }
@@ -154,136 +251,125 @@ module RubyEventStore
       end
 
       describe "#subscribe_async" do
-        specify "does not deliver synchronously during publish" do
-          client = client_class.new(repository: repository, async_broker: RubyEventStore::Broker.new)
-          handler = spy(:handler)
-          client.subscribe_async(handler, to: [TestEvent])
-
-          client.publish(TestEvent.new)
-
-          expect(handler).not_to have_received(:call)
-        end
-
-        specify "registers the subscriber on async_broker, not on the sync broker" do
-          async_broker = RubyEventStore::Broker.new
-          client = client_class.new(async_broker: async_broker)
-          handler = spy(:handler)
+        specify "registers the subscriber in async_subscriptions under the event type, not on the sync broker" do
+          handler = recording_handler("First")
 
           client.subscribe_async(handler, to: [TestEvent])
 
-          event = TestEvent.new
-          async_broker.call(event.event_type, event, double(:record))
-          expect(handler).to have_received(:call).with(event)
+          expect(subscriptions.resolve("TestEvent", "First")).to equal(handler)
+          expect(client.subscribers_for(TestEvent)).to eq([])
         end
 
-        specify "requires an explicit subscriber -- a block-only call raises (blocks are not serializable)" do
-          client = client_class.new(async_broker: double(:async_broker))
+        specify "resolves event classes through the client's event type resolver" do
+          client = client_class.new(repository: helper.repository, async_subscriptions: subscriptions, event_type_resolver: ->(klass) { "app.#{klass}" })
 
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+
+          expect(subscriptions.names_for("app.TestEvent")).to eq(["First"])
+        end
+
+        specify "requires an explicit subscriber -- a block-only call raises" do
           expect { client.subscribe_async(to: [TestEvent]) { |_event| } }.to raise_error(ArgumentError)
+        end
+
+        specify "rejects an anonymous subscriber" do
+          expect { client.subscribe_async(Class.new { def self.call(_) = nil }, to: [TestEvent]) }.to raise_error(ArgumentError, /named class/)
         end
       end
 
       describe "public readers" do
-        specify "#repository returns exactly the configured repository" do
-          client = client_class.new(repository: repository, async_broker: double(:async_broker))
-          expect(client.repository).to equal(repository)
-        end
-
-        specify "#mapper returns the configured (batch-wrapped) mapper" do
-          client = client_class.new(async_broker: double(:async_broker))
+        specify "#mapper returns the configured mapper" do
           expect(client.mapper).to be_a(RubyEventStore::Mappers::BatchMapper)
         end
 
-        specify "#async_broker returns exactly the injected broker" do
-          async_broker = double(:async_broker)
-          client = client_class.new(async_broker: async_broker)
-          expect(client.async_broker).to equal(async_broker)
+        specify "#async_subscriptions returns exactly the injected registry" do
+          expect(client.async_subscriptions).to equal(subscriptions)
+        end
+
+        specify "#outbox returns exactly the injected outbox, and defaults to one on the outbox models" do
+          outbox = Outbox.new
+
+          expect(client_class.new(outbox: outbox).outbox).to equal(outbox)
+          expect(client_class.new.outbox).to be_a(Outbox)
         end
       end
 
-      describe "default async_broker" do
-        specify "builds successfully for a repository with no public #serializer, such as InMemoryRepository" do
-          client = client_class.new
-
-          expect(client.async_broker).to be_a(RubyEventStore::Broker)
-        end
-
-        specify "builds successfully for a repository responding to methods but not #serializer" do
-          client = client_class.new(repository: repository)
-
-          expect(client.async_broker).to be_a(RubyEventStore::Broker)
-        end
-
-        describe "#async_serializer (private)" do
-          specify "returns exactly the repository's own serializer when it responds to #serializer" do
-            sentinel = Object.new
-            client = client_class.new(repository: double(:repository, serializer: sentinel), async_broker: double(:async_broker))
-
-            expect(client.send(:async_serializer)).to equal(sentinel)
-          end
-
-          specify "falls back to exactly RubyEventStore::Serializers::YAML otherwise" do
-            client = client_class.new(repository: Object.new, async_broker: double(:async_broker))
-
-            expect(client.send(:async_serializer)).to equal(RubyEventStore::Serializers::YAML)
-          end
-        end
-
-        specify "dispatches through RailsEventStore::ActiveJobScheduler using the repository's serializer" do
+      describe "default async_subscriptions" do
+        specify "dispatch through RailsEventStore::ActiveJobScheduler with the YAML serializer" do
           TestAsyncJob.reset!
-          helper = SpecHelper.new
-          helper.run_lifecycle do
-            repository = RubyEventStore::ActiveRecord::EventRepository.new(serializer: helper.serializer)
-            client = client_class.new(repository: repository)
-            client.subscribe_async(TestAsyncJob, to: [TestEvent])
-            event_klass = RubyEventStore::ActiveRecord::WithDefaultModels.new.call.first
-            relay = Relay.new(client: client, event_klass: event_klass)
+          client = client_class.new(repository: helper.repository)
+          client.subscribe_async(TestAsyncJob, to: [TestEvent])
+          event = TestEvent.new
+          client.publish(event)
+          record = client.mapper.events_to_records([event]).first
 
-            event = TestEvent.new
-            client.publish(event)
-            relay.process_batch
+          client.async_subscriptions.dispatch(TestAsyncJob, event, record)
 
-            expect(TestAsyncJob.received.size).to eq(1)
-            expect(TestAsyncJob.received.first["event_id"]).to eq(event.event_id)
-          end
+          expect(TestAsyncJob.received.first).to eq(record.serialize(RubyEventStore::Serializers::YAML).to_h.transform_keys(&:to_s))
+        end
+
+        specify "serialize with exactly RubyEventStore::Serializers::YAML" do
+          dispatcher = client_class.new.async_subscriptions.send(:dispatcher)
+          scheduler = dispatcher.instance_variable_get(:@scheduler)
+
+          expect(scheduler.send(:serializer)).to equal(RubyEventStore::Serializers::YAML)
+        end
+
+        specify "reject subscribers that are not ActiveJob classes" do
+          expect { client_class.new.subscribe_async(recording_handler("NotAJob"), to: [TestEvent]) }.to raise_error(
+            RubyEventStore::InvalidHandler,
+          )
         end
       end
 
       describe "RailsEventStore::Client" do
-        specify "is extended too -- gains subscribe_sync/subscribe_async/async_broker" do
+        specify "is extended too" do
           expect(RailsEventStore::Client.ancestors).to include(ClientExtension::InstanceMethods)
         end
 
-        specify "honors a custom async_broker:, even though RailsEventStore::Client's own #initialize has a fixed keyword list that never forwards it" do
-          SpecHelper.new.run_lifecycle do
-            custom_async_broker = RubyEventStore::Broker.new
-            client = RailsEventStore::Client.new(async_broker: custom_async_broker)
+        specify "honors custom async_subscriptions: and outbox:, though its own #initialize never forwards them" do
+          outbox = Outbox.new
+          client = RailsEventStore::Client.new(async_subscriptions: subscriptions, outbox: outbox)
 
-            expect(client.async_broker).to equal(custom_async_broker)
-          end
+          expect(client.async_subscriptions).to equal(subscriptions)
+          expect(client.outbox).to equal(outbox)
         end
 
-        specify "still builds the default async_broker when none is given" do
-          SpecHelper.new.run_lifecycle { expect(RailsEventStore::Client.new.async_broker).to be_a(RubyEventStore::Broker) }
+        specify "builds the defaults when none are given" do
+          client = RailsEventStore::Client.new
+
+          expect(client.async_subscriptions).to be_a(AsyncSubscriptions)
+          expect(client.outbox).to be_a(Outbox)
         end
 
         specify "InstanceMethods is prepended twice -- once directly, once inherited via RubyEventStore::Client -- intentionally" do
           expect(RailsEventStore::Client.ancestors.count { |m| m == ClientExtension::InstanceMethods }).to eq(2)
         end
 
-        specify "builds the default async_broker only once despite #initialize being reached twice per .new call" do
-          SpecHelper.new.run_lifecycle do
-            calls = 0
-            client = RailsEventStore::Client.allocate
-            client.define_singleton_method(:default_async_broker) do
-              calls += 1
-              super()
-            end
-
-            client.send(:initialize)
-
-            expect(calls).to eq(1)
+        specify "builds the defaults only once despite #initialize being reached twice per .new call" do
+          calls = 0
+          client = RailsEventStore::Client.allocate
+          client.define_singleton_method(:default_async_subscriptions) do
+            calls += 1
+            super()
           end
+
+          client.send(:initialize)
+
+          expect(calls).to eq(1)
+        end
+
+        specify "publishes with messages and delivers them through the relay" do
+          TestAsyncJob.reset!
+          client = RailsEventStore::Client.new(repository: helper.repository)
+          client.subscribe_async(TestAsyncJob, to: [TestEvent])
+          event = TestEvent.new
+
+          client.publish(event)
+          expect(TestAsyncJob.received).to be_empty
+          Relay.new(client: client, logger: Logger.new(File::NULL)).process_batch
+
+          expect(TestAsyncJob.received.map { |payload| payload.fetch("event_id") }).to eq([event.event_id])
         end
       end
     end

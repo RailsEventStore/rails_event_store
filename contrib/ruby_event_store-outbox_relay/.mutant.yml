@@ -18,11 +18,6 @@ matcher:
     - RubyEventStore::OutboxRelay*
   ignore:
     - RubyEventStore::OutboxRelay::Relay#install_signal_handlers
-    - RubyEventStore::OutboxRelay::Relay#lock_clause
-    - RubyEventStore::OutboxRelay::Relay#process_batch
-    - RubyEventStore::OutboxRelay::Relay#process_batch_safely
-    - RubyEventStore::OutboxRelay::Relay#to_record
-    - RubyEventStore::OutboxRelay::Relay#initialize
     # Its only two remaining mutations are genuinely equivalent: defined?(@ivar)
     # vs instance_variable_defined?(:@ivar) behave identically here, and
     # `defined?` checks assignment, not truthiness, so @x = true vs @x = false

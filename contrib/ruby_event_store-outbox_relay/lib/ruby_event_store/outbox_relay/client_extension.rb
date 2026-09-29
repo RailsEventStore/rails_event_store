@@ -4,74 +4,48 @@ require "rails_event_store"
 
 module RubyEventStore
   module OutboxRelay
-    # Adds a second, async broker to RubyEventStore::Client (and subclasses such as
-    # RailsEventStore::Client) without modifying ruby_event_store itself, and makes
-    # every published event pass through the outbox relay.
+    # Adds async subscriptions to RubyEventStore::Client (and subclasses such as
+    # RailsEventStore::Client) without modifying ruby_event_store itself.
+    #
+    # #subscribe_sync (aliased as #subscribe, unchanged) delivers synchronously
+    # and in-process exactly as before; #subscribe_async delivers exclusively
+    # through the outbox relay. #publish persists, in the same transaction as
+    # the events, one outbox message per (event, async subscriber of its
+    # topic), then dispatches to sync subscribers exactly like the original.
+    # #append is untouched and, as documented, notifies no one: it never writes
+    # outbox messages.
     #
     # Included onto both RubyEventStore::Client and RailsEventStore::Client at
-    # gem-load time (see ruby_event_store/outbox_relay.rb) -- not just the
-    # former, even though the latter is a subclass of it. Internally this
-    # prepends InstanceMethods rather than relying on plain `include`
-    # semantics, so its #initialize wins over the including class's own.
-    # RailsEventStore::Client#initialize has a fixed keyword list that never
-    # forwards an `async_broker:` argument to `super`, so without prepending
-    # InstanceMethods directly onto RailsEventStore::Client too (not just
-    # inherited from RubyEventStore::Client), passing `async_broker:` to
-    # RailsEventStore::Client.new would raise ArgumentError before ever
-    # reaching RubyEventStore::Client's own prepended #initialize. This is why
-    # `async_broker:` works identically on both classes, as documented in the
-    # README.
-    #
-    # The tradeoff: for RailsEventStore::Client, #initialize is thus reached
-    # twice per .new call (once directly, once again via
-    # RailsEventStore::Client#initialize's own `super` chain reaching
-    # RubyEventStore::Client's separately prepended copy) -- #initialize
-    # guards against that with @async_broker_initializer_reentrant, so the
-    # second, nested call skips building (and immediately discarding) an
-    # unused default_async_broker.
-    #
-    # The decision of how an event gets delivered moves from the event to the subscriber:
-    # #subscribe_sync (aliased as #subscribe, unchanged) delivers synchronously and
-    # in-process exactly as before; #subscribe_async delivers exclusively through
-    # the outbox relay. #publish itself is not overridden here at all -- every
-    # published event is persisted with published_at: nil by EventRepositoryExtension,
-    # since any event may have async subscribers -- so synchronous dispatch for
-    # sync/Within subscribers is untouched. #append is overridden, to keep its own
-    # documented contract of not notifying any subscribed handlers: it wraps its
-    # (otherwise unmodified) super call in WithoutRelay.call, so
-    # EventRepositoryExtension persists those rows already marked published --
-    # the relay will never pick them up.
+    # gem-load time (see ruby_event_store/outbox_relay.rb). Internally this
+    # prepends InstanceMethods, so its #initialize wins over the including
+    # class's own. RailsEventStore::Client#initialize has a fixed keyword list
+    # that never forwards the extra keywords to `super`, hence the second
+    # prepend there. #initialize is therefore reached twice per
+    # RailsEventStore::Client.new and guards against that with
+    # @async_subscriptions_initializer_reentrant. #publish never calls `super`,
+    # so it runs once.
     module ClientExtension
       def self.included(base)
         base.prepend(InstanceMethods)
       end
 
       module InstanceMethods
-        # @param async_broker [#call, #add_subscription] broker used for
-        #   #subscribe_async subscribers and read by Relay. Defaults to
-        #   RubyEventStore::ImmediateDispatcher scheduling through
-        #   RailsEventStore::ActiveJobScheduler, reusing the repository's own
-        #   serializer when it exposes one publicly, falling back to
-        #   RubyEventStore::Serializers::YAML otherwise (e.g. InMemoryRepository,
-        #   whose #serializer is private). Works identically whether called on
-        #   RubyEventStore::Client or RailsEventStore::Client -- see the class
-        #   comment for why RailsEventStore::Client needs InstanceMethods
-        #   prepended a second time to make that so, and how this method
-        #   avoids doing the underlying work twice because of it.
-        def initialize(async_broker: nil, **kwargs)
-          reentrant = defined?(@async_broker_initializer_reentrant)
-          @async_broker_initializer_reentrant = true
+        # @param async_subscriptions [AsyncSubscriptions] registry of
+        #   #subscribe_async subscribers, read by the Relay. Defaults to one
+        #   dispatching through RubyEventStore::ImmediateDispatcher and
+        #   RailsEventStore::ActiveJobScheduler with the YAML serializer, the same
+        #   scheduler RailsEventStore::Client uses by default for its own async
+        #   handlers.
+        # @param outbox [Outbox] storage of pending deliveries
+        def initialize(async_subscriptions: nil, outbox: nil, **kwargs)
+          reentrant = defined?(@async_subscriptions_initializer_reentrant)
+          @async_subscriptions_initializer_reentrant = true
 
           super(**kwargs)
 
-          @async_broker = async_broker || default_async_broker unless reentrant
-        end
-
-        # @return [Object] the repository configured on this client (typically
-        #   RubyEventStore::ActiveRecord::EventRepository, wrapped in
-        #   RubyEventStore::InstrumentedRepository under Rails)
-        def repository
-          @repository
+          return if reentrant
+          @async_subscriptions = async_subscriptions || default_async_subscriptions
+          @outbox = outbox || Outbox.new
         end
 
         # @return [Mappers::BatchMapper]
@@ -79,18 +53,26 @@ module RubyEventStore
           @mapper
         end
 
-        # @return [Object] broker used for #subscribe_async subscribers; the relay
-        #   dispatches through this broker
-        attr_reader :async_broker
+        # @return [AsyncSubscriptions]
+        attr_reader :async_subscriptions
 
-        # Persists new event(s) without notifying any subscribed handlers -- sync
-        # or async. Otherwise identical to RubyEventStore::Client#append; only
-        # wrapped so EventRepositoryExtension knows this insert needs no relay
-        # delivery.
+        # @return [Outbox]
+        attr_reader :outbox
+
+        # Persists event(s), together with an outbox message for every async
+        # subscriber of each event's topic, then notifies sync subscribers --
+        # otherwise identical to RubyEventStore::Client#publish.
         #
-        # @param (see RubyEventStore::Client#append)
-        def append(events, stream_name: GLOBAL_STREAM, expected_version: :any)
-          WithoutRelay.call { super }
+        # @param (see RubyEventStore::Client#publish)
+        # @return [self]
+        def publish(events, topic: nil, stream_name: GLOBAL_STREAM, expected_version: :any)
+          enriched_events = enrich_events_metadata(events)
+          records = transform(enriched_events)
+          outbox.append(records, topic: topic, subscriptions: async_subscriptions, now: @clock.call) do
+            append_records_to_stream(records, stream_name: stream_name, expected_version: expected_version)
+          end
+          enriched_events.zip(records) { |event, record| dispatch_sync(topic || event.event_type, event, record) }
+          self
         end
 
         # Subscribes a handler invoked synchronously, in-process -- identical
@@ -103,27 +85,38 @@ module RubyEventStore
         end
 
         # Subscribes a handler delivered exclusively by the outbox relay, instead
-        # of synchronously in-process. Unlike #subscribe_sync, this takes no block:
-        # a block (an anonymous Proc) cannot be serialized for ActiveJob or any other
-        # asynchronous processor, so the subscriber must be a named, resolvable class.
+        # of synchronously in-process. The subscriber must be a named class: its
+        # name is what the outbox stores, and it must be subscribed the same way
+        # in both the application and the relay process.
         #
         # @param subscriber [Class] the handler class delivered by the relay
         def subscribe_async(subscriber, to:)
-          async_broker.add_subscription(subscriber, to.map { |event_klass| @event_type_resolver.call(event_klass) })
+          async_subscriptions.add(subscriber, to.map { |event_klass| @event_type_resolver.call(event_klass) })
         end
 
         private
 
-        def default_async_broker
-          Broker.new(
-            dispatcher: ImmediateDispatcher.new(
-              scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: async_serializer),
-            ),
-          )
+        def dispatch_sync(topic, event, record)
+          with_metadata(correlation_id: event.metadata.fetch(:correlation_id), causation_id: event.event_id) do
+            if @broker.public_method(:call).arity == 3
+              @broker.call(topic, event, record)
+            else
+              warn <<~EOW
+                Message broker shall support topics.
+                Topic WILL BE IGNORED in the current broker.
+                Modify the broker implementation to pass topic as an argument to broker.call method.
+              EOW
+              @broker.call(event, record)
+            end
+          end
         end
 
-        def async_serializer
-          repository.respond_to?(:serializer) ? repository.serializer : Serializers::YAML
+        def default_async_subscriptions
+          AsyncSubscriptions.new(
+            dispatcher: ImmediateDispatcher.new(
+              scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: Serializers::YAML),
+            ),
+          )
         end
       end
     end
