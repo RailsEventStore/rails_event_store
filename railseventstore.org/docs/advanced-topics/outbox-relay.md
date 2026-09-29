@@ -132,7 +132,7 @@ RubyEventStore::OutboxRelay::Relay.new(
 )
 ```
 
-A failure of the database while the relay reads the events is different: it says nothing about any message, and burning their attempts on it would dead-letter a whole batch after a short outage. The relay fails the batch instead, logs it, and the messages come back once their lease runs out, with their attempts untouched.
+A failure of the database while the relay reads the events is different: it says nothing about any message, and burning their attempts on it would dead-letter a whole batch after a short outage. The relay fails the batch instead, logs it, and hands the messages back at once, with their attempts untouched, so the next poll picks them up instead of waiting for their lease to run out.
 
 A failing message never blocks the others. It moves out of the way through `next_attempt_at`, and the relay keeps claiming everything else that is due.
 
@@ -148,7 +148,7 @@ A failing message never blocks the others. It moves out of the way through `next
 | **Metadata parity with synchronous publish** | The relay reproduces `correlation_id`/`causation_id` through the same `with_metadata` mechanism `Client#publish` uses. |
 | **No ordering guarantee** | Messages are claimed oldest first, but with several relays, retries and ActiveJob, handlers can observe events out of order. |
 
-At-least-once means your async subscribers **must be idempotent by `event_id`** — the same requirement any at-least-once messaging system carries. `lease_duration` must comfortably exceed the time to deliver a batch: a shorter lease lets another relay claim a message that is still being delivered.
+At-least-once means your async subscribers **must be idempotent by `event_id`** — the same requirement any at-least-once messaging system carries. `lease_duration` must comfortably exceed the time to deliver a batch: a shorter lease lets another relay claim a message that is still being delivered. A relay that delivers one message at a time stops once 80% of the lease has passed and hands the messages it hadn't tried back at once (`deferred`), so a slow subscriber costs a smaller batch rather than duplicates. A single subscriber that is slower than the lease itself can't be helped that way: raise `lease_duration`.
 
 ## Installation
 
@@ -294,11 +294,11 @@ The relay reports through `ActiveSupport::Notifications`, under names ending in 
 
 | Notification | When | Payload |
 | --- | --- | --- |
-| `process_batch` | around each batch, idle ones included | `claimed`, `delivered`, `retried`, `dead`, `unrecorded` |
+| `process_batch` | around each batch, idle ones included | `claimed`, `delivered`, `retried`, `dead`, `unrecorded`, `deferred` |
 | `message_failed` | for each message that failed to be delivered | `outbox_id`, `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `outcome` (`:retried` or `:dead`) |
 | `stats` | every `stats_interval` seconds (30 by default, `nil` turns it off) | `backlog`, `oldest_due_age`, `dead_letters` |
 
-`message_failed` never carries the error's message, which can echo event data. The duration of a batch is the duration of its notification. `unrecorded` counts the messages whose failure could not be recorded, say because the database failed just then: they stay in the outbox as they were, and come back once their lease runs out.
+`message_failed` never carries the error's message, which can echo event data. The duration of a batch is the duration of its notification. `unrecorded` counts the messages whose failure could not be recorded, say because the database failed just then: they stay in the outbox as they were, and come back once their lease runs out. `deferred` counts the messages a batch left untried because it was running out of its lease; they are due again at once.
 
 ```ruby
 ActiveSupport::Notifications.subscribe("process_batch.outbox_relay.ruby_event_store") do |event|
@@ -318,12 +318,12 @@ The relay logs, at `info`, its startup and shutdown and the async subscribers of
 
 ## Throughput
 
-Numbers below come from a laptop, a local PostgreSQL and the default YAML serializer, so read them as proportions, not promises.
+Numbers below were measured on a laptop, with a local PostgreSQL and the default YAML serializer, on the code as released here. Read them as proportions, not promises.
 
 - **Publishing.** A `publish` of events with async subscribers issues exactly one more statement than without them — one `INSERT` of the outbox messages, whatever the number of events published together, and none of it outside the transaction you already have. Publishing a batch amortizes even that. The events table is never updated afterwards, so it stays append-only.
-- **One relay process** delivers about 8,000 messages per second to a subscriber that does nothing, and about 1,600 per second through ActiveJob. In the ActiveJob case most of the time goes to serializing each event for the job payload (a YAML dump of its metadata), not to the queue or the database. The relay is CPU-bound, so throughput scales with the number of relay processes, which share the outbox through `SKIP LOCKED`.
-- **Bulk enqueue.** `ActiveJobDispatcher`, the default, enqueues a whole batch with a single `ActiveJob.perform_all_later`, which adapters turn into one round trip instead of one per job. With a simulated 0.2 ms round trip to the queue it raised throughput from about 1,070 to 1,740 messages per second for one subscriber per event, and from about 1,820 to 4,560 for three. With an in-memory adapter there is nothing to save. `perform_all_later` skips the enqueue callbacks (`before_enqueue`, `around_enqueue`, `after_enqueue`), so jobs that define any are enqueued one by one, with their callbacks. The adapter must mark the jobs it enqueued (`job.successfully_enqueued`), as ActiveJob's own adapters do. A dispatcher of your own gets the same treatment by responding to `call_all`, which takes an array of `AsyncSubscriptions::Delivery` and returns, for each, the error that kept it from being delivered, or `nil`. A batch mixes events, so it isn't delivered inside `Client#with_metadata`, as a single delivery is: a dispatcher that runs handlers in the process derives the correlation from each delivery's event, its `correlation_id` and its `event_id` as the `causation_id`.
-- **Batch size and lease.** A bigger `batch_size` amortizes the claim and the delete, but beyond a few hundred it stops paying off, and a slow batch needs a longer `lease_duration`.
+- **One relay process** delivers about 7,900 messages per second to a subscriber that does nothing (a batch of 500; 5,300 with 100), and about 1,500 per second through ActiveJob. In the ActiveJob case most of the time goes to serializing each event for the job payload (a YAML dump of its metadata), not to the queue or the database. The relay is CPU-bound, so throughput scales with the number of relay processes, which share the outbox through `SKIP LOCKED`.
+- **Bulk enqueue.** `ActiveJobDispatcher`, the default, enqueues a whole batch with a single `ActiveJob.perform_all_later`, which adapters turn into one round trip instead of one per job. With a simulated 0.2 ms round trip to the queue it raised throughput from about 1,050 to 1,680 messages per second for one subscriber per event, and from about 1,650 to 4,460 for three. With an in-memory adapter there is nothing to save. `perform_all_later` skips the enqueue callbacks (`before_enqueue`, `around_enqueue`, `after_enqueue`), so jobs that define any are enqueued one by one, with their callbacks. The adapter must mark the jobs it enqueued (`job.successfully_enqueued`), as ActiveJob's own adapters do. A dispatcher of your own gets the same treatment by responding to `call_all`, which takes an array of `AsyncSubscriptions::Delivery` and returns, for each, the error that kept it from being delivered, or `nil`. A batch mixes events, so it isn't delivered inside `Client#with_metadata`, as a single delivery is: a dispatcher that runs handlers in the process derives the correlation from each delivery's event, its `correlation_id` and its `event_id` as the `causation_id`.
+- **Batch size and lease.** A bigger `batch_size` amortizes the claim and the delete, but beyond a few hundred it stops paying off, and a slow batch needs a longer `lease_duration`. A batch that fails hands its messages back at once, and one that runs out of its lease defers what it hadn't tried, so neither costs the messages a wait for the lease.
 - **An idle relay** costs one short transaction per `poll_interval`. It sleeps only when nothing was due, so under load it never waits.
 
 ## Security

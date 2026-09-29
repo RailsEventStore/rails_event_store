@@ -201,12 +201,13 @@ module RubyEventStore
         specify "skips messages locked by another relay's claim" do
           locked, free = record, record
           add_messages(locked, free)
+          locked_id = Message.find_by!(event_id: locked.event_id).id
           locking = Queue.new
           release = Queue.new
           holder =
             Thread.new do
               Message.transaction do
-                Message.where(event_id: locked.event_id).lock.load
+                Message.where(id: locked_id).lock.load
                 locking << true
                 release.pop
               end
@@ -347,6 +348,23 @@ module RubyEventStore
           outbox.send(:transaction) {}
 
           expect(Message).to have_received(:transaction).with(requires_new: true)
+        end
+      end
+
+      describe "#release" do
+        before { subscriptions.add(recording_handler("First"), ["TestEvent"]) }
+
+        specify "makes the given messages due at the given time, without counting an attempt, and leaves the others" do
+          add_messages(record, record, record)
+          outbox.claim(10, now: now, lease_until: now + 60)
+          ids = Message.order(:id).pluck(:id)
+          Message.where(id: ids[1]).update_all(attempts: 3)
+
+          outbox.release(ids.first(2), now: now + 5)
+
+          expect(Message.order(:id).pluck(:attempts, :next_attempt_at)).to eq(
+            [[0, now + 5], [3, now + 5], [0, now + 60]],
+          )
         end
       end
 

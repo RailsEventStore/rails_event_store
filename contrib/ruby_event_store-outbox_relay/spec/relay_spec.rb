@@ -11,7 +11,7 @@ module RubyEventStore
 
       around { |example| helper.run_lifecycle { example.run } }
 
-      let(:now) { Time.utc(2026, 9, 29, 12, 0, 0) }
+      let(:now) { (Time.now.utc + 3600).round(6) }
       let(:clock) { -> { now } }
       let(:client) { helper.extended_client_class.new(repository: helper.repository, async_subscriptions: helper.sync_subscriptions) }
       let(:retry_policy) { RetryPolicy.new(max_attempts: 3, jitter: 0) }
@@ -57,7 +57,7 @@ module RubyEventStore
 
           result = build_relay.process_batch
 
-          expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 1, retried: 0, dead: 0, unrecorded: 0))
+          expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 1, retried: 0, dead: 0, unrecorded: 0, deferred: 0))
           expect(handler.received.map(&:event_id)).to eq([event.event_id])
           expect(Message.count).to eq(0)
         end
@@ -77,6 +77,52 @@ module RubyEventStore
 
             expect(DeadLetter.count).to eq(0)
             expect(Message.pluck(:attempts)).to eq([0, 0])
+          end
+
+          specify "hands the messages back at once, so the next poll doesn't wait for their lease to run out" do
+            specification = double(:specification)
+            allow(specification).to receive(:events).and_raise(::ActiveRecord::ConnectionNotEstablished, "connection lost")
+            allow(client).to receive(:read).and_return(specification)
+            expect { build_relay.process_batch }.to raise_error(::ActiveRecord::ConnectionNotEstablished)
+            expect(Message.pluck(:next_attempt_at)).to eq([now, now])
+            allow(client).to receive(:read).and_call_original
+
+            result = build_relay.process_batch
+
+            expect(result.delivered).to eq(2)
+          end
+
+          specify "hands them back when it is the fallback read of a single event that fails, too" do
+            specification = double(:specification)
+            allow(specification).to receive(:events).and_raise("cannot be deserialized")
+            allow(specification).to receive(:event).and_raise(::ActiveRecord::StatementInvalid, "timeout")
+            allow(client).to receive(:read).and_return(specification)
+
+            expect { build_relay.process_batch }.to raise_error(::ActiveRecord::StatementInvalid)
+
+            expect(Message.pluck(:next_attempt_at)).to eq([now, now])
+          end
+
+          specify "still raises the error of the database when handing the messages back fails, and says so, by class only" do
+            specification = double(:specification)
+            allow(specification).to receive(:events).and_raise(::ActiveRecord::ConnectionNotEstablished, "connection lost")
+            allow(client).to receive(:read).and_return(specification)
+            allow(client.outbox).to receive(:release).and_raise(::ActiveRecord::StatementInvalid, "password=hunter2")
+
+            expect { build_relay.process_batch }.to raise_error(::ActiveRecord::ConnectionNotEstablished)
+
+            expect(log.string).to include("Could not release 2 outbox message(s) that were not tried: ActiveRecord::StatementInvalid")
+            expect(log.string).not_to include("hunter2")
+          end
+
+          specify "doesn't touch the messages when what fails isn't the reading of the events" do
+            allow(client.outbox).to receive(:release)
+            handler = recording_handler("Other")
+            client.subscribe_async(handler, to: [TestEvent])
+
+            build_relay.process_batch
+
+            expect(client.outbox).not_to have_received(:release)
           end
 
           specify "does so when it is the fallback read of a single event that fails" do
@@ -119,7 +165,7 @@ module RubyEventStore
 
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 0, dead: 0, unrecorded: 1))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 0, dead: 0, unrecorded: 1, deferred: 0))
             expect(Message.sole.event_id).to eq(@events[1].event_id)
             expect(log.string).to include("Could not record the failure of outbox message #{Message.sole.id}: ActiveRecord::StatementInvalid")
           end
@@ -150,7 +196,7 @@ module RubyEventStore
 
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 1, retried: 0, dead: 0, unrecorded: 2))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 1, retried: 0, dead: 0, unrecorded: 2, deferred: 0))
             expect(Message.pluck(:event_id)).to contain_exactly(@events[0].event_id, @events[1].event_id)
             expect(log.string).to include("Could not record the failure of outbox message #{Message.find_by!(event_id: @events[0].event_id).id}:")
           end
@@ -178,6 +224,70 @@ module RubyEventStore
           expect(DeadLetter.sole.error_class).to start_with("#<Class:")
         end
 
+        describe "when a batch runs out of its lease" do
+          let(:current) { [now] }
+          let(:handler) do
+            current = self.current
+            recording_handler("OrderReport") do |_event|
+              next if @slowed
+              @slowed = true
+              current[0] += slow_by
+            end
+          end
+          let(:slow_by) { 50 }
+
+          before do
+            client.subscribe_async(handler, to: [TestEvent])
+            @events = Array.new(3) { publish }
+          end
+
+          def relay_with_moving_clock
+            current = self.current
+            build_relay(clock: -> { current.first })
+          end
+
+          specify "stops delivering after 80% of it, and hands the rest back untried, to be picked up at once" do
+            result = relay_with_moving_clock.process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 1, retried: 0, dead: 0, unrecorded: 0, deferred: 2))
+            expect(handler.received.map(&:event_id)).to eq([@events[0].event_id])
+            expect(Message.order(:id).pluck(:event_id, :attempts, :next_attempt_at)).to eq(
+              [[@events[1].event_id, 0, now + 50], [@events[2].event_id, 0, now + 50]],
+            )
+          end
+
+          specify "picks the deferred messages up in the next batch" do
+            relay_with_moving_clock.process_batch
+            current[0] = now + 50
+
+            second = relay_with_moving_clock.process_batch
+
+            expect(second).to eq(Relay::BatchResult.new(claimed: 2, delivered: 2, retried: 0, dead: 0, unrecorded: 0, deferred: 0))
+            expect(handler.received.map(&:event_id)).to eq(@events.map(&:event_id))
+            expect(Message.count).to eq(0)
+          end
+
+          context "when it takes exactly the 80%" do
+            let(:slow_by) { 48 }
+
+            specify "carries on, as the lease isn't over yet" do
+              result = relay_with_moving_clock.process_batch
+
+              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 3, retried: 0, dead: 0, unrecorded: 0, deferred: 0))
+            end
+          end
+
+          specify "logs, by class only, when handing the deferred messages back fails, and leaves them to their lease" do
+            allow(client.outbox).to receive(:release).and_raise(::ActiveRecord::StatementInvalid, "password=hunter2")
+
+            result = relay_with_moving_clock.process_batch
+
+            expect(result.deferred).to eq(2)
+            expect(log.string).to include("Could not release 2 outbox message(s) that were not tried: ActiveRecord::StatementInvalid")
+            expect(log.string).not_to include("hunter2")
+          end
+        end
+
         specify "instruments the batch, with what happened to its messages" do
           client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
           2.times { publish }
@@ -185,7 +295,7 @@ module RubyEventStore
           build_relay.process_batch
 
           expect(notifications).to eq(
-            [["process_batch.outbox_relay.ruby_event_store", { claimed: 2, delivered: 2, retried: 0, dead: 0, unrecorded: 0 }]],
+            [["process_batch.outbox_relay.ruby_event_store", { claimed: 2, delivered: 2, retried: 0, dead: 0, unrecorded: 0, deferred: 0 }]],
           )
         end
 
@@ -369,14 +479,14 @@ module RubyEventStore
 
           result = build_relay.process_batch
 
-          expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0))
+          expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0, deferred: 0))
           message = Message.sole
           expect(message.attempts).to eq(1)
           expect(message.next_attempt_at).to eq(now + 1)
           expect(message.last_error).to eq("ArgumentError: boom")
           expect(log.string).to include(
             "WARN -- : Outbox message #{message.id} (event #{message.event_id}, Failing) failed " \
-              "attempt 1/3, next at 2026-09-29T12:00:01Z: ArgumentError\n",
+              "attempt 1/3, next at #{(now + 1).iso8601}: ArgumentError\n",
           )
         end
 
@@ -441,7 +551,7 @@ module RubyEventStore
           specify "is retried, as the event may only be late to a replica" do
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0, deferred: 0))
             expect(Message.sole).to have_attributes(
               attempts: 1,
               last_error: "RubyEventStore::OutboxRelay::Relay::MissingEvent: event #{event.event_id} not found",
@@ -471,7 +581,7 @@ module RubyEventStore
           specify "is retried, as a deploy adding the subscriber may not have reached the relay yet" do
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0, deferred: 0))
             expect(Message.sole).to have_attributes(
               attempts: 1,
               last_error: "RubyEventStore::OutboxRelay::Relay::UnknownSubscriber: Kernel is not subscribed to TestEvent",
@@ -515,7 +625,7 @@ module RubyEventStore
           specify "is retried, and the rest of the batch is delivered" do
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0, deferred: 0))
             expect(handler.received.map(&:event_id)).to eq([@first.event_id, @third.event_id])
             expect(Message.sole).to have_attributes(event_id: @corrupted.event_id, attempts: 1)
             expect(Message.sole.last_error).to start_with("Psych::SyntaxError")
@@ -524,7 +634,7 @@ module RubyEventStore
           specify "is dead-lettered at once when the retry policy calls the error permanent" do
             result = build_relay(retry_policy: permanent_policy(Psych::SyntaxError)).process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 0, dead: 1, unrecorded: 0))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 0, dead: 1, unrecorded: 0, deferred: 0))
             expect(DeadLetter.sole).to have_attributes(event_id: @corrupted.event_id, error_class: "Psych::SyntaxError")
           end
         end unless helper.json_data_type?
@@ -635,7 +745,7 @@ module RubyEventStore
 
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 3, retried: 0, dead: 0, unrecorded: 0))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 3, retried: 0, dead: 0, unrecorded: 0, deferred: 0))
             expect(bulk_calls.size).to eq(1)
             expect(bulk_calls.first.map(&:subscriber)).to eq([handler] * 3)
             expect(bulk_calls.first.map { |delivery| delivery.event.event_id }).to eq(events.map(&:event_id))
@@ -643,6 +753,21 @@ module RubyEventStore
             expect(bulk_calls.first).to all(be_an_instance_of(AsyncSubscriptions::Delivery))
             expect(single_calls).to be_empty
             expect(Message.count).to eq(0)
+          end
+
+          def jumping_clock
+            calls = 0
+            -> { (calls += 1) == 1 ? now : now + 1000 }
+          end
+
+          specify "isn't cut short by the lease, as delivering the whole batch is a single call" do
+            client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+            3.times { publish }
+
+            result = build_relay(clock: jumping_clock).process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 3, retried: 0, dead: 0, unrecorded: 0, deferred: 0))
+            expect(bulk_calls.sole.size).to eq(3)
           end
 
           context "when it reports a failure for some deliveries" do
@@ -654,7 +779,7 @@ module RubyEventStore
 
               result = build_relay.process_batch
 
-              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0))
+              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0, deferred: 0))
               message = Message.sole
               expect(message).to have_attributes(event_id: events[1].event_id, attempts: 1, last_error: "RuntimeError: nope")
             end
@@ -662,6 +787,17 @@ module RubyEventStore
 
           context "when it fails as a whole" do
             let(:bulk_raises) { true }
+
+            specify "defers what the lease no longer leaves time for, when delivering one by one" do
+              client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+              3.times { publish }
+
+              result = build_relay(clock: jumping_clock).process_batch
+
+              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 0, retried: 0, dead: 0, unrecorded: 0, deferred: 3))
+              expect(single_calls).to be_empty
+              expect(Message.pluck(:attempts)).to eq([0, 0, 0])
+            end
 
             specify "falls back to delivering one by one, isolating each failure" do
               handler = recording_handler("OrderReport") { |event| raise "boom" if event.event_id == @failing_id }
@@ -671,7 +807,7 @@ module RubyEventStore
 
               result = build_relay.process_batch
 
-              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0))
+              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0, deferred: 0))
               expect(single_calls.map(&:last)).to eq(events.map(&:event_id))
               expect(Message.sole.event_id).to eq(events[1].event_id)
             end
@@ -696,7 +832,7 @@ module RubyEventStore
 
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 2, delivered: 1, retried: 1, dead: 0, unrecorded: 0))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 2, delivered: 1, retried: 1, dead: 0, unrecorded: 0, deferred: 0))
             expect(bulk_calls.sole.map { |delivery| delivery.event.event_id }).to eq([resolvable.event_id])
           end
 
