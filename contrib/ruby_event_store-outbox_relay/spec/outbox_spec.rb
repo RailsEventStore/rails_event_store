@@ -36,7 +36,7 @@ module RubyEventStore
       end
 
       def add_messages(*records)
-        outbox.append(records, topic: nil, subscriptions: subscriptions, now: now) { :appended }
+        outbox.append(records, topics: records.map(&:event_type), subscriptions: subscriptions, now: now) { :appended }
       end
 
       describe "#append" do
@@ -57,13 +57,17 @@ module RubyEventStore
           )
         end
 
-        specify "uses the given topic instead of the event type" do
+        specify "uses the topic given for each record, whatever the record's own event type" do
           subscriptions.add(recording_handler("TopicHandler"), ["custom.topic"])
+          subscriptions.add(recording_handler("OtherHandler"), ["other.topic"])
           subscriptions.add(recording_handler("TypeHandler"), ["TestEvent"])
+          first, second = record, record
 
-          outbox.append([record], topic: "custom.topic", subscriptions: subscriptions, now: now) {}
+          outbox.append([first, second], topics: %w[custom.topic other.topic], subscriptions: subscriptions, now: now) {}
 
-          expect(Message.pluck(:topic, :subscriber)).to eq([%w[custom.topic TopicHandler]])
+          expect(Message.order(:id).pluck(:event_id, :topic, :subscriber)).to eq(
+            [[first.event_id, "custom.topic", "TopicHandler"], [second.event_id, "other.topic", "OtherHandler"]],
+          )
         end
 
         specify "inserts the messages without asking for their ids, so INSERT is all the role needs" do
@@ -84,7 +88,7 @@ module RubyEventStore
         specify "runs the block without a transaction and inserts nothing when no record has async subscribers" do
           transaction_open = nil
 
-          result = outbox.append([record], topic: nil, subscriptions: subscriptions, now: now) do
+          result = outbox.append([record], topics: ["TestEvent"], subscriptions: subscriptions, now: now) do
             transaction_open = Message.connection.transaction_open?
             :appended
           end
@@ -99,7 +103,7 @@ module RubyEventStore
           allow(Message).to receive(:insert_all!).and_raise(::ActiveRecord::StatementInvalid, "boom")
 
           expect do
-            outbox.append([record], topic: nil, subscriptions: subscriptions, now: now) do
+            outbox.append([record], topics: ["TestEvent"], subscriptions: subscriptions, now: now) do
               DeadLetter.insert!(
                 {
                   event_id: SecureRandom.uuid,

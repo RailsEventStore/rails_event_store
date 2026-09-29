@@ -90,6 +90,45 @@ module RubyEventStore
           expect(message.attempts).to eq(0)
         end
 
+        specify "writes messages under the event's own type, even when the mapper rewrites the record's event type" do
+          prefixing = Class.new do
+            def dump(record)
+              RubyEventStore::Record.new(**record.to_h, event_type: "Legacy::#{record.event_type}")
+            end
+
+            def load(record)
+              RubyEventStore::Record.new(**record.to_h, event_type: record.event_type.delete_prefix("Legacy::"))
+            end
+          end
+          mapper = RubyEventStore::Mappers::BatchMapper.new(
+            RubyEventStore::Mappers::PipelineMapper.new(
+              RubyEventStore::Mappers::Pipeline.new(prefixing.new, RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new),
+            ),
+          )
+          client = client_class.new(repository: helper.repository, mapper: mapper, async_subscriptions: subscriptions)
+          handler = recording_handler("OrderReport")
+          client.subscribe_async(handler, to: [TestEvent])
+
+          client.publish(event = TestEvent.new)
+
+          expect(client.read.event(event.event_id)).to eq(event)
+          expect(RubyEventStore::ActiveRecord.const_get(:Event).sole.event_type).to eq("Legacy::TestEvent")
+          expect(Message.pluck(:topic, :subscriber)).to eq([%w[TestEvent OrderReport]])
+          Relay.new(client: client, logger: Logger.new(File::NULL)).process_batch
+          expect(handler.received.map(&:event_id)).to eq([event.event_id])
+        end
+
+        specify "makes the messages due at the real time, in UTC, whatever the client's clock says" do
+          client.subscribe_async(recording_handler("First"), to: [TestEvent])
+          allow(Time).to receive(:now) { Time.new(2026, 1, 1, 12, 0, 0, "+02:00") }
+          allow(client.outbox).to receive(:append).and_call_original
+
+          client.publish(TestEvent.new)
+
+          expect(client.outbox).to have_received(:append).with(anything, hash_including(now: an_object_satisfying(&:utc?)))
+          expect(Message.sole.next_attempt_at).to eq(Time.utc(2026, 1, 1, 10, 0, 0))
+        end
+
         specify "writes no message for an event type without async subscribers" do
           client.subscribe_async(recording_handler("Other"), to: [AnotherTestEvent])
 
