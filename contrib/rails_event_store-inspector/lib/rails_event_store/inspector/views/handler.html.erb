@@ -1,0 +1,13 @@
+<div style="padding-left:<%= depth * 14 %>px">
+  <span style="opacity:.45">└</span>
+  <span style="color:#9db4e8"><%= h node.name %></span>
+  <span style="opacity:.45"><%= node.duration %></span>
+  <% if node.enqueued == true -%>
+    <span style="color:#e0c46c">→ enqueued</span>
+  <% elsif node.enqueued == false -%>
+    <span style="color:#ff7b6b">⚠ scheduled but never enqueued (rollback?)</span>
+  <% end -%>
+</div>
+<% node.children.each do |child| -%>
+  <%= render "event", node: child, depth: depth + 1 %>
+<% end -%>

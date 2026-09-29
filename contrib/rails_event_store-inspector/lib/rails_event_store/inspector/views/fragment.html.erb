@@ -1,0 +1,12 @@
+<div id="res-inspector-header">
+  <span style="opacity:.65">RES inspector · <%= requests %></span>
+  <a href="<%= h reset_path %>">reset</a>
+  <button id="res-inspector-close" type="button">close</button>
+</div>
+<% if groups.empty? -%>
+  <div style="padding-left:14px;opacity:.5">no events yet — do something that publishes</div>
+<% else -%>
+  <% groups.each do |group| -%>
+    <%= render "group", group: group %>
+  <% end -%>
+<% end -%>
