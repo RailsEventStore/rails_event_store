@@ -68,6 +68,30 @@ module RubyEventStore
         expect(subscriptions.names_for("OrderPlaced")).to eq([])
       end
 
+      describe "bulk delivery" do
+        specify "is off for a dispatcher that only delivers one at a time" do
+          expect(subscriptions.bulk?).to eq(false)
+        end
+
+        specify "is on for a dispatcher that responds to #call_all, which receives the whole batch and answers for it" do
+          dispatcher = double(:dispatcher, verify: true, call_all: [nil, RuntimeError.new("boom")])
+          subscriptions = AsyncSubscriptions.new(dispatcher: dispatcher)
+          deliveries = [double(:first), double(:second)]
+
+          results = subscriptions.dispatch_all(deliveries)
+
+          expect(subscriptions.bulk?).to eq(true)
+          expect(dispatcher).to have_received(:call_all).with(deliveries)
+          expect(results.map { |error| error&.message }).to eq([nil, "boom"])
+        end
+
+        specify "describes a delivery by subscriber, event and record" do
+          delivery = AsyncSubscriptions::Delivery.new(subscriber: :s, event: :e, record: :r)
+
+          expect(delivery.to_h).to eq(subscriber: :s, event: :e, record: :r)
+        end
+      end
+
       specify "dispatches through the dispatcher" do
         dispatcher = double(:dispatcher, verify: true)
         allow(dispatcher).to receive(:call)

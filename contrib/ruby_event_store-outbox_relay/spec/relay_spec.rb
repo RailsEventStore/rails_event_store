@@ -320,6 +320,147 @@ module RubyEventStore
           expect(handler.received.size).to eq(1)
         end
 
+        specify "delivers one by one, without a bulk call, through a dispatcher that can't deliver batches" do
+          client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+          publish
+          allow(client.async_subscriptions).to receive(:dispatch_all).and_call_original
+          allow(client.async_subscriptions).to receive(:dispatch).and_call_original
+
+          build_relay.process_batch
+
+          expect(client.async_subscriptions).not_to have_received(:dispatch_all)
+          expect(client.async_subscriptions).to have_received(:dispatch).once
+        end
+
+        describe "with a dispatcher that delivers whole batches" do
+          let(:bulk_calls) { [] }
+          let(:single_calls) { [] }
+          let(:bulk_results) { ->(deliveries) { Array.new(deliveries.size) } }
+          let(:bulk_raises) { false }
+          let(:dispatcher) do
+            bulk_calls = self.bulk_calls
+            single_calls = self.single_calls
+            results = bulk_results
+            raises = bulk_raises
+            Object.new.tap do |dispatcher|
+              dispatcher.define_singleton_method(:verify) { |_subscriber| true }
+              dispatcher.define_singleton_method(:call) do |subscriber, event, _record|
+                single_calls << [subscriber, event.event_id]
+                subscriber.call(event)
+              end
+              dispatcher.define_singleton_method(:call_all) do |deliveries|
+                bulk_calls << deliveries
+                raise "bulk down" if raises
+                results.call(deliveries)
+              end
+            end
+          end
+          let(:client) do
+            helper.extended_client_class.new(
+              repository: helper.repository,
+              async_subscriptions: AsyncSubscriptions.new(dispatcher: dispatcher),
+            )
+          end
+
+          specify "hands the whole batch over in one call, with each message's subscriber, event and record" do
+            handler = recording_handler("OrderReport")
+            client.subscribe_async(handler, to: [TestEvent])
+            events = Array.new(3) { publish }
+
+            result = build_relay.process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 3, retried: 0, dead: 0))
+            expect(bulk_calls.size).to eq(1)
+            expect(bulk_calls.first.map(&:subscriber)).to eq([handler] * 3)
+            expect(bulk_calls.first.map { |delivery| delivery.event.event_id }).to eq(events.map(&:event_id))
+            expect(bulk_calls.first.map { |delivery| delivery.record.event_id }).to eq(events.map(&:event_id))
+            expect(bulk_calls.first).to all(be_an_instance_of(AsyncSubscriptions::Delivery))
+            expect(single_calls).to be_empty
+            expect(Message.count).to eq(0)
+          end
+
+          context "when it reports a failure for some deliveries" do
+            let(:bulk_results) { ->(_deliveries) { [nil, RuntimeError.new("nope"), nil] } }
+
+            specify "retries only those messages" do
+              client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+              events = Array.new(3) { publish }
+
+              result = build_relay.process_batch
+
+              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0))
+              message = Message.sole
+              expect(message).to have_attributes(event_id: events[1].event_id, attempts: 1, last_error: "RuntimeError: nope")
+            end
+          end
+
+          context "when it fails as a whole" do
+            let(:bulk_raises) { true }
+
+            specify "falls back to delivering one by one, isolating each failure" do
+              handler = recording_handler("OrderReport") { |event| raise "boom" if event.event_id == @failing_id }
+              client.subscribe_async(handler, to: [TestEvent])
+              events = Array.new(3) { publish }
+              @failing_id = events[1].event_id
+
+              result = build_relay.process_batch
+
+              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0))
+              expect(single_calls.map(&:last)).to eq(events.map(&:event_id))
+              expect(Message.sole.event_id).to eq(events[1].event_id)
+            end
+
+            specify "still reproduces correlation_id and causation_id around each single delivery" do
+              observed = []
+              handler = recording_handler("OrderReport") { |_event| observed << client.metadata.slice(:correlation_id, :causation_id) }
+              client.subscribe_async(handler, to: [TestEvent])
+              event = publish
+
+              build_relay.process_batch
+
+              expect(observed).to eq([{ correlation_id: event.metadata[:correlation_id], causation_id: event.event_id }])
+            end
+          end
+
+          specify "hands over only the messages that could be resolved" do
+            handler = recording_handler("OrderReport")
+            client.subscribe_async(handler, to: [TestEvent])
+            resolvable, unresolvable = publish, publish
+            Message.where(event_id: unresolvable.event_id).update_all(subscriber: "Kernel")
+
+            result = build_relay.process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 2, delivered: 1, retried: 0, dead: 1))
+            expect(bulk_calls.sole.map { |delivery| delivery.event.event_id }).to eq([resolvable.event_id])
+          end
+
+          specify "isn't called at all when no message could be resolved" do
+            client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+            publish
+            Message.update_all(subscriber: "Kernel")
+
+            result = build_relay.process_batch
+
+            expect(result.dead).to eq(1)
+            expect(bulk_calls).to be_empty
+          end
+        end
+
+        specify "enqueues a batch through the default dispatcher with one ActiveJob.perform_all_later" do
+          job = stub_const("BatchedJob", Class.new(ActiveJob::Base) { def perform(payload) = nil })
+          job.queue_adapter = :test
+          client = helper.extended_client_class.new(repository: helper.repository)
+          client.subscribe_async(job, to: [TestEvent])
+          events = Array.new(3) { TestEvent.new }.each { |event| client.publish(event) }
+          allow(ActiveJob).to receive(:perform_all_later).and_call_original
+
+          result = Relay.new(client: client, logger: Logger.new(File::NULL)).process_batch
+
+          expect(result.delivered).to eq(3)
+          expect(ActiveJob).to have_received(:perform_all_later).once
+          expect(job.queue_adapter.enqueued_jobs.map { |enqueued| enqueued.fetch(:args).first.fetch("event_id") }).to eq(events.map(&:event_id))
+        end
+
         specify "delivers through the default ActiveJob scheduler" do
           TestAsyncJob.reset!
           client = helper.extended_client_class.new(repository: helper.repository)

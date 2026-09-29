@@ -33,6 +33,7 @@ PATH
   remote: .
   specs:
     ruby_event_store-outbox_relay (1.0.0)
+      activejob (>= 7.1)
       activerecord (>= 7.1)
       rails_event_store (>= 3.0.0)
       ruby_event_store (>= 3.0.0)

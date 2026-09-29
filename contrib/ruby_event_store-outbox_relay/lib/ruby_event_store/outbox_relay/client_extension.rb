@@ -32,10 +32,9 @@ module RubyEventStore
       module InstanceMethods
         # @param async_subscriptions [AsyncSubscriptions] registry of
         #   #subscribe_async subscribers, read by the Relay. Defaults to one
-        #   dispatching through RubyEventStore::ImmediateDispatcher and
-        #   RailsEventStore::ActiveJobScheduler with the YAML serializer, the same
-        #   scheduler RailsEventStore::Client uses by default for its own async
-        #   handlers.
+        #   dispatching through ActiveJobDispatcher with the YAML serializer, the
+        #   same serialization RailsEventStore::Client uses by default for its
+        #   own async handlers.
         # @param outbox [Outbox] storage of pending deliveries
         def initialize(async_subscriptions: nil, outbox: nil, **kwargs)
           reentrant = defined?(@async_subscriptions_initializer_reentrant)
@@ -112,11 +111,7 @@ module RubyEventStore
         end
 
         def default_async_subscriptions
-          AsyncSubscriptions.new(
-            dispatcher: ImmediateDispatcher.new(
-              scheduler: RailsEventStore::ActiveJobScheduler.new(serializer: Serializers::YAML),
-            ),
-          )
+          AsyncSubscriptions.new(dispatcher: ActiveJobDispatcher.new(serializer: Serializers::YAML))
         end
       end
     end

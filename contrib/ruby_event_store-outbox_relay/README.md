@@ -70,7 +70,7 @@ event_store.publish(OrderPlaced.new(data: { order_id: order.id }))
 
 The subscriber must be a named class: its name is what the outbox stores. Unlike `subscribe_sync`, `subscribe_async` takes no block.
 
-`async_subscriptions` defaults to `RubyEventStore::ImmediateDispatcher` scheduling through `RailsEventStore::ActiveJobScheduler` with the YAML serializer, so handlers must be ActiveJob classes. Pass a different one at construction time — this works on `RailsEventStore::Client` and on plain `RubyEventStore::Client` alike:
+`async_subscriptions` defaults to `RubyEventStore::OutboxRelay::ActiveJobDispatcher` with the YAML serializer, so handlers must be ActiveJob classes; the relay enqueues each batch of jobs at once, see [Throughput](#throughput). Pass a different one at construction time — this works on `RailsEventStore::Client` and on plain `RubyEventStore::Client` alike:
 
 ```ruby
 dispatcher = RubyEventStore::ImmediateDispatcher.new(scheduler: MyScheduler.new)
@@ -158,6 +158,16 @@ bundle exec rake "ruby_event_store:outbox_relay:dead_letters:retry[42]"
 TOPIC=OrderPlaced SUBSCRIBER=OrderReportJob bundle exec rake "ruby_event_store:outbox_relay:dead_letters:retry[all]"
 bundle exec rake "ruby_event_store:outbox_relay:dead_letters:discard[42]"
 ```
+
+## Throughput
+
+Numbers below come from a laptop, a local PostgreSQL and the default YAML serializer, so read them as proportions, not promises.
+
+- **Publishing.** A `publish` of events with async subscribers issues exactly one more statement than without them — one `INSERT` of the outbox messages, whatever the number of events published together, and none of it outside the transaction you already have. Publishing a batch amortizes even that. The events table is never updated afterwards, so it stays append-only.
+- **One relay process** delivers about 8,000 messages per second to a subscriber that does nothing, and about 1,600 per second through ActiveJob. In the ActiveJob case most of the time goes to serializing each event for the job payload (a YAML dump of its metadata), not to the queue or the database. The relay is CPU-bound, so throughput scales with the number of relay processes, which share the outbox through `SKIP LOCKED`.
+- **Bulk enqueue.** `ActiveJobDispatcher`, the default, enqueues a whole batch with a single `ActiveJob.perform_all_later`, which adapters turn into one round trip instead of one per job. With a simulated 0.2 ms round trip to the queue it raised throughput from about 1,070 to 1,740 messages per second for one subscriber per event, and from about 1,820 to 4,560 for three. With an in-memory adapter there is nothing to save. `perform_all_later` skips the enqueue callbacks (`before_enqueue`, `around_enqueue`, `after_enqueue`), so jobs that define any are enqueued one by one, with their callbacks. The adapter must mark the jobs it enqueued (`job.successfully_enqueued`), as ActiveJob's own adapters do. A dispatcher of your own gets the same treatment by responding to `call_all`, which takes an array of `AsyncSubscriptions::Delivery` and returns, for each, the error that kept it from being delivered, or `nil`.
+- **Batch size and lease.** A bigger `batch_size` amortizes the claim and the delete, but beyond a few hundred it stops paying off, and a slow batch needs a longer `lease_duration`.
+- **An idle relay** costs one short transaction per `poll_interval`. It sleeps only when nothing was due, so under load it never waits.
 
 ## Security
 
