@@ -24,9 +24,8 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 3.3"
 
-  spec.add_dependency "ruby_event_store", ">= 3.0.0"
-  spec.add_dependency "ruby_event_store-active_record", ">= 3.0.0"
-  spec.add_dependency "rails_event_store", ">= 3.0.0"
+  spec.add_dependency "ruby_event_store", ">= 3.0.0", "< 4"
+  spec.add_dependency "ruby_event_store-active_record", ">= 3.0.0", "< 4"
   spec.add_dependency "activerecord", ">= 7.1"
   spec.add_dependency "activejob", ">= 7.1"
 end
