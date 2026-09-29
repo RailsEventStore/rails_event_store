@@ -220,13 +220,13 @@ Only this `client`'s `subscribe_async` registrations matter to the relay — any
 Run it as its own process — not a thread inside your web server, not a Puma plugin:
 
 ```
-bundle exec res_outbox_relay --require=config/outbox_relay.rb --database-url="$DATABASE_URL"
+DATABASE_URL="postgres://relay@db/app" bundle exec res_outbox_relay --require=config/outbox_relay.rb
 ```
 
 A rake task is available too:
 
 ```
-OUTBOX_RELAY_ARGS="--require=config/outbox_relay.rb --database-url=$DATABASE_URL" \
+DATABASE_URL="postgres://relay@db/app" OUTBOX_RELAY_ARGS="--require=config/outbox_relay.rb" \
   bundle exec rake ruby_event_store:outbox_relay:run
 ```
 
@@ -260,13 +260,24 @@ Run as many instances as you want, on as many hosts as you want. `SKIP LOCKED` m
 
 ### CLI options
 
+The database is taken from the `DATABASE_URL` environment variable, never from an argument — see [Security](#security).
+
 | Option | Required | Default | Description |
 | --- | --- | --- | --- |
 | `--require` | yes | — | Ruby file calling `Configuration.configure` to build the relay |
-| `--database-url` | no | — | Database where the event store and outbox tables live |
 | `--batch-size` | no | 100 | Number of messages claimed per batch |
 | `--poll-interval` | no | 1.0 | Seconds to sleep when nothing was due |
 | `--log-level` | no | info | One of: `fatal`, `error`, `warn`, `info`, `debug` |
+
+## Security
+
+- **Database credentials never travel as arguments.** The relay reads the database from the `DATABASE_URL` environment variable; there is deliberately no `--database-url` option, because arguments are visible to every local user in the process list, `/proc/*/cmdline` and the journal. Under systemd, keep the variable in an `EnvironmentFile=` readable by root only (`chmod 600`), as the shipped unit does. `OUTBOX_RELAY_ARGS` of the rake task is split like a shell would.
+- **Least privilege.** The relay only needs (verified on PostgreSQL) `SELECT` on `event_store_events`, `SELECT`, `UPDATE` and `DELETE` on `event_store_outbox_messages`, and `INSERT` on `event_store_outbox_dead_letters`. The application only needs `INSERT` on `event_store_outbox_messages`, on top of what it already has for the event store. Inserts never ask for the generated id (`RETURNING`), so no `SELECT` is needed on tables that are only written. Give the relay its own database role, and a separate one to whoever runs the dead letter tasks (`SELECT`, `UPDATE` and `DELETE` on the dead letters, because requeueing locks them with `FOR UPDATE`, and `INSERT` on the messages).
+- **Only registered subscribers are ever called.** A message stores a subscriber's class name, but the relay resolves it through the `subscribe_async` registry only, never by constant lookup, so a row written to the outbox table cannot make it call an arbitrary class.
+- **Deserialization is the relay's biggest attack surface.** The relay deserializes events read from the database with the repository's serializer. `RubyEventStore::Serializers::YAML`, the default of `RailsEventStore::Client`, loads with `YAML.unsafe_load`: anyone able to write to `event_store_events` (for example through an SQL injection elsewhere, or another service sharing the database) could make the relay, which holds database credentials and access to your job queue, execute code. Prefer the `JSON` serializer, and restrict write access to the events table to the applications that publish.
+- **Logs stay free of event data.** A failing batch is logged by exception class only, and a failed or dead-lettered delivery by message id, event id, subscriber and exception class. The exception's message and backtrace are logged at `debug` level. Note that `last_error` on a message and `error_message` on a dead letter store the exception's message (truncated to 1000 characters), which can echo event data: treat both tables with the sensitivity of `event_store_events`.
+- **Signal handlers are chained.** The relay handles `INT` and `TERM` to shut down gracefully and still calls any handler installed before it.
+- **Hardened unit.** `support/systemd/res-outbox-relay.service` drops all capabilities, forbids privilege escalation and runs with a read-only file system, a private `/tmp`, no devices and restricted address families.
 
 ## Requirements
 

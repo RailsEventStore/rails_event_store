@@ -67,6 +67,7 @@ module RubyEventStore
             rows.map do |event_id, topic, subscriber|
               { event_id: event_id, topic: topic, subscriber: subscriber, next_attempt_at: now, created_at: now }
             end,
+            returning: false,
           )
           scope.delete_all
         end

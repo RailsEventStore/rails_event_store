@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "shellwords"
 require_relative "../ruby_event_store/outbox_relay/generators/migration_generator"
 
 namespace :ruby_event_store do
@@ -23,7 +24,7 @@ namespace :ruby_event_store do
   desc "Run the outbox relay (independent, long-running process; see --help for options)"
   task "outbox_relay:run" do
     require_relative "../ruby_event_store/outbox_relay/cli"
-    RubyEventStore::OutboxRelay::CLI.new.run(ENV["OUTBOX_RELAY_ARGS"].to_s.split)
+    RubyEventStore::OutboxRelay::CLI.new.run(Shellwords.split(ENV["OUTBOX_RELAY_ARGS"].to_s))
   end
 
   desc "List outbox dead letters"
