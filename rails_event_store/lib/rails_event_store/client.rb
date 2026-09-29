@@ -5,8 +5,8 @@ module RailsEventStore
     attr_reader :request_metadata
 
     def initialize(
-      mapper: RubyEventStore::Mappers::BatchMapper.new,
-      repository: RubyEventStore::ActiveRecord::EventRepository.new(serializer: RubyEventStore::Serializers::YAML),
+      mapper: default_mapper,
+      repository: default_repository,
       subscriptions: nil,
       dispatcher: nil,
       message_broker: nil,
@@ -86,6 +86,24 @@ module RailsEventStore
     end
 
     private
+
+    def serializer
+      RubyEventStore::Serializers::YAML
+    end
+
+    def default_mapper
+      RubyEventStore::Mappers::BatchMapper.new(
+        RubyEventStore::Mappers::PipelineMapper.new(RubyEventStore::Mappers::Pipeline.new(*transformations)),
+      )
+    end
+
+    def transformations
+      [RubyEventStore::Mappers::Transformation::SymbolizeMetadataKeys.new]
+    end
+
+    def default_repository
+      RubyEventStore::ActiveRecord::EventRepository.new(serializer: serializer)
+    end
 
     def default_request_metadata
       ->(env) do

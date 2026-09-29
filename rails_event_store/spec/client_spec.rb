@@ -7,6 +7,49 @@ module RailsEventStore
   ::RSpec.describe Client do
     TestEvent = Class.new(RubyEventStore::Event)
 
+    specify "default repository is built from the serializer seam, so a subclass swaps serialization with a single override" do
+      recorded = []
+      recording_serializer =
+        Module.new do
+          define_singleton_method(:dump) do |value|
+            recorded << value
+            YAML.dump(value)
+          end
+          define_singleton_method(:load) { |value| YAML.unsafe_load(value) }
+        end
+      client_class = Class.new(Client) { define_method(:serializer) { recording_serializer } }
+
+      client_class.new.publish(TestEvent.new(data: { foo: "bar" }))
+
+      expect(recorded).to include({ foo: "bar" })
+    end
+
+    specify "default serializer restores YAML types that a safe load would reject" do
+      client = Client.new
+
+      event = TestEvent.new(data: { scheduled_on: Date.new(2021, 8, 5) })
+      client.publish(event)
+
+      expect(client.read.event(event.event_id).data).to eq({ scheduled_on: Date.new(2021, 8, 5) })
+    end
+
+    specify "default mapper comes from the default_mapper seam" do
+      recorded = []
+      recording_mapper =
+        Class.new(RubyEventStore::Mappers::BatchMapper) do
+          define_method(:events_to_records) do |events|
+            recorded.concat(events)
+            super(events)
+          end
+        end
+      client_class = Class.new(Client) { define_method(:default_mapper) { recording_mapper.new } }
+
+      event = TestEvent.new
+      client_class.new(repository: RubyEventStore::InMemoryRepository.new).publish(event)
+
+      expect(recorded).to eq([event])
+    end
+
     specify "has default request metadata proc if no custom one provided" do
       client = Client.new
       expect(
