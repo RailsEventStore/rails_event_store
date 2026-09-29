@@ -75,6 +75,18 @@ module RubyEventStore
         expect { invoke("retry", "abc") }.to raise_error(ArgumentError)
       end
 
+      specify "run splits OUTBOX_RELAY_ARGS like a shell, honoring quotes" do
+        ENV["OUTBOX_RELAY_ARGS"] = %(--require="path with spaces/relay.rb" --batch-size=5)
+        cli = instance_double(CLI, run: nil)
+        allow(CLI).to receive(:new).and_return(cli)
+
+        Rake::Task["ruby_event_store:outbox_relay:run"].invoke
+
+        expect(cli).to have_received(:run).with(["--require=path with spaces/relay.rb", "--batch-size=5"])
+      ensure
+        ENV.delete("OUTBOX_RELAY_ARGS")
+      end
+
       specify "discard deletes the dead letter" do
         discarded = dead_letter
 

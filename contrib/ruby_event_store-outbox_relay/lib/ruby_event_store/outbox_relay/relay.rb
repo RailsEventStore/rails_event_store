@@ -37,6 +37,9 @@ module RubyEventStore
       Prepared = Data.define(:event, :record, :correlation_id)
       private_constant :Prepared
 
+      BACKTRACE_LINES = 10
+      private_constant :BACKTRACE_LINES
+
       # @param client [Object] the application's Client, extended with
       #   ClientExtension; async subscriptions, the outbox, the mapper and
       #   the event store are all read from it
@@ -46,6 +49,7 @@ module RubyEventStore
       #   from other relays; must comfortably exceed the time to deliver a batch
       # @param retry_policy [RetryPolicy]
       # @param clock [#call] returns the current time
+      # @param signals [#trap] where the shutdown handlers are installed
       # @param logger [Logger]
       def initialize(
         client:,
@@ -54,6 +58,7 @@ module RubyEventStore
         lease_duration: 300,
         retry_policy: RetryPolicy.new,
         clock: -> { Time.now.utc },
+        signals: Signal,
         logger: Logger.new($stdout)
       )
         @client = client
@@ -62,6 +67,7 @@ module RubyEventStore
         @lease_duration = lease_duration
         @retry_policy = retry_policy
         @clock = clock
+        @signals = signals
         @logger = logger
         @shutting_down = false
       end
@@ -103,7 +109,7 @@ module RubyEventStore
 
       private
 
-      attr_reader :client, :batch_size, :poll_interval, :lease_duration, :retry_policy, :clock, :logger
+      attr_reader :client, :batch_size, :poll_interval, :lease_duration, :retry_policy, :clock, :signals, :logger
 
       def outbox
         client.outbox
@@ -116,7 +122,8 @@ module RubyEventStore
       def process_batch_safely
         process_batch
       rescue StandardError => e
-        logger.error("Error while processing outbox batch: #{e.class}: #{e.message}")
+        logger.error("Error while processing outbox batch: #{e.class}")
+        logger.debug("Outbox batch error detail: #{e.message}\n#{Array(e.backtrace).first(BACKTRACE_LINES).join("\n")}")
         BatchResult.empty
       end
 
@@ -199,8 +206,15 @@ module RubyEventStore
       end
 
       def install_signal_handlers
-        Signal.trap("INT") { @shutting_down = true }
-        Signal.trap("TERM") { @shutting_down = true }
+        %w[INT TERM].each { |signal| chain_signal_handler(signal) }
+      end
+
+      def chain_signal_handler(signal)
+        previous =
+          signals.trap(signal) do |signo|
+            @shutting_down = true
+            previous.call(signo) if previous.respond_to?(:call)
+          end
       end
     end
   end

@@ -17,7 +17,6 @@ matcher:
   subjects:
     - RubyEventStore::OutboxRelay*
   ignore:
-    - RubyEventStore::OutboxRelay::Relay#install_signal_handlers
     # Its only two remaining mutations are genuinely equivalent: defined?(@ivar)
     # vs instance_variable_defined?(:@ivar) behave identically here, and
     # `defined?` checks assignment, not truthiness, so @x = true vs @x = false

@@ -8,7 +8,7 @@ module RubyEventStore
     ::RSpec.describe Relay do
       let(:outbox) { double(:outbox) }
       let(:client) { double(:client, outbox: outbox) }
-      let(:logger) { double(:logger, info: nil, error: nil) }
+      let(:logger) { double(:logger, info: nil, error: nil, debug: nil) }
 
       def build_relay(**overrides)
         Relay.new(client: client, logger: logger, **overrides)
@@ -22,6 +22,7 @@ module RubyEventStore
         specify "stores every given collaborator and setting in its own instance variable" do
           retry_policy = double(:retry_policy)
           clock = -> {}
+          signals = double(:signals)
 
           relay =
             Relay.new(
@@ -31,6 +32,7 @@ module RubyEventStore
               lease_duration: 9,
               retry_policy: retry_policy,
               clock: clock,
+              signals: signals,
               logger: logger,
             )
 
@@ -40,6 +42,7 @@ module RubyEventStore
           expect(relay.instance_variable_get(:@lease_duration)).to eq(9)
           expect(relay.instance_variable_get(:@retry_policy)).to equal(retry_policy)
           expect(relay.instance_variable_get(:@clock)).to equal(clock)
+          expect(relay.instance_variable_get(:@signals)).to equal(signals)
           expect(relay.instance_variable_get(:@logger)).to equal(logger)
           expect(relay.instance_variable_get(:@shutting_down)).to eq(false)
         end
@@ -54,6 +57,7 @@ module RubyEventStore
           expect(relay.instance_variable_get(:@logger).instance_variable_get(:@logdev).dev).to equal($stdout)
           expect(relay.instance_variable_get(:@clock).call).to be_within(5).of(Time.now.utc)
           expect(relay.instance_variable_get(:@clock).call).to be_utc
+          expect(relay.instance_variable_get(:@signals)).to equal(Signal)
         end
       end
 
@@ -100,18 +104,113 @@ module RubyEventStore
           expect(relay.send(:process_batch_safely)).to eq(result(2))
         end
 
-        specify "logs a failing batch with the exception's class and message, and reports nothing claimed" do
+        specify "logs a failing batch by its class only, keeping the message and backtrace for debug, and reports nothing claimed" do
+          error = ArgumentError.new("password=hunter2")
+          error.set_backtrace(Array.new(15) { |i| "line #{i}" })
+          relay = build_relay
+          allow(relay).to receive(:process_batch).and_raise(error)
+
+          expect(relay.send(:process_batch_safely)).to eq(Relay::BatchResult.empty)
+          expect(logger).to have_received(:error).with("Error while processing outbox batch: ArgumentError")
+          expect(logger).to have_received(:debug).with(
+            "Outbox batch error detail: password=hunter2\n#{Array.new(10) { |i| "line #{i}" }.join("\n")}",
+          )
+        end
+
+        specify "logs the exception's message, not its string form, for debug" do
           error_class =
             Class.new(StandardError) do
               def message = "custom message"
               def to_s = "not this one"
             end
-          stub_const("BatchFailure", error_class)
           relay = build_relay
           allow(relay).to receive(:process_batch).and_raise(error_class)
 
-          expect(relay.send(:process_batch_safely)).to eq(Relay::BatchResult.empty)
-          expect(logger).to have_received(:error).with("Error while processing outbox batch: BatchFailure: custom message")
+          relay.send(:process_batch_safely)
+
+          expect(logger).to have_received(:debug).with(a_string_starting_with("Outbox batch error detail: custom message\n"))
+        end
+
+        specify "copes with an exception that has no backtrace" do
+          error_class = Class.new(StandardError) { def backtrace = nil }
+          relay = build_relay
+          allow(relay).to receive(:process_batch).and_raise(error_class, "boom")
+
+          relay.send(:process_batch_safely)
+
+          expect(logger).to have_received(:debug).with("Outbox batch error detail: boom\n")
+        end
+
+        specify "never puts the exception's message in the error log" do
+          relay = build_relay
+          allow(relay).to receive(:process_batch).and_raise(ArgumentError, "password=hunter2")
+
+          relay.send(:process_batch_safely)
+
+          expect(logger).not_to have_received(:error).with(a_string_including("hunter2"))
+        end
+      end
+
+      describe "#install_signal_handlers (private)" do
+        around do |example|
+          previous = %w[INT TERM].to_h { |signal| [signal, Signal.trap(signal, "DEFAULT")] }
+          example.run
+        ensure
+          previous.each { |signal, handler| Signal.trap(signal, handler) }
+        end
+
+        def wait_until
+          deadline = Time.now + 2
+          sleep(0.01) until yield || Time.now > deadline
+        end
+
+        %w[INT TERM].each do |signal|
+          specify "#{signal} requests a graceful shutdown" do
+            relay = build_relay
+            relay.send(:install_signal_handlers)
+
+            Process.kill(signal, Process.pid)
+            wait_until { relay.instance_variable_get(:@shutting_down) }
+
+            expect(relay.instance_variable_get(:@shutting_down)).to eq(true)
+          end
+
+          specify "#{signal} still reaches the handler installed before, with the signal number" do
+            received = []
+            Signal.trap(signal) { |signo| received << signo }
+            relay = build_relay
+            relay.send(:install_signal_handlers)
+
+            Process.kill(signal, Process.pid)
+            wait_until { !received.empty? }
+
+            expect(received).to eq([Signal.list.fetch(signal)])
+            expect(relay.instance_variable_get(:@shutting_down)).to eq(true)
+          end
+        end
+
+        specify "installs handlers for INT and TERM on the given signals, each shutting down when called" do
+          signals = double(:signals)
+          handlers = {}
+          allow(signals).to receive(:trap) { |signal, &handler| handlers[signal] = handler; "DEFAULT" }
+          relay = build_relay(signals: signals)
+
+          relay.send(:install_signal_handlers)
+
+          expect(handlers.keys).to eq(%w[INT TERM])
+          handlers.each_value do |handler|
+            relay.instance_variable_set(:@shutting_down, false)
+            handler.call(2)
+            expect(relay.instance_variable_get(:@shutting_down)).to eq(true)
+          end
+        end
+
+        specify "a default handler that isn't callable is left alone" do
+          relay = build_relay
+          relay.send(:install_signal_handlers)
+
+          expect { Process.kill("TERM", Process.pid) }.not_to raise_error
+          wait_until { relay.instance_variable_get(:@shutting_down) }
         end
       end
     end

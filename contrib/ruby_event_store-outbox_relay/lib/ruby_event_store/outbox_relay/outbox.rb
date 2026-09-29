@@ -14,6 +14,9 @@ module RubyEventStore
 
     # All reads and writes of the outbox tables.
     #
+    # Inserts never ask for the generated id (RETURNING), which PostgreSQL would
+    # answer only to a role that can also SELECT from the table.
+    #
     # A message is due when next_attempt_at <= now. Claiming a message moves its
     # next_attempt_at to the end of a lease, so a relay that crashes mid-batch
     # releases its messages simply by the lease running out.
@@ -47,7 +50,7 @@ module RubyEventStore
         rows = message_rows(records, topic, subscriptions, now)
         return yield if rows.empty?
 
-        transaction { yield.tap { message_klass.insert_all!(rows) } }
+        transaction { yield.tap { message_klass.insert_all!(rows, returning: false) } }
       end
 
       # Locks up to batch_size due messages, oldest first, skipping ones another
@@ -86,7 +89,7 @@ module RubyEventStore
       def bury(message, attempts:, error:, now:)
         transaction do
           moved = message_klass.where(id: message.outbox_id).delete_all.positive?
-          dead_letter_klass.insert!(dead_letter_row(message, attempts, error, now)) if moved
+          dead_letter_klass.insert!(dead_letter_row(message, attempts, error, now), returning: false) if moved
           moved
         end
       end

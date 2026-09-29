@@ -1,28 +1,54 @@
 [Unit]
 Description=Rails Event Store transactional outbox relay
-# Niezależny proces -- NIE podproces Pumy/aplikacji webowej, osobny cykl życia.
-# Po restarcie relay dogania zaległości z tabeli outboxa (wiadomości po wygaśnięciu
-# dzierżawy wracają do kolejki), więc kolejność uruchamiania względem aplikacji
-# webowej nie ma znaczenia.
+# The relay is an independent process with its own lifecycle, not a child of the
+# web application. After a restart it catches up from the outbox table (messages
+# whose lease ran out become due again), so start order relative to the
+# application doesn't matter.
 After=network.target postgresql.service mysql.service
 
 [Service]
 Type=simple
 WorkingDirectory=/var/www/app/current
 Environment=RAILS_ENV=production
+# Holds DATABASE_URL. Keep it readable by root only (chmod 600): the URL carries
+# the database password, which must never be passed as an argument, where every
+# local user could read it from the process list.
+EnvironmentFile=/etc/res-outbox-relay.env
 ExecStart=/usr/bin/env bundle exec res_outbox_relay \
   --require=config/outbox_relay.rb \
-  --database-url=${DATABASE_URL} \
   --batch-size=100 \
   --poll-interval=1.0
 
-# Wiele instancji tej samej usługi (np. na kilku hostach) jest bezpieczne dzięki
-# FOR UPDATE SKIP LOCKED i dzierżawach w relayu -- nie trzeba pilnować, że działa dokładnie jedna.
+# Any number of instances (e.g. on several hosts) is safe thanks to
+# FOR UPDATE SKIP LOCKED and leases: there is no need to make sure exactly one runs.
 Restart=always
 RestartSec=5
 
 User=deploy
 Group=deploy
+
+# Hardening. The relay only talks to the database and the job queue over the
+# network and writes to stdout, so it needs no privileges and a read-only system.
+# If the application writes elsewhere (logs, tmp), list those paths in
+# ReadWritePaths=. Use ProtectHome=true instead if gems are not installed under /home.
+NoNewPrivileges=true
+CapabilityBoundingSet=
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=true
+SystemCallArchitectures=native
+UMask=0077
 
 [Install]
 WantedBy=multi-user.target

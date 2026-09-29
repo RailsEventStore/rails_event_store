@@ -8,7 +8,7 @@ require_relative "configuration"
 module RubyEventStore
   module OutboxRelay
     class CLI
-      DEFAULTS = { database_url: nil, batch_size: 100, poll_interval: 1.0, log_level: :info, require_path: nil }.freeze
+      DEFAULTS = { batch_size: 100, poll_interval: 1.0, log_level: :info, require_path: nil }.freeze
       Options = Struct.new(*DEFAULTS.keys)
 
       class Parser
@@ -17,10 +17,8 @@ module RubyEventStore
           OptionParser
             .new do |o|
               o.banner = "Usage: res_outbox_relay --require=config/outbox_relay.rb [options]"
-
-              o.on("--database-url=DATABASE_URL", "Database where event_store_events is stored") do |v|
-                options.database_url = v
-              end
+              o.separator "The database is taken from the DATABASE_URL environment variable, never from an argument, " \
+                            "so its credentials stay out of the process list."
 
               o.on(
                 "--require=PATH",
@@ -59,7 +57,7 @@ module RubyEventStore
         raise ArgumentError, "--require is mandatory, see --help" unless options.require_path
 
         require "active_record"
-        ::ActiveRecord::Base.establish_connection(options.database_url) if options.database_url
+        ::ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"]) if ENV["DATABASE_URL"]
         require File.expand_path(options.require_path)
 
         logger = Logger.new($stdout, level: options.log_level, progname: "RES-OutboxRelay")

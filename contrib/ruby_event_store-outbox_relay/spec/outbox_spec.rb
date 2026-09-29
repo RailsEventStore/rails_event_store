@@ -66,6 +66,15 @@ module RubyEventStore
           expect(Message.pluck(:topic, :subscriber)).to eq([%w[custom.topic TopicHandler]])
         end
 
+        specify "inserts the messages without asking for their ids, so INSERT is all the role needs" do
+          subscriptions.add(recording_handler("First"), ["TestEvent"])
+          allow(Message).to receive(:insert_all!).and_call_original
+
+          add_messages(record)
+
+          expect(Message).to have_received(:insert_all!).with(an_instance_of(Array), returning: false)
+        end
+
         specify "returns the block's result" do
           subscriptions.add(recording_handler("First"), ["TestEvent"])
 
@@ -363,6 +372,7 @@ module RubyEventStore
 
           expect(DeadLetter).to have_received(:insert!).with(
             hash_including(error_class: "BuryError", error_message: "custom message", attempts: 2),
+            returning: false,
           )
         end
 
