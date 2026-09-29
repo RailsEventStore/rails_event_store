@@ -53,10 +53,11 @@ module RubyEventStore
       def publish(events, topic: nil, stream_name: GLOBAL_STREAM, expected_version: :any)
         enriched_events = enrich_events_metadata(events)
         records = transform(enriched_events)
-        outbox.append(records, topic: topic, subscriptions: async_subscriptions, now: @clock.call) do
+        topics = enriched_events.map { |event| topic || event.event_type }
+        outbox.append(records, topics: topics, subscriptions: async_subscriptions, now: Time.now.utc) do
           append_records_to_stream(records, stream_name: stream_name, expected_version: expected_version)
         end
-        enriched_events.zip(records) { |event, record| dispatch_sync(topic || event.event_type, event, record) }
+        enriched_events.zip(records, topics) { |event, record, event_topic| dispatch_sync(event_topic, event, record) }
         self
       end
 

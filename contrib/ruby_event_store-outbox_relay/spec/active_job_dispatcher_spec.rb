@@ -66,7 +66,52 @@ module RubyEventStore
         end
       end
 
+      describe "#call when the adapter fails to enqueue" do
+        specify "raises the ActiveJob::EnqueueError, which ActiveJob itself swallows" do
+          klass = job_class("DownJob", adapter: RaisingAdapter.new(ActiveJob::EnqueueError.new("queue down")))
+
+          expect { dispatcher.call(klass, double(:event), record_for) }.to raise_error(ActiveJob::EnqueueError, "queue down")
+        end
+
+        specify "doesn't treat a job halted by an enqueue callback as an error" do
+          klass = job_class("HaltedJob") { before_enqueue { throw :abort } }
+
+          expect { dispatcher.call(klass, double(:event), record_for) }.not_to raise_error
+          expect(klass.queue_adapter.enqueued_jobs).to be_empty
+        end
+
+        specify "raises any other error of the adapter as well" do
+          klass = job_class("DownJob", adapter: RaisingAdapter.new(RuntimeError.new("boom")))
+
+          expect { dispatcher.call(klass, double(:event), record_for) }.to raise_error(RuntimeError, "boom")
+        end
+      end
+
       describe "#call_all" do
+        specify "reports the ActiveJob::EnqueueError of a job with enqueue callbacks, which #enqueue swallows" do
+          klass = job_class("DownJob", callbacks: true, adapter: RaisingAdapter.new(ActiveJob::EnqueueError.new("queue down")))
+
+          results = dispatcher.call_all([delivery(klass)])
+
+          expect(results.sole).to be_an_instance_of(ActiveJob::EnqueueError)
+          expect(results.sole.message).to eq("queue down")
+        end
+
+        specify "reports why a job the bulk enqueue did not enqueue failed, when ActiveJob says" do
+          klass = job_class("BulkJob")
+          error = ActiveJob::EnqueueError.new("queue down")
+          allow(ActiveJob).to receive(:perform_all_later) do |jobs|
+            jobs.each do |job|
+              job.successfully_enqueued = false
+              job.enqueue_error = error
+            end
+          end
+
+          results = dispatcher.call_all([delivery(klass)])
+
+          expect(results.sole).to equal(error)
+        end
+
         specify "enqueues every delivery, with the payload of its record, and reports no failures" do
           klass = job_class("BulkJob")
           first, second = record_for, record_for
@@ -195,6 +240,16 @@ module RubyEventStore
           expect(dispatcher.verify(->(_event) {})).to eq(false)
           expect(dispatcher.verify(SomeJob.new({}))).to eq(false)
         end
+      end
+
+      class RaisingAdapter
+        def initialize(error)
+          @error = error
+        end
+
+        def enqueue(_job) = raise(@error)
+        def enqueue_at(_job, _timestamp) = raise(@error)
+        def enqueue_all(_jobs) = raise(@error)
       end
 
       class FailingAdapter
