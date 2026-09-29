@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+gemspec
+
+eval_gemfile "../../support/bundler/Gemfile.shared"
+eval_gemfile "../../support/bundler/Gemfile.database"
+
+gem "ruby_event_store", path: "../.."
+gem "ruby_event_store-active_record", path: "../../ruby_event_store-active_record"
+gem "rails_event_store", path: "../../rails_event_store"
+
+gem "rails", require: false
+gem "sqlite3", ">= 2.1"
+gem "childprocess"
