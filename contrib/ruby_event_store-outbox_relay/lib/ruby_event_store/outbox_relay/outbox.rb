@@ -27,6 +27,13 @@ module RubyEventStore
       # A claimed message, detached from the database.
       Entry = Data.define(:outbox_id, :event_id, :topic, :subscriber, :attempts, :created_at)
 
+      # What the outbox holds right now. +backlog+ counts the messages that are due,
+      # and +dead_letters+ the dead letters, each up to STATS_LIMIT. +oldest_due_age+
+      # is how many seconds the oldest due message has waited, nil when none is due.
+      # Messages being delivered are leased, hence not due.
+      Stats = Data.define(:backlog, :oldest_due_age, :dead_letters)
+      STATS_LIMIT = 10_000
+
       # @param message_klass [Class] ActiveRecord model of event_store_outbox_messages
       # @param dead_letter_klass [Class] ActiveRecord model of event_store_outbox_dead_letters
       def initialize(message_klass: Message, dead_letter_klass: DeadLetter)
@@ -63,6 +70,18 @@ module RubyEventStore
           message_klass.where(id: entries.map(&:outbox_id)).update_all(next_attempt_at: lease_until) unless entries.empty?
           entries
         end
+      end
+
+      # @param now [Time]
+      # @return [Stats]
+      def stats(now:)
+        due = message_klass.where(next_attempt_at: ..now)
+        oldest = due.minimum(:next_attempt_at)
+        Stats.new(
+          backlog: capped_count(due),
+          oldest_due_age: oldest && now - oldest,
+          dead_letters: capped_count(dead_letter_klass),
+        )
       end
 
       # @param ids [Array<Integer>]
@@ -117,6 +136,13 @@ module RubyEventStore
               }
             end
         end
+      end
+
+      # Counts at most STATS_LIMIT rows, in the database. count, count(nil) and
+      # count(:all) all issue the very same COUNT(*), so mutating the argument
+      # can't be told apart. mutant:disable
+      def capped_count(scope)
+        scope.limit(STATS_LIMIT).count(:all)
       end
 
       def entry_for(message)

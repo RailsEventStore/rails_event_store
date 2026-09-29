@@ -70,11 +70,11 @@ Claiming a batch is one short transaction that only moves each message's `next_a
 - a job enqueued by the dispatcher is never deferred until after the message is gone — ActiveJob's `enqueue_after_transaction_commit` has no transaction to wait for, so it enqueues right away;
 - other relays skip leased messages, and a relay that crashes mid-batch releases its messages simply by the lease running out.
 
-### Zero changes to `ruby_event_store`
+### No monkeypatching
 
-None of this is part of `RubyEventStore::Client` or `RubyEventStore::ActiveRecord::EventRepository` — neither gem is modified. `Client#publish` is overridden at runtime via `Module#prepend`/`Module#include`, the same mechanism `ruby_event_store` uses internally for its own deprecation wrappers (`RubyEventStore::Deprecations.deprecate`). The event repository is not touched at all, and `Client#append` keeps its documented contract of notifying no one, so it writes no messages.
+None of this is part of `RubyEventStore::Client` or `RubyEventStore::ActiveRecord::EventRepository` — neither gem is modified, and requiring the gem changes no existing class. You opt in by building your client from `RubyEventStore::OutboxRelay::Client` (a `RubyEventStore::Client`) or, in Rails, `RubyEventStore::OutboxRelay::RailsClient` (a `RailsEventStore::Client`), subclasses that override `publish` and add `subscribe_sync`/`subscribe_async`/`async_subscriptions`/`outbox`. Until you call `subscribe_async`, `publish` writes no messages and behaves as it always did. The event repository is not touched at all, and `Client#append` keeps its documented contract of notifying no one, so it writes no messages.
 
-Loading `ruby_event_store/outbox_relay` extends `RubyEventStore::Client` (and therefore every subclass, e.g. `RailsEventStore::Client`) with `subscribe_sync`/`subscribe_async`/`async_subscriptions`/`outbox`. Until you call `subscribe_async`, `publish` writes no messages and behaves as it always did.
+The outbox client's `publish` repeats the steps of `RubyEventStore::Client#publish`, and relies on internals of the class to do so. That is why the gem depends on `ruby_event_store` `>= 3.0.0, < 4`, and why a spec fails should one of those internals go.
 
 ### Why no event is ever delivered twice by the two paths
 
@@ -151,6 +151,12 @@ Add the gem:
 gem "ruby_event_store-outbox_relay"
 ```
 
+In a Rails application, load the Rails integration too, which defines `RailsClient` and needs `rails_event_store`:
+
+```ruby
+gem "ruby_event_store-outbox_relay", require: "ruby_event_store/outbox_relay/rails"
+```
+
 Generate and run the migration. It creates the two outbox tables and the index on `(next_attempt_at, id)`; `event_store_events` is not modified.
 
 ```
@@ -163,7 +169,7 @@ bin/rails db:migrate
 Nothing to wire up — just build a client and register handlers on whichever path fits them:
 
 ```ruby
-event_store = RailsEventStore::Client.new
+event_store = RubyEventStore::OutboxRelay::RailsClient.new
 
 event_store.subscribe_sync(OrderMailer, to: [OrderPlaced])       # immediate, in-process
 event_store.subscribe_async(OrderReportJob, to: [OrderPlaced])   # via the relay, by default ActiveJob
@@ -178,36 +184,32 @@ event_store.publish(OrderPlaced.new(data: { order_id: order.id }))
 Two asymmetries between the two:
 
 - `subscribe_sync` accepts a block subscriber, `subscribe_async` does not. The outbox stores the subscriber's class name, so `subscribe_async` requires a named class and rejects a block or an anonymous class outright.
-- **`subscribe_async` must be called the same way in the application and in the relay process.** The application uses the registered subscribers to decide which messages to write; the relay uses them to resolve a message's `subscriber` name back to a handler. The relay resolves names only through this registry — never by constant lookup — so a row in the outbox table can only ever reach a handler you registered.
+- **The relay must run with the client of your application.** The application uses the registered subscribers to decide which messages to write; the relay uses them to resolve a message's `subscriber` name back to a handler. The relay resolves names only through this registry — never by constant lookup — so a row in the outbox table can only ever reach a handler you registered. Handing the relay the very client of your application keeps the list of async subscribers in one place.
 
 `publish(event, topic: "custom")` writes messages for the async subscribers of that topic, exactly as it notifies the sync subscribers of that topic.
 
 ### Customizing async delivery
 
-`async_subscriptions` defaults to `RubyEventStore::OutboxRelay::ActiveJobDispatcher` with the YAML serializer — so `subscribe_async` handlers must be `ActiveJob` classes by default, and the relay enqueues each batch of jobs at once (see [Throughput](#throughput)). To use a different transport, pass `async_subscriptions:` at construction time — this works on `RailsEventStore::Client` and on plain `RubyEventStore::Client` alike:
+`async_subscriptions` defaults to `RubyEventStore::OutboxRelay::ActiveJobDispatcher` with the YAML serializer — so `subscribe_async` handlers must be `ActiveJob` classes by default, and the relay enqueues each batch of jobs at once (see [Throughput](#throughput)). To use a different transport, pass `async_subscriptions:` at construction time:
 
 ```ruby
 dispatcher = RubyEventStore::ImmediateDispatcher.new(scheduler: MyOwnScheduler.new)
-RailsEventStore::Client.new(
+RubyEventStore::OutboxRelay::RailsClient.new(
   async_subscriptions: RubyEventStore::OutboxRelay::AsyncSubscriptions.new(dispatcher: dispatcher),
 )
 ```
 
 ## Configuring and running the relay
 
-The relay reads its subscriptions, outbox and mapper straight from a `Client` you hand it.
+The relay reads its subscriptions, outbox and mapper straight from a `Client` you hand it — the one of your application, so `subscribe_async` is called in one place only. Point the process at a file that loads the application and builds the relay:
 
 ```ruby
 # config/outbox_relay.rb
-require "ruby_event_store/outbox_relay"
+require_relative "environment"
 
 RubyEventStore::OutboxRelay::Configuration.configure do |batch_size:, poll_interval:, logger:|
-  client = RailsEventStore::Client.new
-  client.subscribe_async(OrderReportJob, to: [OrderPlaced])
-  client.subscribe_async(InvoiceGenerator, to: [InvoiceGenerationRequested])
-
   RubyEventStore::OutboxRelay::Relay.new(
-    client: client,
+    client: Rails.configuration.event_store,
     batch_size: batch_size,
     poll_interval: poll_interval,
     logger: logger,
@@ -215,7 +217,7 @@ RubyEventStore::OutboxRelay::Configuration.configure do |batch_size:, poll_inter
 end
 ```
 
-Only this `client`'s `subscribe_async` registrations matter to the relay — any `subscribe_sync` calls on it are simply never triggered by the relay.
+Only the client's `subscribe_async` registrations matter to the relay — its `subscribe_sync` subscribers are never triggered by it. The relay refuses a client that isn't an outbox client, and at startup it logs the async subscribers of every topic, warning when there are none — in which case every message would be dead-lettered.
 
 Run it as its own process — not a thread inside your web server, not a Puma plugin:
 
@@ -269,6 +271,34 @@ The database is taken from the `DATABASE_URL` environment variable, never from a
 | `--poll-interval` | no | 1.0 | Seconds to sleep when nothing was due |
 | `--log-level` | no | info | One of: `fatal`, `error`, `warn`, `info`, `debug` |
 
+## Observability
+
+The relay reports through `ActiveSupport::Notifications`, under names ending in `.outbox_relay.ruby_event_store`. Pass another object responding to `instrument(name, payload)` as `instrumentation:` to send them elsewhere. Without subscribers they cost next to nothing.
+
+| Notification | When | Payload |
+| --- | --- | --- |
+| `process_batch` | around each batch, idle ones included | `claimed`, `delivered`, `retried`, `dead` |
+| `message_failed` | for each message that failed to be delivered | `outbox_id`, `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `outcome` (`:retried` or `:dead`) |
+| `stats` | every `stats_interval` seconds (30 by default, `nil` turns it off) | `backlog`, `oldest_due_age`, `dead_letters` |
+
+`message_failed` never carries the error's message, which can echo event data. The duration of a batch is the duration of its notification.
+
+```ruby
+ActiveSupport::Notifications.subscribe("process_batch.outbox_relay.ruby_event_store") do |event|
+  StatsD.measure("outbox.batch", event.duration)
+  StatsD.increment("outbox.delivered", event.payload[:delivered])
+end
+
+ActiveSupport::Notifications.subscribe("stats.outbox_relay.ruby_event_store") do |event|
+  StatsD.gauge("outbox.oldest_due_age", event.payload[:oldest_due_age].to_f)
+  StatsD.gauge("outbox.dead_letters", event.payload[:dead_letters])
+end
+```
+
+`backlog` is the number of messages that are due, `oldest_due_age` the seconds the oldest of them has waited (`nil` when none is due) and `dead_letters` the number of dead letters. The two counts stop at 10,000, so measuring a huge backlog stays cheap. Messages being delivered are leased, hence not due. Alert on `oldest_due_age` growing, and on any `dead_letters`: they say the relay isn't keeping up, or that something can't be delivered. The same numbers are available to your own endpoint from `client.outbox.stats(now: Time.now.utc)`.
+
+The relay logs, at `info`, its startup and shutdown and the async subscribers of every topic; at `warn`, each retry; at `error`, each dead letter, and a batch or stats query that failed, by exception class only; at `debug`, the counts of each batch that claimed something, and the message and backtrace of a failed batch.
+
 ## Throughput
 
 Numbers below come from a laptop, a local PostgreSQL and the default YAML serializer, so read them as proportions, not promises.
@@ -292,7 +322,9 @@ Numbers below come from a laptop, a local PostgreSQL and the default YAML serial
 ## Requirements
 
 - Ruby >= 3.3
-- `ruby_event_store` >= 3.0.0, `ruby_event_store-active_record` >= 3.0.0, `rails_event_store` >= 3.0.0
+- `ruby_event_store` and `ruby_event_store-active_record` >= 3.0.0 and < 4
+- `activerecord` and `activejob` >= 7.1
+- `rails_event_store` >= 3.0.0, only for `RailsClient`
 - PostgreSQL (any supported version), or **MySQL >= 8.0** — `SKIP LOCKED` isn't available on earlier MySQL versions, and the relay's concurrency guarantee depends on it. SQLite works for a single relay instance only, since it has no row locks.
 
 ## Relation to `ruby_event_store-outbox`

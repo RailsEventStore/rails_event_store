@@ -17,6 +17,16 @@ module RubyEventStore
       let(:retry_policy) { RetryPolicy.new(max_attempts: 3, jitter: 0) }
 
       let(:log) { StringIO.new }
+      let(:notifications) { [] }
+      let(:instrumentation) do
+        notifications = self.notifications
+        Object.new.tap do |instrumentation|
+          instrumentation.define_singleton_method(:instrument) do |name, payload = {}, &block|
+            notifications << [name, payload]
+            block ? block.call(payload) : nil
+          end
+        end
+      end
 
       def build_relay(batch_size: 10, clock: self.clock)
         Relay.new(
@@ -25,6 +35,7 @@ module RubyEventStore
           lease_duration: 60,
           retry_policy: retry_policy,
           clock: clock,
+          instrumentation: instrumentation,
           logger: Logger.new(log),
         )
       end
@@ -45,6 +56,66 @@ module RubyEventStore
           expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 1, retried: 0, dead: 0))
           expect(handler.received.map(&:event_id)).to eq([event.event_id])
           expect(Message.count).to eq(0)
+        end
+
+        specify "instruments the batch, with what happened to its messages" do
+          client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+          2.times { publish }
+
+          build_relay.process_batch
+
+          expect(notifications).to eq(
+            [["process_batch.outbox_relay.ruby_event_store", { claimed: 2, delivered: 2, retried: 0, dead: 0 }]],
+          )
+        end
+
+        specify "instruments a retried message, without the error's message" do
+          client.subscribe_async(recording_handler("Failing") { |_event| raise ArgumentError, "password=hunter2" }, to: [TestEvent])
+          event = publish
+
+          build_relay.process_batch
+
+          failure = notifications.find { |name, _| name == "message_failed.outbox_relay.ruby_event_store" }
+          expect(failure.last).to eq(
+            outbox_id: Message.sole.id,
+            event_id: event.event_id,
+            topic: "TestEvent",
+            subscriber: "Failing",
+            attempts: 1,
+            error_class: "ArgumentError",
+            outcome: :retried,
+          )
+          expect(failure.last.values.grep(String).join).not_to include("hunter2")
+        end
+
+        specify "instruments a dead-lettered message" do
+          client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+          event = publish
+          Message.update_all(subscriber: "Kernel")
+
+          build_relay.process_batch
+
+          failure = notifications.find { |name, _| name == "message_failed.outbox_relay.ruby_event_store" }
+          expect(failure.last).to include(
+            event_id: event.event_id,
+            subscriber: "Kernel",
+            attempts: 1,
+            error_class: "RubyEventStore::OutboxRelay::Relay::UnknownSubscriber",
+            outcome: :dead,
+          )
+        end
+
+        specify "instruments nothing, and logs nothing, for a message that another relay already delivered" do
+          client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+          publish
+          Message.update_all(subscriber: "Kernel")
+          allow(client.outbox).to receive(:bury).and_return(false)
+
+          result = build_relay.process_batch
+
+          expect(result.dead).to eq(1)
+          expect(notifications.map(&:first)).to eq(["process_batch.outbox_relay.ruby_event_store"])
+          expect(log.string).not_to include("moved to dead letters")
         end
 
         specify "reads the events of a whole batch with a single query" do

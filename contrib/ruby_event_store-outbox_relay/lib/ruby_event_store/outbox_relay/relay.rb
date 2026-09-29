@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "logger"
+require "active_support/notifications"
 
 module RubyEventStore
   module OutboxRelay
@@ -19,6 +20,16 @@ module RubyEventStore
     # RetryPolicy and dead-lettered once it gives up. Delivery is at least once:
     # a relay that crashes after dispatching, but before deleting, redelivers
     # once the lease runs out.
+    #
+    # It reports through +instrumentation+ (ActiveSupport::Notifications by
+    # default), under names ending in ".outbox_relay.ruby_event_store":
+    #
+    # * +process_batch+, around each batch, with the counts of BatchResult;
+    # * +message_failed+, for each message that failed to be delivered, with
+    #   +outbox_id+, +event_id+, +topic+, +subscriber+, +attempts+, +error_class+
+    #   and +outcome+ (+:retried+ or +:dead+). Never the error's message, which can
+    #   echo event data;
+    # * +stats+, every +stats_interval+ seconds, with the fields of Outbox::Stats.
     class Relay
       # Outcome of one #process_batch call.
       BatchResult =
@@ -39,11 +50,14 @@ module RubyEventStore
       private_constant :Prepared, :Pending
 
       BACKTRACE_LINES = 10
-      private_constant :BACKTRACE_LINES
+      EVENT_NAMESPACE = "outbox_relay.ruby_event_store"
+      private_constant :BACKTRACE_LINES, :EVENT_NAMESPACE
 
       # @param client [Object] the application's Client, extended with
-      #   ClientExtension; async subscriptions, the outbox, the mapper and
-      #   the event store are all read from it
+      #   ClientExtension (an OutboxRelay::Client or RailsClient); async
+      #   subscriptions, the outbox, the mapper and the event store are all read
+      #   from it. In the relay process, use the very client of the application,
+      #   so both share one list of subscribers
       # @param batch_size [Integer] how many messages to claim per batch
       # @param poll_interval [Numeric] how long to sleep when nothing was due
       # @param lease_duration [Numeric] seconds a claimed message stays hidden
@@ -51,7 +65,11 @@ module RubyEventStore
       # @param retry_policy [RetryPolicy]
       # @param clock [#call] returns the current time
       # @param signals [#trap] where the shutdown handlers are installed
+      # @param instrumentation [#instrument] receives the notifications listed above
+      # @param stats_interval [Numeric, nil] seconds between +stats+ notifications;
+      #   nil turns them off
       # @param logger [Logger]
+      # @raise [ArgumentError] when the client isn't extended with ClientExtension
       def initialize(
         client:,
         batch_size: 100,
@@ -60,8 +78,15 @@ module RubyEventStore
         retry_policy: RetryPolicy.new,
         clock: -> { Time.now.utc },
         signals: Signal,
+        instrumentation: ActiveSupport::Notifications,
+        stats_interval: 30,
         logger: Logger.new($stdout)
       )
+        unless client.respond_to?(:outbox) && client.respond_to?(:async_subscriptions)
+          raise ArgumentError,
+                "client must be extended with RubyEventStore::OutboxRelay::ClientExtension, " \
+                  "e.g. an OutboxRelay::Client or a RailsClient, got #{client.class}"
+        end
         @client = client
         @batch_size = batch_size
         @poll_interval = poll_interval
@@ -69,6 +94,8 @@ module RubyEventStore
         @retry_policy = retry_policy
         @clock = clock
         @signals = signals
+        @instrumentation = instrumentation
+        @stats_interval = stats_interval
         @logger = logger
         @shutting_down = false
       end
@@ -78,9 +105,12 @@ module RubyEventStore
       def run
         install_signal_handlers
         logger.info("Starting RubyEventStore::OutboxRelay")
+        log_subscribers
 
         until @shutting_down
           result = process_batch_safely
+          log_batch(result)
+          publish_stats_if_due
           sleep(poll_interval) if result.claimed.zero?
         end
 
@@ -91,6 +121,25 @@ module RubyEventStore
       #
       # @return [BatchResult]
       def process_batch
+        instrumentation.instrument("process_batch.#{EVENT_NAMESPACE}", {}) do |payload|
+          deliver_batch.tap { |result| payload.merge!(result.to_h) }
+        end
+      end
+
+      private
+
+      attr_reader :client,
+                  :batch_size,
+                  :poll_interval,
+                  :lease_duration,
+                  :retry_policy,
+                  :clock,
+                  :signals,
+                  :instrumentation,
+                  :stats_interval,
+                  :logger
+
+      def deliver_batch
         now = clock.call
         messages = outbox.claim(batch_size, now: now, lease_until: now + lease_duration)
         return BatchResult.empty if messages.empty?
@@ -107,16 +156,51 @@ module RubyEventStore
         )
       end
 
-      private
-
-      attr_reader :client, :batch_size, :poll_interval, :lease_duration, :retry_policy, :clock, :signals, :logger
-
       def outbox
         client.outbox
       end
 
       def subscriptions
         client.async_subscriptions
+      end
+
+      def log_subscribers
+        registered = subscriptions.to_h
+        if registered.empty?
+          logger.warn("No async subscribers registered: every message will be dead-lettered as unknown")
+        else
+          registered.each { |topic, names| logger.info("Async subscribers of #{topic}: #{names.join(", ")}") }
+        end
+      end
+
+      def log_batch(result)
+        return if result.claimed.zero?
+        logger.debug(
+          "Batch: claimed=#{result.claimed} delivered=#{result.delivered} retried=#{result.retried} dead=#{result.dead}",
+        )
+      end
+
+      def publish_stats_if_due
+        return unless stats_interval
+        now = clock.call
+        return if @stats_at && now - @stats_at < stats_interval
+        @stats_at = now
+        instrumentation.instrument("stats.#{EVENT_NAMESPACE}", outbox.stats(now: now).to_h)
+      rescue StandardError => e
+        logger.error("Error while collecting outbox stats: #{e.class}")
+      end
+
+      def instrument_failure(message, attempts, error, outcome)
+        instrumentation.instrument(
+          "message_failed.#{EVENT_NAMESPACE}",
+          outbox_id: message.outbox_id,
+          event_id: message.event_id,
+          topic: message.topic,
+          subscriber: message.subscriber,
+          attempts: attempts,
+          error_class: error.class.name,
+          outcome: outcome,
+        )
       end
 
       def process_batch_safely
@@ -218,16 +302,19 @@ module RubyEventStore
           "Outbox message #{message.outbox_id} (event #{message.event_id}, #{message.subscriber}) failed " \
             "attempt #{attempts}/#{retry_policy.max_attempts}, next at #{next_attempt_at.iso8601}: #{error.class}",
         )
+        instrument_failure(message, attempts, error, :retried)
         :retried
       end
 
       def bury(message, error)
         attempts = message.attempts + 1
-        outbox.bury(message, attempts: attempts, error: error, now: clock.call)
-        logger.error(
-          "Outbox message #{message.outbox_id} (event #{message.event_id}, #{message.subscriber}) moved to dead letters " \
-            "after #{attempts} attempt(s): #{error.class}",
-        )
+        if outbox.bury(message, attempts: attempts, error: error, now: clock.call)
+          logger.error(
+            "Outbox message #{message.outbox_id} (event #{message.event_id}, #{message.subscriber}) moved to dead letters " \
+              "after #{attempts} attempt(s): #{error.class}",
+          )
+          instrument_failure(message, attempts, error, :dead)
+        end
         :dead
       end
 

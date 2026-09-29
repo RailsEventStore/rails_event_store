@@ -10,28 +10,60 @@ module RubyEventStore
 
       around { |example| helper.run_lifecycle { example.run } }
 
-      let(:client_class) { Class.new(RubyEventStore::Client) }
+      let(:client_class) { Class.new(Client) }
       let(:subscriptions) { helper.sync_subscriptions }
       let(:client) { client_class.new(repository: helper.repository, async_subscriptions: subscriptions) }
 
-      specify "is included onto RubyEventStore::Client at gem-load time, so every client is extended" do
-        expect(RubyEventStore::Client.ancestors).to include(ClientExtension::InstanceMethods)
+      describe "requiring the gem" do
+        specify "changes no existing class, so a plain client stays plain" do
+          expect(RubyEventStore::Client.ancestors).not_to include(ClientExtension)
+          expect(RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)).not_to respond_to(:subscribe_async)
+          expect(RubyEventStore::Client.instance_method(:publish).owner).to eq(RubyEventStore::Client)
+        end
+
+        specify "leaves the event repository alone" do
+          expect(RubyEventStore::ActiveRecord::EventRepository.ancestors.first).to eq(RubyEventStore::ActiveRecord::EventRepository)
+          expect(RubyEventStore::ActiveRecord::EventRepository.instance_method(:append_to_stream).owner).to eq(
+            RubyEventStore::ActiveRecord::EventRepository,
+          )
+        end
       end
 
-      specify "does not touch the event repository" do
-        expect(RubyEventStore::ActiveRecord::EventRepository.ancestors.first).to eq(RubyEventStore::ActiveRecord::EventRepository)
-        expect(RubyEventStore::ActiveRecord::EventRepository.instance_method(:append_to_stream).owner).to eq(
-          RubyEventStore::ActiveRecord::EventRepository,
-        )
+      describe "Client" do
+        specify "is a RubyEventStore::Client with the extension" do
+          expect(Client.superclass).to equal(RubyEventStore::Client)
+          expect(Client.ancestors.first(2)).to eq([Client, ClientExtension])
+        end
       end
 
-      describe ".included" do
-        specify "prepends InstanceMethods, so its methods override the including class's own" do
-          klass = Class.new
+      describe "including it into a client class" do
+        specify "overrides the methods of RubyEventStore::Client, and only in that class" do
+          klass = Class.new(RubyEventStore::Client) { include ClientExtension }
 
-          klass.include(ClientExtension)
+          expect(klass.instance_method(:publish).owner).to equal(ClientExtension)
+          expect(RubyEventStore::Client.instance_method(:publish).owner).to equal(RubyEventStore::Client)
+        end
+      end
 
-          expect(klass.ancestors.first).to eq(ClientExtension::InstanceMethods)
+      describe "the RubyEventStore::Client internals it relies on" do
+        specify "still exist, with the shape #publish expects" do
+          parameters = ->(name) { RubyEventStore::Client.instance_method(name).parameters }
+
+          expect(RubyEventStore::Client.private_instance_methods).to include(
+            :enrich_events_metadata,
+            :transform,
+            :append_records_to_stream,
+          )
+          expect(parameters.call(:append_records_to_stream)).to eq(
+            [[:req, :records], [:keyreq, :stream_name], [:keyreq, :expected_version]],
+          )
+          expect(parameters.call(:with_metadata)).to include([:req, :metadata_for_block])
+          expect(RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new).instance_variables).to include(
+            :@clock,
+            :@broker,
+            :@mapper,
+            :@event_type_resolver,
+          )
         end
       end
 
@@ -319,57 +351,6 @@ module RubyEventStore
           expect { client_class.new.subscribe_async(recording_handler("NotAJob"), to: [TestEvent]) }.to raise_error(
             RubyEventStore::InvalidHandler,
           )
-        end
-      end
-
-      describe "RailsEventStore::Client" do
-        specify "is extended too" do
-          expect(RailsEventStore::Client.ancestors).to include(ClientExtension::InstanceMethods)
-        end
-
-        specify "honors custom async_subscriptions: and outbox:, though its own #initialize never forwards them" do
-          outbox = Outbox.new
-          client = RailsEventStore::Client.new(async_subscriptions: subscriptions, outbox: outbox)
-
-          expect(client.async_subscriptions).to equal(subscriptions)
-          expect(client.outbox).to equal(outbox)
-        end
-
-        specify "builds the defaults when none are given" do
-          client = RailsEventStore::Client.new
-
-          expect(client.async_subscriptions).to be_a(AsyncSubscriptions)
-          expect(client.outbox).to be_a(Outbox)
-        end
-
-        specify "InstanceMethods is prepended twice -- once directly, once inherited via RubyEventStore::Client -- intentionally" do
-          expect(RailsEventStore::Client.ancestors.count { |m| m == ClientExtension::InstanceMethods }).to eq(2)
-        end
-
-        specify "builds the defaults only once despite #initialize being reached twice per .new call" do
-          calls = 0
-          client = RailsEventStore::Client.allocate
-          client.define_singleton_method(:default_async_subscriptions) do
-            calls += 1
-            super()
-          end
-
-          client.send(:initialize)
-
-          expect(calls).to eq(1)
-        end
-
-        specify "publishes with messages and delivers them through the relay" do
-          TestAsyncJob.reset!
-          client = RailsEventStore::Client.new(repository: helper.repository)
-          client.subscribe_async(TestAsyncJob, to: [TestEvent])
-          event = TestEvent.new
-
-          client.publish(event)
-          expect(TestAsyncJob.received).to be_empty
-          Relay.new(client: client, logger: Logger.new(File::NULL)).process_batch
-
-          expect(TestAsyncJob.received.map { |payload| payload.fetch("event_id") }).to eq([event.event_id])
         end
       end
     end
