@@ -175,6 +175,7 @@ module RubyEventStore
           expect(DeadLetter).to have_received(:transaction).with(requires_new: true)
           expect(Message).to have_received(:insert_all!).with(
             [{ event_id: "e-1", topic: "T", subscriber: "S", next_attempt_at: now, created_at: now }],
+            returning: false,
           )
         end
       end
