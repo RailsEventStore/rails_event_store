@@ -193,6 +193,17 @@ Two asymmetries between the two:
 - `subscribe_sync` accepts a block subscriber, `subscribe_async` does not. The outbox stores the subscriber's class name, so `subscribe_async` requires a named class and rejects a block or an anonymous class outright.
 - **The relay must run with the client of your application.** The application uses the registered subscribers to decide which messages to write; the relay uses them to resolve a message's `subscriber` name back to a handler. The relay resolves names only through this registry — never by constant lookup — so a row in the outbox table can only ever reach a handler you registered. Handing the relay the very client of your application keeps the list of async subscribers in one place.
 
+The outbox is written in the very transaction of the events, which holds only when the outbox tables are reached through the same connection as the event store. The outbox models inherit from `ActiveRecord::Base`, so that is the case when the event store does too. If the event store lives on another connection, say through an abstract base class of its own, give the client an outbox built on models that inherit from that class, and the same to the dead letter tasks:
+
+```ruby
+class OutboxMessage < EventStoreRecord; self.table_name = "event_store_outbox_messages"; end
+class OutboxDeadLetter < EventStoreRecord; self.table_name = "event_store_outbox_dead_letters"; end
+
+outbox = RubyEventStore::OutboxRelay::Outbox.new(message_klass: OutboxMessage, dead_letter_klass: OutboxDeadLetter)
+client = RubyEventStore::OutboxRelay::RailsClient.new(repository: repository, outbox: outbox)
+RubyEventStore::OutboxRelay::DeadLetters.new(message_klass: OutboxMessage, dead_letter_klass: OutboxDeadLetter)
+```
+
 `publish(event, topic: "custom")` writes messages for the async subscribers of that topic, exactly as it notifies the sync subscribers of that topic.
 
 ### Customizing async delivery
@@ -214,15 +225,12 @@ The relay reads its subscriptions, outbox and mapper straight from a `Client` yo
 # config/outbox_relay.rb
 require_relative "environment"
 
-RubyEventStore::OutboxRelay::Configuration.configure do |batch_size:, poll_interval:, logger:|
-  RubyEventStore::OutboxRelay::Relay.new(
-    client: Rails.configuration.event_store,
-    batch_size: batch_size,
-    poll_interval: poll_interval,
-    logger: logger,
-  )
+RubyEventStore::OutboxRelay::Configuration.configure do |**options|
+  RubyEventStore::OutboxRelay::Relay.new(client: Rails.configuration.event_store, **options)
 end
 ```
+
+The block receives the options given on the command line as keywords, `logger` always among them, and passes them on to `Relay.new`. A block that can't take one of them makes the relay fail at startup, naming it, instead of running with a batch size that was not the one asked for.
 
 Only the client's `subscribe_async` registrations matter to the relay — its `subscribe_sync` subscribers are never triggered by it. The relay refuses a client that isn't an outbox client, and at startup it logs the async subscribers of every topic, warning when there are none — in which case every message would fail, and be dead-lettered in the end.
 
@@ -269,13 +277,15 @@ Run as many instances as you want, on as many hosts as you want. `SKIP LOCKED` m
 
 ### CLI options
 
-The database is taken from the `DATABASE_URL` environment variable, never from an argument — see [Security](#security).
+The database is taken from the `DATABASE_URL` environment variable, never from an argument — see [Security](#security). What you don't give keeps the default of the relay.
 
 | Option | Required | Default | Description |
 | --- | --- | --- | --- |
 | `--require` | yes | — | Ruby file calling `Configuration.configure` to build the relay |
 | `--batch-size` | no | 100 | Number of messages claimed per batch |
 | `--poll-interval` | no | 1.0 | Seconds to sleep when nothing was due |
+| `--lease-duration` | no | 300 | Seconds a claimed message stays hidden from other relays; must exceed the time to deliver a batch |
+| `--stats-interval` | no | 30 | Seconds between `stats` notifications; `--no-stats` turns them off |
 | `--log-level` | no | info | One of: `fatal`, `error`, `warn`, `info`, `debug` |
 
 ## Observability
@@ -312,7 +322,7 @@ Numbers below come from a laptop, a local PostgreSQL and the default YAML serial
 
 - **Publishing.** A `publish` of events with async subscribers issues exactly one more statement than without them — one `INSERT` of the outbox messages, whatever the number of events published together, and none of it outside the transaction you already have. Publishing a batch amortizes even that. The events table is never updated afterwards, so it stays append-only.
 - **One relay process** delivers about 8,000 messages per second to a subscriber that does nothing, and about 1,600 per second through ActiveJob. In the ActiveJob case most of the time goes to serializing each event for the job payload (a YAML dump of its metadata), not to the queue or the database. The relay is CPU-bound, so throughput scales with the number of relay processes, which share the outbox through `SKIP LOCKED`.
-- **Bulk enqueue.** `ActiveJobDispatcher`, the default, enqueues a whole batch with a single `ActiveJob.perform_all_later`, which adapters turn into one round trip instead of one per job. With a simulated 0.2 ms round trip to the queue it raised throughput from about 1,070 to 1,740 messages per second for one subscriber per event, and from about 1,820 to 4,560 for three. With an in-memory adapter there is nothing to save. `perform_all_later` skips the enqueue callbacks (`before_enqueue`, `around_enqueue`, `after_enqueue`), so jobs that define any are enqueued one by one, with their callbacks. The adapter must mark the jobs it enqueued (`job.successfully_enqueued`), as ActiveJob's own adapters do. A dispatcher of your own gets the same treatment by responding to `call_all`, which takes an array of `AsyncSubscriptions::Delivery` and returns, for each, the error that kept it from being delivered, or `nil`.
+- **Bulk enqueue.** `ActiveJobDispatcher`, the default, enqueues a whole batch with a single `ActiveJob.perform_all_later`, which adapters turn into one round trip instead of one per job. With a simulated 0.2 ms round trip to the queue it raised throughput from about 1,070 to 1,740 messages per second for one subscriber per event, and from about 1,820 to 4,560 for three. With an in-memory adapter there is nothing to save. `perform_all_later` skips the enqueue callbacks (`before_enqueue`, `around_enqueue`, `after_enqueue`), so jobs that define any are enqueued one by one, with their callbacks. The adapter must mark the jobs it enqueued (`job.successfully_enqueued`), as ActiveJob's own adapters do. A dispatcher of your own gets the same treatment by responding to `call_all`, which takes an array of `AsyncSubscriptions::Delivery` and returns, for each, the error that kept it from being delivered, or `nil`. A batch mixes events, so it isn't delivered inside `Client#with_metadata`, as a single delivery is: a dispatcher that runs handlers in the process derives the correlation from each delivery's event, its `correlation_id` and its `event_id` as the `causation_id`.
 - **Batch size and lease.** A bigger `batch_size` amortizes the claim and the delete, but beyond a few hundred it stops paying off, and a slow batch needs a longer `lease_duration`.
 - **An idle relay** costs one short transaction per `poll_interval`. It sleeps only when nothing was due, so under load it never waits.
 

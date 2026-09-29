@@ -17,6 +17,12 @@ module RubyEventStore
     # Inserts never ask for the generated id (RETURNING), which PostgreSQL would
     # answer only to a role that can also SELECT from the table.
     #
+    # The messages are written in the very transaction of the events, which holds
+    # only when the models reach the database of the event store through the same
+    # connection. The default ones inherit from ActiveRecord::Base; for an event
+    # store on another connection, pass models inheriting from the class that
+    # holds it.
+    #
     # A message is due when next_attempt_at <= now. Claiming a message moves its
     # next_attempt_at to the end of a lease, so a relay that crashes mid-batch
     # releases its messages simply by the lease running out.
