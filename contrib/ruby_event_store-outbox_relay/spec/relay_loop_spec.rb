@@ -7,11 +7,13 @@ module RubyEventStore
   module OutboxRelay
     ::RSpec.describe Relay do
       let(:outbox) { double(:outbox) }
-      let(:client) { double(:client, outbox: outbox) }
-      let(:logger) { double(:logger, info: nil, error: nil, debug: nil) }
+      let(:subscriptions) { double(:subscriptions, to_h: {}) }
+      let(:client) { double(:client, outbox: outbox, async_subscriptions: subscriptions) }
+      let(:logger) { double(:logger, info: nil, warn: nil, error: nil, debug: nil) }
+      let(:instrumentation) { double(:instrumentation, instrument: nil) }
 
       def build_relay(**overrides)
-        Relay.new(client: client, logger: logger, **overrides)
+        Relay.new(client: client, logger: logger, stats_interval: nil, **overrides)
       end
 
       def result(claimed)
@@ -23,6 +25,7 @@ module RubyEventStore
           retry_policy = double(:retry_policy)
           clock = -> {}
           signals = double(:signals)
+          instrumentation = double(:instrumentation)
 
           relay =
             Relay.new(
@@ -33,6 +36,8 @@ module RubyEventStore
               retry_policy: retry_policy,
               clock: clock,
               signals: signals,
+              instrumentation: instrumentation,
+              stats_interval: 12,
               logger: logger,
             )
 
@@ -43,6 +48,8 @@ module RubyEventStore
           expect(relay.instance_variable_get(:@retry_policy)).to equal(retry_policy)
           expect(relay.instance_variable_get(:@clock)).to equal(clock)
           expect(relay.instance_variable_get(:@signals)).to equal(signals)
+          expect(relay.instance_variable_get(:@instrumentation)).to equal(instrumentation)
+          expect(relay.instance_variable_get(:@stats_interval)).to eq(12)
           expect(relay.instance_variable_get(:@logger)).to equal(logger)
           expect(relay.instance_variable_get(:@shutting_down)).to eq(false)
         end
@@ -58,6 +65,23 @@ module RubyEventStore
           expect(relay.instance_variable_get(:@clock).call).to be_within(5).of(Time.now.utc)
           expect(relay.instance_variable_get(:@clock).call).to be_utc
           expect(relay.instance_variable_get(:@signals)).to equal(Signal)
+          expect(relay.instance_variable_get(:@instrumentation)).to equal(ActiveSupport::Notifications)
+          expect(relay.instance_variable_get(:@stats_interval)).to eq(30)
+        end
+
+        specify "rejects a client that isn't extended with ClientExtension, saying what to use instead" do
+          plain = RubyEventStore::Client.new(repository: RubyEventStore::InMemoryRepository.new)
+
+          expect { Relay.new(client: plain, logger: logger) }.to raise_error(
+            ArgumentError,
+            "client must be extended with RubyEventStore::OutboxRelay::ClientExtension, " \
+              "e.g. an OutboxRelay::Client or a RailsClient, got RubyEventStore::Client",
+          )
+        end
+
+        specify "needs both the outbox and the async subscriptions of the client" do
+          expect { Relay.new(client: double(:client, outbox: outbox), logger: logger) }.to raise_error(ArgumentError)
+          expect { Relay.new(client: double(:client, async_subscriptions: subscriptions), logger: logger) }.to raise_error(ArgumentError)
         end
       end
 
@@ -71,6 +95,30 @@ module RubyEventStore
 
           expect(outbox).to have_received(:claim).with(7, now: now, lease_until: now + 90)
           expect(result).to eq(Relay::BatchResult.empty)
+        end
+
+        specify "is instrumented, with the counts of the batch added to the payload" do
+          allow(outbox).to receive(:claim).and_return([])
+          payloads = []
+          instrumentation = double(:instrumentation)
+          allow(instrumentation).to receive(:instrument) do |name, payload, &block|
+            payloads << [name, payload]
+            block.call(payload)
+          end
+          relay = build_relay(instrumentation: instrumentation)
+
+          result = relay.process_batch
+
+          expect(result).to eq(Relay::BatchResult.empty)
+          expect(payloads).to eq(
+            [["process_batch.outbox_relay.ruby_event_store", { claimed: 0, delivered: 0, retried: 0, dead: 0 }]],
+          )
+        end
+
+        specify "leaves the failure of a batch to the instrumentation, which records it, and to the caller" do
+          allow(outbox).to receive(:claim).and_raise(ArgumentError, "boom")
+
+          expect { build_relay.process_batch }.to raise_error(ArgumentError, "boom")
         end
       end
 
@@ -93,6 +141,109 @@ module RubyEventStore
           expect(logger).to have_received(:info).with("Gracefully shutting down")
           expect(relay).to have_received(:process_batch_safely).exactly(3).times
           expect(relay).to have_received(:sleep).with(99).twice
+        end
+
+        specify "logs the async subscribers of every topic" do
+          allow(subscriptions).to receive(:to_h).and_return("OrderPlaced" => %w[Report Mailer], "OrderCancelled" => ["Refund"])
+          relay = build_relay
+          allow(relay).to receive(:install_signal_handlers)
+          allow(relay).to receive(:process_batch_safely) do
+            relay.instance_variable_set(:@shutting_down, true)
+            Relay::BatchResult.empty
+          end
+          allow(relay).to receive(:sleep)
+
+          relay.run
+
+          expect(logger).to have_received(:info).with("Async subscribers of OrderPlaced: Report, Mailer")
+          expect(logger).to have_received(:info).with("Async subscribers of OrderCancelled: Refund")
+          expect(logger).not_to have_received(:warn)
+        end
+
+        specify "warns when no async subscriber is registered, since every message would be dead-lettered" do
+          relay = build_relay
+          allow(relay).to receive(:install_signal_handlers)
+          allow(relay).to receive(:process_batch_safely) do
+            relay.instance_variable_set(:@shutting_down, true)
+            Relay::BatchResult.empty
+          end
+          allow(relay).to receive(:sleep)
+
+          relay.run
+
+          expect(logger).to have_received(:warn).with("No async subscribers registered: every message will be dead-lettered as unknown")
+        end
+
+        specify "logs each batch that claimed something, at debug level" do
+          relay = build_relay
+          allow(relay).to receive(:install_signal_handlers)
+          batches = [Relay::BatchResult.new(claimed: 5, delivered: 3, retried: 1, dead: 1), Relay::BatchResult.empty]
+          allow(relay).to receive(:process_batch_safely) do
+            relay.instance_variable_set(:@shutting_down, true) if batches.size == 1
+            batches.shift
+          end
+          allow(relay).to receive(:sleep)
+
+          relay.run
+
+          expect(logger).to have_received(:debug).with("Batch: claimed=5 delivered=3 retried=1 dead=1")
+          expect(logger).to have_received(:debug).once
+        end
+
+        describe "stats" do
+          let(:now) { Time.utc(2026, 9, 29, 12) }
+          let(:stats) { Outbox::Stats.new(backlog: 3, oldest_due_age: 4.5, dead_letters: 1) }
+          let(:published) { [] }
+          let(:instrumentation) do
+            published = self.published
+            double(:instrumentation).tap { |i| allow(i).to receive(:instrument) { |name, payload| published << [name, payload] } }
+          end
+
+          def run_loops(relay, count)
+            allow(relay).to receive(:install_signal_handlers)
+            allow(relay).to receive(:sleep)
+            calls = 0
+            allow(relay).to receive(:process_batch_safely) do
+              calls += 1
+              relay.instance_variable_set(:@shutting_down, true) if calls == count
+              Relay::BatchResult.empty
+            end
+            relay.run
+          end
+
+          specify "are published after the first batch, then once every stats_interval" do
+            allow(outbox).to receive(:stats) { |now:| stats }
+            times = [now, now + 10, now + 29, now + 30, now + 45].each
+            relay = build_relay(instrumentation: instrumentation, stats_interval: 30, clock: -> { times.next })
+
+            run_loops(relay, 5)
+
+            expect(published.map(&:first)).to eq(["stats.outbox_relay.ruby_event_store"] * 2)
+            expect(published.first.last).to eq(backlog: 3, oldest_due_age: 4.5, dead_letters: 1)
+            expect(outbox).to have_received(:stats).with(now: now)
+            expect(outbox).to have_received(:stats).with(now: now + 30)
+          end
+
+          specify "aren't published, nor computed, when stats_interval is nil" do
+            allow(outbox).to receive(:stats)
+            relay = build_relay(instrumentation: instrumentation, stats_interval: nil)
+
+            run_loops(relay, 2)
+
+            expect(published).to be_empty
+            expect(outbox).not_to have_received(:stats)
+          end
+
+          specify "failing to be computed is logged by class, and doesn't stop the relay" do
+            allow(outbox).to receive(:stats).and_raise(ArgumentError, "password=hunter2")
+            relay = build_relay(instrumentation: instrumentation, stats_interval: 30)
+
+            run_loops(relay, 2)
+
+            expect(logger).to have_received(:error).with("Error while collecting outbox stats: ArgumentError").at_least(:once)
+            expect(logger).not_to have_received(:error).with(a_string_including("hunter2"))
+            expect(published).to be_empty
+          end
         end
       end
 

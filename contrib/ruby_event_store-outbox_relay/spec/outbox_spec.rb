@@ -217,6 +217,66 @@ module RubyEventStore
         end if helper.postgres? || helper.mysql?
       end
 
+      describe "#stats" do
+        before { subscriptions.add(recording_handler("First"), ["TestEvent"]) }
+
+        specify "counts the due messages and the dead letters, and dates the oldest due message" do
+          add_messages(record, record, record)
+          ids = Message.order(:id).pluck(:id)
+          Message.where(id: ids[0]).update_all(next_attempt_at: now - 30)
+          Message.where(id: ids[1]).update_all(next_attempt_at: now - 10)
+          Message.where(id: ids[2]).update_all(next_attempt_at: now + 60)
+          2.times { DeadLetter.create!(event_id: SecureRandom.uuid, topic: "t", subscriber: "s", attempts: 1, error_class: "E", first_enqueued_at: now, dead_at: now) }
+
+          stats = outbox.stats(now: now)
+
+          expect(stats).to eq(Outbox::Stats.new(backlog: 2, oldest_due_age: 30.0, dead_letters: 2))
+        end
+
+        specify "has no age when nothing is due" do
+          add_messages(record)
+          Message.update_all(next_attempt_at: now + 60)
+
+          expect(outbox.stats(now: now)).to eq(Outbox::Stats.new(backlog: 0, oldest_due_age: nil, dead_letters: 0))
+        end
+
+        specify "counts in the database, without loading the messages" do
+          add_messages(record)
+          Message.first
+          DeadLetter.first
+          statements = []
+          subscriber =
+            ::ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|
+              statements << payload[:sql] unless payload[:name] == "SCHEMA"
+            end
+
+          outbox.stats(now: now)
+
+          expect(statements).not_to be_empty
+          expect(statements).to all(match(/\ASELECT (COUNT|MIN)/))
+        ensure
+          ::ActiveSupport::Notifications.unsubscribe(subscriber)
+        end
+
+        specify "counts up to STATS_LIMIT, so a huge backlog stays cheap to measure" do
+          stub_const("#{Outbox}::STATS_LIMIT", 2)
+          add_messages(record, record, record)
+          3.times { DeadLetter.create!(event_id: SecureRandom.uuid, topic: "t", subscriber: "s", attempts: 1, error_class: "E", first_enqueued_at: now, dead_at: now) }
+
+          stats = outbox.stats(now: now)
+
+          expect(stats.backlog).to eq(2)
+          expect(stats.dead_letters).to eq(2)
+        end
+
+        specify "doesn't count the messages being delivered, which are leased" do
+          add_messages(record, record)
+          outbox.claim(1, now: now, lease_until: now + 60)
+
+          expect(outbox.stats(now: now).backlog).to eq(1)
+        end
+      end
+
       describe "#due (private)" do
         specify "selects the relay's columns of messages due by now, oldest first, and locks them skipping other relays' locks" do
           calls = []

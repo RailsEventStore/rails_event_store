@@ -50,6 +50,12 @@ module RubyEventStore
           Rake::Task["ruby_event_store:outbox_relay:install_migration"].invoke
 
           raise "no migration file was generated" if Dir.children(migration_dir).empty?
+
+          raise "requiring the gem changed RailsEventStore::Client" if defined?(RailsEventStore::Client) && RailsEventStore::Client.method_defined?(:subscribe_async)
+          require "ruby_event_store/outbox_relay/rails"
+          client = RubyEventStore::OutboxRelay::RailsClient.new
+          raise "RailsClient can't subscribe_async" unless client.respond_to?(:subscribe_async)
+          raise "RailsEventStore::Client was changed" if RailsEventStore::Client.method_defined?(:subscribe_async)
         end
       EOF
     end

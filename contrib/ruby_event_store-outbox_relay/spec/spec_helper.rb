@@ -64,10 +64,8 @@ module RubyEventStore
         ENV["DATABASE_URL"].include?("mysql2")
       end
 
-      # A throwaway subclass with the extension mixed in, so specs don't leave
-      # RubyEventStore::Client itself permanently mutated between examples.
       def extended_client_class
-        Class.new(RubyEventStore::Client)
+        Class.new(Client)
       end
 
       def sync_subscriptions

@@ -31,6 +31,11 @@ module RubyEventStore
         topics.each { |topic| @subscribers[topic][name] = subscriber }
       end
 
+      # @return [Hash{String => Array<String>}] names of the subscribers registered for each topic
+      def to_h
+        @subscribers.transform_values(&:keys)
+      end
+
       # @param topic [String]
       # @return [Array<String>] names of subscribers registered for the topic
       def names_for(topic)

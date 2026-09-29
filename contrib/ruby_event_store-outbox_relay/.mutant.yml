@@ -16,11 +16,3 @@ coverage_criteria:
 matcher:
   subjects:
     - RubyEventStore::OutboxRelay*
-  ignore:
-    # Its only two remaining mutations are genuinely equivalent: defined?(@ivar)
-    # vs instance_variable_defined?(:@ivar) behave identically here, and
-    # `defined?` checks assignment, not truthiness, so @x = true vs @x = false
-    # for the reentrancy flag are indistinguishable too. See
-    # spec/client_extension_spec.rb's "RailsEventStore::Client" examples for
-    # the behavior this method actually needs to get right.
-    - RubyEventStore::OutboxRelay::ClientExtension::InstanceMethods#initialize

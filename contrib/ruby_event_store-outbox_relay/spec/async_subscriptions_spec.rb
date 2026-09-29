@@ -25,6 +25,14 @@ module RubyEventStore
         expect(subscriptions.names_for("OrderPlaced")).to eq(%w[First Second])
       end
 
+      specify "lists the subscribers of every topic" do
+        subscriptions.add(recording_handler("First"), %w[OrderPlaced OrderCancelled])
+        subscriptions.add(recording_handler("Second"), ["OrderPlaced"])
+
+        expect(subscriptions.to_h).to eq("OrderPlaced" => %w[First Second], "OrderCancelled" => ["First"])
+        expect(AsyncSubscriptions.new(dispatcher: RubyEventStore::SyncScheduler.new).to_h).to eq({})
+      end
+
       specify "knows no subscribers for an unknown topic, without registering the topic" do
         expect(subscriptions.names_for("Unknown")).to eq([])
         expect(subscriptions.resolve("Unknown", "Kernel")).to be_nil
