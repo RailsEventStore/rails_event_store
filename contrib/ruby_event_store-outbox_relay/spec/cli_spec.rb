@@ -8,19 +8,39 @@ module RubyEventStore
   module OutboxRelay
     ::RSpec.describe CLI do
       describe CLI::Parser do
-        specify "defaults to a batch of 100, one second polling and the info log level" do
+        specify "gives no value to what wasn't asked for, leaving the relay its own defaults, and logs at info" do
           options = CLI::Parser.parse(["--require=config/outbox_relay.rb"])
 
-          expect(options.to_h).to eq(batch_size: 100, poll_interval: 1.0, log_level: :info, require_path: "config/outbox_relay.rb")
+          expect(options.to_h).to eq(
+            batch_size: nil,
+            poll_interval: nil,
+            lease_duration: nil,
+            stats_interval: nil,
+            stats: true,
+            log_level: :info,
+            require_path: "config/outbox_relay.rb",
+          )
         end
 
         specify "parses every option" do
           options =
             CLI::Parser.parse(
-              %w[--require=relay.rb --batch-size=25 --poll-interval=0.5 --log-level=debug],
+              %w[--require=relay.rb --batch-size=25 --poll-interval=0.5 --lease-duration=90 --stats-interval=10 --log-level=debug],
             )
 
-          expect(options.to_h).to eq(batch_size: 25, poll_interval: 0.5, log_level: :debug, require_path: "relay.rb")
+          expect(options.to_h).to eq(
+            batch_size: 25,
+            poll_interval: 0.5,
+            lease_duration: 90.0,
+            stats_interval: 10.0,
+            stats: true,
+            log_level: :debug,
+            require_path: "relay.rb",
+          )
+        end
+
+        specify "turns the stats notification off with --no-stats" do
+          expect(CLI::Parser.parse(%w[--require=relay.rb --no-stats]).stats).to eq(false)
         end
 
         specify "has no way to pass the database URL, which would leak it into the process list" do
@@ -69,7 +89,16 @@ module RubyEventStore
           allow(Configuration).to receive(:build).and_return(relay)
 
           Dir.mktmpdir do |dir|
-            CLI.new.run(["--require=#{relay_file(dir)}", "--batch-size=7", "--poll-interval=0.25", "--log-level=warn"])
+            CLI.new.run(
+              [
+                "--require=#{relay_file(dir)}",
+                "--batch-size=7",
+                "--poll-interval=0.25",
+                "--lease-duration=90",
+                "--stats-interval=10",
+                "--log-level=warn",
+              ],
+            )
           end
 
           expect(::ActiveRecord::Base).to have_received(:establish_connection).with("postgres://user:secret@host/db")
@@ -77,9 +106,29 @@ module RubyEventStore
           expect(Configuration).to have_received(:build).with(
             batch_size: 7,
             poll_interval: 0.25,
+            lease_duration: 90.0,
+            stats_interval: 10.0,
             logger: an_instance_of(Logger).and(having_attributes(level: Logger::WARN, progname: "RES-OutboxRelay")),
           )
           expect(relay).to have_received(:run)
+        end
+
+        specify "passes on only what was asked for, and the logger" do
+          allow(::ActiveRecord::Base).to receive(:establish_connection)
+          allow(Configuration).to receive(:build).and_return(double(:relay, run: nil))
+
+          Dir.mktmpdir { |dir| CLI.new.run(["--require=#{relay_file(dir)}"]) }
+
+          expect(Configuration).to have_received(:build).with(logger: an_instance_of(Logger))
+        end
+
+        specify "turns the stats off for the relay with --no-stats, which is a value of its own: nil" do
+          allow(::ActiveRecord::Base).to receive(:establish_connection)
+          allow(Configuration).to receive(:build).and_return(double(:relay, run: nil))
+
+          Dir.mktmpdir { |dir| CLI.new.run(["--require=#{relay_file(dir)}", "--no-stats"]) }
+
+          expect(Configuration).to have_received(:build).with(stats_interval: nil, logger: an_instance_of(Logger))
         end
 
         specify "leaves the connection alone when DATABASE_URL isn't set" do

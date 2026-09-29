@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
   spec.author = "Arkency"
   spec.email = "dev@arkency.com"
-  spec.summary = "Transactional outbox relay for Ruby Event Store, built on top of published_at column"
+  spec.summary = "Transactional outbox for Ruby Event Store: per-subscriber outbox tables, and a relay with retries and dead letters"
   spec.homepage = "https://railseventstore.org"
-  spec.files = Dir["lib/**/*"]
+  spec.files = Dir["lib/**/*", "bin/*", "support/**/*", "README.md"]
   spec.require_paths = %w[lib]
   spec.bindir = "bin"
   spec.executables = %w[res_outbox_relay]

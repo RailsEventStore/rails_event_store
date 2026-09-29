@@ -221,6 +221,37 @@ module RubyEventStore
         end if helper.postgres? || helper.mysql?
       end
 
+      describe "with models of its own, for an event store on another connection" do
+        let(:message_klass) { Class.new(::ActiveRecord::Base) { self.table_name = "event_store_outbox_messages" } }
+        let(:dead_letter_klass) { Class.new(::ActiveRecord::Base) { self.table_name = "event_store_outbox_dead_letters" } }
+        let(:custom) { Outbox.new(message_klass: message_klass, dead_letter_klass: dead_letter_klass) }
+
+        before { subscriptions.add(recording_handler("First"), ["TestEvent"]) }
+
+        specify "opens the transaction of the events on the connection of its own models, and writes through them" do
+          allow(message_klass).to receive(:transaction).and_call_original
+          allow(Message).to receive(:transaction).and_call_original
+
+          custom.append([record], topics: ["TestEvent"], subscriptions: subscriptions, now: now) { :appended }
+
+          expect(message_klass).to have_received(:transaction).with(requires_new: true)
+          expect(Message).not_to have_received(:transaction)
+          expect(message_klass.count).to eq(1)
+        end
+
+        specify "claims, and moves to the dead letters, through them as well" do
+          custom.append([record], topics: ["TestEvent"], subscriptions: subscriptions, now: now) {}
+
+          entry = custom.claim(10, now: now, lease_until: now + 60).sole
+          custom.bury(entry, attempts: 1, error: RuntimeError.new("boom"), now: now)
+
+          expect(message_klass.count).to eq(0)
+          expect(dead_letter_klass.sole.event_id).to eq(entry.event_id)
+          expect(Message.count).to eq(0)
+          expect(DeadLetter.count).to eq(1)
+        end
+      end
+
       describe "#stats" do
         before { subscriptions.add(recording_handler("First"), ["TestEvent"]) }
 

@@ -27,6 +27,48 @@ module RubyEventStore
         expect { Configuration.build }.not_to raise_error
       end
 
+      specify "build refuses a block that can't take an override, instead of ignoring the option without a word" do
+        Configuration.configure { double(:relay) }
+
+        expect { Configuration.build(batch_size: 50, logger: :some_logger) }.to raise_error(
+          ArgumentError,
+          "the configure block ignores batch_size, logger: declare them, or take **options and pass them on to Relay.new",
+        )
+      end
+
+      specify "build names only the overrides the block can't take" do
+        Configuration.configure { |batch_size:, logger:| double(:relay) }
+
+        expect { Configuration.build(batch_size: 50, poll_interval: 2.0, logger: :some_logger) }.to raise_error(
+          ArgumentError,
+          /ignores poll_interval:/,
+        )
+      end
+
+      specify "build doesn't take a positional parameter for a keyword, whatever it is called" do
+        Configuration.configure { |batch_size, *rest| double(:relay) }
+
+        expect { Configuration.build(batch_size: 50) }.to raise_error(ArgumentError, /ignores batch_size:/)
+      end
+
+      specify "build accepts a block that declares every override" do
+        received = nil
+        Configuration.configure do |batch_size: 1, logger: nil|
+          received = [batch_size, logger]
+          double(:relay)
+        end
+
+        Configuration.build(batch_size: 50, logger: :some_logger)
+
+        expect(received).to eq([50, :some_logger])
+      end
+
+      specify "build accepts an override the block takes through optional keywords too" do
+        Configuration.configure { |batch_size: 1| double(:relay) }
+
+        expect { Configuration.build(batch_size: 50) }.not_to raise_error
+      end
+
       specify "configure stores the block, and build calls it with the given overrides, returning its result" do
         received_overrides = nil
         relay_double = double(:relay)

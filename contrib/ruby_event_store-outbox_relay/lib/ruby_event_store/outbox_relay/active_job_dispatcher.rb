@@ -46,10 +46,17 @@ module RubyEventStore
 
       # Enqueues the deliveries, in bulk where the job allows it.
       #
-      # When a bulk enqueue fails as a whole, its jobs are enqueued one by one,
-      # so a single job can't take the others down. A job that had already been
-      # pushed before the failure may then be pushed twice, in keeping with
-      # at-least-once delivery.
+      # A delivery whose job can't even be built, say because its record can't be
+      # serialized, is reported as failed, and the others carry on. When a bulk
+      # enqueue fails as a whole, its jobs are enqueued one by one, so a single
+      # job can't take the others down. A job that had already been pushed before
+      # the failure may then be pushed twice, in keeping with at-least-once
+      # delivery.
+      #
+      # Unlike #call, it doesn't run inside Client#with_metadata: a batch mixes
+      # events. Its handlers, when they run in the process, can derive the
+      # correlation from the delivery's event (its correlation_id, and its own
+      # event_id as the causation_id).
       #
       # @param deliveries [Array<AsyncSubscriptions::Delivery>]
       # @return [Array<Exception, nil>] for each delivery, why it wasn't enqueued, or nil
@@ -59,6 +66,8 @@ module RubyEventStore
         deliveries.each_with_index do |delivery, index|
           job = delivery.subscriber.new(payload_for(delivery.record))
           bulk?(delivery.subscriber) ? bulk << [index, job] : results[index] = enqueue_one(job)
+        rescue StandardError => e
+          results[index] = e
         end
         enqueue_bulk(bulk, results)
         results
