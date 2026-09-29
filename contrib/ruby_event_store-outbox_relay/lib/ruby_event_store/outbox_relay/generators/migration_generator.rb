@@ -28,11 +28,11 @@ module RubyEventStore
 
       def template(database_adapter)
         directory = TEMPLATE_DIRECTORY_BY_ADAPTER.fetch(database_adapter.adapter_name)
-        migration_template(File.join(__dir__, "templates", directory), "add_published_at_to_event_store_events")
+        migration_template(File.join(__dir__, "templates", directory), "create_event_store_outbox_tables")
       end
 
       def build_path(migration_path)
-        File.join(migration_path.to_s, "#{timestamp}_add_published_at_to_event_store_events.rb")
+        File.join(migration_path.to_s, "#{timestamp}_create_event_store_outbox_tables.rb")
       end
     end
   end

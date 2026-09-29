@@ -16,9 +16,9 @@ module RubyEventStore
           Dir.mktmpdir do |dir|
             path = generator.call(sqlite_adapter, dir)
 
-            expect(path).to match(%r{\A#{Regexp.escape(dir)}/\d{14}_add_published_at_to_event_store_events\.rb\z})
-            expect(File.read(path)).to include("class AddPublishedAtToEventStoreEvents < ActiveRecord::Migration[")
-            expect(File.read(path)).to include("add_column :event_store_events,")
+            expect(path).to match(%r{\A#{Regexp.escape(dir)}/\d{14}_create_event_store_outbox_tables\.rb\z})
+            expect(File.read(path)).to include("class CreateEventStoreOutboxTables < ActiveRecord::Migration[")
+            expect(File.read(path)).to include("create_table :event_store_outbox_messages")
           end
         end
       end
@@ -28,46 +28,43 @@ module RubyEventStore
           Dir.mktmpdir do |dir|
             path, content = generator.generate(sqlite_adapter, dir)
 
-            expect(path).to match(%r{\A#{Regexp.escape(dir)}/\d{14}_add_published_at_to_event_store_events\.rb\z})
-            expect(content).to include("class AddPublishedAtToEventStoreEvents < ActiveRecord::Migration[")
-            expect(content).to include("add_column :event_store_events,")
+            expect(path).to match(%r{\A#{Regexp.escape(dir)}/\d{14}_create_event_store_outbox_tables\.rb\z})
+            expect(content).to include("class CreateEventStoreOutboxTables < ActiveRecord::Migration[")
+            expect(content).to include("create_table :event_store_outbox_messages")
             expect(Dir.children(dir)).to be_empty
           end
         end
 
-        specify "renders the postgres-specific default and partial index" do
+        specify "renders uuid event ids for postgres" do
           Dir.mktmpdir do |dir|
             _, content = generator.generate(postgres_adapter, dir)
 
-            expect(content).to include('default: -> { "CURRENT_TIMESTAMP(6)" }')
-            expect(content).to include(
-              'add_index :event_store_events, :id, name: "index_event_store_events_unpublished", where: "published_at IS NULL"',
-            )
+            expect(content).to include("t.uuid     :event_id,        null: false")
+            expect(content).to include("t.uuid     :event_id,          null: false")
           end
         end
 
-        specify "renders the mysql-specific default and composite index" do
-          Dir.mktmpdir do |dir|
-            _, content = generator.generate(mysql_adapter, dir)
+        %i[mysql_adapter sqlite_adapter].each do |adapter|
+          specify "renders 36-character string event ids for #{adapter}" do
+            Dir.mktmpdir do |dir|
+              _, content = generator.generate(public_send(adapter), dir)
 
-            expect(content).to include('default: -> { "CURRENT_TIMESTAMP(6)" }')
-            expect(content).to include(
-              'add_index :event_store_events, %i[published_at id], name: "index_event_store_events_unpublished"',
-            )
+              expect(content).to include("t.string   :event_id,        null: false, limit: 36")
+              expect(content).to include("t.string   :event_id,          null: false, limit: 36")
+            end
           end
         end
 
-        specify "renders the sqlite-specific staged default (no inline default, backfill, then change_column_default) and composite index" do
+        specify "creates the due index and the dead letters table, and never touches event_store_events" do
           Dir.mktmpdir do |dir|
-            _, content = generator.generate(sqlite_adapter, dir)
+            [postgres_adapter, mysql_adapter, sqlite_adapter].each do |adapter|
+              _, content = generator.generate(adapter, dir)
 
-            expect(content).to include("add_column :event_store_events, :published_at, :datetime, precision: 6, null: true")
-            expect(content).to include("UPDATE event_store_events SET published_at = CURRENT_TIMESTAMP WHERE published_at IS NULL")
-            expect(content).to include('change_column_default :event_store_events, :published_at, -> { "CURRENT_TIMESTAMP" }')
-            expect(content).not_to include("CURRENT_TIMESTAMP(6)")
-            expect(content).to include(
-              'add_index :event_store_events, %i[published_at id], name: "index_event_store_events_unpublished"',
-            )
+              expect(content).to include('t.index    %i[next_attempt_at id], name: "index_event_store_outbox_messages_due"')
+              expect(content).to include("create_table :event_store_outbox_dead_letters")
+              expect(content).not_to include("add_column")
+              expect(content).not_to include("published_at")
+            end
           end
         end
       end
@@ -77,7 +74,7 @@ module RubyEventStore
           code = generator.send(:migration_code, sqlite_adapter)
 
           expect(code).to include("ActiveRecord::Migration[#{::ActiveRecord::Migration.current_version}]")
-          expect(code).to include("class AddPublishedAtToEventStoreEvents")
+          expect(code).to include("class CreateEventStoreOutboxTables")
         end
       end
 
@@ -86,7 +83,7 @@ module RubyEventStore
           template = generator.send(:template, sqlite_adapter)
 
           expect(template).to be_a(ERB)
-          expect(template.src).to include("class AddPublishedAtToEventStoreEvents")
+          expect(template.src).to include("class CreateEventStoreOutboxTables")
           expect(template.src).to include("migration_version")
         end
 
@@ -113,7 +110,7 @@ module RubyEventStore
 
           path = generator.send(:build_path, migration_path)
 
-          expect(path).to match(%r{\A/custom/dir/\d{14}_add_published_at_to_event_store_events\.rb\z})
+          expect(path).to match(%r{\A/custom/dir/\d{14}_create_event_store_outbox_tables\.rb\z})
         end
       end
 
