@@ -14,12 +14,18 @@ module RubyEventStore
     # dispatcher is never deferred until after the message is gone. Delivered
     # messages are deleted in one statement per batch.
     #
-    # A message whose event can't be read or deserialized, or whose subscriber
-    # is not registered in this process, can never be delivered and goes to the
-    # dead letters right away. A failed dispatch is retried according to the
-    # RetryPolicy and dead-lettered once it gives up. Delivery is at least once:
-    # a relay that crashes after dispatching, but before deleting, redelivers
-    # once the lease runs out.
+    # A failed delivery is retried according to the RetryPolicy and
+    # dead-lettered once it gives up. That goes as well for a message whose event
+    # can't be read or deserialized (MissingEvent, or the error of the mapper), or
+    # whose subscriber is not registered in this process (UnknownSubscriber): each
+    # can come right when a deploy has rolled out to the relay. List the ones that
+    # can't in the RetryPolicy's +permanent_errors+ to dead-letter them at once.
+    # The exception is a failure of the database while reading the events: it
+    # says nothing about any message, so it fails the whole batch, whose messages
+    # stay for the next attempt once their lease runs out.
+    #
+    # Delivery is at least once: a relay that crashes after dispatching, but
+    # before deleting, redelivers once the lease runs out.
     #
     # It reports through +instrumentation+ (ActiveSupport::Notifications by
     # default), under names ending in ".outbox_relay.ruby_event_store":
@@ -31,18 +37,22 @@ module RubyEventStore
     #   echo event data;
     # * +stats+, every +stats_interval+ seconds, with the fields of Outbox::Stats.
     class Relay
-      # Outcome of one #process_batch call.
+      # Outcome of one #process_batch call. +unrecorded+ counts the messages whose
+      # failure could not be recorded, which stay in the outbox untouched and come
+      # back once their lease runs out.
       BatchResult =
-        Data.define(:claimed, :delivered, :retried, :dead) do
+        Data.define(:claimed, :delivered, :retried, :dead, :unrecorded) do
           def self.empty
-            new(claimed: 0, delivered: 0, retried: 0, dead: 0)
+            new(claimed: 0, delivered: 0, retried: 0, dead: 0, unrecorded: 0)
           end
         end
 
-      # Raised for a message whose event is not in the event store.
+      # Raised for a message whose event is not in the event store. It is retried like
+      # any other failure, unless the RetryPolicy lists it as permanent.
       class MissingEvent < StandardError; end
 
-      # Raised for a message whose subscriber is not subscribed in this process.
+      # Raised for a message whose subscriber is not subscribed in this process. It is
+      # retried like any other failure, unless the RetryPolicy lists it as permanent.
       class UnknownSubscriber < StandardError; end
 
       Prepared = Data.define(:event, :record, :correlation_id)
@@ -153,6 +163,7 @@ module RubyEventStore
           delivered: delivered.size,
           retried: outcomes.fetch(:retried, []).size,
           dead: outcomes.fetch(:dead, []).size,
+          unrecorded: outcomes.fetch(:unrecorded, []).size,
         )
       end
 
@@ -167,7 +178,7 @@ module RubyEventStore
       def log_subscribers
         registered = subscriptions.to_h
         if registered.empty?
-          logger.warn("No async subscribers registered: every message will be dead-lettered as unknown")
+          logger.warn("No async subscribers registered: every message will fail as unknown, and be retried until it is dead-lettered")
         else
           registered.each { |topic, names| logger.info("Async subscribers of #{topic}: #{names.join(", ")}") }
         end
@@ -176,7 +187,8 @@ module RubyEventStore
       def log_batch(result)
         return if result.claimed.zero?
         logger.debug(
-          "Batch: claimed=#{result.claimed} delivered=#{result.delivered} retried=#{result.retried} dead=#{result.dead}",
+          "Batch: claimed=#{result.claimed} delivered=#{result.delivered} retried=#{result.retried} dead=#{result.dead} " \
+            "unrecorded=#{result.unrecorded}",
         )
       end
 
@@ -198,7 +210,7 @@ module RubyEventStore
           topic: message.topic,
           subscriber: message.subscriber,
           attempts: attempts,
-          error_class: error.class.name,
+          error_class: error.class.to_s,
           outcome: outcome,
         )
       end
@@ -218,12 +230,16 @@ module RubyEventStore
 
       def read_events(event_ids)
         client.read.events(event_ids).to_h { |event| [event.event_id, event] }
+      rescue ::ActiveRecord::ActiveRecordError
+        raise
       rescue StandardError
         event_ids.to_h { |event_id| [event_id, read_event(event_id)] }
       end
 
       def read_event(event_id)
         client.read.event(event_id)
+      rescue ::ActiveRecord::ActiveRecordError
+        raise
       rescue StandardError => e
         e
       end
@@ -248,10 +264,10 @@ module RubyEventStore
           prepared_event = prepared.fetch(message.event_id)
           pending << Pending.new(message, resolve_subscriber(message, prepared_event), prepared_event)
         rescue StandardError => e
-          outcomes[message] = bury(message, e)
+          outcomes[message] = record_failure(message) { fail_dispatch(message, e) }
         end
         pending.zip(dispatch_all(pending)) do |item, error|
-          outcomes[item.message] = error ? fail_dispatch(item.message, error) : :delivered
+          outcomes[item.message] = error ? record_failure(item.message) { fail_dispatch(item.message, error) } : :delivered
         end
         messages.group_by { |message| outcomes.fetch(message) }
       end
@@ -288,6 +304,13 @@ module RubyEventStore
         nil
       rescue StandardError => e
         e
+      end
+
+      def record_failure(message)
+        yield
+      rescue StandardError => e
+        logger.error("Could not record the failure of outbox message #{message.outbox_id}: #{e.class}")
+        :unrecorded
       end
 
       def fail_dispatch(message, error)

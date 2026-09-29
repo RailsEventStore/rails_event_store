@@ -28,7 +28,11 @@ module RubyEventStore
         end
       end
 
-      def build_relay(batch_size: 10, clock: self.clock)
+      def permanent_policy(*errors)
+        RetryPolicy.new(max_attempts: 3, jitter: 0, permanent_errors: errors)
+      end
+
+      def build_relay(batch_size: 10, clock: self.clock, retry_policy: self.retry_policy)
         Relay.new(
           client: client,
           batch_size: batch_size,
@@ -53,9 +57,125 @@ module RubyEventStore
 
           result = build_relay.process_batch
 
-          expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 1, retried: 0, dead: 0))
+          expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 1, retried: 0, dead: 0, unrecorded: 0))
           expect(handler.received.map(&:event_id)).to eq([event.event_id])
           expect(Message.count).to eq(0)
+        end
+
+        describe "when the database fails while reading the events" do
+          before do
+            client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+            2.times { publish }
+          end
+
+          specify "fails the batch instead of dead-lettering its messages, which stay for the next attempt" do
+            specification = double(:specification)
+            allow(specification).to receive(:events).and_raise(::ActiveRecord::ConnectionNotEstablished, "connection lost")
+            allow(client).to receive(:read).and_return(specification)
+
+            expect { build_relay.process_batch }.to raise_error(::ActiveRecord::ConnectionNotEstablished)
+
+            expect(DeadLetter.count).to eq(0)
+            expect(Message.pluck(:attempts)).to eq([0, 0])
+          end
+
+          specify "does so when it is the fallback read of a single event that fails" do
+            specification = double(:specification)
+            allow(specification).to receive(:events).and_raise("cannot be deserialized")
+            allow(specification).to receive(:event).and_raise(::ActiveRecord::StatementInvalid, "timeout")
+            allow(client).to receive(:read).and_return(specification)
+
+            expect { build_relay.process_batch }.to raise_error(::ActiveRecord::StatementInvalid)
+
+            expect(DeadLetter.count).to eq(0)
+          end
+
+          specify "stays a per-message matter for an error of the event itself, not of the database" do
+            specification = double(:specification)
+            allow(specification).to receive(:events).and_raise("cannot be deserialized")
+            allow(specification).to receive(:event).and_raise("cannot be deserialized")
+            allow(client).to receive(:read).and_return(specification)
+
+            result = build_relay.process_batch
+
+            expect(result.claimed).to eq(2)
+            expect(result.retried + result.dead).to eq(2)
+          end
+        end
+
+        describe "when recording what went wrong with a message fails" do
+          let(:handler) do
+            recording_handler("OrderReport") { |event| raise "boom" if event.event_id == @failing_id }
+          end
+
+          before do
+            client.subscribe_async(handler, to: [TestEvent])
+            @events = Array.new(3) { publish }
+            @failing_id = @events[1].event_id
+          end
+
+          specify "still deletes the messages that were delivered, and leaves that one for after its lease" do
+            allow(client.outbox).to receive(:reschedule).and_raise(::ActiveRecord::StatementInvalid, "deadlock")
+
+            result = build_relay.process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 0, dead: 0, unrecorded: 1))
+            expect(Message.sole.event_id).to eq(@events[1].event_id)
+            expect(log.string).to include("Could not record the failure of outbox message #{Message.sole.id}: ActiveRecord::StatementInvalid")
+          end
+
+          specify "does the same when it is burying that fails" do
+            allow(client.outbox).to receive(:bury).and_raise(::ActiveRecord::StatementInvalid, "deadlock")
+            relay =
+              Relay.new(
+                client: client,
+                batch_size: 10,
+                retry_policy: RetryPolicy.new(max_attempts: 1),
+                clock: clock,
+                instrumentation: instrumentation,
+                logger: Logger.new(log),
+              )
+
+            result = relay.process_batch
+
+            expect(result.delivered).to eq(2)
+            expect(result.unrecorded).to eq(1)
+            expect(Message.count).to eq(1)
+            expect(log.string).to include("Could not record the failure of outbox message")
+          end
+
+          specify "does the same for a message the relay could not resolve, recording its failure being what fails" do
+            Message.where(event_id: @events[0].event_id).update_all(subscriber: "Kernel")
+            allow(client.outbox).to receive(:reschedule).and_raise(::ActiveRecord::StatementInvalid, "deadlock")
+
+            result = build_relay.process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 1, retried: 0, dead: 0, unrecorded: 2))
+            expect(Message.pluck(:event_id)).to contain_exactly(@events[0].event_id, @events[1].event_id)
+            expect(log.string).to include("Could not record the failure of outbox message #{Message.find_by!(event_id: @events[0].event_id).id}:")
+          end
+
+          specify "never puts the error's message in the log" do
+            allow(client.outbox).to receive(:reschedule).and_raise(::ActiveRecord::StatementInvalid, "password=hunter2")
+
+            build_relay.process_batch
+
+            expect(log.string).not_to include("hunter2")
+          end
+        end
+
+        specify "dead-letters a failure of an anonymous error class, which has no name" do
+          anonymous = Class.new(StandardError)
+          client.subscribe_async(recording_handler("Failing") { |_event| raise anonymous, "boom" }, to: [TestEvent])
+          publish
+          relay =
+            Relay.new(client: client, retry_policy: RetryPolicy.new(max_attempts: 1), clock: clock, logger: Logger.new(log))
+
+          result = relay.process_batch
+
+          expect(result.dead).to eq(1)
+          expect(DeadLetter.sole.error_class).to eq(anonymous.to_s)
+          expect(DeadLetter.sole.error_class).to start_with("#<Class:")
         end
 
         specify "instruments the batch, with what happened to its messages" do
@@ -65,7 +185,7 @@ module RubyEventStore
           build_relay.process_batch
 
           expect(notifications).to eq(
-            [["process_batch.outbox_relay.ruby_event_store", { claimed: 2, delivered: 2, retried: 0, dead: 0 }]],
+            [["process_batch.outbox_relay.ruby_event_store", { claimed: 2, delivered: 2, retried: 0, dead: 0, unrecorded: 0 }]],
           )
         end
 
@@ -88,12 +208,29 @@ module RubyEventStore
           expect(failure.last.values.grep(String).join).not_to include("hunter2")
         end
 
-        specify "instruments a dead-lettered message" do
+        specify "instruments a message whose subscriber is unknown as retried, like any other failure" do
           client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
           event = publish
           Message.update_all(subscriber: "Kernel")
 
           build_relay.process_batch
+
+          failure = notifications.find { |name, _| name == "message_failed.outbox_relay.ruby_event_store" }
+          expect(failure.last).to include(
+            event_id: event.event_id,
+            subscriber: "Kernel",
+            attempts: 1,
+            error_class: "RubyEventStore::OutboxRelay::Relay::UnknownSubscriber",
+            outcome: :retried,
+          )
+        end
+
+        specify "instruments a dead-lettered message" do
+          client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+          event = publish
+          Message.update_all(subscriber: "Kernel")
+
+          build_relay(retry_policy: permanent_policy(Relay::UnknownSubscriber)).process_batch
 
           failure = notifications.find { |name, _| name == "message_failed.outbox_relay.ruby_event_store" }
           expect(failure.last).to include(
@@ -111,7 +248,7 @@ module RubyEventStore
           Message.update_all(subscriber: "Kernel")
           allow(client.outbox).to receive(:bury).and_return(false)
 
-          result = build_relay.process_batch
+          result = build_relay(retry_policy: permanent_policy(Relay::UnknownSubscriber)).process_batch
 
           expect(result.dead).to eq(1)
           expect(notifications.map(&:first)).to eq(["process_batch.outbox_relay.ruby_event_store"])
@@ -232,7 +369,7 @@ module RubyEventStore
 
           result = build_relay.process_batch
 
-          expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0))
+          expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0))
           message = Message.sole
           expect(message.attempts).to eq(1)
           expect(message.next_attempt_at).to eq(now + 1)
@@ -293,46 +430,103 @@ module RubyEventStore
           expect(DeadLetter.sole).to have_attributes(attempts: 1, error_class: "PermanentError")
         end
 
-        specify "dead-letters a message whose event is gone, without retrying it" do
-          client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
-          event = publish
-          event_klass.where(event_id: event.event_id).delete_all
+        describe "a message whose event is gone" do
+          let(:event) { publish }
 
-          result = build_relay.process_batch
+          before do
+            client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+            event_klass.where(event_id: event.event_id).delete_all
+          end
 
-          expect(result.dead).to eq(1)
-          expect(DeadLetter.sole).to have_attributes(
-            error_class: "RubyEventStore::OutboxRelay::Relay::MissingEvent",
-            error_message: "event #{event.event_id} not found",
-            attempts: 1,
-          )
+          specify "is retried, as the event may only be late to a replica" do
+            result = build_relay.process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0))
+            expect(Message.sole).to have_attributes(
+              attempts: 1,
+              last_error: "RubyEventStore::OutboxRelay::Relay::MissingEvent: event #{event.event_id} not found",
+            )
+            expect(DeadLetter.count).to eq(0)
+          end
+
+          specify "is dead-lettered at once when the retry policy calls the error permanent" do
+            result = build_relay(retry_policy: permanent_policy(Relay::MissingEvent)).process_batch
+
+            expect(result.dead).to eq(1)
+            expect(DeadLetter.sole).to have_attributes(
+              error_class: "RubyEventStore::OutboxRelay::Relay::MissingEvent",
+              error_message: "event #{event.event_id} not found",
+              attempts: 1,
+            )
+          end
         end
 
-        specify "dead-letters a message whose subscriber is not subscribed in the relay process" do
-          client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
-          publish
-          Message.update_all(subscriber: "Kernel")
+        describe "a message whose subscriber is not subscribed in the relay process" do
+          before do
+            client.subscribe_async(recording_handler("OrderReport"), to: [TestEvent])
+            publish
+            Message.update_all(subscriber: "Kernel")
+          end
 
-          build_relay.process_batch
+          specify "is retried, as a deploy adding the subscriber may not have reached the relay yet" do
+            result = build_relay.process_batch
 
-          expect(DeadLetter.sole).to have_attributes(
-            subscriber: "Kernel",
-            error_class: "RubyEventStore::OutboxRelay::Relay::UnknownSubscriber",
-            error_message: "Kernel is not subscribed to TestEvent",
-          )
+            expect(result).to eq(Relay::BatchResult.new(claimed: 1, delivered: 0, retried: 1, dead: 0, unrecorded: 0))
+            expect(Message.sole).to have_attributes(
+              attempts: 1,
+              last_error: "RubyEventStore::OutboxRelay::Relay::UnknownSubscriber: Kernel is not subscribed to TestEvent",
+            )
+          end
+
+          specify "is delivered once the relay knows the subscriber" do
+            Message.update_all(subscriber: "LateSubscriber")
+            build_relay.process_batch
+            handler = recording_handler("LateSubscriber")
+            client.subscribe_async(handler, to: [TestEvent])
+            Message.update_all(next_attempt_at: now)
+
+            result = build_relay.process_batch
+
+            expect(result.delivered).to eq(1)
+            expect(handler.received.size).to eq(1)
+            expect(Message.count).to eq(0)
+          end
+
+          specify "is dead-lettered at once when the retry policy calls the error permanent" do
+            build_relay(retry_policy: permanent_policy(Relay::UnknownSubscriber)).process_batch
+
+            expect(DeadLetter.sole).to have_attributes(
+              subscriber: "Kernel",
+              error_class: "RubyEventStore::OutboxRelay::Relay::UnknownSubscriber",
+              error_message: "Kernel is not subscribed to TestEvent",
+            )
+          end
         end
 
-        specify "dead-letters a message whose event fails to deserialize, and delivers the rest of the batch" do
-          handler = recording_handler("OrderReport")
-          client.subscribe_async(handler, to: [TestEvent])
-          first, corrupted, third = Array.new(3) { publish }
-          event_klass.where(event_id: corrupted.event_id).update_all(data: "not: valid: yaml: [")
+        describe "a message whose event fails to deserialize" do
+          let(:handler) { recording_handler("OrderReport") }
 
-          result = build_relay.process_batch
+          before do
+            client.subscribe_async(handler, to: [TestEvent])
+            @first, @corrupted, @third = Array.new(3) { publish }
+            event_klass.where(event_id: @corrupted.event_id).update_all(data: "not: valid: yaml: [")
+          end
 
-          expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 0, dead: 1))
-          expect(handler.received.map(&:event_id)).to eq([first.event_id, third.event_id])
-          expect(DeadLetter.sole).to have_attributes(event_id: corrupted.event_id, error_class: "Psych::SyntaxError")
+          specify "is retried, and the rest of the batch is delivered" do
+            result = build_relay.process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0))
+            expect(handler.received.map(&:event_id)).to eq([@first.event_id, @third.event_id])
+            expect(Message.sole).to have_attributes(event_id: @corrupted.event_id, attempts: 1)
+            expect(Message.sole.last_error).to start_with("Psych::SyntaxError")
+          end
+
+          specify "is dead-lettered at once when the retry policy calls the error permanent" do
+            result = build_relay(retry_policy: permanent_policy(Psych::SyntaxError)).process_batch
+
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 0, dead: 1, unrecorded: 0))
+            expect(DeadLetter.sole).to have_attributes(event_id: @corrupted.event_id, error_class: "Psych::SyntaxError")
+          end
         end unless helper.json_data_type?
 
         specify "undeliverable messages at the head of the queue don't block the ones behind them" do
@@ -345,7 +539,8 @@ module RubyEventStore
           2.times { build_relay(batch_size: 2).process_batch }
 
           expect(handler.received.map(&:event_id)).to eq([healthy.event_id])
-          expect(DeadLetter.count).to eq(3)
+          expect(DeadLetter.count).to eq(0)
+          expect(Message.pluck(:attempts)).to eq([1, 1, 1])
         end
 
         specify "a failing dispatch at the head of the queue doesn't block the messages behind it" do
@@ -440,7 +635,7 @@ module RubyEventStore
 
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 3, retried: 0, dead: 0))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 3, retried: 0, dead: 0, unrecorded: 0))
             expect(bulk_calls.size).to eq(1)
             expect(bulk_calls.first.map(&:subscriber)).to eq([handler] * 3)
             expect(bulk_calls.first.map { |delivery| delivery.event.event_id }).to eq(events.map(&:event_id))
@@ -459,7 +654,7 @@ module RubyEventStore
 
               result = build_relay.process_batch
 
-              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0))
+              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0))
               message = Message.sole
               expect(message).to have_attributes(event_id: events[1].event_id, attempts: 1, last_error: "RuntimeError: nope")
             end
@@ -476,7 +671,7 @@ module RubyEventStore
 
               result = build_relay.process_batch
 
-              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0))
+              expect(result).to eq(Relay::BatchResult.new(claimed: 3, delivered: 2, retried: 1, dead: 0, unrecorded: 0))
               expect(single_calls.map(&:last)).to eq(events.map(&:event_id))
               expect(Message.sole.event_id).to eq(events[1].event_id)
             end
@@ -501,7 +696,7 @@ module RubyEventStore
 
             result = build_relay.process_batch
 
-            expect(result).to eq(Relay::BatchResult.new(claimed: 2, delivered: 1, retried: 0, dead: 1))
+            expect(result).to eq(Relay::BatchResult.new(claimed: 2, delivered: 1, retried: 1, dead: 0, unrecorded: 0))
             expect(bulk_calls.sole.map { |delivery| delivery.event.event_id }).to eq([resolvable.event_id])
           end
 
@@ -512,7 +707,7 @@ module RubyEventStore
 
             result = build_relay.process_batch
 
-            expect(result.dead).to eq(1)
+            expect(result.retried).to eq(1)
             expect(bulk_calls).to be_empty
           end
         end

@@ -88,20 +88,14 @@ stateDiagram-v2
     Pending --> Leased: relay claims it<br/>next_attempt_at = now + lease
     Leased --> [*]: dispatch succeeds<br/>message deleted
     Leased --> Pending: dispatch fails, attempts left<br/>next_attempt_at = backoff
-    Leased --> Dead: attempts exhausted, or it can never succeed<br/>moved to dead letters
+    Leased --> Dead: attempts exhausted, or a permanent error<br/>moved to dead letters
     Dead --> Pending: requeue
     Dead --> [*]: discard
 ```
 
 ## Dead letters
 
-A message moves to `event_store_outbox_dead_letters`, in one transaction with its removal from the outbox, when:
-
-- its dispatch keeps failing until `max_attempts` (or fails with an error listed in `permanent_errors`);
-- its event is no longer in the event store, or fails to deserialize;
-- its subscriber is not registered in the relay process.
-
-The last three can never succeed, so they skip retries. Each dead letter records `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `error_message` (first 1000 characters), `backtrace` (first 20 lines), `first_enqueued_at` and `dead_at`, and the relay logs an `error` line for it.
+A message moves to `event_store_outbox_dead_letters`, in one transaction with its removal from the outbox, when its delivery keeps failing until `max_attempts`, or fails with an error the retry policy calls permanent. Whatever the failure was — a subscriber that raises, an event that is gone or can't be deserialized, a subscriber the relay doesn't know — it goes through the same [retries](#retries) first. Each dead letter records `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `error_message` (first 1000 characters), `backtrace` (first 20 lines), `first_enqueued_at` and `dead_at`, and the relay logs an `error` line for it.
 
 ```ruby
 dead_letters = RubyEventStore::OutboxRelay::DeadLetters.new
@@ -126,6 +120,19 @@ bundle exec rake "ruby_event_store:outbox_relay:dead_letters:discard[42]"
 ### Retries
 
 `RetryPolicy.new(max_attempts: 25, base_delay: 1, max_delay: 3600, jitter: 0.2, permanent_errors: [])` decides when a failed dispatch is retried: after `base_delay * 2^(attempt - 1)` seconds, capped at `max_delay` and stretched by up to `jitter`. With the defaults a message is dead-lettered after roughly 13 hours.
+
+The policy applies to every failure alike, including those that aren't the subscriber's doing: an event that is not in the event store (`Relay::MissingEvent`), one that fails to deserialize, or a subscriber the relay doesn't know (`Relay::UnknownSubscriber`). They are retried, because they often come right by themselves: a deploy that adds a subscriber or an event class reaches the application before it reaches the relay, and a replica can be late. If you would rather have some of them in the dead letters at once, say so:
+
+```ruby
+RubyEventStore::OutboxRelay::Relay.new(
+  client: client,
+  retry_policy: RubyEventStore::OutboxRelay::RetryPolicy.new(
+    permanent_errors: [RubyEventStore::OutboxRelay::Relay::UnknownSubscriber, Psych::SyntaxError],
+  ),
+)
+```
+
+A failure of the database while the relay reads the events is different: it says nothing about any message, and burning their attempts on it would dead-letter a whole batch after a short outage. The relay fails the batch instead, logs it, and the messages come back once their lease runs out, with their attempts untouched.
 
 A failing message never blocks the others. It moves out of the way through `next_attempt_at`, and the relay keeps claiming everything else that is due.
 
@@ -217,7 +224,7 @@ RubyEventStore::OutboxRelay::Configuration.configure do |batch_size:, poll_inter
 end
 ```
 
-Only the client's `subscribe_async` registrations matter to the relay — its `subscribe_sync` subscribers are never triggered by it. The relay refuses a client that isn't an outbox client, and at startup it logs the async subscribers of every topic, warning when there are none — in which case every message would be dead-lettered.
+Only the client's `subscribe_async` registrations matter to the relay — its `subscribe_sync` subscribers are never triggered by it. The relay refuses a client that isn't an outbox client, and at startup it logs the async subscribers of every topic, warning when there are none — in which case every message would fail, and be dead-lettered in the end.
 
 Run it as its own process — not a thread inside your web server, not a Puma plugin:
 
@@ -277,11 +284,11 @@ The relay reports through `ActiveSupport::Notifications`, under names ending in 
 
 | Notification | When | Payload |
 | --- | --- | --- |
-| `process_batch` | around each batch, idle ones included | `claimed`, `delivered`, `retried`, `dead` |
+| `process_batch` | around each batch, idle ones included | `claimed`, `delivered`, `retried`, `dead`, `unrecorded` |
 | `message_failed` | for each message that failed to be delivered | `outbox_id`, `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `outcome` (`:retried` or `:dead`) |
 | `stats` | every `stats_interval` seconds (30 by default, `nil` turns it off) | `backlog`, `oldest_due_age`, `dead_letters` |
 
-`message_failed` never carries the error's message, which can echo event data. The duration of a batch is the duration of its notification.
+`message_failed` never carries the error's message, which can echo event data. The duration of a batch is the duration of its notification. `unrecorded` counts the messages whose failure could not be recorded, say because the database failed just then: they stay in the outbox as they were, and come back once their lease runs out.
 
 ```ruby
 ActiveSupport::Notifications.subscribe("process_batch.outbox_relay.ruby_event_store") do |event|

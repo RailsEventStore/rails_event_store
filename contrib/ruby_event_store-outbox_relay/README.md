@@ -23,12 +23,12 @@ publish ──▶ [ BEGIN; INSERT event(s); INSERT outbox message per (event, as
 relay:  claim ──▶ dispatch (no transaction) ──▶ delete delivered
          │                    │
          │ lease              ├─ failed ──▶ retry later (backoff)
-         ▼                    └─ gave up / can never succeed ──▶ dead letters
+         ▼                    └─ gave up ──▶ dead letters
    next_attempt_at
 ```
 
 - **`event_store_outbox_messages`** — one row per (event, subscriber): `event_id`, `topic`, `subscriber` (the handler's class name), `attempts`, `next_attempt_at`, `last_error`. It only ever holds work still to do, so it stays small.
-- **`event_store_outbox_dead_letters`** — deliveries that exhausted their attempts or can never succeed, with the error class, message and backtrace. See [Dead letters](#dead-letters).
+- **`event_store_outbox_dead_letters`** — deliveries that exhausted their attempts or failed with a permanent error, with the error class, message and backtrace. See [Dead letters](#dead-letters).
 - The relay claims messages with `FOR UPDATE SKIP LOCKED` in a transaction that only moves `next_attempt_at` to the end of a **lease** (five minutes by default). Other relays skip leased messages, and a relay that crashes mid-batch releases its messages simply by the lease running out.
 - The relay reads the event from `event_store_events` by id when it delivers; the outbox never duplicates event data.
 - **No monkeypatching, no ambient state.** The outbox client is a subclass of `RubyEventStore::Client` (or `RailsEventStore::Client`) that overrides `publish`; requiring this gem changes no existing class, and the event repository is not touched at all. `append` is not overridden and, as documented, notifies no one, so it writes no messages.
@@ -76,7 +76,7 @@ event_store.publish(OrderPlaced.new(data: { order_id: order.id }))
 
 To extend a client class of your own instead, include the module into a subclass of a client: `class EventStoreClient < RailsEventStore::Client; include RubyEventStore::OutboxRelay::ClientExtension; end`.
 
-The application uses the registered subscribers to decide which messages to write; the relay uses them to resolve a message's `subscriber` name back to a handler. It resolves names only through this registry — never by constant lookup — so a row in the outbox table can only ever reach a handler you registered. A message naming an unregistered subscriber is dead-lettered. Run the relay with the very client of your application (see below), so the list of async subscribers is defined once.
+The application uses the registered subscribers to decide which messages to write; the relay uses them to resolve a message's `subscriber` name back to a handler. It resolves names only through this registry — never by constant lookup — so a row in the outbox table can only ever reach a handler you registered. A message naming an unregistered subscriber is retried, and dead-lettered once the retry policy gives up. Run the relay with the very client of your application (see below), so the list of async subscribers is defined once.
 
 The subscriber must be a named class: its name is what the outbox stores. Unlike `subscribe_sync`, `subscribe_async` takes no block.
 
@@ -109,7 +109,7 @@ RubyEventStore::OutboxRelay::Configuration.configure do |batch_size:, poll_inter
 end
 ```
 
-Synchronous subscribers of the client are never triggered by the relay. The relay refuses a client that isn't an outbox client, and at startup it logs the async subscribers of every topic, warning when there are none — in which case every message would be dead-lettered.
+Synchronous subscribers of the client are never triggered by the relay. The relay refuses a client that isn't an outbox client, and at startup it logs the async subscribers of every topic, warning when there are none — in which case every message would fail, and be dead-lettered in the end.
 
 Run it:
 
@@ -134,17 +134,24 @@ Run it as many instances as you like — `FOR UPDATE SKIP LOCKED` plus leases me
 
 `RetryPolicy.new(max_attempts: 25, base_delay: 1, max_delay: 3600, jitter: 0.2, permanent_errors: [])`. A failed dispatch is retried after `base_delay * 2^(attempt - 1)` seconds, capped at `max_delay` and stretched by up to `jitter`, so with the defaults a message is dead-lettered after roughly 13 hours. Errors listed in `permanent_errors` are dead-lettered on first occurrence.
 
+The policy applies to every failure alike, including those that aren't the subscriber's doing: an event that is not in the event store (`Relay::MissingEvent`), one that fails to deserialize, or a subscriber the relay doesn't know (`Relay::UnknownSubscriber`). They are retried, because they often come right by themselves: a deploy that adds a subscriber or an event class reaches the application before it reaches the relay, and a replica can be late. If you would rather have some of them in the dead letters at once, say so:
+
+```ruby
+RubyEventStore::OutboxRelay::Relay.new(
+  client: client,
+  retry_policy: RubyEventStore::OutboxRelay::RetryPolicy.new(
+    permanent_errors: [RubyEventStore::OutboxRelay::Relay::UnknownSubscriber, Psych::SyntaxError],
+  ),
+)
+```
+
+A failure of the database while the relay reads the events is different: it says nothing about any message, and burning their attempts on it would dead-letter a whole batch after a short outage. The relay fails the batch instead, logs it, and the messages come back once their lease runs out, with their attempts untouched.
+
 One failing message never blocks the others: it moves out of the way by `next_attempt_at`, and the relay keeps claiming everything else that is due.
 
 ## Dead letters
 
-A message goes to `event_store_outbox_dead_letters`, in one transaction with its removal from the outbox, when:
-
-- its dispatch keeps failing until `max_attempts` (or fails with a permanent error);
-- its event is no longer in the event store, or fails to deserialize;
-- its subscriber is not registered in the relay process.
-
-The last three can never succeed, so they skip retries. Each dead letter records `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `error_message` (first 1000 characters), `backtrace` (first 20 lines), `first_enqueued_at` and `dead_at`. The relay logs an `error` line for each one.
+A message goes to `event_store_outbox_dead_letters`, in one transaction with its removal from the outbox, when its delivery keeps failing until `max_attempts`, or fails with an error the retry policy calls permanent. Whatever the failure was — a subscriber that raises, an event that is gone or can't be deserialized, a subscriber the relay doesn't know — it goes through the same [retries](#retries) first. Each dead letter records `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `error_message` (first 1000 characters), `backtrace` (first 20 lines), `first_enqueued_at` and `dead_at`. The relay logs an `error` line for each one.
 
 ```ruby
 dead_letters = RubyEventStore::OutboxRelay::DeadLetters.new
@@ -172,11 +179,11 @@ The relay reports through `ActiveSupport::Notifications`, under names ending in 
 
 | Notification | When | Payload |
 | --- | --- | --- |
-| `process_batch` | around each batch, idle ones included | `claimed`, `delivered`, `retried`, `dead` |
+| `process_batch` | around each batch, idle ones included | `claimed`, `delivered`, `retried`, `dead`, `unrecorded` |
 | `message_failed` | for each message that failed to be delivered | `outbox_id`, `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `outcome` (`:retried` or `:dead`) |
 | `stats` | every `stats_interval` seconds (30 by default, `nil` turns it off) | `backlog`, `oldest_due_age`, `dead_letters` |
 
-`message_failed` never carries the error's message, which can echo event data. The duration of a batch is the duration of its notification.
+`message_failed` never carries the error's message, which can echo event data. The duration of a batch is the duration of its notification. `unrecorded` counts the messages whose failure could not be recorded, say because the database failed just then: they stay in the outbox as they were, and come back once their lease runs out.
 
 ```ruby
 ActiveSupport::Notifications.subscribe("process_batch.outbox_relay.ruby_event_store") do |event|

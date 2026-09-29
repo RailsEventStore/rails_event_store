@@ -48,13 +48,13 @@ module RubyEventStore
       # without opening a transaction.
       #
       # @param records [Array<RubyEventStore::Record>]
-      # @param topic [String, nil] overrides each record's event_type as the topic
+      # @param topics [Array<String>] the topic of each record, in order
       # @param subscriptions [AsyncSubscriptions]
       # @param now [Time]
       # @yield persists the records
       # @return the block's result
-      def append(records, topic:, subscriptions:, now:)
-        rows = message_rows(records, topic, subscriptions, now)
+      def append(records, topics:, subscriptions:, now:)
+        rows = message_rows(records, topics, subscriptions, now)
         return yield if rows.empty?
 
         transaction { yield.tap { message_klass.insert_all!(rows, returning: false) } }
@@ -121,9 +121,8 @@ module RubyEventStore
         message_klass.transaction(requires_new: true, &block)
       end
 
-      def message_rows(records, topic, subscriptions, now)
-        records.flat_map do |record|
-          message_topic = topic || record.event_type
+      def message_rows(records, topics, subscriptions, now)
+        records.zip(topics).flat_map do |record, message_topic|
           subscriptions
             .names_for(message_topic)
             .map do |subscriber|
@@ -171,7 +170,7 @@ module RubyEventStore
           topic: message.topic,
           subscriber: message.subscriber,
           attempts: attempts,
-          error_class: error.class.name,
+          error_class: error.class.to_s,
           error_message: truncate(error.message),
           backtrace: Array(error.backtrace).first(BACKTRACE_LINES).join("\n"),
           first_enqueued_at: message.created_at,

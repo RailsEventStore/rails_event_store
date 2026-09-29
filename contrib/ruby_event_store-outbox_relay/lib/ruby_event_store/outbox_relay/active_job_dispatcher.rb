@@ -32,10 +32,16 @@ module RubyEventStore
         @serializer = serializer
       end
 
+      # Enqueues one job, callbacks included.
+      #
       # @param subscriber [Class] an ActiveJob class
       # @param record [RubyEventStore::Record]
+      # @raise [ActiveJob::EnqueueError] when the adapter failed to enqueue the job.
+      #   A job that an enqueue callback halted is not an error, as it isn't for
+      #   ActiveJob itself
       def call(subscriber, _event, record)
-        subscriber.perform_later(payload_for(record))
+        error = enqueue_one(subscriber.new(payload_for(record)))
+        raise error if error
       end
 
       # Enqueues the deliveries, in bulk where the job allows it.
@@ -84,14 +90,18 @@ module RubyEventStore
       def enqueue_bulk(bulk, results)
         return if bulk.empty?
         ActiveJob.perform_all_later(bulk.map(&:last))
-        bulk.each { |index, job| results[index] = NotEnqueued.new("#{job.class} was not enqueued") unless job.successfully_enqueued? }
+        bulk.each { |index, job| results[index] = not_enqueued(job) unless job.successfully_enqueued? }
       rescue StandardError
         bulk.each { |index, job| results[index] = enqueue_one(job) }
       end
 
+      def not_enqueued(job)
+        job.enqueue_error || NotEnqueued.new("#{job.class} was not enqueued")
+      end
+
       def enqueue_one(job)
         job.enqueue
-        nil
+        job.enqueue_error
       rescue StandardError => e
         e
       end
