@@ -295,7 +295,7 @@ module RubyEventStore
       end
 
       describe "default async_subscriptions" do
-        specify "dispatch through RailsEventStore::ActiveJobScheduler with the YAML serializer" do
+        specify "dispatch through ActiveJobDispatcher with the YAML serializer" do
           TestAsyncJob.reset!
           client = client_class.new(repository: helper.repository)
           client.subscribe_async(TestAsyncJob, to: [TestEvent])
@@ -310,9 +310,9 @@ module RubyEventStore
 
         specify "serialize with exactly RubyEventStore::Serializers::YAML" do
           dispatcher = client_class.new.async_subscriptions.send(:dispatcher)
-          scheduler = dispatcher.instance_variable_get(:@scheduler)
 
-          expect(scheduler.send(:serializer)).to equal(RubyEventStore::Serializers::YAML)
+          expect(dispatcher).to be_an_instance_of(ActiveJobDispatcher)
+          expect(dispatcher.send(:serializer)).to equal(RubyEventStore::Serializers::YAML)
         end
 
         specify "reject subscribers that are not ActiveJob classes" do

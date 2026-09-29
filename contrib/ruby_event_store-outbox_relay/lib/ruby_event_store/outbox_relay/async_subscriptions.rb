@@ -10,8 +10,12 @@ module RubyEventStore
     # subscriber only through this registry, never through constant lookup, so
     # data in the outbox table can only ever reach handlers registered here.
     class AsyncSubscriptions
+      # One event to hand to one subscriber.
+      Delivery = Data.define(:subscriber, :event, :record)
+
       # @param dispatcher [#call, #verify] delivers an event to one subscriber,
-      #   e.g. RubyEventStore::ImmediateDispatcher
+      #   e.g. RubyEventStore::ImmediateDispatcher. One that also responds to
+      #   #call_all is handed whole batches, see #dispatch_all
       def initialize(dispatcher:)
         @dispatcher = dispatcher
         @subscribers = Hash.new { |hash, topic| hash[topic] = {} }
@@ -45,6 +49,21 @@ module RubyEventStore
       # @param record [RubyEventStore::Record]
       def dispatch(subscriber, event, record)
         dispatcher.call(subscriber, event, record)
+      end
+
+      # @return [Boolean] whether the dispatcher delivers whole batches at once
+      def bulk?
+        dispatcher.respond_to?(:call_all)
+      end
+
+      # Delivers a batch through a dispatcher that responds to #call_all, which
+      # takes an Array of Delivery and returns, for each, the error that kept it
+      # from being delivered, or nil.
+      #
+      # @param deliveries [Array<Delivery>]
+      # @return [Array<Exception, nil>]
+      def dispatch_all(deliveries)
+        dispatcher.call_all(deliveries)
       end
 
       private

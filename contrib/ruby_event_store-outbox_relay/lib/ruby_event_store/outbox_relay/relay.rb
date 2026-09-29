@@ -35,7 +35,8 @@ module RubyEventStore
       class UnknownSubscriber < StandardError; end
 
       Prepared = Data.define(:event, :record, :correlation_id)
-      private_constant :Prepared
+      Pending = Data.define(:message, :subscriber, :prepared)
+      private_constant :Prepared, :Pending
 
       BACKTRACE_LINES = 10
       private_constant :BACKTRACE_LINES
@@ -94,8 +95,7 @@ module RubyEventStore
         messages = outbox.claim(batch_size, now: now, lease_until: now + lease_duration)
         return BatchResult.empty if messages.empty?
 
-        prepared = prepare_events(messages.map(&:event_id).uniq)
-        outcomes = messages.group_by { |message| deliver(message, prepared.fetch(message.event_id)) }
+        outcomes = deliver_all(messages, prepare_events(messages.map(&:event_id).uniq))
         delivered = outcomes.fetch(:delivered, [])
         outbox.delete(delivered.map(&:outbox_id))
 
@@ -157,12 +157,19 @@ module RubyEventStore
         e
       end
 
-      def deliver(message, prepared)
-        subscriber = resolve_subscriber(message, prepared)
-      rescue StandardError => e
-        bury(message, e)
-      else
-        dispatch_or_retry(message, subscriber, prepared)
+      def deliver_all(messages, prepared)
+        outcomes = {}
+        pending = []
+        messages.each do |message|
+          prepared_event = prepared.fetch(message.event_id)
+          pending << Pending.new(message, resolve_subscriber(message, prepared_event), prepared_event)
+        rescue StandardError => e
+          outcomes[message] = bury(message, e)
+        end
+        pending.zip(dispatch_all(pending)) do |item, error|
+          outcomes[item.message] = error ? fail_dispatch(item.message, error) : :delivered
+        end
+        messages.group_by { |message| outcomes.fetch(message) }
       end
 
       def resolve_subscriber(message, prepared)
@@ -171,18 +178,37 @@ module RubyEventStore
           raise UnknownSubscriber, "#{message.subscriber} is not subscribed to #{message.topic}"
       end
 
-      def dispatch_or_retry(message, subscriber, prepared)
-        dispatch(subscriber, prepared)
-        :delivered
-      rescue StandardError => e
-        attempts = message.attempts + 1
-        retry_policy.retry?(e, attempts) ? reschedule(message, attempts, e) : bury(message, e)
+      def dispatch_all(pending)
+        return dispatch_each(pending) unless subscriptions.bulk? && pending.any?
+        dispatch_in_bulk(pending)
+      end
+
+      def dispatch_in_bulk(pending)
+        subscriptions.dispatch_all(
+          pending.map do |item|
+            AsyncSubscriptions::Delivery.new(subscriber: item.subscriber, event: item.prepared.event, record: item.prepared.record)
+          end,
+        )
+      rescue StandardError
+        dispatch_each(pending)
+      end
+
+      def dispatch_each(pending)
+        pending.map { |item| dispatch(item.subscriber, item.prepared) }
       end
 
       def dispatch(subscriber, prepared)
         client.with_metadata(correlation_id: prepared.correlation_id, causation_id: prepared.event.event_id) do
           subscriptions.dispatch(subscriber, prepared.event, prepared.record)
         end
+        nil
+      rescue StandardError => e
+        e
+      end
+
+      def fail_dispatch(message, error)
+        attempts = message.attempts + 1
+        retry_policy.retry?(error, attempts) ? reschedule(message, attempts, error) : bury(message, error)
       end
 
       def reschedule(message, attempts, error)
