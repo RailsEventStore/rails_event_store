@@ -28,7 +28,7 @@ relay:  claim ──▶ dispatch (no transaction) ──▶ delete delivered
 ```
 
 - **`event_store_outbox_messages`** — one row per (event, subscriber): `event_id`, `topic`, `subscriber` (the handler's class name), `attempts`, `next_attempt_at`, `last_error`. It only ever holds work still to do, so it stays small.
-- **`event_store_outbox_dead_letters`** — deliveries that exhausted their attempts or failed with a permanent error, with the error class, message and backtrace. See [Dead letters](#dead-letters).
+- **`event_store_outbox_dead_letters`** — deliveries that exhausted their attempts or failed with a permanent error, with the error class, message and backtrace. See [Dead letters](https://railseventstore.org/docs/advanced-topics/outbox-relay#dead-letters).
 - The relay claims messages with `FOR UPDATE SKIP LOCKED` in a transaction that only moves `next_attempt_at` to the end of a **lease** (five minutes by default). Other relays skip leased messages, and a relay that crashes mid-batch releases its messages simply by the lease running out.
 - The relay reads the event from `event_store_events` by id when it delivers; the outbox never duplicates event data.
 - **No monkeypatching, no ambient state.** The outbox client is a subclass of `RubyEventStore::Client` (or `RailsEventStore::Client`) that overrides `publish`; requiring this gem changes no existing class, and the event repository is not touched at all. `append` is not overridden and, as documented, notifies no one, so it writes no messages.
@@ -80,7 +80,7 @@ The application uses the registered subscribers to decide which messages to writ
 
 The subscriber must be a named class: its name is what the outbox stores. Unlike `subscribe_sync`, `subscribe_async` takes no block.
 
-`async_subscriptions` defaults to `RubyEventStore::OutboxRelay::ActiveJobDispatcher` with the YAML serializer, so handlers must be ActiveJob classes; the relay enqueues each batch of jobs at once, see [Throughput](#throughput). Pass a different one at construction time:
+`async_subscriptions` defaults to `RubyEventStore::OutboxRelay::ActiveJobDispatcher` with the YAML serializer, so handlers must be ActiveJob classes; the relay enqueues each batch of jobs at once, see [Throughput](https://railseventstore.org/docs/advanced-topics/outbox-relay#throughput). Pass a different one at construction time:
 
 ```ruby
 dispatcher = RubyEventStore::ImmediateDispatcher.new(scheduler: MyScheduler.new)
@@ -136,98 +136,16 @@ Run it as many instances as you like — `FOR UPDATE SKIP LOCKED` plus leases me
 | `lease_duration`  | 300                  | Seconds a claimed message stays hidden from other relays. Must comfortably exceed a batch's delivery time; a shorter lease means a slow batch is delivered twice |
 | `retry_policy`    | `RetryPolicy.new`    | When to retry and when to give up                                                                    |
 
-`--require`, `--batch-size`, `--poll-interval`, `--lease-duration`, `--stats-interval` (`--no-stats` turns the notification off) and `--log-level` are available on the command line; what you don't give keeps the default of the relay. The database comes from `DATABASE_URL`, see [Security](#security).
+`--require`, `--batch-size`, `--poll-interval`, `--lease-duration`, `--stats-interval` (`--no-stats` turns the notification off) and `--log-level` are available on the command line; what you don't give keeps the default of the relay. The database comes from `DATABASE_URL`, see [Security](https://railseventstore.org/docs/advanced-topics/outbox-relay#security).
 
-### Retries
+## Going further
 
-`RetryPolicy.new(max_attempts: 25, base_delay: 1, max_delay: 3600, jitter: 0.2, permanent_errors: [])`. A failed dispatch is retried after `base_delay * 2^(attempt - 1)` seconds, capped at `max_delay` and stretched by up to `jitter`, so with the defaults a message is dead-lettered after roughly 13 hours. Errors listed in `permanent_errors` are dead-lettered on first occurrence.
+The [full documentation](https://railseventstore.org/docs/advanced-topics/outbox-relay) covers what this README leaves out:
 
-The policy applies to every failure alike, including those that aren't the subscriber's doing: an event that is not in the event store (`Relay::MissingEvent`), one that fails to deserialize, or a subscriber the relay doesn't know (`Relay::UnknownSubscriber`). They are retried, because they often come right by themselves: a deploy that adds a subscriber or an event class reaches the application before it reaches the relay, and a replica can be late. If you would rather have some of them in the dead letters at once, say so:
-
-```ruby
-RubyEventStore::OutboxRelay::Relay.new(
-  client: client,
-  retry_policy: RubyEventStore::OutboxRelay::RetryPolicy.new(
-    permanent_errors: [RubyEventStore::OutboxRelay::Relay::UnknownSubscriber, Psych::SyntaxError],
-  ),
-)
-```
-
-A failure of the database while the relay reads the events is different: it says nothing about any message, and burning their attempts on it would dead-letter a whole batch after a short outage. The relay fails the batch instead, logs it, and the messages come back once their lease runs out, with their attempts untouched.
-
-One failing message never blocks the others: it moves out of the way by `next_attempt_at`, and the relay keeps claiming everything else that is due.
-
-## Dead letters
-
-A message goes to `event_store_outbox_dead_letters`, in one transaction with its removal from the outbox, when its delivery keeps failing until `max_attempts`, or fails with an error the retry policy calls permanent. Whatever the failure was — a subscriber that raises, an event that is gone or can't be deserialized, a subscriber the relay doesn't know — it goes through the same [retries](#retries) first. Each dead letter records `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `error_message` (first 1000 characters), `backtrace` (first 20 lines), `first_enqueued_at` and `dead_at`. The relay logs an `error` line for each one.
-
-```ruby
-dead_letters = RubyEventStore::OutboxRelay::DeadLetters.new
-
-dead_letters.count
-dead_letters.each { |dead_letter| puts [dead_letter.id, dead_letter.subscriber, dead_letter.error_class].join(" ") }
-
-dead_letters.requeue(id)                                   # back to the outbox, attempts reset
-dead_letters.requeue_all(topic: "OrderPlaced")             # optionally narrowed by topic and subscriber
-dead_letters.discard(id)
-```
-
-Or from the command line:
-
-```
-bundle exec rake ruby_event_store:outbox_relay:dead_letters:list
-bundle exec rake "ruby_event_store:outbox_relay:dead_letters:retry[42]"
-TOPIC=OrderPlaced SUBSCRIBER=OrderReportJob bundle exec rake "ruby_event_store:outbox_relay:dead_letters:retry[all]"
-bundle exec rake "ruby_event_store:outbox_relay:dead_letters:discard[42]"
-```
-
-## Observability
-
-The relay reports through `ActiveSupport::Notifications`, under names ending in `.outbox_relay.ruby_event_store`. Pass another object responding to `instrument(name, payload)` as `instrumentation:` to send them elsewhere. Without subscribers they cost next to nothing.
-
-| Notification | When | Payload |
-| --- | --- | --- |
-| `process_batch` | around each batch, idle ones included | `claimed`, `delivered`, `retried`, `dead`, `unrecorded` |
-| `message_failed` | for each message that failed to be delivered | `outbox_id`, `event_id`, `topic`, `subscriber`, `attempts`, `error_class`, `outcome` (`:retried` or `:dead`) |
-| `stats` | every `stats_interval` seconds (30 by default, `nil` turns it off) | `backlog`, `oldest_due_age`, `dead_letters` |
-
-`message_failed` never carries the error's message, which can echo event data. The duration of a batch is the duration of its notification. `unrecorded` counts the messages whose failure could not be recorded, say because the database failed just then: they stay in the outbox as they were, and come back once their lease runs out.
-
-```ruby
-ActiveSupport::Notifications.subscribe("process_batch.outbox_relay.ruby_event_store") do |event|
-  StatsD.measure("outbox.batch", event.duration)
-  StatsD.increment("outbox.delivered", event.payload[:delivered])
-end
-
-ActiveSupport::Notifications.subscribe("stats.outbox_relay.ruby_event_store") do |event|
-  StatsD.gauge("outbox.oldest_due_age", event.payload[:oldest_due_age].to_f)
-  StatsD.gauge("outbox.dead_letters", event.payload[:dead_letters])
-end
-```
-
-`backlog` is the number of messages that are due, `oldest_due_age` the seconds the oldest of them has waited (`nil` when none is due) and `dead_letters` the number of dead letters. The two counts stop at 10,000, so measuring a huge backlog stays cheap. Messages being delivered are leased, hence not due. Alert on `oldest_due_age` growing, and on any `dead_letters`: they say the relay isn't keeping up, or that something can't be delivered. The same numbers are available to your own endpoint from `client.outbox.stats(now: Time.now.utc)`.
-
-The relay logs, at `info`, its startup and shutdown and the async subscribers of every topic; at `warn`, each retry; at `error`, each dead letter, and a batch or stats query that failed, by exception class only; at `debug`, the counts of each batch that claimed something, and the message and backtrace of a failed batch.
-
-## Throughput
-
-Numbers below come from a laptop, a local PostgreSQL and the default YAML serializer, so read them as proportions, not promises.
-
-- **Publishing.** A `publish` of events with async subscribers issues exactly one more statement than without them — one `INSERT` of the outbox messages, whatever the number of events published together, and none of it outside the transaction you already have. Publishing a batch amortizes even that. The events table is never updated afterwards, so it stays append-only.
-- **One relay process** delivers about 8,000 messages per second to a subscriber that does nothing, and about 1,600 per second through ActiveJob. In the ActiveJob case most of the time goes to serializing each event for the job payload (a YAML dump of its metadata), not to the queue or the database. The relay is CPU-bound, so throughput scales with the number of relay processes, which share the outbox through `SKIP LOCKED`.
-- **Bulk enqueue.** `ActiveJobDispatcher`, the default, enqueues a whole batch with a single `ActiveJob.perform_all_later`, which adapters turn into one round trip instead of one per job. With a simulated 0.2 ms round trip to the queue it raised throughput from about 1,070 to 1,740 messages per second for one subscriber per event, and from about 1,820 to 4,560 for three. With an in-memory adapter there is nothing to save. `perform_all_later` skips the enqueue callbacks (`before_enqueue`, `around_enqueue`, `after_enqueue`), so jobs that define any are enqueued one by one, with their callbacks. The adapter must mark the jobs it enqueued (`job.successfully_enqueued`), as ActiveJob's own adapters do. A dispatcher of your own gets the same treatment by responding to `call_all`, which takes an array of `AsyncSubscriptions::Delivery` and returns, for each, the error that kept it from being delivered, or `nil`. A batch mixes events, so it isn't delivered inside `Client#with_metadata`, as a single delivery is: a dispatcher that runs handlers in the process derives the correlation from each delivery's event, its `correlation_id` and its `event_id` as the `causation_id`.
-- **Batch size and lease.** A bigger `batch_size` amortizes the claim and the delete, but beyond a few hundred it stops paying off, and a slow batch needs a longer `lease_duration`.
-- **An idle relay** costs one short transaction per `poll_interval`. It sleeps only when nothing was due, so under load it never waits.
-
-## Security
-
-- **Database credentials never travel as arguments.** The relay reads the database from the `DATABASE_URL` environment variable; there is deliberately no `--database-url` option, because arguments are visible to every local user in the process list, `/proc/*/cmdline` and the journal. Under systemd, keep the variable in an `EnvironmentFile=` readable by root only (`chmod 600`), as the shipped unit does. `OUTBOX_RELAY_ARGS` of the rake task is split like a shell would.
-- **Least privilege.** The relay only needs (verified on PostgreSQL) `SELECT` on `event_store_events`, `SELECT`, `UPDATE` and `DELETE` on `event_store_outbox_messages`, and `INSERT` on `event_store_outbox_dead_letters`. The application only needs `INSERT` on `event_store_outbox_messages`, on top of what it already has for the event store. Inserts never ask for the generated id (`RETURNING`), so no `SELECT` is needed on tables that are only written. Give the relay its own database role, and a separate one to whoever runs the dead letter tasks (`SELECT`, `UPDATE` and `DELETE` on the dead letters, because requeueing locks them with `FOR UPDATE`, and `INSERT` on the messages).
-- **Only registered subscribers are ever called.** A message stores a subscriber's class name, but the relay resolves it through the `subscribe_async` registry only, never by constant lookup, so a row written to the outbox table cannot make it call an arbitrary class.
-- **Deserialization is the relay's biggest attack surface.** The relay deserializes events read from the database with the repository's serializer. `RubyEventStore::Serializers::YAML`, the default of `RailsEventStore::Client`, loads with `YAML.unsafe_load`: anyone able to write to `event_store_events` (for example through an SQL injection elsewhere, or another service sharing the database) could make the relay, which holds database credentials and access to your job queue, execute code. Prefer the `JSON` serializer, and restrict write access to the events table to the applications that publish.
-- **Logs stay free of event data.** A failing batch is logged by exception class only, and a failed or dead-lettered delivery by message id, event id, subscriber and exception class. The exception's message and backtrace are logged at `debug` level. Note that `last_error` on a message and `error_message` on a dead letter store the exception's message (truncated to 1000 characters), which can echo event data: treat both tables with the sensitivity of `event_store_events`.
-- **Signal handlers are chained.** The relay handles `INT` and `TERM` to shut down gracefully and still calls any handler installed before it.
-- **Hardened unit.** `support/systemd/res-outbox-relay.service` drops all capabilities, forbids privilege escalation and runs with a read-only file system, a private `/tmp`, no devices and restricted address families.
+- **Retries and dead letters** — the `RetryPolicy`, which failures are dead-lettered at once, and the `DeadLetters` API and rake tasks to list, requeue and discard.
+- **Observability** — the `ActiveSupport::Notifications` the relay publishes (`process_batch`, `message_failed`, `stats`) and `Outbox#stats`.
+- **Throughput** — measured numbers, bulk enqueue through `ActiveJobDispatcher`, batch size and lease.
+- **Security** — least-privilege database grants, the hardened systemd unit, and the risk of `YAML.unsafe_load` in the default serializer. In short: the database comes from `DATABASE_URL`, never from an argument, and the relay resolves subscribers only through the `subscribe_async` registry.
 
 ## Guarantees
 
@@ -238,8 +156,6 @@ Numbers below come from a laptop, a local PostgreSQL and the default YAML serial
 - **No duplicated work across relay instances**, via `SELECT ... FOR UPDATE SKIP LOCKED` and leases.
 - **Same metadata context as a synchronous publish** — `correlation_id`/`causation_id` are reproduced through `with_metadata` exactly as `Client#publish` does it.
 - **No ordering guarantee.** Messages are claimed oldest first, but with several relays, retries and ActiveJob, handlers can observe events out of order.
-
-See the [full documentation](https://railseventstore.org/docs/advanced-topics/outbox-relay) for the underlying design and more examples.
 
 ## Contributing
 

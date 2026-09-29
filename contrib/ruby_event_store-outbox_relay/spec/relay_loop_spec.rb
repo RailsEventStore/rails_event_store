@@ -17,7 +17,7 @@ module RubyEventStore
       end
 
       def result(claimed)
-        Relay::BatchResult.new(claimed: claimed, delivered: claimed, retried: 0, dead: 0, unrecorded: 0)
+        Relay::BatchResult.new(claimed: claimed, delivered: claimed, retried: 0, dead: 0, unrecorded: 0, deferred: 0)
       end
 
       describe "#initialize" do
@@ -111,7 +111,7 @@ module RubyEventStore
 
           expect(result).to eq(Relay::BatchResult.empty)
           expect(payloads).to eq(
-            [["process_batch.outbox_relay.ruby_event_store", { claimed: 0, delivered: 0, retried: 0, dead: 0, unrecorded: 0 }]],
+            [["process_batch.outbox_relay.ruby_event_store", { claimed: 0, delivered: 0, retried: 0, dead: 0, unrecorded: 0, deferred: 0 }]],
           )
         end
 
@@ -177,7 +177,7 @@ module RubyEventStore
         specify "logs each batch that claimed something, at debug level" do
           relay = build_relay
           allow(relay).to receive(:install_signal_handlers)
-          batches = [Relay::BatchResult.new(claimed: 5, delivered: 3, retried: 1, dead: 1, unrecorded: 2), Relay::BatchResult.empty]
+          batches = [Relay::BatchResult.new(claimed: 5, delivered: 3, retried: 1, dead: 1, unrecorded: 2, deferred: 0), Relay::BatchResult.empty]
           allow(relay).to receive(:process_batch_safely) do
             relay.instance_variable_set(:@shutting_down, true) if batches.size == 1
             batches.shift
@@ -186,7 +186,7 @@ module RubyEventStore
 
           relay.run
 
-          expect(logger).to have_received(:debug).with("Batch: claimed=5 delivered=3 retried=1 dead=1 unrecorded=2")
+          expect(logger).to have_received(:debug).with("Batch: claimed=5 delivered=3 retried=1 dead=1 unrecorded=2 deferred=0")
           expect(logger).to have_received(:debug).once
         end
 

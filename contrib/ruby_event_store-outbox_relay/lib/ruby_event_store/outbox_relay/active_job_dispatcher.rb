@@ -18,7 +18,9 @@ module RubyEventStore
     # would have halted it. So only jobs without enqueue callbacks of their own
     # are enqueued in bulk; the others are enqueued one by one, callbacks
     # included. The callbacks ActiveJob adds itself (logging, instrumentation)
-    # don't count.
+    # don't count. Telling them apart relies on internals of ActiveJob, so the
+    # gem pins its major version, and should they change, or a job not expose
+    # them, that job is simply enqueued one by one, with its callbacks.
     class ActiveJobDispatcher
       ACTIVE_JOB_DIRECTORY = "#{File.dirname(::ActiveJob.method(:gem_version).source_location.first)}/".freeze
       private_constant :ACTIVE_JOB_DIRECTORY
@@ -88,12 +90,12 @@ module RubyEventStore
       end
 
       def bulk?(subscriber)
-        subscriber._enqueue_callbacks.all? { |callback| built_in?(callback) }
+        subscriber.respond_to?(:_enqueue_callbacks) && subscriber._enqueue_callbacks.all? { |callback| built_in?(callback) }
       end
 
       def built_in?(callback)
-        callback.filter.respond_to?(:source_location) &&
-          callback.filter.source_location.first.start_with?(ACTIVE_JOB_DIRECTORY)
+        callback.respond_to?(:filter) && callback.filter.respond_to?(:source_location) &&
+          callback.filter.source_location&.first&.start_with?(ACTIVE_JOB_DIRECTORY)
       end
 
       def enqueue_bulk(bulk, results)

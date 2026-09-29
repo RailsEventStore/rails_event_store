@@ -21,8 +21,13 @@ module RubyEventStore
     # can come right when a deploy has rolled out to the relay. List the ones that
     # can't in the RetryPolicy's +permanent_errors+ to dead-letter them at once.
     # The exception is a failure of the database while reading the events: it
-    # says nothing about any message, so it fails the whole batch, whose messages
-    # stay for the next attempt once their lease runs out.
+    # says nothing about any message, so it fails the whole batch, and its
+    # messages are handed back at once, with their attempts untouched.
+    #
+    # When it delivers one message at a time, a relay stops once 80% of the lease
+    # has passed and hands back what it had not tried (BatchResult#deferred), so a
+    # slow subscriber costs a smaller batch rather than duplicates. A single
+    # subscriber slower than the lease itself needs a longer +lease_duration+.
     #
     # Delivery is at least once: a relay that crashes after dispatching, but
     # before deleting, redelivers once the lease runs out.
@@ -39,11 +44,12 @@ module RubyEventStore
     class Relay
       # Outcome of one #process_batch call. +unrecorded+ counts the messages whose
       # failure could not be recorded, which stay in the outbox untouched and come
-      # back once their lease runs out.
+      # back once their lease runs out. +deferred+ counts those left untried because
+      # the batch was running out of its lease, which are due again at once.
       BatchResult =
-        Data.define(:claimed, :delivered, :retried, :dead, :unrecorded) do
+        Data.define(:claimed, :delivered, :retried, :dead, :unrecorded, :deferred) do
           def self.empty
-            new(claimed: 0, delivered: 0, retried: 0, dead: 0, unrecorded: 0)
+            new(claimed: 0, delivered: 0, retried: 0, dead: 0, unrecorded: 0, deferred: 0)
           end
         end
 
@@ -61,7 +67,9 @@ module RubyEventStore
 
       BACKTRACE_LINES = 10
       EVENT_NAMESPACE = "outbox_relay.ruby_event_store"
-      private_constant :BACKTRACE_LINES, :EVENT_NAMESPACE
+      LEASE_SHARE = 0.8
+      DEFERRED = Object.new.freeze
+      private_constant :BACKTRACE_LINES, :EVENT_NAMESPACE, :LEASE_SHARE, :DEFERRED
 
       # @param client [Object] the application's Client, extended with
       #   ClientExtension (an OutboxRelay::Client or RailsClient); async
@@ -154,9 +162,11 @@ module RubyEventStore
         messages = outbox.claim(batch_size, now: now, lease_until: now + lease_duration)
         return BatchResult.empty if messages.empty?
 
-        outcomes = deliver_all(messages, prepare_events(messages.map(&:event_id).uniq))
+        outcomes = deliver_all(messages, prepare_or_release(messages, now), now + (lease_duration * LEASE_SHARE))
         delivered = outcomes.fetch(:delivered, [])
+        deferred = outcomes.fetch(:deferred, [])
         outbox.delete(delivered.map(&:outbox_id))
+        release(deferred, clock.call)
 
         BatchResult.new(
           claimed: messages.size,
@@ -164,7 +174,22 @@ module RubyEventStore
           retried: outcomes.fetch(:retried, []).size,
           dead: outcomes.fetch(:dead, []).size,
           unrecorded: outcomes.fetch(:unrecorded, []).size,
+          deferred: deferred.size,
         )
+      end
+
+      def prepare_or_release(messages, now)
+        prepare_events(messages.map(&:event_id).uniq)
+      rescue StandardError
+        release(messages, now)
+        raise
+      end
+
+      def release(messages, now)
+        return if messages.empty?
+        outbox.release(messages.map(&:outbox_id), now: now)
+      rescue StandardError => e
+        logger.error("Could not release #{messages.size} outbox message(s) that were not tried: #{e.class}")
       end
 
       def outbox
@@ -188,7 +213,7 @@ module RubyEventStore
         return if result.claimed.zero?
         logger.debug(
           "Batch: claimed=#{result.claimed} delivered=#{result.delivered} retried=#{result.retried} dead=#{result.dead} " \
-            "unrecorded=#{result.unrecorded}",
+            "unrecorded=#{result.unrecorded} deferred=#{result.deferred}",
         )
       end
 
@@ -257,7 +282,7 @@ module RubyEventStore
         e
       end
 
-      def deliver_all(messages, prepared)
+      def deliver_all(messages, prepared, deadline)
         outcomes = {}
         pending = []
         messages.each do |message|
@@ -266,9 +291,7 @@ module RubyEventStore
         rescue StandardError => e
           outcomes[message] = record_failure(message) { fail_dispatch(message, e) }
         end
-        pending.zip(dispatch_all(pending)) do |item, error|
-          outcomes[item.message] = error ? record_failure(item.message) { fail_dispatch(item.message, error) } : :delivered
-        end
+        pending.zip(dispatch_all(pending, deadline)) { |item, result| outcomes[item.message] = settle(item.message, result) }
         messages.group_by { |message| outcomes.fetch(message) }
       end
 
@@ -278,23 +301,34 @@ module RubyEventStore
           raise UnknownSubscriber, "#{message.subscriber} is not subscribed to #{message.topic}"
       end
 
-      def dispatch_all(pending)
-        return dispatch_each(pending) unless subscriptions.bulk? && pending.any?
-        dispatch_in_bulk(pending)
+      def settle(message, result)
+        case result
+        when nil
+          :delivered
+        when DEFERRED
+          :deferred
+        else
+          record_failure(message) { fail_dispatch(message, result) }
+        end
       end
 
-      def dispatch_in_bulk(pending)
+      def dispatch_all(pending, deadline)
+        return dispatch_each(pending, deadline) unless subscriptions.bulk? && pending.any?
+        dispatch_in_bulk(pending, deadline)
+      end
+
+      def dispatch_in_bulk(pending, deadline)
         subscriptions.dispatch_all(
           pending.map do |item|
             AsyncSubscriptions::Delivery.new(subscriber: item.subscriber, event: item.prepared.event, record: item.prepared.record)
           end,
         )
       rescue StandardError
-        dispatch_each(pending)
+        dispatch_each(pending, deadline)
       end
 
-      def dispatch_each(pending)
-        pending.map { |item| dispatch(item.subscriber, item.prepared) }
+      def dispatch_each(pending, deadline)
+        pending.map { |item| clock.call > deadline ? DEFERRED : dispatch(item.subscriber, item.prepared) }
       end
 
       def dispatch(subscriber, prepared)

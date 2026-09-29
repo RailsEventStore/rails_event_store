@@ -252,6 +252,56 @@ module RubyEventStore
         end
       end
 
+      describe "the ActiveJob internals it relies on" do
+        specify "still exist, with the shape #call_all expects" do
+          callbacks = ActiveJob::Base._enqueue_callbacks
+
+          expect(ActiveJob::Base).to respond_to(:_enqueue_callbacks)
+          expect(callbacks).to all(respond_to(:filter))
+          expect(callbacks.map { |callback| callback.filter.source_location.first }).to all(
+            start_with(File.dirname(ActiveJob.method(:gem_version).source_location.first)),
+          )
+          expect(ActiveJob).to respond_to(:perform_all_later)
+          expect(ActiveJob::Base.new).to respond_to(:successfully_enqueued?, :enqueue_error, :enqueue)
+        end
+
+        specify "may be missing, and then the job is enqueued one by one, callbacks included" do
+          klass = job_class("PlainJob")
+          allow(klass).to receive(:respond_to?).and_call_original
+          allow(klass).to receive(:respond_to?).with(:_enqueue_callbacks).and_return(false)
+          allow(ActiveJob).to receive(:perform_all_later).and_call_original
+
+          results = dispatcher.call_all([delivery(klass)])
+
+          expect(results).to eq([nil])
+          expect(ActiveJob).not_to have_received(:perform_all_later)
+          expect(klass.queue_adapter.enqueued_jobs.size).to eq(1)
+        end
+
+        specify "may hold a callback whose source can't be located, which then counts as the job's own" do
+          klass = job_class("SymbolProcJob") { before_enqueue(&:itself) }
+          allow(ActiveJob).to receive(:perform_all_later).and_call_original
+
+          dispatcher.call_all([delivery(klass)])
+
+          expect(ActiveJob).not_to have_received(:perform_all_later)
+          expect(klass.queue_adapter.enqueued_jobs.size).to eq(1)
+        end
+
+        specify "may hold a callback that doesn't say what it filters on" do
+          klass = job_class("OddCallbackJob")
+          odd = Object.new
+          allow(klass).to receive(:_enqueue_callbacks).and_return([odd])
+          allow(ActiveJob).to receive(:perform_all_later).and_call_original
+
+          results = dispatcher.call_all([delivery(klass)])
+
+          expect(results).to eq([nil])
+          expect(ActiveJob).not_to have_received(:perform_all_later)
+          expect(klass.queue_adapter.enqueued_jobs.size).to eq(1)
+        end
+      end
+
       describe "#verify" do
         specify "accepts ActiveJob classes only" do
           expect(dispatcher.verify(job_class("SomeJob"))).to eq(true)

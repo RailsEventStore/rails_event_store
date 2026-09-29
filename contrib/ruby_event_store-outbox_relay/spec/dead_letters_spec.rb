@@ -140,7 +140,7 @@ module RubyEventStore
           dead_letters.requeue_all
 
           expect(scopes.size).to eq(3)
-          expect(scopes.uniq.sole).to end_with('ORDER BY "event_store_outbox_dead_letters"."id" ASC LIMIT 2')
+          expect(scopes.uniq.sole).to match(/ORDER BY \S*event_store_outbox_dead_letters\S*\.\S*id\S* ASC LIMIT 2\z/)
         end
       end
 
