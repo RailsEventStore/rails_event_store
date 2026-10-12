@@ -43,7 +43,7 @@ sequenceDiagram
     participant AsyncSub as Async subscribers
 
     App->>Client: publish(event)
-    Client->>DB: BEGIN; INSERT event; INSERT outbox message per async subscriber; COMMIT
+    Client->>DB: BEGIN#59; INSERT event#59; INSERT outbox message per async subscriber#59; COMMIT
     Client->>SyncSub: broker.call(...) — immediate, unchanged
 
     loop relay poll loop
