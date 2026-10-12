@@ -4,6 +4,7 @@ require "optparse"
 require "logger"
 require_relative "version"
 require_relative "configuration"
+require_relative "relay"
 
 module RubyEventStore
   module OutboxRelay
@@ -34,27 +35,27 @@ module RubyEventStore
                   "to build the relay (typically Relay.new(client: ...)). Mandatory.",
               ) { |v| options.require_path = v }
 
-              o.on("--batch-size=BATCH_SIZE", Integer, "Amount of messages claimed in one batch. Default: 100") do |v|
+              o.on("--batch-size=BATCH_SIZE", Integer, "Amount of messages claimed in one batch. Default: #{Relay::DEFAULT_BATCH_SIZE}") do |v|
                 options.batch_size = v
               end
 
               o.on(
                 "--poll-interval=SECONDS",
                 Float,
-                "How long to sleep before next check when there was nothing to do. Default: 1.0",
+                "How long to sleep before next check when there was nothing to do. Default: #{Relay::DEFAULT_POLL_INTERVAL}",
               ) { |v| options.poll_interval = v }
 
               o.on(
                 "--lease-duration=SECONDS",
                 Float,
                 "How long a claimed message stays hidden from other relays; must exceed the time to deliver " \
-                  "a batch. Default: 300",
+                  "a batch. Default: #{Relay::DEFAULT_LEASE_DURATION}",
               ) { |v| options.lease_duration = v }
 
               o.on(
                 "--stats-interval=SECONDS",
                 Float,
-                "How often the stats notification is published. Default: 30",
+                "How often the stats notification is published. Default: #{Relay::DEFAULT_STATS_INTERVAL}",
               ) { |v| options.stats_interval = v }
 
               o.on("--no-stats", "Don't publish the stats notification") { options.stats = false }

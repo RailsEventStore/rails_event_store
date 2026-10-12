@@ -65,6 +65,13 @@ module RubyEventStore
       Pending = Data.define(:message, :subscriber, :prepared)
       private_constant :Prepared, :Pending
 
+      # Defaults of the options below. The command line and the documentation
+      # quote them, so they are kept in one place.
+      DEFAULT_BATCH_SIZE = 100
+      DEFAULT_POLL_INTERVAL = 1
+      DEFAULT_LEASE_DURATION = 300
+      DEFAULT_STATS_INTERVAL = 30
+
       BACKTRACE_LINES = 10
       EVENT_NAMESPACE = "outbox_relay.ruby_event_store"
       LEASE_SHARE = 0.8
@@ -90,14 +97,14 @@ module RubyEventStore
       # @raise [ArgumentError] when the client isn't extended with ClientExtension
       def initialize(
         client:,
-        batch_size: 100,
-        poll_interval: 1,
-        lease_duration: 300,
+        batch_size: DEFAULT_BATCH_SIZE,
+        poll_interval: DEFAULT_POLL_INTERVAL,
+        lease_duration: DEFAULT_LEASE_DURATION,
         retry_policy: RetryPolicy.new,
         clock: -> { Time.now.utc },
         signals: Signal,
         instrumentation: ActiveSupport::Notifications,
-        stats_interval: 30,
+        stats_interval: DEFAULT_STATS_INTERVAL,
         logger: Logger.new($stdout)
       )
         unless client.respond_to?(:outbox) && client.respond_to?(:async_subscriptions)
