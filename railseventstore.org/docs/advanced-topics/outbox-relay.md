@@ -283,7 +283,7 @@ The database is taken from the `DATABASE_URL` environment variable, never from a
 | --- | --- | --- | --- |
 | `--require` | yes | — | Ruby file calling `Configuration.configure` to build the relay |
 | `--batch-size` | no | 100 | Number of messages claimed per batch |
-| `--poll-interval` | no | 1.0 | Seconds to sleep when nothing was due |
+| `--poll-interval` | no | 1 | Seconds to sleep when nothing was due |
 | `--lease-duration` | no | 300 | Seconds a claimed message stays hidden from other relays; must exceed the time to deliver a batch |
 | `--stats-interval` | no | 30 | Seconds between `stats` notifications; `--no-stats` turns them off |
 | `--log-level` | no | info | One of: `fatal`, `error`, `warn`, `info`, `debug` |
