@@ -88,6 +88,11 @@ const CompaniesList = [
     name: "SonarHome",
     img: "/images/sonarhome.svg",
     link: "https://sonarhome.pl",
+  },
+  {
+    name: "sedisto",
+    img: "/images/sedisto.svg",
+    link: "https://www.sedisto.com",
   }
 ];
 
