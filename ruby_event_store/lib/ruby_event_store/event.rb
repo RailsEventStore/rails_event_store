@@ -15,7 +15,7 @@ module RubyEventStore
     # @return [Event]
     def initialize(event_id: SecureRandom.uuid, metadata: nil, data: {})
       event_id_str = event_id.to_s
-      raise ArgumentError, "event_id cannot be blank" if event_id_str.strip.empty?
+      raise ArgumentError, "event_id cannot be blank" if event_id_str.match?(/\A\s*\z/)
 
       @event_id = event_id_str
       @metadata = Metadata.new(metadata.to_h)

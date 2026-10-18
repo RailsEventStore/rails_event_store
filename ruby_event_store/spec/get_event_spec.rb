@@ -41,17 +41,17 @@ module RubyEventStore
     end
 
     specify "blank event_id" do
-      # empty string
-      expect { Test::TestCreated.new(event_id: "") }.to raise_error(ArgumentError, "event_id cannot be blank")
+      expect { Test::TestCreated.new(event_id: "") }
+        .to raise_error(ArgumentError, "event_id cannot be blank")
 
-      # whitespace only
-      expect { Test::TestCreated.new(event_id: " \t\n") }.to raise_error(ArgumentError, "event_id cannot be blank")
+      expect { Test::TestCreated.new(event_id: " \t\n") }
+        .to raise_error(ArgumentError, "event_id cannot be blank")
 
-      # nil
-      expect { Test::TestCreated.new(event_id: nil) }.to raise_error(ArgumentError, "event_id cannot be blank")
+      expect { Test::TestCreated.new(event_id: nil) }
+        .to raise_error(ArgumentError, "event_id cannot be blank")
 
-      # non-blank
-      expect { Test::TestCreated.new(event_id: "order-1") }.not_to raise_error
+      expect { Test::TestCreated.new(event_id: "order-1") }
+        .not_to raise_error
     end
 
     specify "constructor metadata attribute is used as event metadata (with timestamp changed)" do
