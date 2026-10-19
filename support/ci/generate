@@ -670,7 +670,7 @@ class CI
         job_name: "mutate",
         matrix: matrix,
         steps: steps,
-        runs_on: "macos-14",
+        runs_on: "macos-15",
         env: {
           "BUNDLE_WITHOUT" => "database",
           "SINCE_SHA" => "${{ github.event.pull_request.base.sha || 'HEAD~1' }}",
@@ -693,7 +693,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: contrib_triggers("#{name}_mutate", working_directory),
-        runs_on: "macos-14",
+        runs_on: "macos-15",
         env: {
           "BUNDLE_WITHOUT" => "database",
           "SINCE_SHA" => "${{ github.event.pull_request.base.sha || 'HEAD~1' }}",
@@ -714,7 +714,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", name),
-        runs_on: "macos-14",
+        runs_on: "macos-15",
         env: {
           "BUNDLE_WITHOUT" => "database",
         },
@@ -736,7 +736,7 @@ class CI
         matrix: matrix,
         steps: steps,
         triggers: coverage_triggers("#{name}_coverage", working_directory),
-        runs_on: "macos-14",
+        runs_on: "macos-15",
         env: {
           "BUNDLE_WITHOUT" => "database",
         },
