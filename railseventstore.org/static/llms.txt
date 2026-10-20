@@ -1,0 +1,39 @@
+# Rails Event Store
+
+> Rails Event Store (RES) is an open-source library for Ruby and Rails for publishing, consuming, storing, and retrieving events. It helps applications adopt event-driven architecture and decouple business logic.
+
+RES can be used as a publish-subscribe bus, an alternative to ActiveRecord callbacks, an audit log, and a foundation for read models and event sourcing. Event handlers can run synchronously or asynchronously. Event sourcing is one use case, not a requirement for using RES.
+
+The project is funded and maintained by Arkency and released under the MIT license. Ruby Event Store can also be used without Rails.
+
+The documentation links below use the default published version. For version-specific API details, select the documentation version matching the application's gems; `/docs/master/` covers development rather than a published release.
+
+## Getting started
+
+- [Homepage](https://railseventstore.org/): Project overview and use cases.
+- [Introduction](https://railseventstore.org/docs/getting-started/introduction): Create a Rails application with RES and find the next steps.
+- [Installation](https://railseventstore.org/docs/getting-started/install): Add and configure RES in an existing Rails application.
+- [API documentation](https://railseventstore.org/docs/getting-started/api): Generated API references for the project's gems.
+- [Using Ruby Event Store without Rails](https://railseventstore.org/docs/advanced-topics/without-rails): Integrate the event store with other Ruby applications.
+
+## Core concepts
+
+- [Publishing events](https://railseventstore.org/docs/core-concepts/publish): Define domain events and publish them to streams.
+- [Subscribing to events](https://railseventstore.org/docs/core-concepts/subscribe): Register synchronous and asynchronous event handlers.
+- [Reading events](https://railseventstore.org/docs/core-concepts/read): Query events, select streams, and control ordering and batching.
+- [Event sourcing](https://railseventstore.org/docs/core-concepts/event-sourcing): Model and persist event-sourced aggregates with AggregateRoot.
+- [Projections](https://railseventstore.org/docs/core-concepts/projections): Derive state from a stream of events.
+- [Browser](https://railseventstore.org/docs/core-concepts/browser): Inspect streams and events in a web interface for debugging and audit logs.
+- [RSpec matchers](https://railseventstore.org/docs/core-concepts/rspec): Test domain events and their publication.
+
+## Project and support
+
+- [Source code](https://github.com/RailsEventStore/rails_event_store): Repository containing the Ruby gems and this website.
+- [Releases](https://github.com/RailsEventStore/rails_event_store/releases): Release notes and version history.
+- [Support](https://railseventstore.org/support): Community help, learning resources, and paid support from Arkency.
+- [Contributing](https://railseventstore.org/contributing): Contribution policy and development guidance.
+
+## Optional
+
+- [Community](https://railseventstore.org/community): Articles, talks, example applications, and community resources.
+- [Billetto case study](https://railseventstore.org/billetto): How a ticketing platform uses Rails Event Store in production.
