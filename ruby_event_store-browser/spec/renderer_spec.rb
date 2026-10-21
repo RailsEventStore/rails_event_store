@@ -42,6 +42,29 @@ module RubyEventStore
         end
       end
 
+      describe "_json_tree" do
+        def tree(hash) = renderer.render("_json_tree", hash: hash).gsub(/>\s+</, "><").gsub(/\s+/, " ")
+
+        specify "renders nested objects and arrays as indented trees, not inline JSON" do
+          html = tree({ "owner" => { "id" => 1, "tags" => ["a"] } })
+
+          expect(html).not_to include('{"id":1')
+          expect(html).to include(
+            '<span class="font-bold">owner</span>: {<ul class="list-none ml-[26px] pl-0">' \
+              '<li class="relative"><span class="font-bold">id</span>: <span class="whitespace-pre text-[blue]">1</span>,</li>' \
+              '<li class="relative"><span class="font-bold">tags</span>: [<ul class="list-none ml-[26px] pl-0">' \
+              '<li class="relative"><span class="whitespace-pre text-[green]">&quot;a&quot;</span>,</li></ul>],</li></ul>},',
+          )
+        end
+
+        specify "renders empty collections inline" do
+          html = tree({ "e" => {}, "l" => [] })
+
+          expect(html).to include('<span class="font-bold">e</span>: <span class="whitespace-pre text-gray-800">{}</span>,')
+          expect(html).to include('<span class="font-bold">l</span>: <span class="whitespace-pre text-gray-800">[]</span>,')
+        end
+      end
+
       describe "multiple view roots" do
         specify "renders template from an additional root, falling back to the default one" do
           Dir.mktmpdir do |root|
