@@ -14,6 +14,8 @@ module RubyEventStore
     #   causation_id etc.
     # @return [Event]
     def initialize(event_id: SecureRandom.uuid, metadata: nil, data: {})
+      raise ArgumentError, "event_id must not be blank" if event_id.to_s.empty?
+
       @event_id = event_id.to_s
       @metadata = Metadata.new(metadata.to_h)
       @data = data

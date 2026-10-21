@@ -40,6 +40,17 @@ module RubyEventStore
       expect(event.metadata.to_h).to eq({})
     end
 
+    specify "blank event_id" do
+      expect { Test::TestCreated.new(event_id: "") }
+        .to raise_error(ArgumentError, "event_id must not be blank")
+
+      expect { Test::TestCreated.new(event_id: nil) }
+        .to raise_error(ArgumentError, "event_id must not be blank")
+
+      expect { Test::TestCreated.new(event_id: "order-1") }
+        .not_to raise_error
+    end
+
     specify "constructor metadata attribute is used as event metadata (with timestamp changed)" do
       timestamp = Time.utc(2016, 3, 10, 15, 20)
       event = Test::TestCreated.new(metadata: { created_by: "Someone", timestamp: timestamp })
