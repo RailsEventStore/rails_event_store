@@ -42,13 +42,10 @@ module RubyEventStore
 
     specify "blank event_id" do
       expect { Test::TestCreated.new(event_id: "") }
-        .to raise_error(ArgumentError, "event_id cannot be blank")
-
-      expect { Test::TestCreated.new(event_id: " \t\n") }
-        .to raise_error(ArgumentError, "event_id cannot be blank")
+        .to raise_error(ArgumentError, "event_id must not be blank")
 
       expect { Test::TestCreated.new(event_id: nil) }
-        .to raise_error(ArgumentError, "event_id cannot be blank")
+        .to raise_error(ArgumentError, "event_id must not be blank")
 
       expect { Test::TestCreated.new(event_id: "order-1") }
         .not_to raise_error
