@@ -92,3 +92,31 @@ Each upcast **must** change the `event_type`. Returning a record with the same `
 ## Permanent migration
 
 Permanent migration rewrites stored events in place. There are significant trade-offs — you are rewriting history — so make sure you [understand them well](https://leanpub.com/esversioning/read#leanpub-auto-immutability) before going this route. Prefer upcasting when possible.
+
+Use `overwrite` to replace stored events with new ones carrying the same `event_id`. Subscribers are not notified — only the stored representation changes.
+
+### Change event type
+
+```ruby
+event_store
+  .read
+  .of_type([OldType])
+  .each_batch do |events|
+    event_store.overwrite(events.map { |ev| NewType.new(event_id: ev.event_id, data: ev.data, metadata: ev.metadata) })
+  end
+```
+
+### Add data to existing events
+
+Build new data instead of mutating the hash of a read event:
+
+```ruby
+event_store
+  .read
+  .of_type([OrderPlaced])
+  .each_batch do |events|
+    event_store.overwrite(
+      events.map { |ev| ev.class.new(event_id: ev.event_id, data: ev.data.merge(tenant_id: 1), metadata: ev.metadata) },
+    )
+  end
+```
