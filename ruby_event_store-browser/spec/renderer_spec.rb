@@ -62,8 +62,19 @@ module RubyEventStore
 
           nested = tags.last.xpath("ul/li")
           expect(nested.map { |row| row.at_xpath("span[1]").text }).to eq(%w[a z])
-          expect(nested.first.xpath("ul/li/span").map(&:text)).to eq(%w[2 1])
+          expect(nested.first.at_xpath("ul").text).to eq("2,1,")
           expect(nested.last.at_xpath("span[2]").text).to eq("false")
+        end
+
+        specify "expands Hash and Array subclasses as collections" do
+          hash_class = Class.new(Hash)
+          array_class = Class.new(Array)
+          html = tree(hash_class["items" => array_class.new([hash_class["id" => 1]])])
+
+          expect(html.at_xpath("div/ul/li/span[1]").text).to eq("items")
+          row = html.at_xpath("div/ul/li/ul/li/ul/li")
+          expect(row.at_xpath("span[1]").text).to eq("id")
+          expect(row.at_xpath("span[2]").text).to eq("1")
         end
 
         specify "renders empty collections inline" do
@@ -92,6 +103,72 @@ module RubyEventStore
           expect(html.xpath("div/ul/li/ul/li/span").map(&:text)).to eq(
             ["null", '"Infinity"', '"-Infinity"', '"NaN"', "1", "1.25"],
           )
+        end
+
+        specify "displays nested JSON with punctuation, indentation, colors and preserved whitespace", :js do
+          event_store = Client.new
+          event =
+            DummyEvent.new(
+              data: {
+                "a  b" => { "s" => "  x  " },
+                "a b" => 2,
+                "empty" => [{}, []],
+                "values" => [1, 2.5, true, false, nil],
+              },
+              metadata: { details: { "m  n" => "  metadata  " } },
+            )
+          event_store.publish(event)
+          session = Capybara::Session.new(:cuprite, App.for(event_store_locator: -> { event_store }))
+
+          session.visit("/events/#{event.event_id}")
+
+          raw_data = session.find("section", text: /Raw Data/i).find("div > div")
+          presentation = raw_data.evaluate_script(<<~JS)
+            (() => {
+              const spans = Array.from(this.querySelectorAll("span"));
+              const lists = Array.from(this.querySelectorAll("ul"));
+              const color = value => getComputedStyle(spans.find(span => span.textContent === value)).color;
+              return {
+                text: this.innerText,
+                colors: ['"  x  "', '1', '2.5', 'true', 'false', 'null'].map(color),
+                emptyColors: ['{}', '[]'].map(color),
+                surroundingColor: getComputedStyle(this).color,
+                indents: lists.map(list => list.getBoundingClientRect().left -
+                  (list.parentElement.closest("ul") || this).getBoundingClientRect().left),
+                markers: lists.map(list => getComputedStyle(list).listStyleType)
+              };
+            })()
+          JS
+
+          expect(presentation.fetch("text")).to eq(<<~TEXT.chomp)
+            {
+            a  b: {
+            s: "  x  ",
+            },
+            a b: 2,
+            empty: [
+            {},
+            [],
+            ],
+            values: [
+            1,
+            2.5,
+            true,
+            false,
+            null,
+            ],
+            }
+          TEXT
+          expect(presentation.fetch("colors")).to eq(
+            ["rgb(0, 128, 0)", "rgb(0, 0, 255)", "rgb(0, 0, 255)", "rgb(178, 34, 34)", "rgb(178, 34, 34)", "rgb(128, 128, 128)"],
+          )
+          expect(presentation.fetch("emptyColors")).to eq([presentation.fetch("surroundingColor")] * 2)
+          expect(presentation.fetch("indents")).to eq([26, 26, 26, 26])
+          expect(presentation.fetch("markers")).to eq(%w[none none none none])
+          raw_metadata = session.find("section", text: /Raw Metadata/i)
+          expect(raw_metadata.evaluate_script("this.innerText")).to include('m  n: "  metadata  "')
+        rescue Ferrum::BinaryNotFoundError => exc
+          skip exc.message
         end
       end
 
