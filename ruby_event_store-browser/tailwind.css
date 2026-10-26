@@ -1,3 +1,4 @@
 @import "tailwindcss" source(none);
 @source "./lib/**/*.erb";
+@source "./lib/ruby_event_store/browser/renderer.rb";
 @source "./public/ruby_event_store_browser.js";

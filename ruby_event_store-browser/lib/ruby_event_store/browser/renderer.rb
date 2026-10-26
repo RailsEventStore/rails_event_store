@@ -39,8 +39,45 @@ module RubyEventStore
           end
         end
 
+        def json_tree(value)
+          append_json_value(+"", value)
+        end
+
         def get_binding
           binding
+        end
+
+        private
+
+        def append_json_value(html, value)
+          if value.is_a?(Hash) && !value.empty?
+            html << '{<ul class="list-none ml-[26px] pl-0">'
+            value.sort_by { |key, _| key.to_s }.each do |key, child|
+              html << '<li class="relative"><span class="font-bold">' << h(key) << "</span>: "
+              append_json_value(html, child)
+              html << ",</li>"
+            end
+            html << "</ul>}"
+          elsif value.is_a?(Array) && !value.empty?
+            html << '[<ul class="list-none ml-[26px] pl-0">'
+            value.each do |child|
+              html << '<li class="relative">'
+              append_json_value(html, child)
+              html << ",</li>"
+            end
+            html << "</ul>]"
+          else
+            color =
+              case value
+              when String then "text-[green]"
+              when Numeric then "text-[blue]"
+              when true, false then "text-[firebrick]"
+              when nil then "text-[gray]"
+              else "text-gray-800"
+              end
+            html << '<span class="whitespace-pre ' << color << '">' << h(safe_json(value)) << "</span>"
+          end
+          html
         end
       end
 
