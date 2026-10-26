@@ -43,25 +43,55 @@ module RubyEventStore
       end
 
       describe "_json_tree" do
-        def tree(hash) = renderer.render("_json_tree", hash: hash).gsub(/>\s+</, "><").gsub(/\s+/, " ")
+        def tree(hash) = Nokogiri::HTML.fragment(renderer.render("_json_tree", hash: hash))
 
-        specify "renders nested objects and arrays as indented trees, not inline JSON" do
-          html = tree({ "owner" => { "id" => 1, "tags" => ["a"] } })
+        specify "renders nested objects in key order and arrays in element order" do
+          rows =
+            tree({ "owner" => { "tags" => ["z", { "z" => false, "a" => [2, 1] }], "id" => 1 }, active: true })
+              .xpath("div/ul/li")
 
-          expect(html).not_to include('{"id":1')
-          expect(html).to include(
-            '<span class="font-bold">owner</span>: {<ul class="list-none ml-[26px] pl-0">' \
-              '<li class="relative"><span class="font-bold">id</span>: <span class="whitespace-pre text-[blue]">1</span>,</li>' \
-              '<li class="relative"><span class="font-bold">tags</span>: [<ul class="list-none ml-[26px] pl-0">' \
-              '<li class="relative"><span class="whitespace-pre text-[green]">&quot;a&quot;</span>,</li></ul>],</li></ul>},',
-          )
+          expect(rows.map { |row| row.at_xpath("span[1]").text }).to eq(%w[active owner])
+          expect(rows.first.at_xpath("span[2]").text).to eq("true")
+
+          owner = rows.last.xpath("ul/li")
+          expect(owner.map { |row| row.at_xpath("span[1]").text }).to eq(%w[id tags])
+          expect(owner.first.at_xpath("span[2]").text).to eq("1")
+
+          tags = owner.last.xpath("ul/li")
+          expect(tags.first.at_xpath("span").text).to eq('"z"')
+
+          nested = tags.last.xpath("ul/li")
+          expect(nested.map { |row| row.at_xpath("span[1]").text }).to eq(%w[a z])
+          expect(nested.first.xpath("ul/li/span").map(&:text)).to eq(%w[2 1])
+          expect(nested.last.at_xpath("span[2]").text).to eq("false")
         end
 
         specify "renders empty collections inline" do
-          html = tree({ "e" => {}, "l" => [] })
+          rows = tree({ "object" => {}, "array" => [] }).xpath("div/ul/li")
 
-          expect(html).to include('<span class="font-bold">e</span>: <span class="whitespace-pre text-gray-800">{}</span>,')
-          expect(html).to include('<span class="font-bold">l</span>: <span class="whitespace-pre text-gray-800">[]</span>,')
+          expect(rows.map { |row| row.at_xpath("span[2]").text }).to eq(["[]", "{}"])
+          expect(rows.flat_map { |row| row.xpath("ul") }).to be_empty
+          expect(tree({}).at_xpath("div").text.strip).to eq("{}")
+        end
+
+        specify "escapes nested keys and values without changing their text" do
+          key = "<img data-json-injection src=x>"
+          value = "<script data-json-injection>alert(1)</script>&"
+          html = tree({ "outer" => { key => [value, "  a  b  "] } })
+
+          expect(html.css("[data-json-injection]")).to be_empty
+          expect(html.at_xpath("div/ul/li/ul/li/span[1]").text).to eq(key)
+          expect(html.xpath("div/ul/li/ul/li/ul/li/span").map(&:text)).to eq(
+            ['"<script data-json-injection>alert(1)</script>&"', '"  a  b  "'],
+          )
+        end
+
+        specify "renders JSON scalar values inside collections" do
+          html = tree({ "values" => [nil, Float::INFINITY, -Float::INFINITY, Float::NAN, 1.0, 1.25] })
+
+          expect(html.xpath("div/ul/li/ul/li/span").map(&:text)).to eq(
+            ["null", '"Infinity"', '"-Infinity"', '"NaN"', "1", "1.25"],
+          )
         end
       end
 
