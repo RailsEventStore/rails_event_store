@@ -53,7 +53,7 @@ module RubyEventStore
           if value.is_a?(Hash) && !value.empty?
             html << '{<ul class="list-none ml-[26px] pl-0">'
             value.sort_by { |key, _| key.to_s }.each do |key, child|
-              html << '<li class="relative"><span class="font-bold">' << h(key) << "</span>: "
+              html << '<li class="relative"><span class="font-bold whitespace-pre">' << h(key) << "</span>: "
               append_json_value(html, child)
               html << ",</li>"
             end
