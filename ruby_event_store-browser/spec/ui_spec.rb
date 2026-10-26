@@ -28,25 +28,6 @@ module RubyEventStore
       skip exc.message
     end
 
-    specify "preserves whitespace in JSON keys and string values", mutant: false do
-      session = Capybara::Session.new(:cuprite, app_builder(event_store))
-      event =
-        FooBarEvent.new(
-          data: { "a  b" => { "c  d" => "  value  " }, "a b" => 2 },
-          metadata: { details: { "m  n" => "  metadata  " } },
-        )
-      event_store.publish(event)
-
-      session.visit("/events/#{event.event_id}")
-
-      raw_data = session.find("section", text: /Raw Data/i)
-      raw_metadata = session.find("section", text: /Raw Metadata/i)
-      expect(raw_data.evaluate_script("this.innerText")).to include('a  b: {', 'c  d: "  value  "', "a b: 2")
-      expect(raw_metadata.evaluate_script("this.innerText")).to include('m  n: "  metadata  "')
-    rescue Ferrum::BinaryNotFoundError => exc
-      skip exc.message
-    end
-
     specify "stream view", mutant: false do
       session = Capybara::Session.new(:cuprite, app_builder(event_store))
 

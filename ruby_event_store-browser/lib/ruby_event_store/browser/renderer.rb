@@ -73,11 +73,10 @@ module RubyEventStore
               when Numeric then "text-[blue]"
               when true, false then "text-[firebrick]"
               when nil then "text-[gray]"
-              else "text-gray-800"
+              else ""
               end
             html << '<span class="whitespace-pre ' << color << '">' << h(safe_json(value)) << "</span>"
           end
-          html
         end
       end
 
