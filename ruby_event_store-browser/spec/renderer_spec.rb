@@ -119,6 +119,7 @@ module RubyEventStore
             )
           event_store.publish(event)
           session = Capybara::Session.new(:cuprite, App.for(event_store_locator: -> { event_store }))
+          browser = session.driver.browser
 
           session.visit("/events/#{event.event_id}")
 
@@ -169,6 +170,8 @@ module RubyEventStore
           expect(raw_metadata.evaluate_script("this.innerText")).to include('m  n: "  metadata  "')
         rescue Ferrum::BinaryNotFoundError => exc
           skip exc.message
+        ensure
+          browser&.quit
         end
       end
 
