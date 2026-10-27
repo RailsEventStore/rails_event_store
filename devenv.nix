@@ -110,7 +110,7 @@ in
   cachix.pull = [ "railseventstore" ];
 
   languages.ruby.enable = true;
-  languages.ruby.version = "4.0.5";
+  languages.ruby.version = "4.0.9";
 
   packages = with pkgs; [
     # native build deps for pg / mysql2 / sqlite3 gems
