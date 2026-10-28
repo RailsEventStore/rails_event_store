@@ -1,18 +1,18 @@
 <div class="py-8 md:py-12 container mx-auto space-y-10">
   <header class="flex items-start justify-between gap-4 flex-wrap md:flex-nowrap">
     <div class="flex flex-col items-start">
-      <h1 class="font-bold text-2xl break-words min-w-0 mb-2"><%= h(event.event_type) %></h1>
+      <h1 class="font-bold text-2xl break-words min-w-0 mb-2"><%= event.event_type %></h1>
       <p class="flex gap-2 md:items-center min-w-0 text-sm flex-wrap mb-4">
         <span class="whitespace-nowrap text-xs text-gray-500 uppercase font-bold">Event ID:</span>
-        <button data-controller="clipboard" data-clipboard-text-value="<%= h(event.event_id) %>" data-action="clipboard#copy" class="flex items-center text-left gap-2 group font-mono text-gray-800 font-bold text-sm">
-          <%= h(event.event_id) %>
+        <button data-controller="clipboard" data-clipboard-text-value="<%= event.event_id %>" data-action="clipboard#copy" class="flex items-center text-left gap-2 group font-mono text-gray-800 font-bold text-sm">
+          <%= event.event_id %>
           <%= render("_clipboard_icon", classes: "size-4 -translate-y-0.5 opacity-0 group-hover:opacity-100", size: 24) %>
         </button>
       </p>
       <% if extension_links.any? -%>
         <div class="flex gap-2">
           <% extension_links.each do |link| -%>
-            <a class="inline-block text-center text-sm bg-red-700 text-gray-100 border border-red-700 rounded px-2 py-1" href="<%= h(link[:url]) %>"><%= h(link[:label]) %></a>
+            <a class="inline-block text-center text-sm bg-red-700 text-gray-100 border border-red-700 rounded px-2 py-1" href="<%= link[:url] %>"><%= link[:label] %></a>
           <% end -%>
         </div>
       <% end -%>
@@ -33,7 +33,7 @@
     <ul class="list-disc pl-4 space-y-2">
       <% streams.each do |stream| -%>
         <li>
-          <a class="text-red-700 no-underline" href="<%= urls.stream_url(stream) %>"><%= h(stream) %></a>
+          <a class="text-red-700 no-underline" href="<%= urls.stream_url(stream) %>"><%= stream %></a>
         </li>
       <% end -%>
     </ul>
@@ -43,7 +43,7 @@
     <div>
       <h2 class="font-bold text-xl mb-4">Related</h2>
       <ul class="list-disc pl-4 space-y-2">
-        <li>Parent event: <a class="text-red-700 no-underline" href="<%= urls.event_url(parent_event.event_id) %>"><%= h(parent_event.event_id) %></a></li>
+        <li>Parent event: <a class="text-red-700 no-underline" href="<%= urls.event_url(parent_event.event_id) %>"><%= parent_event.event_id %></a></li>
       </ul>
     </div>
   <% end -%>
@@ -62,10 +62,10 @@
           <% caused_by.each do |child| -%>
             <tr class="border-gray-50 border-b hover:bg-gray-100">
               <td>
-                <a class="text-red-700 no-underline min-h-11 w-full flex items-center px-4" href="<%= urls.event_url(child.event_id) %>"><%= h(child.event_type) %></a>
+                <a class="text-red-700 no-underline min-h-11 w-full flex items-center px-4" href="<%= urls.event_url(child.event_id) %>"><%= child.event_type %></a>
               </td>
               <td class="font-mono text-sm leading-none font-medium align-middle">
-                <a class="no-underline h-full min-h-11 flex items-center" href="<%= urls.event_url(child.event_id) %>"><%= h(child.event_id) %></a>
+                <a class="no-underline h-full min-h-11 flex items-center" href="<%= urls.event_url(child.event_id) %>"><%= child.event_id %></a>
               </td>
             </tr>
           <% end -%>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>RubyEventStore::Browser<% if defined?(title) && title %> - <%= h(title) %><% end %></title>
+    <title>RubyEventStore::Browser<% if defined?(title) && title %> - <%= title %><% end %></title>
     <link type="text/css" rel="stylesheet" href="<%= urls.browser_css_url %>">
     <% extension_stylesheets.each do |href| -%>
       <link type="text/css" rel="stylesheet" href="<%= href %>">
@@ -21,7 +21,7 @@
           <div class="flex items-center gap-6">
             <a href="<%= urls.app_url %>" class="font-semibold text-gray-100">Ruby Event Store</a>
             <% extension_nav_links.each do |link| -%>
-            <a href="<%= h(link[:url]) %>" class="text-sm text-red-100 hover:text-white"><%= h(link[:label]) %></a>
+            <a href="<%= link[:url] %>" class="text-sm text-red-100 hover:text-white"><%= link[:label] %></a>
             <% end -%>
           </div>
           <div class="flex items-center gap-2">

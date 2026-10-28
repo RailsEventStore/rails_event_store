@@ -12,7 +12,7 @@
     <% stream_names.each_with_index do |stream_name, column| -%>
       <td class="<%= cell %><%= " border-l border-gray-200" if column.positive? %><%= " hover:bg-gray-100" if names.include?(stream_name) %>">
         <% if names.include?(stream_name) -%>
-          <a href="<%= urls.event_url(event.event_id) %>" class="no-underline text-red-700 text-sm break-words"><%= h(event.event_type) %></a>
+          <a href="<%= urls.event_url(event.event_id) %>" class="no-underline text-red-700 text-sm break-words"><%= event.event_type %></a>
         <% end -%>
       </td>
     <% end -%>

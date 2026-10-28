@@ -1,12 +1,12 @@
 <div class="w-full shrink-0" data-controller="swimlane-view swimlane-add" data-swimlane-view-more-url-value="<%= more_url %>" data-swimlane-add-base-url-value="<%= urls.swimlane_url(stream_names, sort) %>">
   <div class="container py-8 mx-auto">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Comparing <%= h(stream_names.join(", ")) %></h1>
+      <h1 class="text-2xl font-bold">Comparing <%= stream_names.join(", ") %></h1>
       <button class="px-2 py-1 text-sm text-center text-red-700 border border-red-700 rounded" data-action="swimlane-add#open">Add stream</button>
     </div>
     <% missing_stream_names.each do |stream_name| -%>
       <p class="px-4 py-3 mt-4 text-sm text-yellow-800 border border-yellow-300 rounded bg-yellow-50">
-        Stream <span class="font-bold"><%= h(stream_name) %></span> does not exist.
+        Stream <span class="font-bold"><%= stream_name %></span> does not exist.
       </p>
     <% end -%>
     <% if stream_names.any? -%>
@@ -28,7 +28,7 @@
               <% stream_names.each_with_index do |stream_name, column| -%>
                 <th class="font-bold border-b border-gray-400 pb-2 px-2 normal-case text-base text-gray-800<%= " border-l" if column.positive? %>">
                   <div class="flex items-center justify-between gap-2">
-                    <span class="break-words"><%= h(stream_name) %></span>
+                    <span class="break-words"><%= stream_name %></span>
                     <% if stream_names.size > 1 -%>
                       <a class="text-xl leading-none text-gray-400 no-underline hover:text-red-700" href="<%= urls.swimlane_url(stream_names - [stream_name], sort) %>" title="Remove from comparison">&times;</a>
                     <% end -%>

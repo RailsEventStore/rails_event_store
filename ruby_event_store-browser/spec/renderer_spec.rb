@@ -195,6 +195,45 @@ module RubyEventStore
           end
         end
 
+        specify "escapes template output without explicit h" do
+          Dir.mktmpdir do |root|
+            File.write(File.join(root, "text.html.erb"), "<p title=\"<%= text %>\"><%= text %></p>")
+            renderer = Renderer.new([root])
+
+            expect(renderer.render("text", text: %q[<b class="x">&</b>])).to eq(
+              "<p title=\"&lt;b class=&quot;x&quot;&gt;&amp;&lt;/b&gt;\">&lt;b class=&quot;x&quot;&gt;&amp;&lt;/b&gt;</p>",
+            )
+          end
+        end
+
+        specify "does not escape twice what h already escaped" do
+          Dir.mktmpdir do |root|
+            File.write(File.join(root, "text.html.erb"), "<%= h(text) %>")
+            renderer = Renderer.new([root])
+
+            expect(renderer.render("text", text: "<b>")).to eq("&lt;b&gt;")
+          end
+        end
+
+        specify "does not escape rendered partials" do
+          Dir.mktmpdir do |root|
+            File.write(File.join(root, "page.html.erb"), "<div><%= render(\"_part\", text: text) %></div>")
+            File.write(File.join(root, "_part.html.erb"), "<b><%= text %></b>")
+            renderer = Renderer.new([root])
+
+            expect(renderer.render("page", text: "<i>")).to eq("<div><b>&lt;i&gt;</b></div>")
+          end
+        end
+
+        specify "raw outputs trusted HTML as is" do
+          Dir.mktmpdir do |root|
+            File.write(File.join(root, "trusted.html.erb"), "<%= raw(html) %>")
+            renderer = Renderer.new([root])
+
+            expect(renderer.render("trusted", html: "<b>bold</b>")).to eq("<b>bold</b>")
+          end
+        end
+
         specify "raises when template is not found in any root" do
           expect { renderer.render("nonexistent") }.to raise_error(ArgumentError, /nonexistent/)
         end

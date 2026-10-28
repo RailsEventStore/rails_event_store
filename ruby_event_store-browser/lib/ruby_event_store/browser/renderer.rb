@@ -8,9 +8,30 @@ module RubyEventStore
     class Renderer
       VIEWS_ROOT = File.expand_path("views", __dir__).freeze
 
+      Html = Class.new(String)
+
+      class Compiler < ERB::Compiler
+        def add_insert_cmd(out, content)
+          out.push("#{@insert_cmd}(h((#{content})))")
+        end
+      end
+
+      class Template < ERB
+        def make_compiler(trim_mode)
+          Compiler.new(trim_mode)
+        end
+      end
+
       class Context
         include ERB::Util
-        alias_method :h, :html_escape
+
+        def h(value)
+          value.instance_of?(Html) ? value : Html.new(html_escape(value))
+        end
+
+        def raw(value)
+          Html.new(value)
+        end
 
         def initialize(renderer, locals)
           @_renderer = renderer
@@ -40,7 +61,7 @@ module RubyEventStore
         end
 
         def json_tree(value)
-          append_json_value(+"", value)
+          Html.new(append_json_value(+"", value))
         end
 
         def get_binding
@@ -86,7 +107,7 @@ module RubyEventStore
 
       def render(template, **locals)
         context = Context.new(self, locals)
-        ERB.new(File.read(template_path(template)), trim_mode: "-").result(context.get_binding)
+        Html.new(Template.new(File.read(template_path(template)), trim_mode: "-").result(context.get_binding))
       end
 
       private

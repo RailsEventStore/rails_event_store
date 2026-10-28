@@ -60,8 +60,8 @@ module RubyEventStore
         event_store.append(events, stream_name: "fizz")
 
         body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=buzz").body
-        expect(body).to include(
-          "data-swimlane-view-more-url-value=\"#{more_url(%w[fizz buzz], base_time + 2)}\"",
+        expect(Nokogiri.HTML(body).at_css("[data-swimlane-view-more-url-value]")["data-swimlane-view-more-url-value"]).to eq(
+          more_url(%w[fizz buzz], base_time + 2),
         )
       end
 
@@ -163,7 +163,9 @@ module RubyEventStore
         event_store.append(events, stream_name: "fizz")
 
         body = client.get("/swimlane?streams%5B%5D=fizz&sort=as_of").body
-        expect(body).to include("data-swimlane-view-more-url-value=\"#{more_url(%w[fizz], base_time + 81, "as_of")}\"")
+        expect(Nokogiri.HTML(body).at_css("[data-swimlane-view-more-url-value]")["data-swimlane-view-more-url-value"]).to eq(
+          more_url(%w[fizz], base_time + 81, "as_of"),
+        )
       end
 
       specify "compare view shows a notice instead of a column for a stream without events" do
@@ -193,8 +195,8 @@ module RubyEventStore
         event_store.append(event_at(base_time), stream_name: "fizz")
 
         body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=ghost&sort=as_of").body
-        expect(body).to include(
-          %q[data-swimlane-add-base-url-value="http://example.org/swimlane?streams%5B%5D=fizz&sort=as_of"],
+        expect(Nokogiri.HTML(body).at_css("[data-swimlane-add-base-url-value]")["data-swimlane-add-base-url-value"]).to eq(
+          "http://example.org/swimlane?streams%5B%5D=fizz&sort=as_of",
         )
       end
 
@@ -203,7 +205,9 @@ module RubyEventStore
         event_store.append(events, stream_name: "fizz")
 
         body = client.get("/swimlane?streams%5B%5D=fizz&streams%5B%5D=ghost").body
-        expect(body).to include("data-swimlane-view-more-url-value=\"#{more_url(%w[fizz], base_time + 2)}\"")
+        expect(Nokogiri.HTML(body).at_css("[data-swimlane-view-more-url-value]")["data-swimlane-view-more-url-value"]).to eq(
+          more_url(%w[fizz], base_time + 2),
+        )
       end
 
       specify "comparing the all stream shows the global timeline" do

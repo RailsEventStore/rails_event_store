@@ -160,6 +160,16 @@ This is the same option the Rails engine sets by convention.
 
 A copied template freezes its locals — a gem upgrade may change them, which is another reason to keep only the overrides you need.
 
+### Escaping
+
+Every `<%= %>` tag escapes its value, so stream names, event types and event data never turn into markup — there is no need to call `h`. Output of `render` is already HTML and is inserted as is. To insert HTML that you produced yourself and trust, wrap it in `raw`:
+
+```erb
+<%= raw(markdown_to_html(description)) %>
+```
+
+`h` still works and never escapes twice. A template that relied on `<%= %>` to insert HTML now shows it as text — wrap such values in `raw`.
+
 ## Browser extensions
 
 **This is an [experimental](../contributing/maintenance_policy#experimental-features) feature — its API may change between minor releases.**
@@ -241,11 +251,11 @@ end
 Any stylesheet placed in `browser_assets/` — say `browser_assets/deployments.css` — is linked and served automatically. The page template lives in `browser_views/deployments/show.html.erb`:
 
 ```erb
-<h1>Deployment <%= h(name) %></h1>
+<h1>Deployment <%= name %></h1>
 <ul>
   <% events.each do |event| -%>
     <li>
-      <a href="<%= urls.event_url(event.event_id) %>"><%= h(event.event_type) %></a>
+      <a href="<%= urls.event_url(event.event_id) %>"><%= event.event_type %></a>
       <%= render("_timestamp", title: "At", time: event.metadata[:timestamp], top: false) %>
     </li>
   <% end -%>
