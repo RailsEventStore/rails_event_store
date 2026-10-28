@@ -23,6 +23,15 @@ module RubyEventStore
         end.to yield_with_args({ "try_me" => "foo-bar.xml" }, urls.with_request(request))
       end
 
+      specify "non-ASCII params" do
+        request = mock_request("GET", "/za%C5%BC%C3%B3%C5%82%C4%87")
+        expect do |probe|
+          router = Router.new
+          router.add_route("GET", "/:try_me", &probe)
+          router.handle(request)
+        end.to yield_with_args({ "try_me" => "zażółć" }, urls.with_request(request))
+      end
+
       specify "route params and query params" do
         request = mock_request("GET", "/dont?try=me")
         expect do |probe|

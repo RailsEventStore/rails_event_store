@@ -166,6 +166,23 @@ module RubyEventStore
       expect(body).not_to include("</title><script>")
     end
 
+    specify "stream page with non-ASCII stream name" do
+      event_store.publish(event = DummyEvent.new, stream_name: "zażółć")
+
+      body = web_client.get("/streams/#{ERB::Util.url_encode("zażółć")}").body
+
+      expect(body).to include("Events in zażółć")
+      expect(body).to include(event.event_id)
+    end
+
+    specify "stream page keeps event id inside link attributes" do
+      event_store.publish(DummyEvent.new(event_id: %q[x" data-event-id-injection="1]), stream_name: "dummy")
+
+      body = web_client.get("/streams/dummy").body
+
+      expect(body).not_to include("data-event-id-injection=\"1\"")
+    end
+
     specify "event page sets the page title" do
       event_store.append(event = DummyEvent.new)
       expect(web_client.get("/events/#{event.event_id}").body).to include(

@@ -28,7 +28,7 @@ module RubyEventStore
       end
 
       def event_url(event_id)
-        "#{app_url}/events/#{event_id}"
+        app_url_for("events", event_id)
       end
 
       def stream_page_url(stream_name, cursor, count)
