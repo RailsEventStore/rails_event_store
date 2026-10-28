@@ -24,7 +24,7 @@ module RubyEventStore
       end
 
       def stream_url(stream_name)
-        "#{app_url}/streams/#{Rack::Utils.escape(stream_name)}"
+        "#{app_url}/streams/#{ERB::Util.url_encode(stream_name)}"
       end
 
       def event_url(event_id)
@@ -48,7 +48,7 @@ module RubyEventStore
       end
 
       def app_url_for(*segments, query: nil)
-        path = segments.map { |segment| Rack::Utils.escape(segment) }.join("/")
+        path = segments.map { |segment| ERB::Util.url_encode(segment) }.join("/")
         query ? "#{app_url}/#{path}?#{URI.encode_www_form(query)}" : "#{app_url}/#{path}"
       end
 

@@ -4,8 +4,8 @@
       <h1 class="font-bold text-2xl break-words min-w-0 mb-2"><%= h(event.event_type) %></h1>
       <p class="flex gap-2 md:items-center min-w-0 text-sm flex-wrap mb-4">
         <span class="whitespace-nowrap text-xs text-gray-500 uppercase font-bold">Event ID:</span>
-        <button data-controller="clipboard" data-clipboard-text-value="<%= event.event_id %>" data-action="clipboard#copy" class="flex items-center text-left gap-2 group font-mono text-gray-800 font-bold text-sm">
-          <%= event.event_id %>
+        <button data-controller="clipboard" data-clipboard-text-value="<%= h(event.event_id) %>" data-action="clipboard#copy" class="flex items-center text-left gap-2 group font-mono text-gray-800 font-bold text-sm">
+          <%= h(event.event_id) %>
           <%= render("_clipboard_icon", classes: "size-4 -translate-y-0.5 opacity-0 group-hover:opacity-100", size: 24) %>
         </button>
       </p>
@@ -43,7 +43,7 @@
     <div>
       <h2 class="font-bold text-xl mb-4">Related</h2>
       <ul class="list-disc pl-4 space-y-2">
-        <li>Parent event: <a class="text-red-700 no-underline" href="<%= urls.event_url(parent_event.event_id) %>"><%= parent_event.event_id %></a></li>
+        <li>Parent event: <a class="text-red-700 no-underline" href="<%= urls.event_url(parent_event.event_id) %>"><%= h(parent_event.event_id) %></a></li>
       </ul>
     </div>
   <% end -%>
@@ -65,7 +65,7 @@
                 <a class="text-red-700 no-underline min-h-11 w-full flex items-center px-4" href="<%= urls.event_url(child.event_id) %>"><%= h(child.event_type) %></a>
               </td>
               <td class="font-mono text-sm leading-none font-medium align-middle">
-                <a class="no-underline h-full min-h-11 flex items-center" href="<%= urls.event_url(child.event_id) %>"><%= child.event_id %></a>
+                <a class="no-underline h-full min-h-11 flex items-center" href="<%= urls.event_url(child.event_id) %>"><%= h(child.event_id) %></a>
               </td>
             </tr>
           <% end -%>
