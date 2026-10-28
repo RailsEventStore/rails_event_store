@@ -20,7 +20,7 @@ module RubyEventStore
 
           path_info = request.path_info
           match_data = regexp.match(path_info.start_with?("/") ? path_info : "/#{path_info}")
-          match_data.named_captures.transform_values { |v| Rack::Utils.unescape_path(v) } if match_data
+          match_data.named_captures.transform_values { |v| Rack::Utils.unescape_path(v).force_encoding(Encoding::UTF_8) } if match_data
         end
 
         def call(params, urls)

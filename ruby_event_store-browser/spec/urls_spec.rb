@@ -82,6 +82,11 @@ module RubyEventStore
         expect(urls.event_url("abc-123")).to eq("http://example.com:9393/res/events/abc-123")
       end
 
+      specify "event_url escapes event id" do
+        urls = Urls.from_configuration("http://example.com:9393", nil)
+        expect(urls.event_url(%q[x" y/z])).to eq("http://example.com:9393/events/x%22%20y%2Fz")
+      end
+
       specify "stream_page_url" do
         urls = Urls.from_configuration("http://example.com:9393", nil)
         cursor = { position: "abc", direction: :backward }
