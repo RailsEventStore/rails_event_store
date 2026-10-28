@@ -172,6 +172,104 @@ module RubyEventStore
       skip exc.message
     end
 
+    specify "stream names with plus signs keep their identity", :elm_parity, mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      event_store.publish(FooBarEvent.new(event_id: "plus-event"), stream_name: "a+b")
+      event_store.publish(FooBarEvent.new(event_id: "space-event"), stream_name: "a b")
+
+      session.visit("/streams/a+b")
+
+      expect(session).to have_content("Events in a+b")
+      expect(session).to have_content("plus-event")
+      expect(session).to have_no_content("space-event")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
+    specify "event IDs are rendered as text", :elm_parity, mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      event_id = %q[<img data-event-id-injection src=x onerror="window.eventIdInjected=true">]
+      event_store.publish(FooBarEvent.new(event_id: event_id), stream_name: "xss")
+
+      session.visit("/streams/xss")
+
+      expect(session).to have_no_css("[data-event-id-injection]")
+      expect(session.evaluate_script("window.eventIdInjected")).to be_nil
+      expect(session).to have_content(event_id)
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
+    specify "empty streams explain that there are no events", :elm_parity, mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+
+      session.visit("/streams/empty")
+
+      expect(session).to have_content("Events in empty")
+      expect(session).to have_content("No items")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
+    specify "non-Mac platforms see the Ctrl K shortcut hint", :elm_parity, mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      session.driver.browser.evaluate_on_new_document(
+        'Object.defineProperty(navigator, "platform", { value: "Linux x86_64" })',
+      )
+
+      session.visit("/")
+
+      expect(session).to have_content("Ctrl K")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
+    specify "swimlane drawer links stay within the browser mount point", mutant: false do
+      browser = app_builder(event_store)
+      mounted_app = Rack::Builder.new do
+        map("/res") { run browser }
+      end
+      session = Capybara::Session.new(:cuprite, mounted_app)
+      event_store.publish(FooBarEvent.new, stream_name: "foo")
+
+      session.visit("/res/streams/foo")
+      session.click_button("Add to swimlane")
+      session.click_link("foo")
+
+      expect(session).to have_current_path("/res/streams/foo")
+      expect(session).to have_content("Events in foo")
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
+    specify "swimlane can retry loading more events after a failed request", mutant: false do
+      session = Capybara::Session.new(:cuprite, app_builder(event_store))
+      events = Array.new(Browser::PAGE_SIZE + 1) { |index| FooBarEvent.new(metadata: { event_type: "Event#{index}" }) }
+      event_store.publish(events, stream_name: "paged")
+      failed = false
+      session.driver.browser.network.intercept(pattern: "*/swimlane/more*")
+      session.driver.browser.on(:request) do |request|
+        if failed
+          request.continue
+        else
+          failed = true
+          request.abort
+        end
+      end
+
+      session.visit("/swimlane?streams%5B%5D=paged")
+      expect(session).to have_content(events.last.event_type)
+      scroll_to = ->(position) { session.execute_script("window.scrollTo(0, #{position}); window.dispatchEvent(new Event('scroll'))") }
+      scroll_to.("document.body.scrollHeight")
+      session.driver.browser.network.wait_for_idle!
+      scroll_to.(0)
+      scroll_to.("document.body.scrollHeight")
+
+      expect(session).to have_content(events.first.event_type)
+    rescue Ferrum::BinaryNotFoundError => exc
+      skip exc.message
+    end
+
     let(:event_store) { Client.new }
 
     def app_builder(event_store)

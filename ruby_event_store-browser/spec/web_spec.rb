@@ -158,7 +158,7 @@ module RubyEventStore
 
     specify "stream page escapes the stream name in the page title" do
       stream_name = %q[</title><script>window.streamNameInjected = true</script>]
-      body = web_client.get("/streams/#{Rack::Utils.escape(stream_name)}").body
+      body = web_client.get("/streams/#{ERB::Util.url_encode(stream_name)}").body
 
       expect(body).to include(
         "<title>RubyEventStore::Browser - Stream &lt;/title&gt;&lt;script&gt;window.streamNameInjected = true&lt;/script&gt;</title>",

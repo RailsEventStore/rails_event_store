@@ -41,6 +41,9 @@
           </tr>
         </thead>
         <tbody class="align-top">
+          <% if events.empty? -%>
+            <tr><td colspan="3" class="p-4 text-center text-gray-500">No items</td></tr>
+          <% end -%>
           <% events.each do |event| -%>
             <% href = urls.event_url(event.event_id) -%>
             <tr class="border-b border-gray-50 hover:bg-gray-100">
@@ -48,7 +51,7 @@
                 <a class="flex items-center w-full px-4 text-red-700 no-underline min-h-11" href="<%= href %>"><span class="min-w-0 break-words"><%= h(event.event_type) %></span></a>
               </td>
               <td class="font-mono text-sm font-medium leading-none align-middle">
-                <a class="flex items-center h-full no-underline min-h-11" href="<%= href %>"><%= event.event_id %></a>
+                <a class="flex items-center h-full no-underline min-h-11" href="<%= href %>"><%= h(event.event_id) %></a>
               </td>
               <td class="font-mono text-sm font-medium leading-none">
                 <a class="flex items-center justify-end px-4 no-underline min-h-11" href="<%= href %>"><span data-timezone-target="time" data-iso="<%= event.metadata[:timestamp].utc.iso8601(6) %>" title="UTC"><%= event.metadata[:timestamp].utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></span></a>

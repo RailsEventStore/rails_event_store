@@ -5,8 +5,16 @@ const application = Application.start()
 application.register(
   "search",
   class extends Controller {
-    static targets = ["dialog", "input"]
+    static targets = ["dialog", "input", "shortcut"]
     static values = { base: String }
+
+    connect() {
+      if (!this.isMac() && this.hasShortcutTarget) this.shortcutTarget.textContent = "Ctrl K"
+    }
+
+    isMac() {
+      return /Mac|iPhone|iPad|iPod/.test(navigator.platform)
+    }
 
     open(event) {
       event?.preventDefault()
@@ -155,7 +163,7 @@ application.register(
         item.className = "flex items-center justify-between gap-2 py-1.5"
 
         const link = document.createElement("a")
-        link.href = `/streams/${encodeURIComponent(stream)}`
+        link.href = `${this.baseUrlValue}/streams/${encodeURIComponent(stream)}`
         link.title = stream
         link.className = "text-sm text-red-700 no-underline break-all hover:underline"
         link.textContent = stream
@@ -213,16 +221,23 @@ application.register(
 
     loadMore() {
       const url = this.moreUrlValue
-      if (!url) return
-      this.moreUrlValue = ""
+      if (!url || this.loading) return
+      this.loading = true
 
       fetch(url, { headers: { Accept: "application/json" } })
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`)
+          return response.json()
+        })
         .then(({ html, more_url }) => {
+          this.loading = false
           this.tbodyTarget.insertAdjacentHTML("beforeend", html)
           this.moreUrlValue = more_url || ""
           this.renderTimes(this.zone())
           this.catchUp()
+        })
+        .catch(() => {
+          this.loading = false
         })
     }
 
