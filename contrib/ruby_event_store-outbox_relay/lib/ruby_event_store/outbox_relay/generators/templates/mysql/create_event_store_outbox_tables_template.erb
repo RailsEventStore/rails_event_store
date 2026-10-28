@@ -1,0 +1,28 @@
+# frozen_string_literal: true
+
+class CreateEventStoreOutboxTables < ActiveRecord::Migration[<%= migration_version %>]
+  def change
+    create_table :event_store_outbox_messages do |t|
+      t.string   :event_id,        null: false, limit: 36
+      t.string   :topic,           null: false
+      t.string   :subscriber,      null: false
+      t.integer  :attempts,        null: false, default: 0
+      t.datetime :next_attempt_at, null: false, precision: 6
+      t.text     :last_error
+      t.datetime :created_at,      null: false, precision: 6
+      t.index    %i[next_attempt_at id], name: "index_event_store_outbox_messages_due"
+    end
+
+    create_table :event_store_outbox_dead_letters do |t|
+      t.string   :event_id,          null: false, limit: 36
+      t.string   :topic,             null: false
+      t.string   :subscriber,        null: false
+      t.integer  :attempts,          null: false
+      t.string   :error_class,       null: false
+      t.text     :error_message
+      t.text     :backtrace
+      t.datetime :first_enqueued_at, null: false, precision: 6
+      t.datetime :dead_at,           null: false, precision: 6
+    end
+  end
+end
