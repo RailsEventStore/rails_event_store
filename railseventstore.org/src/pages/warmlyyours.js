@@ -49,11 +49,11 @@ export default function WarmlyYours() {
               <div className="w-full text-lg sm:sm:w-3/5">
                 <ul className="grid md:grid-cols-2 list-none list-inside gap-4 *:p-4  *:rounded-md *:bg-white/5 dark:*:ring-white/10 *:ring-[#141414]/10 *:ring-1 ">
                   <li>
-                    Retained events: <strong>~947 000</strong> (90-day
+                    Retained events: <strong>~947&nbsp;000</strong> (90-day
                     retention)
                   </li>
                   <li>
-                    Throughput: <strong>~32 600 events per day</strong> (7-day
+                    Throughput: <strong>~32&nbsp;600 events per day</strong> (7-day
                     average)
                   </li>
                   <li>
