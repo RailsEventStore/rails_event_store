@@ -124,11 +124,16 @@ export default function HomepageCompanies() {
         ))}
       </ul>
 
-      <div className="flex justify-center mt-12">
+      <div className="flex flex-col items-center gap-4 mt-12">
           <a href="/billetto" class="!text-white text-center !no-underline relative rounded-full bg-[#141414] dark:bg-white/10 px-4 py-1.5 ">
             {" "}
             See how <span className="font-semibold">Rails Event Store</span> helped <span className="font-semibold">Billetto</span> scale and optimize their
             system!<span aria-hidden="true" className="inline-block ml-2">&rarr;</span>
+          </a>
+          <a href="/warmlyyours" class="!text-white text-center !no-underline relative rounded-full bg-[#141414] dark:bg-white/10 px-4 py-1.5 ">
+            {" "}
+            See how <span className="font-semibold">WarmlyYours</span> moved side effects out of model callbacks with{" "}
+            <span className="font-semibold">Rails Event Store</span>!<span aria-hidden="true" className="inline-block ml-2">&rarr;</span>
           </a>
       </div>
     </section>

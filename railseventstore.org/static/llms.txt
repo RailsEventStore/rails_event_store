@@ -37,3 +37,4 @@ The documentation links below use the default published version. For version-spe
 
 - [Community](https://railseventstore.org/community): Articles, talks, example applications, and community resources.
 - [Billetto case study](https://railseventstore.org/billetto): How a ticketing platform uses Rails Event Store in production.
+- [WarmlyYours case study](https://railseventstore.org/warmlyyours): How a radiant heating manufacturer uses Rails Event Store to move side effects out of model callbacks.
