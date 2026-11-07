@@ -132,6 +132,50 @@ module RubyEventStore
 
           expect(entry_from_outbox).to be_present
         end
+
+        specify "retriable Redis error is retried only once, then the record is counted as failed" do
+          stub_const("RubyEventStore::Outbox::Consumer::MAXIMUM_BATCH_FETCHES_IN_ONE_LOCK", 1)
+          event =
+            TimeEnrichment.with(
+              Event.new(event_id: "83c3187f-84f6-4da7-8206-73af5aca7cc8"),
+              timestamp: Time.utc(2019, 9, 30),
+            )
+          event_record = Mappers::Default.new.event_to_record(event)
+
+          class ::CorrectAsyncHandler
+            include Sidekiq::Worker
+
+            def through_outbox?
+              true
+            end
+          end
+
+          SidekiqScheduler.new.call(CorrectAsyncHandler, event_record)
+          logger_output = StringIO.new
+          test_metrics = Metrics::Test.new
+          consumer =
+            Consumer.new(
+              SecureRandom.uuid,
+              default_configuration,
+              logger: Logger.new(logger_output),
+              metrics: test_metrics,
+            )
+          lpush_attempts = 0
+          allow_any_instance_of(RedisClient).to receive(:call).and_wrap_original do |m, *args|
+            if args.first == "LPUSH" && (lpush_attempts += 1) <= 2
+              raise RedisClient::ConnectionError
+            else
+              m.call(*args)
+            end
+          end
+          consumer.process
+
+          expect(lpush_attempts).to eq(2)
+          expect(redis.call("LLEN", "queue:default")).to eq(0)
+          expect(Repository::Record.where(enqueued_at: nil).count).to eq(1)
+          expect(test_metrics.queue_stats).to include(hash_including(enqueued: 0, failed: 1, remaining: 1))
+          expect(logger_output.string).to include("RetriableRedisError")
+        end
       end
 
       context "with locking repository" do
