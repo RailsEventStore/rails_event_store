@@ -229,19 +229,21 @@ module RubyEventStore
 
       def handle_execution(batch_result)
         retried = false
-        yield
-        batch_result.count_success!
-      rescue RetriableRedisError => error
-        if retried
+        begin
+          yield
+          batch_result.count_success!
+        rescue RetriableRedisError => error
+          if retried
+            batch_result.count_failed!
+            log_error(error)
+          else
+            retried = true
+            retry
+          end
+        rescue => error
           batch_result.count_failed!
           log_error(error)
-        else
-          retried = true
-          retry
         end
-      rescue => error
-        batch_result.count_failed!
-        log_error(error)
       end
 
       def log_error(e)
