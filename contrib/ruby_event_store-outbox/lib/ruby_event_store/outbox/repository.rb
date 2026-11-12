@@ -172,15 +172,15 @@ module RubyEventStore
             case (refresh_result = obtained_lock.refresh(clock: clock))
             when :ok
             when :deadlocked
-              logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (deadlock)"
+              logger.warn "Refreshing lock for split_key '#{fetch_specification.split_key}' failed (deadlock)"
               metrics.write_operation_result("refresh", "deadlocked")
               break
             when :lock_timeout
-              logger.warn "Refreshing lock for split_key '#{lock.split_key}' failed (lock timeout)"
+              logger.warn "Refreshing lock for split_key '#{fetch_specification.split_key}' failed (lock timeout)"
               metrics.write_operation_result("refresh", "lock_timeout")
               break
             when :stolen
-              logger.debug "Refreshing lock for split_key '#{lock.split_key}' unsuccessful (stolen)"
+              logger.debug "Refreshing lock for split_key '#{fetch_specification.split_key}' unsuccessful (stolen)"
               metrics.write_operation_result("refresh", "stolen")
               break
             else
