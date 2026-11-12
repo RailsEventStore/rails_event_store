@@ -1,3 +1,8 @@
+### Unreleased
+
+- Fix: a retriable Redis error is now retried once and then counted as failed, instead of being retried forever while Redis is unreachable
+- Fix: `NameError` raised when refreshing the lock failed (deadlock, lock timeout or stolen) in the locking repository, which crashed the consumer instead of logging a warning
+
 ### 0.2.0 2025-05-21
 
 - Change: the timestamp reported in `enqueued_at` to Sidekiq when pushing jobs from the current time to the record created at timestamp (so that the latency reported in Sidekiq includes the time a job has spent in outbox)
