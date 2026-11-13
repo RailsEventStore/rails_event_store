@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "ruby_event_store/deprecations"
+
 module AggregateRoot
   MissingHandler = Class.new(StandardError)
   NullHandler    = Proc.new {}
