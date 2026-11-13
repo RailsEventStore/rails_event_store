@@ -363,6 +363,18 @@ module RubyEventStore
           consumer.process
         end
 
+        specify "lock stolen when refreshing is logged and stops fetching" do
+          create_record("default", "default")
+          consumer = Consumer.new(SecureRandom.uuid, default_configuration, logger: logger, metrics: test_metrics)
+          allow_any_instance_of(Repository::Lock).to receive(:refresh).and_return(:stolen)
+
+          result = consumer.process
+
+          expect(logger_output.string).to include("Refreshing lock for split_key 'default' unsuccessful (stolen)")
+          expect(test_metrics.operation_results).to include({ operation: "refresh", result: "stolen" })
+          expect(result).to be(true)
+        end
+
         specify "deadlock when obtaining lock just skip that attempt" do
           expect(Repository::Lock).to receive(:lock).and_raise(::ActiveRecord::Deadlocked)
           clock = TickingClock.new
