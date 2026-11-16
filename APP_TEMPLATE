@@ -36,6 +36,8 @@ end
 profile = Profile.new(options, ENV["LOCATION"])
 
 gem "rails_event_store", "~> 3.2.0"
+gem "aggregate_root"
+gem "arkency-command_bus"
 
 initializer "rails_event_store.rb", <<~CODE
   require "rails_event_store"
