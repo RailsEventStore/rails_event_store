@@ -12,7 +12,7 @@ If you're setting up a new Rails app, there is a fast way to begin with RailsEve
 
 The template will:
 
-- add `rails_event_store` to your `Gemfile`
+- add `rails_event_store`, `aggregate_root` and `arkency-command_bus` to your `Gemfile`
 - generate `config/initializers/rails_event_store.rb` with sane defaults and expose client under `Rails.configuration.event_store`
 - pre–configure event browser to make it available under `/res` url in your app
 - run bundler to install necessary dependencies
@@ -48,7 +48,7 @@ id="asciicast-554180" src="https://asciinema.org/a/554180.js"
 
 The <a href="https://railseventstore.org/new">template</a> will:
 
-- add `rails_event_store` to your `Gemfile`
+- add `rails_event_store`, `aggregate_root` and `arkency-command_bus` to your `Gemfile`
 - generate `config/initializers/rails_event_store.rb` with sane defaults and expose client under `Rails.configuration.event_store`
 - pre–configure event browser to make it available under `/res` url in your app
 - run bundler to install necessary dependencies
@@ -67,6 +67,15 @@ gem "rails_event_store"
 ```
 
 After running `bundle install`, Rails Event Store should be ready to be used.
+
+If you plan to use [AggregateRoot](../core-concepts/event-sourcing) or the [command bus](../advanced-topics/command-bus), add them as well:
+
+```ruby
+gem "aggregate_root"
+gem "arkency-command_bus"
+```
+
+They are currently installed along with `rails_event_store`, but `rails_event_store` 4.0 will no longer depend on them.
 
 ### Installation using RubyGems
 
