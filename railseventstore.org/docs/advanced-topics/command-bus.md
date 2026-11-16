@@ -4,6 +4,16 @@ title: Command Bus
 
 _Command Pattern - decoupling what is done from who does it._
 
+## Installation
+
+Add `arkency-command_bus` to your Gemfile:
+
+```ruby
+gem "arkency-command_bus"
+```
+
+It is currently installed along with `rails_event_store`, but `rails_event_store` 4.0 will no longer depend on it.
+
 ## Usage
 
 ### Registering commands and their handlers

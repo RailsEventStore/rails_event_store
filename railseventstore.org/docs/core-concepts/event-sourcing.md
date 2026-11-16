@@ -3,6 +3,16 @@ title: Event Sourcing with AggregateRoot
 sidebar_label: Event sourcing
 ---
 
+## Installation
+
+Add `aggregate_root` to your Gemfile:
+
+```ruby
+gem "aggregate_root"
+```
+
+It is currently installed along with `rails_event_store`, but `rails_event_store` 4.0 will no longer depend on it.
+
 ## Configuration
 
 `AggregateRoot::Repository` needs an event store client to load and store aggregates. Pass it explicitly when you build the repository:
