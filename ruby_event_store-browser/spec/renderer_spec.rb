@@ -105,7 +105,24 @@ module RubyEventStore
           )
         end
 
-        specify "displays nested JSON with punctuation, indentation, colors and preserved whitespace", :js do
+        specify "renders punctuation and value colors" do
+          html = tree({ "a" => { "s" => "x" }, "b" => [1, 2.5, true, false, nil, {}] })
+
+          expect(html.at_xpath("div").text).to eq('{a: {s: "x",},b: [1,2.5,true,false,null,{},],}')
+          expect(html.css("span:not(.font-bold)").map { |span| [span.text, span["class"]] }).to eq(
+            [
+              ['"x"', "whitespace-pre text-[green]"],
+              ["1", "whitespace-pre text-[blue]"],
+              ["2.5", "whitespace-pre text-[blue]"],
+              ["true", "whitespace-pre text-[firebrick]"],
+              ["false", "whitespace-pre text-[firebrick]"],
+              ["null", "whitespace-pre text-[gray]"],
+              ["{}", "whitespace-pre "],
+            ],
+          )
+        end
+
+        specify "displays nested JSON with punctuation, indentation, colors and preserved whitespace", :js, mutant: false do
           event_store = Client.new
           event =
             DummyEvent.new(
