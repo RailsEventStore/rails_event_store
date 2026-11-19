@@ -1,0 +1,11 @@
+<div style="margin-bottom:8px">
+  <div style="color:#7c5cff">
+    <%= h group.label %>
+    <% if group.swimlane_url -%>
+      <a href="<%= h group.swimlane_url %>" title="these streams side by side (<%= group.stream_count %>)" class="res-inspector-action">▤ swimlane</a>
+    <% end -%>
+  </div>
+  <% group.roots.each do |node| -%>
+    <%= render "event", node: node, depth: 1 %>
+  <% end -%>
+</div>
