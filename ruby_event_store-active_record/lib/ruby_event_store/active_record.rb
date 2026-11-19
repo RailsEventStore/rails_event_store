@@ -20,6 +20,7 @@ require_relative "active_record/generators/rails_streams_metadata_migration_gene
 require_relative "active_record/with_default_models"
 require_relative "active_record/with_abstract_base_class"
 require_relative "active_record/event_repository"
+require_relative "active_record/scavenge_strategy"
 require_relative "active_record/batch_enumerator"
 require_relative "active_record/event_repository_reader"
 require_relative "active_record/index_violation_detector"
