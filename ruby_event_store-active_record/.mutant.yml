@@ -43,3 +43,4 @@ matcher:
     - RubyEventStore::ActiveRecord::RailsValidAtIndexMigrationGenerator#initialize
     - RubyEventStore::ActiveRecord::RailsValidAtIndexMigrationGenerator#create_migration
     - RubyEventStore::ActiveRecord::RailsStreamIdIndexMigrationGenerator#initialize
+    - RubyEventStore::ActiveRecord::RailsTruncatedAtMigrationGenerator#initialize

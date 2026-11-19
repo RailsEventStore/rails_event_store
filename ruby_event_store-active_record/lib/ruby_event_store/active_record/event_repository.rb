@@ -104,6 +104,70 @@ module RubyEventStore
         repo_reader.event_in_stream?(event_id, stream)
       end
 
+      def supports_native_truncation?
+        repo_reader.truncation_supported? && metadata_klass.table_exists?
+      end
+
+      def last_stream_version_and_tombstone(stream)
+        position, tombstoned_at =
+          stream_klass
+            .joins(
+              stream_table.join(metadata_table, Arel::Nodes::OuterJoin).on(
+                metadata_table[:stream].eq(stream_table[:stream]),
+              ).join_sources,
+            )
+            .where(stream: stream.name)
+            .order(stream_table[:position].desc)
+            .pick(stream_table[:position], metadata_table[:tombstoned_at])
+        [position, !tombstoned_at.nil?]
+      end
+
+      def stream_metadata(stream)
+        values = metadata_klass.where(stream: stream.name).pick(*StreamMetadata.members)
+        values ? StreamMetadata.new(**StreamMetadata.members.zip(values).to_h) : StreamMetadata.none
+      end
+
+      def append_stream_metadata(record, stream, expected_version)
+        start_transaction do
+          highest_position, highest_id =
+            stream_klass.where(stream: stream.name).pick(stream_table[:position].maximum, stream_table[:id].maximum)
+          check_stream_version(expected_version, highest_position, highest_id)
+          append_to_stream([record], StreamMetadata.meta_stream(stream), ExpectedVersion.auto)
+          materialise_metadata(record, stream, highest_position, highest_id)
+        end
+        self
+      rescue ::ActiveRecord::RecordNotUnique => e
+        raise_error(e)
+      end
+
+      def mark_truncated(stream, batch_size)
+        start_transaction do
+          truncated_upto_id = hide_boundary(stream)
+          next 0 unless truncated_upto_id
+
+          ids =
+            stream_klass
+              .where(stream: stream.name, truncated_at: nil)
+              .where(stream_table[:id].lteq(truncated_upto_id))
+              .order(id: :asc)
+              .limit(batch_size)
+              .pluck(:id)
+          stream_klass.where(id: ids).update_all(truncated_at: Time.now.utc)
+        end
+      end
+
+      def unmark_truncated(stream, batch_size)
+        start_transaction do
+          truncated_upto_id = hide_boundary(stream)
+          metadata_events = stream_klass.where(stream: StreamMetadata.meta_stream(stream).name).select(:event_id)
+          hidden = stream_klass.where(stream: stream.name).where.not(truncated_at: nil).where.not(event_id: metadata_events)
+          hidden = hidden.where(stream_table[:id].gt(truncated_upto_id)) if truncated_upto_id
+
+          ids = hidden.order(id: :desc).limit(batch_size).pluck(:id)
+          stream_klass.where(id: ids).update_all(truncated_at: nil)
+        end
+      end
+
       private
 
       def add_to_stream(event_ids, stream, expected_version)
@@ -128,6 +192,73 @@ module RubyEventStore
         self
       rescue ::ActiveRecord::RecordNotUnique => e
         raise_error(e)
+      end
+
+      METADATA_COLUMNS = %i[max_count max_age truncate_before truncated_upto_id soft_deleted_at tombstoned_at].freeze
+      private_constant :METADATA_COLUMNS
+
+      def check_stream_version(expected_version, highest_position, highest_id)
+        matches =
+          case expected_version.version
+          when Integer
+            highest_position.eql?(expected_version.version)
+          when :none
+            highest_id.nil?
+          else
+            true
+          end
+        raise WrongExpectedEventVersion unless matches
+      end
+
+      def materialise_metadata(record, stream, highest_position, highest_id)
+        current = metadata_klass.where(stream: stream.name).pick(*METADATA_COLUMNS)
+        metadata = METADATA_COLUMNS.zip(current || []).to_h
+        data = record.data
+
+        case record.event_type
+        when StreamMetadataEvents::StreamMetadataChanged.name
+          metadata.merge!(max_count: data.fetch("max_count"), max_age: data.fetch("max_age"))
+        when StreamMetadataEvents::StreamTruncated.name
+          before_position = data.fetch("before_position")
+          metadata.merge!(
+            truncate_before: [metadata[:truncate_before], before_position].compact.max,
+            truncated_upto_id: [
+              metadata[:truncated_upto_id],
+              stream_klass.where(stream: stream.name).where(stream_table[:position].lt(before_position)).maximum(:id),
+            ].compact.max,
+          )
+        when StreamMetadataEvents::StreamSoftDeleted.name
+          metadata.merge!(
+            soft_deleted_at: record.timestamp,
+            truncate_before: [metadata[:truncate_before], highest_position&.succ].compact.max,
+            truncated_upto_id: [metadata[:truncated_upto_id], highest_id].compact.max,
+          )
+        when StreamMetadataEvents::StreamTombstoned.name
+          metadata[:tombstoned_at] = record.timestamp
+          link_tombstone_sentinel(record, stream, highest_position, highest_id)
+        when StreamMetadataEvents::StreamRestored.name
+          metadata.merge!(soft_deleted_at: nil, truncate_before: nil, truncated_upto_id: nil)
+        else
+          return
+        end
+
+        if current
+          metadata_klass.where(stream: stream.name).update_all(metadata)
+        else
+          metadata_klass.insert_all!([metadata.merge(stream: stream.name)])
+        end
+      end
+
+      def link_tombstone_sentinel(record, stream, highest_position, highest_id)
+        position = highest_position ? highest_position + POSITION_SHIFT : (0 if highest_id.nil?)
+        now = Time.now.utc
+        stream_klass.insert_all!(
+          [{ stream: stream.name, position: position, event_id: record.event_id, created_at: now, truncated_at: now }],
+        )
+      end
+
+      def hide_boundary(stream)
+        metadata_klass.where(stream: stream.name).pick(:truncated_upto_id)
       end
 
       def raise_error(e)
@@ -218,6 +349,13 @@ module RubyEventStore
 
       def event_klass = model_klasses.first
       def stream_klass = model_klasses.last
+
+      def metadata_klass
+        @metadata_klass ||= Class.new(stream_klass.superclass) { self.table_name = "event_store_streams_metadata" }
+      end
+
+      def stream_table = stream_klass.arel_table
+      def metadata_table = metadata_klass.arel_table
 
       def repo_reader
         @repo_reader ||= EventRepositoryReader.new(event_klass, stream_klass, @serializer)

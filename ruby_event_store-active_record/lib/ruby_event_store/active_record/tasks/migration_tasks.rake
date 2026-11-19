@@ -55,6 +55,27 @@ task "db:migrations:add_stream_id_index" do
   puts "Migration file created #{path}"
 end
 
+desc "Generate migration for adding truncated_at to event_store_events_in_streams"
+task "db:migrations:add_truncated_at" do
+  task = MigrationTask.new("db:migrations:add_truncated_at")
+  task.establish_connection
+
+  path =
+    RubyEventStore::ActiveRecord::TruncatedAtMigrationGenerator.new.call(task.adapter_type, task.migration_path)
+
+  puts "Migration file created #{path}"
+end
+
+desc "Generate migration for creating event_store_streams_metadata"
+task "db:migrations:add_streams_metadata" do
+  task = MigrationTask.new("db:migrations:add_streams_metadata")
+  task.establish_connection
+
+  path = RubyEventStore::ActiveRecord::StreamsMetadataMigrationGenerator.new.call(task.migration_path)
+
+  puts "Migration file created #{path}"
+end
+
 class MigrationTask
   def initialize(
     task,
