@@ -123,14 +123,14 @@ module RubyEventStore
       end
 
       def stream_metadata(stream)
-        values = metadata_klass.where(stream: stream.name).pick(*StreamMetadata.members)
-        values ? StreamMetadata.new(**StreamMetadata.members.zip(values).to_h) : StreamMetadata.none
+        row = metadata_klass.find_by(stream: stream.name)
+        row ? StreamMetadata.new(**StreamMetadata.members.to_h { |name| [name, row[name]] }) : StreamMetadata.none
       end
 
       def append_stream_metadata(record, stream, expected_version)
         start_transaction do
           highest_position, highest_id =
-            stream_klass.where(stream: stream.name).pick(stream_table[:position].maximum, stream_table[:id].maximum)
+            stream_klass.where(stream: stream.name).pick("MAX(position)", "MAX(id)")
           check_stream_version(expected_version, highest_position, highest_id)
           append_to_stream([record], StreamMetadata.meta_stream(stream), ExpectedVersion.auto)
           materialise_metadata(record, stream, highest_position, highest_id)
@@ -142,9 +142,8 @@ module RubyEventStore
 
       def mark_truncated(stream, batch_size)
         start_transaction do
+          # Without a boundary "id <= NULL" matches nothing.
           truncated_upto_id = hide_boundary(stream)
-          next 0 unless truncated_upto_id
-
           ids =
             stream_klass
               .where(stream: stream.name, truncated_at: nil)
@@ -152,7 +151,7 @@ module RubyEventStore
               .order(id: :asc)
               .limit(batch_size)
               .pluck(:id)
-          stream_klass.where(id: ids).update_all(truncated_at: Time.now.utc)
+          stream_klass.where(id: ids).update_all(truncated_at: Time.now)
         end
       end
 
@@ -211,8 +210,8 @@ module RubyEventStore
       end
 
       def materialise_metadata(record, stream, highest_position, highest_id)
-        current = metadata_klass.where(stream: stream.name).pick(*METADATA_COLUMNS)
-        metadata = METADATA_COLUMNS.zip(current || []).to_h
+        current = metadata_klass.find_by(stream: stream.name)
+        metadata = METADATA_COLUMNS.to_h { |column| [column, current && current[column]] }
         data = record.data
 
         case record.event_type
@@ -221,17 +220,18 @@ module RubyEventStore
         when StreamMetadataEvents::StreamTruncated.name
           before_position = data.fetch("before_position")
           metadata.merge!(
-            truncate_before: [metadata[:truncate_before], before_position].compact.max,
+            truncate_before: [metadata.fetch(:truncate_before), before_position].compact.max,
             truncated_upto_id: [
-              metadata[:truncated_upto_id],
+              metadata.fetch(:truncated_upto_id),
               stream_klass.where(stream: stream.name).where(stream_table[:position].lt(before_position)).maximum(:id),
             ].compact.max,
           )
         when StreamMetadataEvents::StreamSoftDeleted.name
           metadata.merge!(
             soft_deleted_at: record.timestamp,
-            truncate_before: [metadata[:truncate_before], highest_position&.succ].compact.max,
-            truncated_upto_id: [metadata[:truncated_upto_id], highest_id].compact.max,
+            truncate_before: [metadata.fetch(:truncate_before), highest_position&.succ].compact.max,
+            # Row ids only grow, so the highest one covers any boundary set before.
+            truncated_upto_id: highest_id,
           )
         when StreamMetadataEvents::StreamTombstoned.name
           metadata[:tombstoned_at] = record.timestamp
@@ -251,9 +251,9 @@ module RubyEventStore
 
       def link_tombstone_sentinel(record, stream, highest_position, highest_id)
         position = highest_position ? highest_position + POSITION_SHIFT : (0 if highest_id.nil?)
-        now = Time.now.utc
+        # insert_all! sets created_at, as it records timestamps.
         stream_klass.insert_all!(
-          [{ stream: stream.name, position: position, event_id: record.event_id, created_at: now, truncated_at: now }],
+          [{ stream: stream.name, position: position, event_id: record.event_id, truncated_at: Time.now }],
         )
       end
 
@@ -350,6 +350,8 @@ module RubyEventStore
       def event_klass = model_klasses.first
       def stream_klass = model_klasses.last
 
+      # Any subclass with the table name set reads the same rows, so mutant's superclass mutation is equivalent.
+      # mutant:disable
       def metadata_klass
         @metadata_klass ||= Class.new(stream_klass.superclass) { self.table_name = "event_store_streams_metadata" }
       end

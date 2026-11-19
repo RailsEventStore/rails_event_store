@@ -705,6 +705,65 @@ module RubyEventStore
         expect(links.map(&:first)).to eq(events)
         expect(links.map(&:last)).to all(be_present)
       end
+
+      describe "on a stream with several entries" do
+        let(:column) { /[`"]?\w+[`"]?\.[`"]?%s[`"]?/.source }
+
+        specify "checks the expected version against the highest position" do
+          append(3)
+
+          expect { write_metadata(meta(:StreamTombstoned), stream, ExpectedVersion.new(1)) }.to raise_error(
+            WrongExpectedEventVersion,
+          )
+          write_metadata(meta(:StreamTombstoned), stream, ExpectedVersion.new(2))
+
+          expect(links.last).to match([be_present, 3, be_present])
+        end
+
+        specify "soft delete hides up to the highest entry" do
+          append(3)
+          write_metadata(meta(:StreamSoftDeleted))
+          mark_all
+
+          expect(read).to be_empty
+        end
+
+        specify "soft delete moves a lower truncation boundary up to the next position" do
+          append(1)
+          write_metadata(meta(:StreamTruncated, before_position: 1))
+          append(2)
+          write_metadata(meta(:StreamSoftDeleted))
+
+          expect(repository.stream_metadata(stream).truncate_before).to eq(3)
+        end
+
+        specify "the tombstone sentinel records when it was linked" do
+          append(1)
+          write_metadata(meta(:StreamTombstoned))
+
+          expect(EventInStream.where(stream: stream.name).order(:id).last.created_at).to be_present
+        end
+
+        specify "marks in a transaction by row id oldest first, writing ids selected apart" do
+          append(3)
+          write_metadata(meta(:StreamSoftDeleted))
+
+          expect { repository.mark_truncated(stream, 2) }.to match_query(
+            /ORDER BY #{column % "id"} ASC/,
+          ).and match_query(/\AUPDATE (?!.*SELECT)/m).and match_query(/\A(BEGIN|SAVEPOINT)/i)
+        end
+
+        specify "restores in a transaction by row id newest first, writing ids selected apart" do
+          append(3)
+          write_metadata(meta(:StreamSoftDeleted))
+          mark_all
+          write_metadata(meta(:StreamRestored))
+
+          expect { repository.unmark_truncated(stream, 2) }.to match_query(
+            /ORDER BY #{column % "id"} DESC/,
+          ).and match_query(/\AUPDATE (?!.*SELECT)/m).and match_query(/\A(BEGIN|SAVEPOINT)/i)
+        end
+      end
     end
   end
 end
