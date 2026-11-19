@@ -3,7 +3,7 @@
 require "spec_helper"
 
 module RubyEventStore
-  ::RSpec.describe "Browser stream metadata" do
+  ::RSpec.describe Browser, "stream metadata" do
     let(:event_store) do
       Client.new(repository: StreamMetadataAwareRepository.new(InMemoryRepository.new))
     end
