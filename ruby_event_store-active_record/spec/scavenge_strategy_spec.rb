@@ -90,7 +90,7 @@ module RubyEventStore
           /ORDER BY #{column % "id"} ASC/,
         ).and match_query(/\ADELETE FROM [`"]?event_store_events_in_streams[`"]? (?!.*SELECT)/m).and match_query(
                       /\ADELETE FROM [`"]?event_store_events[`"]? WHERE .*NOT \(?EXISTS \(SELECT #{column % "id"} FROM/m,
-                    ).and match_query(/\A(BEGIN|SAVEPOINT)/)
+                    ).and match_query(/\A(BEGIN|SAVEPOINT)/i)
       end
 
       specify "counts events to purge with NOT EXISTS" do
