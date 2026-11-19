@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "active_support"
+require "active_support/notifications"
 
 ::RSpec.describe AggregateRoot do
   let(:uuid) { SecureRandom.uuid }
@@ -178,6 +180,77 @@ require "spec_helper"
         include AggregateRoot.with(strategy: strategy)
       end
     expect(klass.respond_to?(:on_methods)).to eq(true)
+  end
+
+  it "deprecates passing event_type_resolver to AggregateRoot.with" do
+    expect { AggregateRoot.with(event_type_resolver: ->(value) { value.to_s }) }.to output(<<~EOS).to_stderr
+      [DEPRECATION] Passing event_type_resolver to AggregateRoot has been deprecated.
+
+      Event type is now derived from event.event_type. The event_type_resolver
+      argument is ignored and will be removed in a future release.
+    EOS
+  end
+
+  it "does not deprecate when event_type_resolver is not passed to AggregateRoot.with" do
+    expect { AggregateRoot.with }.not_to output.to_stderr
+  end
+
+  it "emits the AggregateRoot.with deprecation under a suppressible key" do
+    RubyEventStore::Deprecations.suppress(:aggregate_root_event_type_resolver)
+
+    expect { AggregateRoot.with(event_type_resolver: ->(value) { value.to_s }) }.not_to output.to_stderr
+  end
+
+  it "routes apply by event.event_type, ignoring a passed event_type_resolver" do
+    klass = nil
+    silence_warnings do
+      klass =
+        Class.new do
+          include AggregateRoot.with(event_type_resolver: ->(value) { "prefixed.#{value}" })
+
+          def initialize
+            @status = :draft
+          end
+
+          attr_accessor :status
+
+          on Orders::Events::OrderCreated do |_event|
+            @status = :created
+          end
+        end
+    end
+    order = klass.new
+
+    order.apply(Orders::Events::OrderCreated.new)
+
+    expect(order.status).to eq(:created)
+  end
+
+  it "deprecates calling event_type_for on an aggregate class" do
+    klass = Class.new { include AggregateRoot }
+
+    expect { klass.event_type_for(Orders::Events::OrderCreated) }.to output(<<~EOS).to_stderr
+      [DEPRECATION] Calling event_type_for on an AggregateRoot class has been deprecated.
+
+      Event type is now derived from event.event_type. This method is ignored
+      internally, returns value.to_s, and will be removed in a future release.
+    EOS
+  end
+
+  it "event_type_for returns value.to_s" do
+    klass = Class.new { include AggregateRoot }
+    result = nil
+
+    silence_warnings { result = klass.event_type_for(Orders::Events::OrderCreated) }
+
+    expect(result).to eq("Orders::Events::OrderCreated")
+  end
+
+  it "emits the event_type_for deprecation under a suppressible key" do
+    RubyEventStore::Deprecations.suppress(:aggregate_root_event_type_for)
+    klass = Class.new { include AggregateRoot }
+
+    expect { klass.event_type_for(Orders::Events::OrderCreated) }.not_to output.to_stderr
   end
 
   it "included modules" do
