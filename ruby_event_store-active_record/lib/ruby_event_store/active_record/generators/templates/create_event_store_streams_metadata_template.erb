@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+class CreateEventStoreStreamsMetadata < ActiveRecord::Migration[<%= migration_version %>]
+  def change
+    create_table(:event_store_streams_metadata, force: false) do |t|
+      t.string   :stream,            null: false, index: { unique: true }
+      t.integer  :max_count,         null: true
+      t.integer  :max_age,           null: true
+      t.integer  :truncate_before,   null: true
+      t.bigint   :truncated_upto_id, null: true
+      t.datetime :soft_deleted_at,   null: true, precision: 6
+      t.datetime :tombstoned_at,     null: true, precision: 6
+    end
+  end
+end

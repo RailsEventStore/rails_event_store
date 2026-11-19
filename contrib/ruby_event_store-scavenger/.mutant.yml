@@ -1,0 +1,25 @@
+# https://github.com/mbj/mutant/blob/master/docs/configuration.md
+
+usage: opensource
+requires:
+  - ruby_event_store/scavenger
+  - ruby_event_store/scavenger/job
+includes:
+  - lib
+integration:
+  name: rspec
+mutation:
+  operators: light
+  timeout: 10.0
+coverage_criteria:
+  timeout: true
+  process_abort: true
+matcher:
+  subjects:
+    - RubyEventStore::Scavenger::Runner*
+    - RubyEventStore::Scavenger::Lock*
+    - RubyEventStore::Scavenger::State*
+    - RubyEventStore::Scavenger::Status*
+    - RubyEventStore::Scavenger::CLI*
+    - RubyEventStore::Scavenger::MigrationGenerator*
+    - RubyEventStore::Scavenger::Job*

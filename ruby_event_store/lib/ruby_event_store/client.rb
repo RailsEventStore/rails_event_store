@@ -63,16 +63,7 @@ module RubyEventStore
       append_records_to_stream(records, stream_name: stream_name, expected_version: expected_version)
       enriched_events.zip(records) do |event, record|
         with_metadata(correlation_id: event.metadata.fetch(:correlation_id), causation_id: event.event_id) do
-          if @broker.public_method(:call).arity == 3
-            @broker.call(topic || event.event_type, event, record)
-          else
-            warn <<~EOW
-              Message broker shall support topics.
-              Topic WILL BE IGNORED in the current broker.
-              Modify the broker implementation to pass topic as an argument to broker.call method.
-            EOW
-            @broker.call(event, record)
-          end
+          call_broker(topic || event.event_type, event, record)
         end
       end
       self
@@ -108,10 +99,126 @@ module RubyEventStore
     # All events from the stream remain intact but they are no
     # longer linked to the stream.
     #
+    # With StreamMetadataAwareRepository a tombstoned stream is refused, and the
+    # StreamRestored written after deleting a truncated stream is enriched and published
+    # like other metadata events.
+    #
     # @param stream_name [String] name of the stream to be cleared.
     # @return [self]
+    # @raise [StreamTombstoned]
     def delete_stream(stream_name)
-      @repository.delete_stream(Stream.new(stream_name))
+      stream = Stream.new(stream_name)
+      if @repository.respond_to?(:set_stream_metadata)
+        @repository.delete_stream(stream, metadata: enrich_metadata({}), &method(:notify_metadata_event))
+      else
+        @repository.delete_stream(stream)
+      end
+      self
+    end
+
+    # Sets retention of a stream: the scavenger removes entries beyond max_count and entries
+    # linked longer than max_age seconds ago. Replaces both settings; nil clears one.
+    # Needs StreamMetadataAwareRepository.
+    #
+    # @param stream_name [String]
+    # @param max_count [Integer, nil]
+    # @param max_age [Integer, nil] seconds
+    # @param expected_version [:any, :auto, :none, Integer] of the stream itself
+    # @return [self]
+    # @raise [StreamMetadataNotSupported, InvalidStreamMetadata, WrongExpectedEventVersion]
+    def set_stream_metadata(stream_name, max_count: nil, max_age: nil, expected_version: :any)
+      metadata_repository.set_stream_metadata(
+        Stream.new(stream_name),
+        max_count: max_count,
+        max_age: max_age,
+        expected_version: ExpectedVersion.new(expected_version),
+        metadata: enrich_metadata({}),
+        &method(:notify_metadata_event)
+      )
+      self
+    end
+
+    # Gets metadata of a stream.
+    # Needs StreamMetadataAwareRepository.
+    #
+    # @param stream_name [String]
+    # @return [StreamMetadata]
+    # @raise [StreamMetadataNotSupported]
+    def stream_metadata(stream_name)
+      metadata_repository.stream_metadata(Stream.new(stream_name))
+    end
+
+    # Hides the entries of a stream at positions below the given one from reads of the stream.
+    # Events stay in the global stream. Positions continue unchanged.
+    # Needs StreamMetadataAwareRepository over a repository with native support.
+    #
+    # @param stream_name [String]
+    # @param before [Integer] position
+    # @param expected_version [:any, :auto, :none, Integer] of the stream itself
+    # @return [self]
+    # @raise [StreamMetadataNotSupported, InvalidStreamMetadata, WrongExpectedEventVersion]
+    def truncate_stream(stream_name, before:, expected_version: :any)
+      metadata_repository.truncate_stream(
+        Stream.new(stream_name),
+        before: before,
+        expected_version: ExpectedVersion.new(expected_version),
+        metadata: enrich_metadata({}),
+        &method(:notify_metadata_event)
+      )
+      self
+    end
+
+    # Hides every entry a stream holds from reads of the stream. Events stay in the global stream.
+    # An append after it continues the positions; restore_stream shows the entries again.
+    # Needs StreamMetadataAwareRepository over a repository with native support.
+    #
+    # @param stream_name [String]
+    # @param expected_version [:any, :auto, :none, Integer] of the stream itself
+    # @return [self]
+    # @raise [StreamMetadataNotSupported, WrongExpectedEventVersion]
+    def soft_delete_stream(stream_name, expected_version: :any)
+      metadata_repository.soft_delete_stream(
+        Stream.new(stream_name),
+        expected_version: ExpectedVersion.new(expected_version),
+        metadata: enrich_metadata({}),
+        &method(:notify_metadata_event)
+      )
+      self
+    end
+
+    # Shows again the entries hidden by soft_delete_stream and truncate_stream, as far as the
+    # scavenger has not removed them yet.
+    # Needs StreamMetadataAwareRepository over a repository with native support.
+    #
+    # @param stream_name [String]
+    # @param expected_version [:any, :auto, :none, Integer] of the stream itself
+    # @return [StreamMetadataAwareRepository::StreamRestore] how many entries were shown again
+    #   and how many were already removed (nil when the stream has no positions)
+    # @raise [StreamMetadataNotSupported, WrongExpectedEventVersion]
+    def restore_stream(stream_name, expected_version: :any)
+      metadata_repository.restore_stream(
+        Stream.new(stream_name),
+        expected_version: ExpectedVersion.new(expected_version),
+        metadata: enrich_metadata({}),
+        &method(:notify_metadata_event)
+      )
+    end
+
+    # Closes a stream for writes for good: append and link raise StreamTombstoned.
+    # The history stays readable.
+    # Needs StreamMetadataAwareRepository.
+    #
+    # @param stream_name [String]
+    # @param expected_version [:any, :auto, :none, Integer] of the stream itself
+    # @return [self]
+    # @raise [StreamMetadataNotSupported, StreamTombstoned, WrongExpectedEventVersion]
+    def tombstone_stream(stream_name, expected_version: :any)
+      metadata_repository.tombstone_stream(
+        Stream.new(stream_name),
+        expected_version: ExpectedVersion.new(expected_version),
+        metadata: enrich_metadata({}),
+        &method(:notify_metadata_event)
+      )
       self
     end
 
@@ -388,10 +495,38 @@ module RubyEventStore
     end
 
     def enrich_event_metadata(event)
-      metadata.each { |key, value| event.metadata[key] ||= value }
-      event.metadata[:timestamp] ||= @clock.call
-      event.metadata[:valid_at] ||= event.metadata.fetch(:timestamp)
-      event.metadata[:correlation_id] ||= @correlation_id_generator.call
+      enrich_metadata(event.metadata)
+    end
+
+    def enrich_metadata(target)
+      metadata.each { |key, value| target[key] ||= value }
+      target[:timestamp] ||= @clock.call
+      target[:valid_at] ||= target.fetch(:timestamp)
+      target[:correlation_id] ||= @correlation_id_generator.call
+      target
+    end
+
+    def notify_metadata_event(record)
+      event = @mapper.records_to_events([record]).first
+      with_metadata(causation_id: event.event_id) { call_broker(event.event_type, event, record) }
+    end
+
+    def call_broker(topic, event, record)
+      if @broker.public_method(:call).arity == 3
+        @broker.call(topic, event, record)
+      else
+        warn <<~EOW
+          Message broker shall support topics.
+          Topic WILL BE IGNORED in the current broker.
+          Modify the broker implementation to pass topic as an argument to broker.call method.
+        EOW
+        @broker.call(event, record)
+      end
+    end
+
+    def metadata_repository
+      raise StreamMetadataNotSupported unless @repository.respond_to?(:set_stream_metadata)
+      @repository
     end
 
     def append_records_to_stream(records, stream_name:, expected_version:)

@@ -70,6 +70,50 @@ module RubyEventStore
         ::ActiveRecord::Base.reset_column_information
       end
     end
+
+    class NativeTruncationSpecHelper < SpecHelper
+      TRUNCATED_AT = "add_truncated_at_to_event_store_events_in_streams"
+      STREAMS_METADATA = "create_event_store_streams_metadata"
+      SUPPORT_HELPERS = File.expand_path("../../support/helpers", __dir__)
+
+      def run_lifecycle
+        establish_database_connection
+        load_database_schema
+        add_truncated_at
+        add_streams_metadata
+        reset_column_information
+        yield
+      ensure
+        drop_streams_metadata
+        drop_database
+      end
+
+      def add_truncated_at
+        ::ActiveRecord::Migration.suppress_messages do
+          Migrator.new(File.expand_path(template_path, SUPPORT_HELPERS)).run_migration(
+            TRUNCATED_AT,
+            connection: ::ActiveRecord::Base.connection,
+          )
+        end
+      end
+
+      def remove_truncated_at
+        ::ActiveRecord::Migration.suppress_messages do
+          Migrator.const_get(TRUNCATED_AT.camelize).new.exec_migration(::ActiveRecord::Base.connection, :down)
+        end
+        EventInStream.reset_column_information
+      end
+
+      def add_streams_metadata
+        Migrator.new(File.expand_path("../lib/ruby_event_store/active_record/generators/templates", __dir__)).run_migration(
+          STREAMS_METADATA,
+        )
+      end
+
+      def drop_streams_metadata
+        ::ActiveRecord::Migration.drop_table("event_store_streams_metadata", if_exists: true)
+      end
+    end
   end
 
   class CustomApplicationRecord < ::ActiveRecord::Base

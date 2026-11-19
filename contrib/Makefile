@@ -6,6 +6,7 @@ GEMS = minitest-ruby_event_store \
        ruby_event_store-profiler \
        ruby_event_store-protobuf \
        ruby_event_store-rom \
+       ruby_event_store-scavenger \
        ruby_event_store-sequel \
        ruby_event_store-sidekiq_scheduler \
        ruby_event_store-transformations \

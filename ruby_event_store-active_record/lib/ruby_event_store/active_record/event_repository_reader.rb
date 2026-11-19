@@ -3,6 +3,8 @@
 module RubyEventStore
   module ActiveRecord
     class EventRepositoryReader
+      VISIBLE_INDEX = "index_event_store_events_in_streams_on_stream_and_id_visible"
+
       def initialize(event_klass, stream_klass, serializer)
         @event_klass = event_klass
         @stream_klass = stream_klass
@@ -14,7 +16,7 @@ module RubyEventStore
       end
 
       def last_stream_event(stream)
-        record_ = @stream_klass.where(stream: stream.name).order("position DESC, id DESC").first
+        record_ = visible(@stream_klass.where(stream: stream.name)).order("position DESC, id DESC").first
         record(record_) if record_
       end
 
@@ -38,11 +40,11 @@ module RubyEventStore
       end
 
       def streams_of(event_id)
-        @stream_klass.where(event_id: event_id).pluck(:stream).map { |name| Stream.new(name) }
+        visible(@stream_klass.where(event_id: event_id)).pluck(:stream).map { |name| Stream.new(name) }
       end
 
       def position_in_stream(event_id, stream)
-        record = @stream_klass.select("position").where(stream: stream.name).find_by(event_id: event_id)
+        record = visible(@stream_klass.select("position").where(stream: stream.name)).find_by(event_id: event_id)
         raise EventNotFoundInStream if record.nil?
         record.position
       end
@@ -54,12 +56,34 @@ module RubyEventStore
       end
 
       def event_in_stream?(event_id, stream)
-        @stream_klass.where(event_id: event_id, stream: stream.name).exists?
+        visible(@stream_klass.where(event_id: event_id, stream: stream.name)).exists?
+      end
+
+      # Whether the stream table can hide entries: the partial index on (stream, id) for visible
+      # entries where the database has partial indexes, the truncated_at column elsewhere.
+      # Checked once; until then and without it reads of a stream stay as they are.
+      def truncation_supported?
+        @truncation_supported = detect_truncation_support if @truncation_supported.nil?
+        @truncation_supported
       end
 
       private
 
       attr_reader :serializer
+
+      def detect_truncation_support
+        @stream_klass.with_connection do |connection|
+          if connection.supports_partial_index?
+            connection.indexes(@stream_klass.table_name).map(&:name).include?(VISIBLE_INDEX)
+          else
+            @stream_klass.column_names.include?("truncated_at")
+          end
+        end
+      end
+
+      def visible(scope)
+        truncation_supported? ? scope.where(@stream_klass.table_name => { truncated_at: nil }) : scope
+      end
 
       def offset_limit_batch_reader(spec, stream)
         batch_reader = ->(offset, limit) { stream.offset(offset).limit(limit).map(&method(:record)) }
@@ -96,7 +120,7 @@ module RubyEventStore
           stream = stream.where(newer_than_or_equal_condition(spec)) if spec.newer_than_or_equal
           stream.order(id: order(spec))
         else
-          stream = @stream_klass.includes(:event).where(stream: spec.stream.name)
+          stream = visible(@stream_klass.includes(:event).where(stream: spec.stream.name))
           stream = stream.where(event_id: spec.with_ids) if spec.with_ids?
           stream =
             stream.joins(:event).where(@event_klass.table_name => { event_type: spec.with_types }) if spec.with_types?
@@ -137,7 +161,7 @@ module RubyEventStore
       def start_condition(specification)
         start_offset_condition(
           specification,
-          @stream_klass.find_by!(event_id: specification.start, stream: specification.stream.name),
+          visible(@stream_klass).find_by!(event_id: specification.start, stream: specification.stream.name),
           @stream_klass.table_name,
         )
       rescue ::ActiveRecord::RecordNotFound
@@ -147,7 +171,7 @@ module RubyEventStore
       def stop_condition(specification)
         stop_offset_condition(
           specification,
-          @stream_klass.find_by!(event_id: specification.stop, stream: specification.stream.name),
+          visible(@stream_klass).find_by!(event_id: specification.stop, stream: specification.stream.name),
           @stream_klass.table_name,
         )
       rescue ::ActiveRecord::RecordNotFound

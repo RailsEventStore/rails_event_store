@@ -14,12 +14,30 @@ module RubyEventStore
     end
 
     class EventInStream
-      def initialize(event_id, position)
+      def initialize(event_id, position, hidden: false, sentinel: false)
         @event_id = event_id
         @position = position
+        @hidden = hidden
+        @sentinel = sentinel
       end
 
       attr_reader :event_id, :position
+
+      def hidden?
+        @hidden
+      end
+
+      def sentinel?
+        @sentinel
+      end
+
+      def hide
+        @hidden = true
+      end
+
+      def show
+        @hidden = false
+      end
     end
 
     def initialize(serializer: NULL)
@@ -27,6 +45,8 @@ module RubyEventStore
       @streams = Hash.new { |h, k| h[k] = Array.new }
       @mutex = Mutex.new
       @storage = Hash.new
+      @stream_metadata = Hash.new
+      @truncation_boundaries = Hash.new
     end
 
     def append_to_stream(records, stream, expected_version)
@@ -34,9 +54,7 @@ module RubyEventStore
 
       with_synchronize(expected_version, stream) do |resolved_version|
         ensure_supported_any_usage(resolved_version, stream)
-        unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
-          raise WrongExpectedEventVersion
-        end
+        ensure_expected_version(resolved_version, stream)
 
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event?(serialized_record.event_id)
@@ -52,9 +70,7 @@ module RubyEventStore
 
       with_synchronize(expected_version, stream) do |resolved_version|
         ensure_supported_any_usage(resolved_version, stream)
-        unless resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
-          raise WrongExpectedEventVersion
-        end
+        ensure_expected_version(resolved_version, stream)
 
         serialized_records.each_with_index do |serialized_record, index|
           raise EventDuplicatedInStream if has_event_in_stream?(serialized_record.event_id, stream.name)
@@ -65,6 +81,7 @@ module RubyEventStore
     end
 
     def delete_stream(stream)
+      @truncation_boundaries.delete(stream.name)
       streams.delete(stream.name)
     end
 
@@ -119,11 +136,11 @@ module RubyEventStore
     end
 
     def streams_of(event_id)
-      streams.select { |name,| has_event_in_stream?(event_id, name) }.map { |name,| Stream.new(name) }
+      streams.select { |name,| visible_event_in_stream(event_id, name) }.map { |name,| Stream.new(name) }
     end
 
     def position_in_stream(event_id, stream)
-      event_in_stream = streams[stream.name].find { |event_in_stream| event_in_stream.event_id.eql?(event_id) }
+      event_in_stream = visible_event_in_stream(event_id, stream.name)
       raise EventNotFoundInStream if event_in_stream.nil?
       event_in_stream.position
     end
@@ -133,10 +150,114 @@ module RubyEventStore
     end
 
     def event_in_stream?(event_id, stream)
-      !streams[stream.name].find { |event_in_stream| event_in_stream.event_id.eql?(event_id) }.nil?
+      !visible_event_in_stream(event_id, stream.name).nil?
+    end
+
+    def supports_native_truncation?
+      true
+    end
+
+    def last_stream_version_and_tombstone(stream)
+      [entries_of(stream).last&.position, stream_metadata(stream).tombstoned?]
+    end
+
+    def stream_metadata(stream)
+      @stream_metadata.fetch(stream.name, StreamMetadata.none)
+    end
+
+    def append_stream_metadata(record, stream, expected_version)
+      serialized_record = record.serialize(serializer)
+      meta_stream = StreamMetadata.meta_stream(stream)
+
+      mutex.synchronize do
+        ensure_expected_version(expected_version.resolve_for(stream, method(:last_stream_version)), stream)
+        raise EventDuplicatedInStream if has_event?(record.event_id)
+
+        storage[record.event_id] = serialized_record
+        add_to_stream(meta_stream, serialized_record, last_stream_version(meta_stream), 0)
+        apply_stream_metadata(record, stream)
+      end
+      self
+    end
+
+    def mark_truncated(stream, batch_size)
+      mutex.synchronize do
+        entries_of(stream).first(truncation_boundary(stream)).reject(&:hidden?).take(batch_size).each(&:hide).size
+      end
+    end
+
+    def unmark_truncated(stream, batch_size)
+      mutex.synchronize do
+        entries_of(stream)
+          .drop(truncation_boundary(stream))
+          .reverse
+          .select { |entry| entry.hidden? && !entry.sentinel? }
+          .take(batch_size)
+          .each(&:show)
+          .size
+      end
     end
 
     private
+
+    def apply_stream_metadata(record, stream)
+      data = record.data
+      case record.event_type
+      when StreamMetadataEvents::StreamMetadataChanged.name
+        change_stream_metadata(stream, max_count: data.fetch("max_count"), max_age: data.fetch("max_age"))
+      when StreamMetadataEvents::StreamTruncated.name
+        before_position = data.fetch("before_position")
+        truncate(stream, before_position, entries_of(stream).count { |entry| entry.position&.<(before_position) })
+      when StreamMetadataEvents::StreamSoftDeleted.name
+        entries = entries_of(stream)
+        truncate(stream, entries.last&.position&.succ, entries.size)
+        change_stream_metadata(stream, soft_deleted_at: record.timestamp)
+      when StreamMetadataEvents::StreamTombstoned.name
+        change_stream_metadata(stream, tombstoned_at: record.timestamp)
+        add_sentinel(stream, record.event_id)
+      when StreamMetadataEvents::StreamRestored.name
+        change_stream_metadata(stream, soft_deleted_at: nil, truncate_before: nil)
+        @truncation_boundaries.delete(stream.name)
+      end
+    end
+
+    def change_stream_metadata(stream, **attributes)
+      @stream_metadata[stream.name] = stream_metadata(stream).with(**attributes)
+    end
+
+    # The hide boundary is the number of entries at the start of the stream it covers.
+    def truncate(stream, before_position, covered_entries)
+      truncate_before = [stream_metadata(stream).truncate_before, before_position].compact.max
+      change_stream_metadata(stream, truncate_before: truncate_before)
+      @truncation_boundaries[stream.name] = [truncation_boundary(stream), covered_entries].max
+    end
+
+    def truncation_boundary(stream)
+      @truncation_boundaries.fetch(stream.name, 0)
+    end
+
+    def add_sentinel(stream, event_id)
+      entries = entries_of(stream)
+      position = entries.empty? ? 0 : entries.last.position&.succ
+      streams[stream.name] << EventInStream.new(event_id, position, hidden: true, sentinel: true)
+    end
+
+    def entries_of(stream)
+      streams.fetch(stream.name, Array.new)
+    end
+
+    def visible_entries_of(stream)
+      entries_of(stream).reject(&:hidden?)
+    end
+
+    def visible_event_in_stream(event_id, stream_name)
+      streams.fetch(stream_name, Array.new).find { |entry| !entry.hidden? && entry.event_id.eql?(event_id) }
+    end
+
+    def ensure_expected_version(resolved_version, stream)
+      return if resolved_version.nil? || last_stream_version(stream).equal?(resolved_version)
+      raise WrongExpectedEventVersion
+    end
 
     def read_scope(spec)
       serialized_records = serialized_records_of_stream(spec.stream)
@@ -177,7 +298,7 @@ module RubyEventStore
     end
 
     def event_ids_of_stream(stream)
-      streams.fetch(stream.name, Array.new).map(&:event_id)
+      visible_entries_of(stream).map(&:event_id)
     end
 
     def serialized_records_of_stream(stream)

@@ -8,6 +8,12 @@ module RubyEventStore
     SERIALIZED_GLOBAL_STREAM_NAME = "all".freeze
     DEFAULT_RELATED_STREAMS_QUERY = ->(stream_name) { [] }
 
+    RESERVED_STREAM_PREFIX = "$".freeze
+
+    def self.reserved_stream?(stream_name)
+      stream_name.to_s.start_with?(RESERVED_STREAM_PREFIX)
+    end
+
     ASSETS_ROOT = File.expand_path("../../public", __dir__).freeze
 
     def self.fingerprint(name)
@@ -23,6 +29,7 @@ end
 
 require_relative "browser/get_events_from_stream"
 require_relative "browser/get_events_from_streams"
+require_relative "browser/get_stream_metadata"
 require_relative "browser/urls"
 require_relative "browser/router"
 require_relative "browser/renderer"

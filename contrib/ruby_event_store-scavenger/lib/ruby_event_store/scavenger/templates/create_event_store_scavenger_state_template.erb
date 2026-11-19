@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+class CreateEventStoreScavengerState < ActiveRecord::Migration[<%= migration_version %>]
+  def change
+    create_table(:event_store_scavenger_state, force: false) do |t|
+      t.string   :name,        null: false, index: { unique: true }
+      t.string   :status,      null: false
+      t.string   :stream,      null: true
+      t.string   :last_stream, null: true
+      t.datetime :updated_at,  null: false, precision: 6
+      t.string   :locked_by,   null: true
+      t.datetime :locked_at,   null: true, precision: 6
+    end
+  end
+end

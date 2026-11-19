@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+# MySQL has no partial indexes, so index_event_store_events_in_streams_on_stream_and_id
+# stays. Reads of a stream skip hidden entries while scanning that index: the more entries
+# are hidden and not yet removed by the scavenger, the more rows such a read goes through.
+class AddTruncatedAtToEventStoreEventsInStreams < ActiveRecord::Migration[<%= migration_version %>]
+  def change
+    add_column :event_store_events_in_streams, :truncated_at, :datetime, null: true, precision: 6, if_not_exists: true
+  end
+end
