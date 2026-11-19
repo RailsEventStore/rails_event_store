@@ -119,7 +119,8 @@ module RubyEventStore
             events: reader.events,
             pagination:
               reader.pagination.transform_values { |cursor| urls.stream_page_url(stream_name, cursor, reader.count) },
-            related_streams: related_streams_query.call(stream_name),
+            related_streams: related_streams_query.call(stream_name).reject { |name| Browser.reserved_stream?(name) },
+            stream_metadata: GetStreamMetadata.new(event_store: event_store, stream_name: stream_name).call,
             extension_links: stream_extension_links(stream_name, urls),
           )
         end
@@ -136,7 +137,7 @@ module RubyEventStore
             event: event,
             title: "Event #{event.event_id}",
             metadata: metadata,
-            streams: event_store.streams_of(event.event_id).map(&:name).sort,
+            streams: event_store.streams_of(event.event_id).map(&:name).reject { |name| Browser.reserved_stream?(name) }.sort,
             parent_event: parent_event,
             caused_by: event_store.read.stream("$by_causation_id_#{event.event_id}").backward.limit(PAGE_SIZE).to_a,
             extension_links: event_extension_links(event, urls),

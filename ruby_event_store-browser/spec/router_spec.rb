@@ -23,6 +23,24 @@ module RubyEventStore
         end.to yield_with_args({ "try_me" => "foo-bar.xml" }, urls.with_request(request))
       end
 
+      specify "dollar sign in params" do
+        request = mock_request("GET", "/%24%24foo")
+        expect do |probe|
+          router = Router.new
+          router.add_route("GET", "/:try_me", &probe)
+          router.handle(request)
+        end.to yield_with_args({ "try_me" => "$$foo" }, urls.with_request(request))
+      end
+
+      specify "raw dollar sign in params" do
+        request = mock_request("GET", "/$$foo")
+        expect do |probe|
+          router = Router.new
+          router.add_route("GET", "/:try_me", &probe)
+          router.handle(request)
+        end.to yield_with_args({ "try_me" => "$$foo" }, urls.with_request(request))
+      end
+
       specify "non-ASCII params" do
         request = mock_request("GET", "/za%C5%BC%C3%B3%C5%82%C4%87")
         expect do |probe|

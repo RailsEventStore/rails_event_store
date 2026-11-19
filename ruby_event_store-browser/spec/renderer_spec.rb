@@ -280,6 +280,7 @@ module RubyEventStore
               events: [event],
               pagination: { prev: nil, first: nil, next: nil, last: nil },
               related_streams: [],
+              stream_metadata: nil,
               extension_links: [],
             )
           expect(result).not_to match(/\n\s*\n\s*\n/)
