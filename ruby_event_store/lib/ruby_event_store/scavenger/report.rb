@@ -15,7 +15,8 @@ module RubyEventStore
       # reasons - as in Plan
       # marked  - entries hidden by MARK
       # swept   - entries removed by SWEEP
-      StreamResult = Data.define(:stream, :reasons, :marked, :swept)
+      # purged  - events removed after their links (policy :purge); 0 with :links_only
+      StreamResult = Data.define(:stream, :reasons, :marked, :swept, :purged)
 
       def marked
         streams.sum(&:marked)
@@ -23,6 +24,10 @@ module RubyEventStore
 
       def swept
         streams.sum(&:swept)
+      end
+
+      def purged
+        streams.sum(&:purged)
       end
     end
   end

@@ -12,7 +12,9 @@ module RubyEventStore
     # to_mark  - visible entries up to the boundary, to be hidden by MARK
     # to_sweep - hidden entries marked before the sweep cutoff, to be removed by SWEEP; the
     #            position anchor and the tombstone sentinel are never counted
-    class Plan < Data.define(:stream, :boundary, :reasons, :to_mark, :to_sweep)
+    # to_purge - with policy :purge, events of entries to sweep that no other stream links to,
+    #            to be removed after their links; 0 with :links_only
+    class Plan < Data.define(:stream, :boundary, :reasons, :to_mark, :to_sweep, :to_purge)
       # truncate_before - truncate_stream
       # soft_delete     - soft_delete_stream
       # max_count       - retention: the stream keeps that many visible entries, the newest

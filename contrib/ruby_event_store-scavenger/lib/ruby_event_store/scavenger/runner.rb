@@ -6,6 +6,7 @@ module RubyEventStore
   module Scavenger
     NotAllowed = Class.new(Error)
     GracePeriodTooShort = Class.new(Error)
+    PurgeNotConfirmed = Class.new(Error)
 
     # Physical removal of hidden stream entries, as a process apart from the application.
     #
@@ -21,6 +22,13 @@ module RubyEventStore
     # stream that lost links gets StreamScavenged in its meta stream. A run stops cleanly once
     # max_duration has passed; the next one resumes with the stream it stopped at.
     #
+    # Policy :purge also removes, after their links, the events no stream links to any more.
+    # IT LEAVES GAPS IN GLOBAL POSITIONS, which projections and catch-up subscriptions reading
+    # the global stream may not expect, so the runner refuses it unless
+    # confirm: :i_understand_global_position_gaps is passed. Only events of links a :purge run
+    # removes itself go: an event whose last link went earlier (by :links_only or delete_stream)
+    # stays.
+    #
     # A dry run is the default: it changes nothing, takes no lock, writes no status, starts from
     # the first stream, and reports what a run would mark and sweep now.
     #
@@ -28,12 +36,14 @@ module RubyEventStore
     # that an application which loads the gem by accident does not remove data.
     #
     # repository - the native repository (not decorated), for StreamScavenged
+    # confirm    - PURGE_CONFIRMATION, required by policy :purge
     # base       - the ActiveRecord class whose connection holds the lock and the status
     # streams    - :all, an Array of stream names, or a callable taking a name
     # throttle   - seconds to sleep between batches
     class Runner
       DEFAULT_GRACE_PERIOD = 7 * 24 * 3600
       DEFAULT_BATCH_SIZE = 1_000
+      PURGE_CONFIRMATION = :i_understand_global_position_gaps
 
       # A runner on the tables of RubyEventStore::ActiveRecord::EventRepository.
       def self.active_record(serializer:, model_factory: ActiveRecord::WithDefaultModels.new, **options)
@@ -48,6 +58,7 @@ module RubyEventStore
         repository:,
         strategy:,
         policy: :links_only,
+        confirm: nil,
         batch_size: DEFAULT_BATCH_SIZE,
         grace_period: DEFAULT_GRACE_PERIOD,
         force: false,
@@ -66,9 +77,13 @@ module RubyEventStore
         if grace_period < DEFAULT_GRACE_PERIOD && !force
           raise GracePeriodTooShort, "A grace period shorter than #{DEFAULT_GRACE_PERIOD} seconds needs force"
         end
+        @policy = Policy.of(policy)
+        if @policy.purge? && !PURGE_CONFIRMATION.equal?(confirm)
+          raise PurgeNotConfirmed,
+                "Policy purge leaves gaps in global positions; pass confirm: #{PURGE_CONFIRMATION.inspect}"
+        end
         @repository = repository
         @strategy = strategy
-        @policy = Policy.of(policy)
         @batch_size = batch_size
         @grace_period = grace_period
         @max_duration = max_duration
@@ -157,9 +172,9 @@ module RubyEventStore
 
       def scavenge(stream, cursor)
         now = clock.call
-        plan = strategy.plan(stream, now: now, sweep_before: now - grace_period)
+        plan = strategy.plan(stream, now: now, sweep_before: now - grace_period, purge: policy.purge?)
         return if plan.empty?
-        counts = { mark: 0, sweep: 0 }
+        counts = { mark: 0, sweep: 0, purge: 0 }
         instrumentation.instrument(
           "scavenge_stream.ruby_event_store",
           stream: stream,
@@ -167,11 +182,11 @@ module RubyEventStore
           dry_run: @dry_run,
         ) do |payload|
           if @dry_run
-            counts = { mark: plan.to_mark, sweep: plan.to_sweep }
+            counts = { mark: plan.to_mark, sweep: plan.to_sweep, purge: plan.to_purge }
           else
             mark_and_sweep(plan, now, cursor, counts)
           end
-          payload.merge!(marked: counts.fetch(:mark), swept: counts.fetch(:sweep))
+          payload.merge!(marked: counts.fetch(:mark), swept: counts.fetch(:sweep), purged: counts.fetch(:purge))
         end
         record(plan, counts)
       end
@@ -179,22 +194,36 @@ module RubyEventStore
       def mark_and_sweep(plan, now, cursor, counts)
         stream = plan.stream
         save(:marking, stream.name, cursor)
-        batches(:mark, stream, counts) { strategy.mark(plan, batch_size, now: now) }
-        unless @interrupted
-          save(:sweeping, stream.name, cursor)
-          sweep_before = clock.call - grace_period
-          batches(:sweep, stream, counts) { strategy.sweep(stream, batch_size, before: sweep_before) }
-        end
-        record_scavenged(stream, counts.fetch(:sweep))
+        batches(:mark, stream) { strategy.mark(plan, batch_size, now: now).tap { |size| counts[:mark] += size } }
+        sweep(stream, cursor, counts) unless @interrupted
+        record_scavenged(stream, counts)
       end
 
-      def batches(phase, stream, counts)
+      def sweep(stream, cursor, counts)
+        sweep_before = clock.call - grace_period
+        status, phase = policy.purge? ? %i[purging purge] : %i[sweeping sweep]
+        save(status, stream.name, cursor)
+        batches(phase, stream) do
+          links, events = remove(stream, sweep_before)
+          counts[:sweep] += links
+          counts[:purge] += events
+          links
+        end
+      end
+
+      # One batch of SWEEP: the links removed and, with policy :purge, the events removed after them.
+      def remove(stream, before)
+        return strategy.purge(stream, batch_size, before: before) if policy.purge?
+        [strategy.sweep(stream, batch_size, before: before), 0]
+      end
+
+      # Yields for each batch until one comes out smaller than batch_size; the block returns its size.
+      def batches(phase, stream)
         loop do
           size =
             instrumentation.instrument("scavenge_batch.ruby_event_store", stream: stream, phase: phase) do |payload|
               payload[:size] = yield
             end
-          counts[phase] += size
           break if size < batch_size || timed_out?
           sleeper.call(throttle) unless throttle.zero?
         end
@@ -210,10 +239,12 @@ module RubyEventStore
           reasons: plan.reasons,
           marked: counts.fetch(:mark),
           swept: counts.fetch(:sweep),
+          purged: counts.fetch(:purge),
         )
       end
 
-      def record_scavenged(stream, swept)
+      def record_scavenged(stream, counts)
+        swept = counts.fetch(:sweep)
         return if swept.zero?
         timestamp = clock.call.round(TIMESTAMP_PRECISION)
         record =
@@ -224,7 +255,7 @@ module RubyEventStore
               "stream" => stream.name,
               "policy" => policy.to_s,
               "removed_links" => swept,
-              "removed_events" => 0,
+              "removed_events" => counts.fetch(:purge),
             },
             metadata: {
             },

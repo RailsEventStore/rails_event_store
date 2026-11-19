@@ -69,7 +69,9 @@ module RubyEventStore
       specify "help of the executable needs no database" do
         allow(::ActiveRecord::Base).to receive(:establish_connection)
 
-        expect(cli.run(["--help"], connect: true, env: {})).to eq(0)
+        status = nil
+        expect { status = cli.run(["--help"], connect: true, env: {}) }.not_to raise_error
+        expect(status).to eq(0)
 
         expect(err.string).to eq("")
         expect(::ActiveRecord::Base).not_to have_received(:establish_connection)
@@ -227,7 +229,9 @@ module RubyEventStore
                   --batch-size N               Entries per batch (default: 1000)
                   --max-duration SECONDS       Stop cleanly after (default: 300)
                   --throttle SECONDS           Sleep between batches (default: 0)
-                  --policy NAME                links_only (default)
+                  --policy NAME                links_only (default) or purge, which also removes events
+                  --i-understand-global-position-gaps
+                                               Confirm policy purge: removed events leave gaps in global positions
                   --stream NAME                Only this stream; may be repeated
                   --serializer NAME            Serializer of the event store: yaml (default), json
               -h, --help                       Show this help
@@ -256,9 +260,66 @@ module RubyEventStore
         expect(err.string).to eq("invalid argument: --batch-size many\n")
       end
 
-      specify "unknown policy" do
+      specify "policy purge needs --i-understand-global-position-gaps" do
         expect(cli.run(%w[--policy purge])).to eq(1)
-        expect(err.string).to eq("Unknown scavenger policy: \"purge\"\n")
+        expect(err.string).to eq(
+          "Policy purge leaves gaps in global positions; pass confirm: :i_understand_global_position_gaps\n",
+        )
+      end
+
+      specify "a dry run of policy purge" do
+        cli.run(["--execute"])
+        backdate_marks
+        out.truncate(0)
+        out.rewind
+
+        expect(cli.run([*%w[--policy purge --i-understand-global-position-gaps], *serializer])).to eq(0)
+
+        expect(out.string).to eq(<<~EOS)
+          Dry run, nothing changed. Policy: purge. Outcome: finished.
+          Order$1: to mark 0, to sweep 3, to purge 3
+          Total: to mark 0, to sweep 3, to purge 3.
+        EOS
+        expect(links("Order$1")).to eq(5)
+      end
+
+      specify "executes policy purge" do
+        cli.run(["--execute"])
+        backdate_marks
+        out.truncate(0)
+        out.rewind
+
+        expect(cli.run([*%w[--execute --policy purge --i-understand-global-position-gaps], *serializer])).to eq(0)
+
+        expect(out.string).to eq(<<~EOS)
+          Scavenged. Policy: purge. Outcome: finished.
+          Order$1: marked 0, swept 3, purged 3
+          Total: marked 0, swept 3, purged 3.
+        EOS
+        expect(client.read.of_type(RubyEventStore::Event).count).to eq(2)
+      end
+
+      specify "passes the purge confirmation to the runner" do
+        runner =
+          instance_double(
+            Runner,
+            call: Report.new(policy: Policy.purge, dry_run: true, outcome: :finished, streams: []),
+          )
+        allow(Runner).to receive(:active_record).and_return(runner)
+
+        cli.run(%w[--policy purge --i-understand-global-position-gaps])
+
+        expect(Runner).to have_received(:active_record).with(
+          serializer: Serializers::YAML,
+          allow_in_process: true,
+          policy: "purge",
+          confirm: :i_understand_global_position_gaps,
+        )
+      end
+
+      specify "unknown policy" do
+        expect(cli.run(%w[--policy delete])).to eq(1)
+        expect(err.string).to eq("Unknown scavenger policy: \"delete\"\n")
       end
 
       specify "connects to --database-url" do
@@ -326,6 +387,7 @@ module RubyEventStore
         env = {
           "EXECUTE" => "1",
           "FORCE" => "true",
+          "I_UNDERSTAND_GLOBAL_POSITION_GAPS" => "1",
           "GRACE_PERIOD" => "60",
           "BATCH_SIZE" => "10",
           "MAX_DURATION" => "30",
@@ -339,6 +401,7 @@ module RubyEventStore
           %w[
             --execute
             --force
+            --i-understand-global-position-gaps
             --grace-period
             60
             --batch-size
@@ -360,7 +423,9 @@ module RubyEventStore
       end
 
       specify "flags only when 1 or true" do
-        expect(CLI.argv_from_env("EXECUTE" => "0", "FORCE" => "yes")).to eq([])
+        expect(CLI.argv_from_env("EXECUTE" => "0", "FORCE" => "yes", "I_UNDERSTAND_GLOBAL_POSITION_GAPS" => "0")).to eq(
+          [],
+        )
         expect(CLI.argv_from_env("EXECUTE" => "true", "FORCE" => "1")).to eq(%w[--execute --force])
       end
     end

@@ -27,6 +27,14 @@ module RubyEventStore
         )
       end
 
+      def purger(**options)
+        runner(policy: :purge, confirm: Runner::PURGE_CONFIRMATION, **options)
+      end
+
+      def events?(event_ids)
+        event_ids.map { |event_id| repository.has_event?(event_id) }
+      end
+
       def publish(stream_name, count)
         events = Array.new(count) { RubyEventStore::Event.new }
         client.publish(events, stream_name: stream_name, expected_version: :auto)
@@ -119,8 +127,37 @@ module RubyEventStore
           expect { runner(grace_period: 0, force: true) }.not_to raise_error
         end
 
+        specify "refuses policy purge without confirmation" do
+          message = "Policy purge leaves gaps in global positions; pass confirm: :i_understand_global_position_gaps"
+
+          expect { runner(policy: :purge) }.to raise_error(PurgeNotConfirmed, message)
+          expect { runner(policy: Policy.purge, confirm: :yes) }.to raise_error(PurgeNotConfirmed, message)
+          expect { runner(policy: "purge", confirm: "i_understand_global_position_gaps") }.to raise_error(
+            PurgeNotConfirmed,
+          )
+        end
+
+        specify "takes policy purge with confirmation" do
+          expect(runner(policy: :purge, confirm: :i_understand_global_position_gaps).call.policy).to eq(Policy.purge)
+        end
+
+        specify "takes policy links_only with or without confirmation" do
+          expect(runner(confirm: Runner::PURGE_CONFIRMATION).call.policy).to eq(Policy.links_only)
+          expect(runner(confirm: :yes).call.policy).to eq(Policy.links_only)
+        end
+
+        specify "purge confirmation" do
+          expect(Runner::PURGE_CONFIRMATION).to eq(:i_understand_global_position_gaps)
+          expect(PurgeNotConfirmed.ancestors).to include(Error)
+        end
+
+        specify "policy purge has the grace period rules of links_only" do
+          expect { purger(grace_period: 0) }.to raise_error(GracePeriodTooShort)
+          expect { purger(grace_period: 0, force: true) }.not_to raise_error
+        end
+
         specify "refuses an unknown policy" do
-          expect { runner(policy: :purge) }.to raise_error(InvalidPolicy)
+          expect { runner(policy: :delete) }.to raise_error(InvalidPolicy)
         end
 
         specify "builds state and lock on the base class by default" do
@@ -171,8 +208,20 @@ module RubyEventStore
               dry_run: true,
               outcome: :finished,
               streams: [
-                Report::StreamResult.new(stream: Stream.new("Order$1"), reasons: [:max_count], marked: 3, swept: 0),
-                Report::StreamResult.new(stream: Stream.new("Order$2"), reasons: [:soft_delete], marked: 0, swept: 2),
+                Report::StreamResult.new(
+                  stream: Stream.new("Order$1"),
+                  reasons: [:max_count],
+                  marked: 3,
+                  swept: 0,
+                  purged: 0,
+                ),
+                Report::StreamResult.new(
+                  stream: Stream.new("Order$2"),
+                  reasons: [:soft_delete],
+                  marked: 0,
+                  swept: 2,
+                  purged: 0,
+                ),
               ],
             ),
           )
@@ -231,7 +280,13 @@ module RubyEventStore
               dry_run: false,
               outcome: :finished,
               streams: [
-                Report::StreamResult.new(stream: Stream.new("Order$1"), reasons: [:max_count], marked: 3, swept: 0),
+                Report::StreamResult.new(
+                  stream: Stream.new("Order$1"),
+                  reasons: [:max_count],
+                  marked: 3,
+                  swept: 0,
+                  purged: 0,
+                ),
               ],
             ),
           )
@@ -270,7 +325,7 @@ module RubyEventStore
           report = runner.call(dry_run: false)
           expect(report.swept).to eq(3)
           expect(report.streams).to eq(
-            [Report::StreamResult.new(stream: Stream.new("Order$1"), reasons: [], marked: 0, swept: 3)],
+            [Report::StreamResult.new(stream: Stream.new("Order$1"), reasons: [], marked: 0, swept: 3, purged: 0)],
           )
           expect(links("Order$1")).to eq(2)
         end
@@ -509,6 +564,154 @@ module RubyEventStore
         end
       end
 
+      describe "policy purge" do
+        specify "a dry run reports the events a run would remove" do
+          event_ids = publish("Order$1", 4)
+          client.link(event_ids.take(1), stream_name: "Order$2")
+          client.soft_delete_stream("Order$1")
+          sweep_day
+
+          report = nil
+          expect(writes { report = purger.call }).to eq([])
+
+          expect(report).to eq(
+            Report.new(
+              policy: Policy.purge,
+              dry_run: true,
+              outcome: :finished,
+              streams: [
+                Report::StreamResult.new(
+                  stream: Stream.new("Order$1"),
+                  reasons: [:soft_delete],
+                  marked: 0,
+                  swept: 3,
+                  purged: 2,
+                ),
+              ],
+            ),
+          )
+          expect(events?(event_ids)).to eq([true] * 4)
+        end
+
+        specify "removes links, then the events no stream links to" do
+          event_ids = publish("Order$1", 4)
+          client.link(event_ids.take(1), stream_name: "Order$2")
+          client.soft_delete_stream("Order$1")
+          sweep_day
+
+          report = purger.call(dry_run: false)
+
+          expect(report.streams).to eq(
+            [
+              Report::StreamResult.new(
+                stream: Stream.new("Order$1"),
+                reasons: [:soft_delete],
+                marked: 0,
+                swept: 3,
+                purged: 2,
+              ),
+            ],
+          )
+          expect(report.purged).to eq(2)
+          expect(links("Order$1")).to eq(1)
+          expect(events?(event_ids)).to eq([true, false, false, true])
+          expect(client.read.stream("Order$2").map(&:event_id)).to eq(event_ids.take(1))
+        end
+
+        specify "leaves gaps in the global stream" do
+          event_ids = publish("Order$1", 3)
+          others = publish("Order$2", 1)
+          client.set_stream_metadata("Order$1", max_count: 1)
+          purger.call(dry_run: false)
+          sweep_day
+
+          purger.call(dry_run: false)
+
+          expect(client.read.of_type(RubyEventStore::Event).map(&:event_id)).to eq(event_ids.last(1) + others)
+        end
+
+        specify "marks and purges in one run with no grace period" do
+          event_ids = publish("Order$1", 3)
+          client.set_stream_metadata("Order$1", max_count: 1)
+          real_clock = -> { Time.now.utc }
+
+          report = purger(grace_period: 0, force: true, clock: real_clock).call(dry_run: false)
+
+          expect([report.marked, report.swept, report.purged]).to eq([2, 2, 2])
+          expect(events?(event_ids)).to eq([false, false, true])
+        end
+
+        specify "removes nothing within the grace period" do
+          event_ids = publish("Order$1", 3)
+          client.soft_delete_stream("Order$1")
+          clock.advance(7 * DAY - 60)
+
+          expect(purger.call(dry_run: false).streams).to eq([])
+          expect(events?(event_ids)).to eq([true] * 3)
+        end
+
+        specify "keeps the tombstone and the metadata events" do
+          publish("Order$1", 3)
+          client.tombstone_stream("Order$1")
+          client.soft_delete_stream("Order$1")
+          metadata = client.read.stream("$$Order$1").map(&:event_id)
+          sweep_day
+
+          expect(purger.call(dry_run: false).purged).to eq(3)
+          expect(events?(metadata)).to eq([true] * metadata.size)
+          expect { client.publish(RubyEventStore::Event.new, stream_name: "Order$1") }.to raise_error(StreamTombstoned)
+        end
+
+        specify "records StreamScavenged with the events removed" do
+          publish("Order$1", 3)
+          client.soft_delete_stream("Order$1")
+          sweep_day
+
+          purger.call(dry_run: false)
+
+          expect(scavenged("Order$1").map(&:data)).to eq(
+            [{ "stream" => "Order$1", "policy" => "purge", "removed_links" => 2, "removed_events" => 2 }],
+          )
+          expect(purger.call(dry_run: false).streams).to eq([])
+        end
+
+        specify "purges in batches while purging" do
+          publish("a", 4)
+          client.soft_delete_stream("a")
+          sweep_day
+          statuses = []
+          callback = ->(*, payload) do
+            statuses << [payload.fetch(:phase), payload.fetch(:size), state.status.status, state.status.stream]
+          end
+
+          ActiveSupport::Notifications.subscribed(callback, "scavenge_batch.ruby_event_store") do
+            purger(batch_size: 2).call(dry_run: false)
+          end
+
+          expect(statuses).to eq([[:mark, 0, :marking, "a"], [:purge, 2, :purging, "a"], [:purge, 1, :purging, "a"]])
+        end
+
+        specify "instruments each stream" do
+          publish("a", 3)
+          client.soft_delete_stream("a")
+          sweep_day
+
+          events = subscribe("scavenge_stream.ruby_event_store") { purger.call(dry_run: false) }
+
+          expect(events.map(&:payload)).to eq(
+            [{ stream: Stream.new("a"), reasons: [:soft_delete], dry_run: false, marked: 0, swept: 2, purged: 2 }],
+          )
+        end
+
+        specify "instruments the run" do
+          report = nil
+
+          events = subscribe("scavenge.ruby_event_store") { report = purger.call(dry_run: false) }
+
+          expect(events.map(&:payload)).to eq([{ policy: Policy.purge, dry_run: false, report: report }])
+        end
+      end
+
       describe "status and cursor" do
         specify "idle with no cursor after a finished run" do
           publish("a", 2)
@@ -587,8 +790,8 @@ module RubyEventStore
           expect(report.outcome).to eq(:interrupted)
           expect(report.streams).to eq(
             [
-              Report::StreamResult.new(stream: Stream.new("a"), reasons: [:max_count], marked: 4, swept: 0),
-              Report::StreamResult.new(stream: Stream.new("b"), reasons: [:max_count], marked: 4, swept: 0),
+              Report::StreamResult.new(stream: Stream.new("a"), reasons: [:max_count], marked: 4, swept: 0, purged: 0),
+              Report::StreamResult.new(stream: Stream.new("b"), reasons: [:max_count], marked: 4, swept: 0, purged: 0),
             ],
           )
           expect(state.status.status).to eq(:idle)
@@ -763,7 +966,7 @@ module RubyEventStore
           events = subscribe("scavenge_stream.ruby_event_store") { runner.call(dry_run: false) }
 
           expect(events.map(&:payload)).to eq(
-            [{ stream: Stream.new("a"), reasons: [], dry_run: false, marked: 0, swept: 2 }],
+            [{ stream: Stream.new("a"), reasons: [], dry_run: false, marked: 0, swept: 2, purged: 0 }],
           )
         end
 
@@ -774,7 +977,7 @@ module RubyEventStore
           events = subscribe("scavenge_stream.ruby_event_store") { runner.call }
 
           expect(events.map(&:payload)).to eq(
-            [{ stream: Stream.new("a"), reasons: [:max_count], dry_run: true, marked: 2, swept: 0 }],
+            [{ stream: Stream.new("a"), reasons: [:max_count], dry_run: true, marked: 2, swept: 0, purged: 0 }],
           )
         end
 

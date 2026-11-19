@@ -47,6 +47,21 @@ module RubyEventStore
         expect(Runner).to have_received(:active_record).with(serializer: ::JSON, batch_size: 5, policy: "links_only")
       end
 
+      specify "purges with the confirmation, also through a queue" do
+        options = {
+          execute: true,
+          serializer: SpecHelper.serializer_name,
+          policy: "purge",
+          confirm: Runner::PURGE_CONFIRMATION,
+          grace_period: 0,
+          force: true,
+        }
+
+        expect(Job.execute(Job.new(**options).serialize).purged).to eq(2)
+        expect(client.read.of_type(RubyEventStore::Event).count).to eq(1)
+        expect { Job.perform_now(execute: true, policy: "purge") }.to raise_error(PurgeNotConfirmed)
+      end
+
       specify "yaml serializer by default" do
         allow(Runner).to receive(:active_record).and_call_original
 

@@ -8,11 +8,17 @@ module RubyEventStore
     #
     # :links_only - the links of hidden entries to their stream; the events stay in the global
     #               stream, so global positions have no gaps
+    # :purge      - the links, as :links_only, and then every event of a removed link that no
+    #               stream links to any more; LEAVES GAPS IN GLOBAL POSITIONS
     class Policy < Data.define(:name)
-      NAMES = %i[links_only].freeze
+      NAMES = %i[links_only purge].freeze
 
       def self.links_only
         new(name: :links_only)
+      end
+
+      def self.purge
+        new(name: :purge)
       end
 
       # @param value [Policy, Symbol, String]
@@ -28,6 +34,10 @@ module RubyEventStore
       def initialize(name:)
         raise InvalidPolicy, "Unknown scavenger policy: #{name.inspect}" unless NAMES.include?(name)
         super
+      end
+
+      def purge?
+        name.equal?(:purge)
       end
 
       def to_s

@@ -4,8 +4,8 @@ module RubyEventStore
   module Scavenger
     # Where the scavenger is, as recorded by the last run that changed anything.
     #
-    # status     - :idle, :marking or :sweeping
-    # stream     - name of the stream being marked or swept; nil when idle
+    # status     - :idle, :marking, :sweeping or :purging (SWEEP with policy :purge)
+    # stream     - name of the stream being marked, swept or purged; nil when idle
     # cursor     - name of the last stream a run finished; the next run starts after it,
     #              nil when the last run went through every stream
     # updated_at - time of the record; nil when no run has been recorded yet

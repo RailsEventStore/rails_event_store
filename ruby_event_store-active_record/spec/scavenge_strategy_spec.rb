@@ -81,6 +81,58 @@ module RubyEventStore
         ).and match_query(/\ADELETE (?!.*SELECT)/m)
       end
 
+      specify "purges links by id, then events with no link left, in one transaction" do
+        append(3)
+        write("StreamSoftDeleted")
+        repository.mark_truncated(stream, 10)
+
+        expect { strategy.purge(stream, 10, before: far_future) }.to match_query(
+          /ORDER BY #{column % "id"} ASC/,
+        ).and match_query(/\ADELETE FROM [`"]?event_store_events_in_streams[`"]? (?!.*SELECT)/m).and match_query(
+                      /\ADELETE FROM [`"]?event_store_events[`"]? WHERE .*NOT \(?EXISTS \(SELECT #{column % "id"} FROM/m,
+                    ).and match_query(/\A(BEGIN|SAVEPOINT)/)
+      end
+
+      specify "counts events to purge with NOT EXISTS" do
+        expect { strategy.plan(stream, now: Time.now.utc, sweep_before: far_future, purge: true) }.to match_query(
+          /NOT \(?EXISTS \(SELECT [`"]?others[`"]?\.[`"]?id[`"]? FROM [`"]?event_store_events_in_streams[`"]? (AS )?[`"]?others[`"]?/,
+        )
+      end
+
+      specify "keeps the links when the events cannot be purged" do
+        event_ids = append(3)
+        write("StreamSoftDeleted")
+        repository.mark_truncated(stream, 10)
+        allow_any_instance_of(::ActiveRecord::Relation).to receive(:delete_all).and_wrap_original do |original|
+          raise "boom" if original.receiver.klass.equal?(Event)
+          original.call
+        end
+
+        expect { strategy.purge(stream, 10, before: far_future) }.to raise_error("boom")
+        expect(EventInStream.where(stream: stream.name).count).to eq(3)
+        expect(event_ids.map { |event_id| repository.has_event?(event_id) }).to eq([true] * 3)
+      end
+
+      specify "keeps an event linked to another stream after it was selected" do
+        event_ids = append(3)
+        write("StreamSoftDeleted")
+        repository.mark_truncated(stream, 10)
+        after_ids_selected { repository.link_to_stream(event_ids.take(1), Stream.new("other"), ExpectedVersion.any) }
+
+        expect(strategy.purge(stream, 10, before: far_future)).to eq([2, 1])
+        expect(event_ids.map { |event_id| repository.has_event?(event_id) }).to eq([true, false, true])
+      end
+
+      specify "purges nothing of an entry shown again after it was selected" do
+        event_ids = append(3)
+        write("StreamSoftDeleted")
+        repository.mark_truncated(stream, 10)
+        after_ids_selected { EventInStream.where(stream: stream.name).update_all(truncated_at: nil) }
+
+        expect(strategy.purge(stream, 10, before: far_future)).to eq([0, 0])
+        expect(event_ids.map { |event_id| repository.has_event?(event_id) }).to eq([true] * 3)
+      end
+
       specify "leaves an entry marked after it was selected" do
         append(3)
         write("StreamMetadataChanged", max_count: 1, max_age: nil)
@@ -134,6 +186,9 @@ module RubyEventStore
 
         expect(strategy.streams(after: nil, limit: 10)).to eq([stream])
         expect(strategy.plan(stream, now: Time.now.utc, sweep_before: far_future).to_mark).to eq(1)
+        strategy.mark(strategy.plan(stream, now: Time.now.utc, sweep_before: far_future), 10, now: long_ago)
+        expect(strategy.plan(stream, now: Time.now.utc, sweep_before: far_future, purge: true).to_purge).to eq(1)
+        expect(strategy.purge(stream, 10, before: far_future)).to eq([1, 1])
       end
     end
   end

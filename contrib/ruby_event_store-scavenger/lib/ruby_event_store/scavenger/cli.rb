@@ -17,11 +17,16 @@ module RubyEventStore
         "POLICY" => "--policy",
         "SERIALIZER" => "--serializer",
       }.freeze
-      ENV_FLAGS = { "EXECUTE" => "--execute", "FORCE" => "--force" }.freeze
+      ENV_FLAGS = {
+        "EXECUTE" => "--execute",
+        "FORCE" => "--force",
+        "I_UNDERSTAND_GLOBAL_POSITION_GAPS" => "--i-understand-global-position-gaps",
+      }.freeze
       COMMANDS = { [] => :scavenge, %w[run] => :scavenge, %w[status] => :status }.freeze
 
-      # Command line of the rake task: EXECUTE=1, FORCE=1, GRACE_PERIOD, BATCH_SIZE, MAX_DURATION,
-      # THROTTLE, POLICY, SERIALIZER and STREAMS (names separated by commas).
+      # Command line of the rake task: EXECUTE=1, FORCE=1, I_UNDERSTAND_GLOBAL_POSITION_GAPS=1,
+      # GRACE_PERIOD, BATCH_SIZE, MAX_DURATION, THROTTLE, POLICY, SERIALIZER and STREAMS (names
+      # separated by commas).
       def self.argv_from_env(env)
         flags = ENV_FLAGS.filter_map { |name, flag| flag if %w[1 true].include?(env[name]) }
         options = ENV_OPTIONS.flat_map { |name, option| env.key?(name) ? [option, env.fetch(name)] : [] }
@@ -80,7 +85,13 @@ module RubyEventStore
             o.on("--throttle SECONDS", Float, "Sleep between batches (default: 0)") do |seconds|
               runner[:throttle] = seconds
             end
-            o.on("--policy NAME", "links_only (default)") { |name| runner[:policy] = name }
+            o.on("--policy NAME", "links_only (default) or purge, which also removes events") do |name|
+              runner[:policy] = name
+            end
+            o.on(
+              "--i-understand-global-position-gaps",
+              "Confirm policy purge: removed events leave gaps in global positions",
+            ) { runner[:confirm] = Runner::PURGE_CONFIRMATION }
             o.on("--stream NAME", "Only this stream; may be repeated") do |name|
               (runner[:streams] = Array(runner[:streams])) << name
             end
@@ -110,15 +121,21 @@ module RubyEventStore
 
       def render(report)
         return "Another scavenger run holds the lock; nothing done." if report.outcome.equal?(:locked)
-        mark, sweep = report.dry_run ? ["to mark", "to sweep"] : %w[marked swept]
         header = report.dry_run ? "Dry run, nothing changed." : "Scavenged."
         lines = ["#{header} Policy: #{report.policy}. Outcome: #{report.outcome}."]
         report.streams.each do |result|
           reasons = " (#{result.reasons.join(", ")})" unless result.reasons.empty?
-          lines << "#{result.stream.name}: #{mark} #{result.marked}, #{sweep} #{result.swept}#{reasons}"
+          lines << "#{result.stream.name}: #{counts(report, result)}#{reasons}"
         end
-        lines << "Total: #{mark} #{report.marked}, #{sweep} #{report.swept}."
+        lines << "Total: #{counts(report, report)}."
         lines.join("\n")
+      end
+
+      # Counts of a stream result or of the whole report; what was purged only with policy purge.
+      def counts(report, result)
+        mark, sweep, purge = report.dry_run ? ["to mark", "to sweep", "to purge"] : %w[marked swept purged]
+        purged = ", #{purge} #{result.purged}" if report.policy.purge?
+        "#{mark} #{result.marked}, #{sweep} #{result.swept}#{purged}"
       end
     end
   end

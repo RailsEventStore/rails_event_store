@@ -8,6 +8,7 @@ module RubyEventStore
     # A scavenger run as a job, for setups without cron. A dry run unless execute: true.
     #
     #   RubyEventStore::Scavenger::Job.perform_later(execute: true, serializer: "json")
+    #   RubyEventStore::Scavenger::Job.perform_later(policy: "purge", confirm: :i_understand_global_position_gaps)
     #
     # The worker that performs it needs RES_SCAVENGER in its environment: run it in a worker
     # process of its own, on a queue no other worker takes.

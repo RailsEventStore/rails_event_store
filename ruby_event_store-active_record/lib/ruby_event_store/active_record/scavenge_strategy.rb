@@ -10,7 +10,9 @@ module RubyEventStore
     # sets truncated_at on the rows up to a row id, SWEEP deletes rows marked before a cutoff.
     # A batch selects row ids first and then writes them with one statement that checks the
     # state again, so an entry marked or shown again in between is left alone. The ids are
-    # selected apart because MySQL takes no LIMIT in a subquery of IN.
+    # selected apart because MySQL takes no LIMIT in a subquery of IN. PURGE deletes the rows
+    # of a batch, then, in the same transaction, the rows of event_store_events no row of
+    # event_store_events_in_streams points to any more, so the foreign key on event_id holds.
     class ScavengeStrategy
       def initialize(model_factory: WithDefaultModels.new)
         @model_factory = model_factory
@@ -22,15 +24,17 @@ module RubyEventStore
         scope.pluck(:stream).map { |name| Stream.new(name) }
       end
 
-      def plan(stream, now:, sweep_before:)
+      def plan(stream, now:, sweep_before:, purge: false)
         boundaries = boundaries(stream, now)
         boundary = boundaries.values.max
+        sweepable = sweepable(stream, sweep_before)
         Scavenger::Plan.new(
           stream: stream,
           boundary: boundary,
           reasons: boundaries.keys,
           to_mark: count(markable(stream, boundary)),
-          to_sweep: count(sweepable(stream, sweep_before)),
+          to_sweep: count(sweepable),
+          to_purge: purge ? count(sweepable.where(linked_elsewhere(stream).exists.not)) : 0,
         )
       end
 
@@ -41,7 +45,15 @@ module RubyEventStore
 
       def sweep(stream, batch_size, before:)
         ids = sweepable(stream, before).order(id: :asc).limit(batch_size).pluck(:id)
-        stream_klass.where(id: ids).where(stream_table[:truncated_at].lt(before)).delete_all
+        delete_swept(ids, before)
+      end
+
+      def purge(stream, batch_size, before:)
+        stream_klass.transaction do
+          rows = sweepable(stream, before).order(id: :asc).limit(batch_size).pluck(:id, :event_id)
+          links = delete_swept(rows.map(&:first), before)
+          [links, event_klass.where(event_id: rows.map(&:last)).where(links_to_event.exists.not).delete_all]
+        end
       end
 
       private
@@ -54,6 +66,24 @@ module RubyEventStore
           :max_count => (visible(stream).order(id: :desc).offset(max_count).pick(:id) if max_count),
           :max_age => (visible(stream).where(stream_table[:created_at].lt(now - max_age)).maximum(:id) if max_age),
         }.compact
+      end
+
+      def delete_swept(ids, before)
+        stream_klass.where(id: ids).where(stream_table[:truncated_at].lt(before)).delete_all
+      end
+
+      # Rows linking the event of a row of the stream to another stream.
+      def linked_elsewhere(stream)
+        others = stream_table.alias("others")
+        Arel::SelectManager
+          .new(others)
+          .project(others[:id])
+          .where(others[:event_id].eq(stream_table[:event_id]).and(others[:stream].not_eq(stream.name)))
+      end
+
+      # Rows linking the event of a row of event_store_events to any stream.
+      def links_to_event
+        stream_table.project(stream_table[:id]).where(stream_table[:event_id].eq(event_klass.arel_table[:event_id]))
       end
 
       def visible(stream)
@@ -84,8 +114,16 @@ module RubyEventStore
         entries.where.not(position: nil).order(position: :desc).pick(:id) || entries.maximum(:id)
       end
 
+      def event_klass
+        model_klasses.first
+      end
+
       def stream_klass
-        @stream_klass ||= @model_factory.call.last
+        model_klasses.last
+      end
+
+      def model_klasses
+        @model_klasses ||= @model_factory.call
       end
 
       def stream_table

@@ -17,7 +17,7 @@
 #     Streams with metadata, ordered by name, at most limit of them, those with a name
 #     greater than after (every one when after is nil). Meta streams are never listed.
 #
-#   plan(stream, now:, sweep_before:) => Scavenger::Plan
+#   plan(stream, now:, sweep_before:, purge: false) => Scavenger::Plan
 #     Changes nothing. The boundary is the furthest of:
 #       truncate_before / soft_delete - the hide boundary recorded by truncate_stream /
 #                                       soft_delete_stream (marking interrupted midway is
@@ -27,7 +27,9 @@
 #                                       now - max_age (link time, not the event's timestamp)
 #     A tombstone hides nothing. to_mark counts visible entries up to the boundary; to_sweep
 #     counts hidden entries marked before sweep_before, leaving out the position anchor and
-#     the tombstone sentinel.
+#     the tombstone sentinel. With purge: true to_purge counts the events of those entries
+#     that no other stream links to (0 otherwise); an event linked from several streams that
+#     are all due to be swept is counted for none of them, as only the last sweep removes it.
 #
 #   mark(plan, batch_size, now:) => Integer
 #     Hides at most batch_size visible entries of plan.stream up to plan.boundary, oldest
@@ -40,6 +42,15 @@
 #     the highest position, the newest entry when entries have no position) or the tombstone
 #     sentinel, so the last stream version and the tombstone survive a full sweep. Events stay
 #     in the global stream. Returns how many it removed; 0 when none is left.
+#
+#   purge(stream, batch_size, before:) => [Integer, Integer]
+#     Removes links as sweep does, then, in the same transaction, each event of a removed link
+#     that no stream links to any more (checked per event). Links go first, so a foreign key
+#     from links to events holds. Leaves gaps in global positions. Never removes an event that
+#     a link still points to: the position anchor's, the tombstone sentinel's, the metadata
+#     events of meta streams, an event linked to another stream; nor an event whose last link
+#     was removed before (by sweep or delete_stream) or that was never linked. Returns how many
+#     links and how many events it removed; [0, 0] when no link is left to remove.
 #
 # Every call is idempotent on the state it finds: repeating a run after an interruption
 # finishes it.
@@ -100,8 +111,12 @@ module RubyEventStore
       nil until repository.unmark_truncated(stream, 100).zero?
     end
 
-    def plan(stream, now: Time.now.utc, sweep_before: Time.now.utc)
-      strategy.plan(stream, now: now, sweep_before: sweep_before)
+    def plan(stream, now: Time.now.utc, sweep_before: Time.now.utc, purge: false)
+      strategy.plan(stream, now: now, sweep_before: sweep_before, purge: purge)
+    end
+
+    def to_purge(stream, sweep_before: far_future)
+      plan(stream, sweep_before: sweep_before, purge: true).to_purge
     end
 
     def mark(stream, now: Time.now.utc)
@@ -119,6 +134,22 @@ module RubyEventStore
         swept += batch
       end
       swept
+    end
+
+    def purge(stream, before: far_future)
+      removed = [0, 0]
+      until (batch = strategy.purge(stream, 100, before: before)).first.zero?
+        removed = removed.zip(batch).map(&:sum)
+      end
+      removed
+    end
+
+    def link(event_ids, stream)
+      repository.link_to_stream(event_ids, stream, ExpectedVersion.auto)
+    end
+
+    def events?(event_ids)
+      event_ids.map { |event_id| repository.has_event?(event_id) }
     end
 
     def read_ids(stream)
@@ -180,8 +211,9 @@ module RubyEventStore
         append(stream, 2)
 
         expect(plan(stream)).to eq(
-          Scavenger::Plan.new(stream: stream, boundary: nil, reasons: [], to_mark: 0, to_sweep: 0),
+          Scavenger::Plan.new(stream: stream, boundary: nil, reasons: [], to_mark: 0, to_sweep: 0, to_purge: 0),
         )
+        expect(plan(stream, purge: true)).to eq(plan(stream))
       end
 
       specify "of a stream with retention that holds nothing to hide" do
@@ -378,6 +410,66 @@ module RubyEventStore
         mark_truncated(stream)
 
         expect(plan(stream, sweep_before: far_future).to_sweep).to eq(3)
+      end
+
+      specify "counts no events to purge without purge" do
+        append(stream, 4)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        expect(strategy.plan(stream, now: Time.now.utc, sweep_before: far_future).to_purge).to eq(0)
+      end
+
+      specify "counts the events of entries to sweep to purge" do
+        append(stream, 4)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        expect(to_purge(stream)).to eq(3)
+        expect(plan(stream, sweep_before: far_future, purge: true).to_sweep).to eq(3)
+      end
+
+      specify "counts no events of entries marked after sweep_before to purge" do
+        append(stream, 4)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        expect(to_purge(stream, sweep_before: Time.now.utc - 3600)).to eq(0)
+      end
+
+      specify "counts no event another stream links to to purge" do
+        event_ids = append(stream, 4)
+        link(event_ids.take(2), other_stream)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        expect(to_purge(stream)).to eq(1)
+      end
+
+      specify "counts no event of a visible entry to purge" do
+        append(stream, 4)
+        retain(stream, max_count: 5)
+
+        expect(to_purge(stream)).to eq(0)
+      end
+
+      specify "counts no event of the tombstone sentinel to purge" do
+        append(stream, 2)
+        tombstone(stream)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        expect(to_purge(stream)).to eq(2)
+      end
+
+      specify "counts events to purge of the given stream only" do
+        append(stream, 2)
+        append(other_stream, 3)
+        soft_delete(other_stream)
+        mark_truncated(other_stream)
+
+        expect(to_purge(stream)).to eq(0)
+        expect(to_purge(other_stream)).to eq(2)
       end
 
       specify "plans only the given stream" do
@@ -665,6 +757,179 @@ module RubyEventStore
         mark_truncated(stream)
 
         expect(sweep(stream)).to eq(2)
+      end
+    end
+
+    describe "purge" do
+      specify "removes links, then their events, in batches, oldest first" do
+        event_ids = append(stream, 6)
+        retain(stream, max_count: 1)
+        mark(stream)
+
+        expect(strategy.purge(stream, 2, before: far_future)).to eq([2, 2])
+        expect(events?(event_ids)).to eq([false, false, true, true, true, true])
+        expect(to_purge(stream)).to eq(3)
+        expect(strategy.purge(stream, 2, before: far_future)).to eq([2, 2])
+        expect(strategy.purge(stream, 2, before: far_future)).to eq([1, 1])
+        expect(strategy.purge(stream, 2, before: far_future)).to eq([0, 0])
+        expect(events?(event_ids)).to eq([false] * 5 + [true])
+      end
+
+      specify "removes the events from the global stream" do
+        event_ids = append(stream, 3)
+        kept = append(other_stream, 1)
+        retain(stream, max_count: 1)
+        mark(stream)
+
+        purge(stream)
+
+        expect(global_ids & (event_ids + kept)).to eq(event_ids.last(1) + kept)
+      end
+
+      specify "removes what plan counted" do
+        event_ids = append(stream, 5)
+        link(event_ids.take(1), other_stream)
+        soft_delete(stream)
+        mark_truncated(stream)
+        planned = plan(stream, sweep_before: far_future, purge: true)
+
+        expect(purge(stream)).to eq([planned.to_sweep, planned.to_purge])
+        expect(purge(stream)).to eq([0, 0])
+      end
+
+      specify "keeps an event another stream links to" do
+        event_ids = append(stream, 3)
+        link(event_ids.take(1), other_stream)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        expect(purge(stream)).to eq([2, 1])
+        expect(events?(event_ids)).to eq([true, false, true])
+        expect(read_ids(other_stream)).to eq(event_ids.take(1))
+      end
+
+      specify "removes an event once its last link is purged" do
+        event_ids = append(stream, 3)
+        link(event_ids.take(1), other_stream)
+        append(other_stream, 1)
+        soft_delete(stream)
+        soft_delete(other_stream)
+        mark_truncated(stream)
+        mark_truncated(other_stream)
+
+        expect(purge(stream)).to eq([2, 1])
+        expect(purge(other_stream)).to eq([1, 1])
+        expect(events?(event_ids)).to eq([false, false, true])
+      end
+
+      specify "keeps the position anchor and its event" do
+        event_ids = append(stream, 3)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        expect(purge(stream)).to eq([2, 2])
+        expect(events?(event_ids)).to eq([false, false, true])
+        expect(last_version_and_tombstone(stream)).to eq([2, false])
+
+        restore(stream)
+        expect(read_ids(stream)).to eq(event_ids.last(1))
+      end
+
+      specify "keeps the tombstone sentinel and its event" do
+        event_ids = append(stream, 3)
+        tombstoned = tombstone(stream)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        expect(purge(stream)).to eq([3, 3])
+        expect(events?(event_ids)).to eq([false] * 3)
+        expect(repository.has_event?(tombstoned.event_id)).to be(true)
+        expect(last_version_and_tombstone(stream)).to eq([3, true])
+      end
+
+      specify "keeps the metadata events" do
+        append(stream, 3)
+        metadata = [retain(stream, max_count: 1), soft_delete(stream)]
+        mark(stream)
+        mark_truncated(stream)
+
+        purge(stream)
+
+        expect(events?(metadata.map(&:event_id))).to eq([true, true])
+        expect(read_ids(StreamMetadata.meta_stream(stream))).to eq(metadata.map(&:event_id))
+      end
+
+      specify "keeps an event whose last link was swept before" do
+        event_ids = append(stream, 3)
+        soft_delete(stream)
+        mark_truncated(stream)
+        sweep(stream)
+
+        expect(purge(stream)).to eq([0, 0])
+        expect(events?(event_ids)).to eq([true, true, true])
+      end
+
+      specify "keeps events never linked to a stream" do
+        global = append(Stream.new(GLOBAL_STREAM), 2, ExpectedVersion.any)
+        append(stream, 3)
+        soft_delete(stream)
+        mark_truncated(stream)
+
+        purge(stream)
+
+        expect(events?(global)).to eq([true, true])
+      end
+
+      specify "removes nothing marked at or after the cutoff" do
+        event_ids = append(stream, 3)
+        retain(stream, max_count: 1)
+        marked_at = Time.now.utc.round(TIMESTAMP_PRECISION)
+        mark(stream, now: marked_at)
+
+        expect(purge(stream, before: marked_at)).to eq([0, 0])
+        expect(strategy.purge(stream, 10, before: marked_at + 1)).to eq([2, 2])
+        expect(events?(event_ids)).to eq([false, false, true])
+      end
+
+      specify "never removes a visible entry or its event" do
+        event_ids = append(stream, 3)
+        retain(stream, max_count: 5)
+
+        expect(purge(stream)).to eq([0, 0])
+        expect(read_ids(stream)).to eq(event_ids)
+      end
+
+      specify "never removes an entry shown again by restore" do
+        event_ids = append(stream, 3)
+        retain(stream, max_count: 1)
+        mark(stream)
+        write(StreamMetadataEvents::StreamMetadataChanged, stream, max_count: nil, max_age: nil)
+        restore(stream)
+
+        expect(purge(stream)).to eq([0, 0])
+        expect(read_ids(stream)).to eq(event_ids)
+      end
+
+      specify "purges only the given stream" do
+        append(stream, 3)
+        other = append(other_stream, 3)
+        retain(stream, max_count: 1)
+        retain(other_stream, max_count: 1)
+        mark(stream)
+        mark(other_stream)
+
+        expect(purge(stream)).to eq([2, 2])
+        expect(events?(other)).to eq([true] * 3)
+        expect(to_purge(other_stream)).to eq(2)
+      end
+
+      specify "is idempotent" do
+        append(stream, 3)
+        retain(stream, max_count: 1)
+        mark(stream)
+
+        expect(purge(stream)).to eq([2, 2])
+        expect(purge(stream)).to eq([0, 0])
       end
     end
   end
