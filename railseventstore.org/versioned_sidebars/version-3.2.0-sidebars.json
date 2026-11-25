@@ -54,6 +54,7 @@
         "advanced-topics/migrating-existing-events",
         "advanced-topics/without-rails",
         "advanced-topics/outbox",
+        "advanced-topics/outbox-relay",
         "advanced-topics/protobuf.html"
       ]
     },
