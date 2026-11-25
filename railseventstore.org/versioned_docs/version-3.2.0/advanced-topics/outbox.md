@@ -5,6 +5,8 @@ sidebar_label: Outbox
 
 The `ruby_event_store-outbox` gem provides a way to enqueue background jobs transactionally. Instead of writing to Redis directly inside your transaction (which can leave jobs enqueued for events that later roll back), the scheduler writes the job into the same database table within the same transaction. A separate `res_outbox` process then drains that table to your background jobs tool.
 
+Looking for something that dispatches events directly instead of enqueuing background jobs? See [Transactional outbox relay](/docs/advanced-topics/outbox-relay).
+
 ## Installation (app)
 
 Add to your Gemfile:
