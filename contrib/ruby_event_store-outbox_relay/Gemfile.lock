@@ -32,7 +32,7 @@ PATH
 PATH
   remote: .
   specs:
-    ruby_event_store-outbox_relay (1.0.0)
+    ruby_event_store-outbox_relay (0.1.0)
       activejob (>= 7.1, < 9)
       activerecord (>= 7.1)
       ruby_event_store (>= 3.0.0, < 4)
@@ -413,7 +413,7 @@ CHECKSUMS
   ruby_event_store (3.2.0)
   ruby_event_store-active_record (3.2.0)
   ruby_event_store-browser (3.2.0)
-  ruby_event_store-outbox_relay (1.0.0)
+  ruby_event_store-outbox_relay (0.1.0)
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   sorbet-runtime (0.6.13341) sha256=b1dfbf0e08ba4a684b5e5e8468c486aa1fea20dfd862502f3b7f80f5da2b4c90
   sqlite3 (2.9.5-aarch64-linux-gnu) sha256=78075b6337d3d182c6d2b4691049ed45cd220826160c9ea18946bf6a1de200dc
