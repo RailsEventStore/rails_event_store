@@ -1006,6 +1006,47 @@ module RubyEventStore
       expect(event.event_id).to eq("8d69cc2b-c6c5-4494-99f6-954c7f583477")
     end
 
+    specify "custom resolver output differing from event.event_type still routes published events to subscribers" do
+      received = []
+      resolver = ->(klass) { "prefixed.#{klass}" }
+      client = Client.new(event_type_resolver: resolver)
+      client.subscribe(to: [OrderCreated]) { |event| received << event }
+
+      client.publish(order_created = OrderCreated.new)
+
+      expect(received).to eq([order_created])
+    end
+
+    specify "dispatch still routes by metadata[:event_type] when it differs from resolver output" do
+      received = []
+      client.subscribe(to: ["Some.Other.Type"]) { |event| received << event }
+
+      order_created = OrderCreated.new(metadata: { event_type: "Some.Other.Type" })
+      silence_warnings { client.publish(order_created) }
+
+      expect(received).to eq([order_created])
+    end
+
+    specify "dispatch by metadata[:event_type] is deprecated" do
+      expect { client.publish(OrderCreated.new(metadata: { event_type: "Some.Other.Type" })) }.to output(
+        a_string_including("[DEPRECATION] Dispatching published events by metadata[:event_type] has been deprecated."),
+      ).to_stderr
+    end
+
+    specify "dispatch by metadata[:event_type] deprecation is emitted under a suppressible key" do
+      Deprecations.suppress(:ruby_client_metadata_event_type_routing)
+
+      expect { client.publish(OrderCreated.new(metadata: { event_type: "Some.Other.Type" })) }.not_to output.to_stderr
+    end
+
+    specify "no deprecation when metadata[:event_type] matches resolver output" do
+      expect { client.publish(OrderCreated.new(metadata: { event_type: "OrderCreated" })) }.not_to output.to_stderr
+    end
+
+    specify "no deprecation when metadata[:event_type] is absent" do
+      expect { client.publish(OrderCreated.new) }.not_to output.to_stderr
+    end
+
     describe "#position_in_stream" do
       specify do
         client.publish(fact0 = OrderCreated.new, expected_version: :auto, stream_name: "SomeStream")
