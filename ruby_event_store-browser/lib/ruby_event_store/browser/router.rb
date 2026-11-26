@@ -30,7 +30,7 @@ module RubyEventStore
         private
 
         def regexp
-          /\A#{pattern.gsub(NAMED_SEGMENTS_PATTERN, '/\1(?<\2>[^$/]+)')}\Z/
+          /\A#{pattern.gsub(NAMED_SEGMENTS_PATTERN, '/\1(?<\2>[^/]+)')}\Z/
         end
 
         attr_reader :request_method, :pattern, :handler

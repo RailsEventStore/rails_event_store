@@ -22,6 +22,7 @@
         "core-concepts/read",
         "core-concepts/link",
         "core-concepts/delete",
+        "core-concepts/stream-deletion-and-retention",
         "core-concepts/pubsub",
         "core-concepts/event-sourcing",
         "core-concepts/expected-version",

@@ -1,0 +1,34 @@
+<section class="pt-3 space-y-2" data-stream-metadata>
+  <% if metadata.soft_deleted? || metadata.tombstoned? -%>
+    <div class="flex gap-2">
+      <% if metadata.soft_deleted? -%>
+        <span class="inline-block px-2 py-1 text-xs font-bold text-gray-700 uppercase bg-gray-200 border border-gray-400 rounded" data-badge="deleted" title="Soft deleted: the entries are hidden from reads of this stream">deleted</span>
+      <% end -%>
+      <% if metadata.tombstoned? -%>
+        <span class="inline-block px-2 py-1 text-xs font-bold text-red-700 uppercase bg-red-50 border border-red-700 rounded" data-badge="tombstoned" title="Tombstoned: the stream is closed for writes">tombstoned</span>
+      <% end -%>
+    </div>
+  <% end -%>
+  <dl class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm">
+    <% unless metadata.max_count.nil? -%>
+      <dt class="text-gray-500">Max count</dt>
+      <dd class="font-mono font-bold" data-metadata="max_count"><%= metadata.max_count %></dd>
+    <% end -%>
+    <% unless metadata.max_age.nil? -%>
+      <dt class="text-gray-500">Max age</dt>
+      <dd class="font-mono font-bold" data-metadata="max_age"><%= metadata.max_age %> s</dd>
+    <% end -%>
+    <% unless metadata.truncate_before.nil? -%>
+      <dt class="text-gray-500">Truncated before position</dt>
+      <dd class="font-mono font-bold" data-metadata="truncate_before"><%= metadata.truncate_before %></dd>
+    <% end -%>
+    <% unless metadata.soft_deleted_at.nil? -%>
+      <dt class="text-gray-500">Soft deleted at</dt>
+      <dd class="font-mono font-bold" data-metadata="soft_deleted_at" data-timezone-target="time" data-iso="<%= metadata.soft_deleted_at.utc.iso8601(6) %>" title="UTC"><%= metadata.soft_deleted_at.utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></dd>
+    <% end -%>
+    <% unless metadata.tombstoned_at.nil? -%>
+      <dt class="text-gray-500">Tombstoned at</dt>
+      <dd class="font-mono font-bold" data-metadata="tombstoned_at" data-timezone-target="time" data-iso="<%= metadata.tombstoned_at.utc.iso8601(6) %>" title="UTC"><%= metadata.tombstoned_at.utc.strftime("%Y-%m-%dT%H:%M:%S.%3N") %></dd>
+    <% end -%>
+  </dl>
+</section>

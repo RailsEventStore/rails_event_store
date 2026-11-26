@@ -22,6 +22,9 @@
   </button>
   <% end -%>
 
+  <% if stream_metadata -%>
+    <%= render("streams/_metadata", metadata: stream_metadata) %>
+  <% end -%>
   <% links = [*extension_links].compact -%>
   <% if links.any? -%>
     <div class="flex gap-2 pt-3">

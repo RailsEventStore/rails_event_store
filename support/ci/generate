@@ -307,6 +307,21 @@ class CI
       contrib_test("ruby_event_store-mcp"),
       contrib_mutate("ruby_event_store-mcp"),
       contrib_coverage("ruby_event_store-mcp"),
+      contrib_test(
+        "ruby_event_store-scavenger",
+        services: [postgres_14, postgres_18, mysql_8_4, mysql_9_7],
+        matrix:
+          sparse(
+            sparse(ruby_version(MRI_RUBY), bundle_gemfile(GEMFILE)),
+            union(
+              sparse(database_url(SQLITE3), data_type(DATA_TYPES_IN_AR.take(1))),
+              sparse(database_url(POSTGRES), data_type(DATA_TYPES_IN_AR)),
+              sparse(database_url(MYSQL), data_type(DATA_TYPES_IN_AR.take(2))),
+            ),
+          ),
+      ),
+      contrib_mutate("ruby_event_store-scavenger"),
+      contrib_coverage("ruby_event_store-scavenger"),
       devenv_setup_test,
     ]
   end

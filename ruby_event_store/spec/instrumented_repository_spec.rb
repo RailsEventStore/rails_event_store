@@ -60,6 +60,18 @@ module RubyEventStore
         expect(some_repository).to have_received(:delete_stream).with("SomeStream")
       end
 
+      specify "passes keyword arguments and block" do
+        some_repository = Object.new
+        def some_repository.delete_stream(stream, **keyword_arguments, &block)
+          [stream, keyword_arguments, block.call]
+        end
+        instrumented_repository = InstrumentedRepository.new(some_repository, ActiveSupport::Notifications)
+
+        expect(instrumented_repository.delete_stream("SomeStream", metadata: { a: 1 }) { :block }).to eq(
+          ["SomeStream", { metadata: { a: 1 } }, :block],
+        )
+      end
+
       specify "instruments" do
         instrumented_repository = InstrumentedRepository.new(spy, ActiveSupport::Notifications)
         subscribe_to("delete_stream.repository.ruby_event_store") do |notification_calls|

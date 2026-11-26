@@ -1,0 +1,24 @@
+# frozen_string_literal: true
+
+class AddTruncatedAtToEventStoreEventsInStreams < ActiveRecord::Migration[<%= migration_version %>]
+  def up
+    add_column :event_store_events_in_streams, :truncated_at, :datetime, null: true, precision: 6, if_not_exists: true
+    add_index :event_store_events_in_streams, [:stream, :id],
+              name: "index_event_store_events_in_streams_on_stream_and_id_visible",
+              where: "truncated_at IS NULL",
+              if_not_exists: true
+    remove_index :event_store_events_in_streams,
+                 name: "index_event_store_events_in_streams_on_stream_and_id",
+                 if_exists: true
+  end
+
+  def down
+    add_index :event_store_events_in_streams, [:stream, :id],
+              name: "index_event_store_events_in_streams_on_stream_and_id",
+              if_not_exists: true
+    remove_index :event_store_events_in_streams,
+                 name: "index_event_store_events_in_streams_on_stream_and_id_visible",
+                 if_exists: true
+    remove_column :event_store_events_in_streams, :truncated_at, if_exists: true
+  end
+end

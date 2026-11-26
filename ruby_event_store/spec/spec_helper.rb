@@ -37,6 +37,10 @@ module RubyEventStore
 
     def connection_pool_size
     end
+
+    def with_transaction
+      yield
+    end
   end
 end
 

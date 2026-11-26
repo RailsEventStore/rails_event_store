@@ -21,9 +21,9 @@ module RubyEventStore
       end
     end
 
-    def delete_stream(stream)
+    def delete_stream(stream, **keyword_arguments, &block)
       instrumentation.instrument("delete_stream.repository.ruby_event_store", stream: stream) do
-        repository.delete_stream(stream)
+        repository.delete_stream(stream, **keyword_arguments, &block)
       end
     end
 

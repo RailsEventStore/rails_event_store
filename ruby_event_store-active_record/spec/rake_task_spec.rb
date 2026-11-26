@@ -33,6 +33,28 @@ module RubyEventStore
         end
       end
 
+      specify "truncated_at migration" do
+        Rake::Task["db:migrations:add_truncated_at"].reenable
+        with_custom_directory do |dir|
+          SilenceStdout.silence_stdout { Rake::Task["db:migrations:add_truncated_at"].invoke }
+
+          path = File.join(dir, "20221130213700_add_truncated_at_to_event_store_events_in_streams.rb")
+          expect(File).to exist(File.join(File.expand_path("../../", __FILE__), path))
+          expect(File.read(File.join(File.expand_path("../../", __FILE__), path))).to include("algorithm: :concurrently")
+        end
+      end
+
+      specify "streams metadata migration" do
+        Rake::Task["db:migrations:add_streams_metadata"].reenable
+        with_custom_directory do |dir|
+          SilenceStdout.silence_stdout { Rake::Task["db:migrations:add_streams_metadata"].invoke }
+
+          expect(File).to exist(
+            File.join(File.expand_path("../../", __FILE__), dir, "20221130213700_create_event_store_streams_metadata.rb"),
+          )
+        end
+      end
+
       def expect_migration_file_in_directory(directory)
         expect(File).to exist(
           File.join(File.expand_path("../../", __FILE__), directory, "20221130213700_create_event_store_events.rb"),

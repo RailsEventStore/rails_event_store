@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "ruby_event_store/spec/event_repository_lint"
+require "ruby_event_store/spec/stream_metadata_lint"
 
 module RubyEventStore
   ::RSpec.describe InMemoryRepository do
@@ -9,6 +10,7 @@ module RubyEventStore
     mk_repository = -> { InMemoryRepository.new }
 
     it_behaves_like "event repository", mk_repository, helper
+    it_behaves_like "stream metadata", mk_repository, helper
 
     let(:repository) { mk_repository.call }
 
@@ -30,6 +32,32 @@ module RubyEventStore
           ExpectedVersion.new(0),
         )
       end.to raise_error(EventDuplicatedInStream)
+    end
+
+    specify "stream metadata operations wait for the lock" do
+      stream = Stream.new("some")
+      record =
+        Record.new(
+          event_id: SecureRandom.uuid,
+          event_type: StreamMetadataEvents::StreamSoftDeleted.name,
+          data: { "stream" => "some" },
+          metadata: {},
+          timestamp: Time.now.utc,
+          valid_at: Time.now.utc,
+        )
+      [
+        -> { repository.append_stream_metadata(record, stream, ExpectedVersion.any) },
+        -> { repository.mark_truncated(stream, 10) },
+        -> { repository.unmark_truncated(stream, 10) },
+      ].each do |operation|
+        thread = nil
+        repository.instance_variable_get(:@mutex).synchronize do
+          thread = Thread.new(&operation)
+          sleep 0.01 until thread.status.eql?("sleep") || !thread.alive?
+          expect(thread).to be_alive
+        end
+        thread.join
+      end
     end
 
     it "global position starts at 0" do
